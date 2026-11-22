@@ -37,10 +37,10 @@
 body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 var(--sans)}
 /* Tolima landscape behind everything, faint, so the panels and map stay the focus */
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 55%,transparent),color-mix(in srgb,var(--bg) 20%,transparent)),url(paisaje-tolima.jpg) center 65%/cover no-repeat;
-  opacity:var(--paisaje,.42);filter:saturate(.85)}
-@media (max-width:700px){body::before{background-image:linear-gradient(180deg,color-mix(in srgb,var(--bg) 55%,transparent),color-mix(in srgb,var(--bg) 20%,transparent)),url(paisaje-tolima-movil.jpg)}}
-@media (prefers-color-scheme: dark){:root{--paisaje:.22}}
+  background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 45%,transparent),color-mix(in srgb,var(--bg) 12%,transparent)),url(paisaje-tolima.jpg) center 65%/cover no-repeat;
+  opacity:var(--paisaje,.52);filter:saturate(.85)}
+@media (max-width:700px){body::before{background-image:linear-gradient(180deg,color-mix(in srgb,var(--bg) 45%,transparent),color-mix(in srgb,var(--bg) 12%,transparent)),url(paisaje-tolima-movil.jpg)}}
+@media (prefers-color-scheme: dark){:root{--paisaje:.28}}
 /* Cruz Roja colours: red header band, navy accents, white panels */
 header{background:var(--red);color:#fff;border-radius:12px;padding:14px 16px;border-bottom:5px solid var(--navy-dk);box-shadow:0 2px 8px #0002}
 header .sub,header .avail{color:#ffe3e6}
