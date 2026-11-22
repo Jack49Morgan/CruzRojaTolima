@@ -1,6 +1,6 @@
 {
- "name": "Estaciones IDEAM Tolima",
- "short_name": "IDEAM Tolima",
+ "name": "Sistema de Monitoreo Cruz Roja Seccional Tolima",
+ "short_name": "Cruz Roja Tolima",
  "lang": "es",
  "start_url": "./",
  "scope": "./",

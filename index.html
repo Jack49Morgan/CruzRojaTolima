@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Estaciones IDEAM Tolima</title>
+<title>Sistema de Monitoreo Cruz Roja Seccional Tolima</title>
 <meta name="description" content="Lluvia, temperatura, humedad, viento y nivel de ríos de las estaciones automáticas del IDEAM en el Tolima, casi en tiempo real.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png" type="image/png">
@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="IDEAM Tolima">
+<meta name="apple-mobile-web-app-title" content="Cruz Roja Tolima">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -81,6 +81,10 @@ th:first-child,td:first-child,th:nth-child(2),td:nth-child(2),th:nth-child(3),td
 tbody tr.offrow td{color:var(--muted)}
 .badtxt{color:var(--bad)}
 .eqm span{display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid #1b1b1b;box-shadow:0 0 0 1.5px #fff;font:600 10px/1 var(--mono);color:#1b1b1b}
+.leaflet-control-layers .lgrp{font:600 11px/1.2 var(--sans);text-transform:uppercase;letter-spacing:.04em;color:#c8102e;margin:8px 0 3px;padding-top:6px;border-top:1px solid #0002}
+.leaflet-control-layers .lgrp:first-child{border-top:0;padding-top:0;margin-top:2px}
+.eqctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-basis:100%}.eqctl input{font:inherit;font-size:12px;padding:1px 4px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg)}
+.eqctl .eqbtn[aria-pressed=true]{background:#c8102e;color:#fff;border-color:#c8102e}
 .eqbtn{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:999px;padding:2px 9px;font:inherit;font-size:12px;cursor:pointer}
 .xmark{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:var(--bad);color:#fff;font-size:9px;font-weight:700;margin-right:4px;vertical-align:-1px}
 .xmark.big{width:18px;height:18px;font-size:12px;border:2px solid #fff;box-shadow:0 0 0 1px #0006;margin:0}
@@ -230,8 +234,8 @@ h2 button.info{vertical-align:2px}
     <div class="brand">
       <img class="emblem" alt="Cruz Roja Colombiana, Seccional Tolima" src="data:image/jpeg;base64,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">
       <div>
-        <h1>Estaciones IDEAM · Tolima</h1>
-        <div class="sub">Observaciones de estaciones automáticas publicadas por el IDEAM en datos.gov.co</div>
+        <h1>Sistema de Monitoreo Cruz Roja Seccional Tolima</h1>
+        <div class="sub">Estaciones del IDEAM, sismos, movimientos en masa, satélite y pronósticos para el Tolima</div>
         <div class="avail" id="avail"></div>
       </div>
     </div>
@@ -1009,14 +1013,34 @@ function buildMovLayer(){
 }
 // Earthquakes M4+ in and around Tolima over the last year, from the USGS FDSN service.
 // (The SGC feed at archive.sgc.gov.co only answers its own website, so a browser page elsewhere cannot read it.)
-const EQ_URL = () => "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=4&orderby=time"
-  + "&minlatitude=2&maxlatitude=6.5&minlongitude=-77&maxlongitude=-73&starttime=" + new Date(Date.now() - 365*864e5).toISOString().slice(0, 10);
+// Date range chosen under the map (local dates, YYYY-MM-DD); defaults to the last 365 days
+const eqYmd = d => fmtLocal(d).slice(0, 10);
+const EQ_RANGE = {from: null, to: null};
+const EQ_URL = () => "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=4&orderby=time&limit=2000"
+  + "&minlatitude=2&maxlatitude=6.5&minlongitude=-77&maxlongitude=-73"
+  + "&starttime=" + EQ_RANGE.from + "T05:00:00&endtime=" + new Date(Date.parse(EQ_RANGE.to + "T05:00:00Z") + 864e5).toISOString().slice(0, 19);
 const eqAge = t => { const h = (Date.now() - t) / 36e5; return h < 24 ? ["#ffd21f", "últimas 24 h"] : h < 24*7 ? ["#ff8a3d", "última semana"] : h < 24*30 ? ["#c77dff", "último mes"] : ["#b0b7c3", "último año"]; };
 function buildEqLayer(){
   // each quake is a circle labelled with its magnitude (so close or stacked quakes can still be told apart),
   // plus a clickable list of the latest ones under the map
   const g = L.layerGroup(), box = document.getElementById("eqinfo"); let timer = null, marks = [];
+  EQ_RANGE.to = eqYmd(new Date()); EQ_RANGE.from = eqYmd(new Date(Date.now() - 365*864e5));
+  const PRE = [[30, "30 días"], [90, "3 meses"], [365, "1 año"], [365*5, "5 años"], [365*20, "20 años"]];
+  box.innerHTML = `<div class="eqctl"><b>Sismos M4+ · fechas:</b>
+    <label>desde <input type="date" id="eqfrom"></label><label>hasta <input type="date" id="eqto"></label>
+    ${PRE.map(([d, t]) => `<button type="button" class="eqbtn" data-eqd="${d}" aria-pressed="${d === 365}">${t}</button>`).join("")}</div><span class="eqlist"></span>`;
+  const fIn = box.querySelector("#eqfrom"), tIn = box.querySelector("#eqto"), list = box.querySelector(".eqlist");
+  const syncIn = () => { fIn.value = EQ_RANGE.from; tIn.value = EQ_RANGE.to; fIn.max = tIn.value; tIn.min = fIn.value; tIn.max = eqYmd(new Date()); };
+  syncIn();
+  const pressed = d => box.querySelectorAll("[data-eqd]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.eqd === d)));
+  box.addEventListener("click", e => { const b = e.target.closest("[data-eqd]"); if (!b) return;
+    EQ_RANGE.to = eqYmd(new Date()); EQ_RANGE.from = eqYmd(new Date(Date.now() - b.dataset.eqd*864e5)); pressed(+b.dataset.eqd); syncIn(); load(); });
+  for (const inp of [fIn, tIn]) inp.addEventListener("change", () => {
+    if (!fIn.value || !tIn.value || fIn.value > tIn.value) { syncIn(); return; }
+    EQ_RANGE.from = fIn.value; EQ_RANGE.to = tIn.value; pressed(-1); syncIn(); load(); });
+  const fmtD = s => s.split("-").reverse().join("/");
   async function load(){
+    list.innerHTML = "<span>Cargando sismos…</span>";
     try {
       const j = await (await fetch(EQ_URL())).json();
       g.clearLayers(); marks = [];
@@ -1033,10 +1057,10 @@ function buildEqLayer(){
           .addTo(g);
         marks.unshift([m, p, lat, lon]);
       }
-      box.innerHTML = `<span><b>Sismos M4+</b> en el último año: ${j.features.length}. Más recientes:</span>`
+      list.innerHTML = `<span>${j.features.length} ${j.features.length === 1 ? "sismo" : "sismos"} M4+ entre el ${fmtD(EQ_RANGE.from)} y el ${fmtD(EQ_RANGE.to)}${j.features.length >= 2000 ? " (se muestran los 2000 más recientes)" : ""}.${j.features.length ? " Más recientes:" : ""}</span>`
         + marks.slice(0, 6).map(([m, p], k) => `<button type="button" class="eqbtn" data-eq="${k}">M ${p.mag.toFixed(1)} · ${fmtLocal(new Date(p.time)).slice(5)} · ${esc((p.place || "").replace(/, Colombia$/, ""))}</button>`).join("");
       box.hidden = false;
-    } catch (e) { box.textContent = "No se pudieron cargar los sismos del USGS."; box.hidden = false; }
+    } catch (e) { list.textContent = "No se pudieron cargar los sismos del USGS."; box.hidden = false; }
   }
   box.addEventListener("click", e => { const b = e.target.closest("[data-eq]"); if (!b || !g._map) return;
     const [m, , lat, lon] = marks[+b.dataset.eq]; g._map.setView([lat, lon], Math.max(g._map.getZoom(), 10)); m.openPopup(); });
@@ -1406,14 +1430,15 @@ const INFO = {
     `<p>Estimación de cuántas personas viven en un área, con la malla de población <b>WorldPop 2020</b> (ajustada a las cifras de Naciones Unidas, celdas de 1 km agrupadas a unos 2.8 km), licencia CC BY 4.0.</p>
      <p>Para un incidente con límite se suma la población de la parte de cada celda que queda dentro del límite; para un incidente con solo un punto, la de 1 km a la redonda. Es una cifra aproximada para dimensionar la respuesta, no un censo: en áreas pequeñas o en el borde de un pueblo el error puede ser grande.</p>`],
   sismos: ["Sismos de magnitud 4 o más",
-    `<p>Sismos de magnitud 4.0 o mayor del último año en el Tolima y alrededores (unos 150 km a la redonda), según el catálogo del <b>Servicio Geológico de Estados Unidos (USGS)</b>, que se actualiza minutos después de cada sismo. La capa se revisa cada 10 minutos.</p>
+    `<p>Sismos de magnitud 4.0 o mayor en el Tolima y alrededores (unos 150 km a la redonda), según el catálogo del <b>Servicio Geológico de Estados Unidos (USGS)</b>, que se actualiza minutos después de cada sismo. La capa se revisa cada 10 minutos.</p>
+     <p><b>Fechas:</b> bajo el mapa puede elegir el periodo (desde / hasta) o usar los atajos de 30 días a 20 años. Por defecto muestra el último año.</p>
      <p>Cada círculo lleva escrita su magnitud y crece con ella. Bajo el mapa aparece la lista de los sismos más recientes; tóquelos para ir a cada uno. El color indica cuándo ocurrió: <span style="color:#e0b000">●</span> últimas 24 horas · <span style="color:#ff8a3d">●</span> última semana · <span style="color:#c77dff">●</span> último mes · <span style="color:#8a93a3">●</span> último año.</p>
      <p>La red oficial de Colombia es la del <b>Servicio Geológico Colombiano</b>. Su visor no permite que otras páginas lean sus datos, así que aquí se usa el USGS; la magnitud puede diferir unas décimas de la del SGC. Cada sismo tiene un enlace al <a href="https://www.sgc.gov.co/sismos" target="_blank" rel="noopener">visor de sismos del SGC</a>.</p>`],
   movmasa: ["Inventario de movimientos en masa (SGC)",
     `<p>Movimientos en masa registrados por el <b>Servicio Geológico Colombiano</b> en su Sistema de Información de Movimientos en Masa (SIMMA), solo los que caen dentro del Tolima (${MOVMASA.length} puntos de ${"6826"} en el archivo nacional).</p>
      <p>Cada punto es un evento inventariado, coloreado por tipo:
      <span style="color:#8d5524">●</span> deslizamiento · <span style="color:#e0a100">●</span> caída (de roca, detritos o tierra) · <span style="color:#00897b">●</span> flujo (de lodo, detritos o tierra, avalanchas) · <span style="color:#7cb342">●</span> reptación · <span style="color:#616161">●</span> otros (volcamiento, deformaciones).</p>
-     <p>Es un inventario histórico: muestra dónde ya ha habido movimientos, que suelen repetirse con lluvias fuertes, no alertas actuales. Toque un punto para ver tipo, subtipo, municipio y código SIMMA. Más información en <a href="https://simma.sgc.gov.co" target="_blank" rel="noopener">simma.sgc.gov.co</a>.</p>`],
+     <p>Es un inventario histórico: muestra dónde ya ha habido movimientos, que suelen repetirse con lluvias fuertes, no alertas actuales. Toque un punto para ver tipo, subtipo, municipio y código SIMMA. El archivo del inventario no trae la fecha de cada evento; la fecha se puede consultar con el código en el SIMMA. Más información en <a href="https://simma.sgc.gov.co" target="_blank" rel="noopener">simma.sgc.gov.co</a>.</p>`],
   camaras: ["Cámaras web de volcanes (SGC)",
     `<p>Imágenes en vivo de las cámaras que el <b>Servicio Geológico Colombiano</b> usa para vigilar el volcán Nevado del Ruiz (en el límite entre Caldas y Tolima) y el volcán Cerro Machín (Cajamarca, Tolima). Se actualizan cada pocos minutos.</p>
      <p>Toque un ícono de cámara para ver la última imagen; toque la imagen para abrirla en tamaño completo. Con nubes o de noche puede no verse nada. La posición de cada cámara en el mapa es aproximada, porque el SGC no publica sus coordenadas.</p>
@@ -1488,17 +1513,43 @@ function renderMap(){
       satOverlays[`${esc(o.name)} ${infoBtn(o.info, o.name)}`] = o.layer;
     }
     const camLayer = buildCamLayer();
-    const ctrl = L.control.layers(null, {"Municipios": mun, "Límite departamental": dep, "Estaciones (lluvia)": layer, "Alertas de nivel IDEAM": alertLayer,
-      [`Cámaras web de volcanes (SGC) ${infoBtn("camaras", "cámaras web")}`]: camLayer,
-      [`Movimientos en masa (SGC, ${MOVMASA.length}) ${infoBtn("movmasa", "movimientos en masa")}`]: buildMovLayer(),
-      [`Sismos M4+ del último año ${infoBtn("sismos", "sismos")}`]: buildEqLayer(),
-      [`Lluvia pronosticada 24 h por municipio ${infoBtn("pronostico", "pronóstico")}`]: buildFcLayer(TOLIMA_GEO.mun),
-      [`Caudal pronosticado del Magdalena (GloFAS) ${infoBtn("glofas", "caudales")}`]: buildFloodLayer(),
-      [`Veredas (DANE 2020) ${infoBtn("veredas", "veredas")}`]: buildVeredaLayer(mun),
-      [`Embalses: volumen útil (XM) ${infoBtn("embalses", "embalses")}`]: buildEmbLayer(),
-      [`Peligro de incendio, pronóstico (GWIS) ${infoBtn("fwi", "índice de incendio")}`]: buildFwiLayer(),
-      [`Focos de calor, 7 días (GWIS) ${infoBtn("focos", "focos de calor")}`]: buildHotspotLayer(), ...satOverlays},
-      {collapsed:true}).addTo(map);
+    // Layer list in four groups (Fronteras administrativas, Investigación, Clima actual, Pronósticos), plus Incidentes added later;
+    // a heading is drawn above the first layer of each group every time Leaflet redraws the list
+    const satL = k => [`${esc(SAT[k].name)} ${infoBtn(SAT[k].info, SAT[k].name)}`, SAT[k].layer];
+    const LAYER_GROUPS = [
+      ["Fronteras administrativas", [["Límite departamental", dep], ["Municipios", mun],
+        [`Veredas (DANE 2020) ${infoBtn("veredas", "veredas")}`, buildVeredaLayer(mun)]]],
+      ["Investigación", [
+        [`Sismos M4+ (elija las fechas) ${infoBtn("sismos", "sismos")}`, buildEqLayer()],
+        [`Movimientos en masa (SGC, ${MOVMASA.length}) ${infoBtn("movmasa", "movimientos en masa")}`, buildMovLayer()]]],
+      ["Clima actual", [["Estaciones (lluvia)", layer], ["Alertas de nivel IDEAM", alertLayer],
+        ...["radar", "glm", "cmorph", "ir", "geo", "imerg"].filter(k => SAT[k]).map(satL),
+        [`Embalses: volumen útil (XM) ${infoBtn("embalses", "embalses")}`, buildEmbLayer()],
+        [`Focos de calor, 7 días (GWIS) ${infoBtn("focos", "focos de calor")}`, buildHotspotLayer()],
+        [`Cámaras web de volcanes (SGC) ${infoBtn("camaras", "cámaras web")}`, camLayer]]],
+      ["Pronósticos", [
+        [`Lluvia pronosticada 24 h por municipio ${infoBtn("pronostico", "pronóstico")}`, buildFcLayer(TOLIMA_GEO.mun)],
+        [`Caudal pronosticado del Magdalena (GloFAS) ${infoBtn("glofas", "caudales")}`, buildFloodLayer()],
+        [`Peligro de incendio, pronóstico (GWIS) ${infoBtn("fwi", "índice de incendio")}`, buildFwiLayer()]]],
+    ];
+    const inGroup = new Set(LAYER_GROUPS.flatMap(([, ls]) => ls.map(([, l]) => l)));
+    for (const o of Object.values(SAT)) if (!inGroup.has(o.layer)) LAYER_GROUPS[2][1].push(satL(Object.keys(SAT).find(k => SAT[k] === o)));
+    const groupOf = new Map();
+    const overlays = {};
+    for (const [gname, ls] of LAYER_GROUPS) for (const [label, l] of ls) { overlays[label] = l; groupOf.set(L.stamp(l), gname); }
+    const ctrl = L.control.layers(null, overlays, {collapsed:true});
+    const baseUpdate = ctrl._update;
+    ctrl._update = function(){
+      const r = baseUpdate.apply(this, arguments);
+      let last = null;
+      for (const lab of [...this._overlaysList.children]) {
+        const inp = lab.querySelector("input"); if (!inp) continue;
+        const gname = groupOf.get(inp.layerId) || "Incidentes";
+        if (gname !== last) { const h = document.createElement("div"); h.className = "lgrp"; h.textContent = gname; lab.before(h); last = gname; }
+      }
+      return r;
+    };
+    ctrl.addTo(map);
     initIncidents(map, ctrl);
     const lg = L.control({position:"bottomleft"});
     lg.onAdd = () => { const d = L.DomUtil.create("div", "maplegend");
