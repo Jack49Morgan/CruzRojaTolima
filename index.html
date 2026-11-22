@@ -106,6 +106,13 @@ tbody tr.sel{background:var(--rain-soft);font-weight:600}
 .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:8px}
 .chart{position:relative;height:220px;min-width:0}
 .note{font-size:12px;color:var(--muted);max-width:90ch}
+.skpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:10px;margin-bottom:8px}
+.skpi{border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:8px;padding:8px 10px}
+.skpi b{display:block;font:600 22px/1.2 var(--mono);color:var(--fg)}
+.skpi.fa{border-left-color:var(--warn)}
+.stbl tbody tr{cursor:default} .stbl th{cursor:default}
+@media (max-width:700px){.stbl{font-size:12px}.stbl th,.stbl td{padding:5px 6px}.stbl th{white-space:normal}}
+.stbl th:nth-child(2),.stbl td:nth-child(2),.stbl th:nth-child(3),.stbl td:nth-child(3){text-align:right}
 .note a{color:var(--rain)}
 .err{color:var(--bad);font-weight:500}
 .leaflet-popup-content{font:13px/1.4 var(--sans)}
@@ -222,7 +229,7 @@ h2 button.info{vertical-align:2px}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .kpi{padding:8px 10px}.kpi .l{font-size:10.5px}.kpi .v{font-size:19px;margin-top:2px}.kpi .d{font-size:11px}
   th,td{padding:6px 5px}
-  th:nth-child(2),td:nth-child(2){display:none}
+  #tbl th:nth-child(2),#tbl td:nth-child(2){display:none}
   td:first-child{max-width:140px;overflow:hidden;text-overflow:ellipsis}
   td .icons{gap:1px} td .ic{width:13px;height:13px}
   .tablewrap{max-height:70vh}
@@ -299,6 +306,26 @@ h2 button.info{vertical-align:2px}
       </div>
     </div>
     <div class="inclist" id="inclist"><p class="sub">Cargando incidentes…</p></div>
+  </section>
+
+  <section class="panel" id="salud">
+    <div class="detail-head">
+      <h2>Salud pública: dengue y fiebre amarilla <button type="button" class="info" data-info="salud" aria-label="De dónde salen las cifras de salud">i</button></h2>
+      <span class="sub">Prueba</span>
+    </div>
+    <div class="sub" style="margin:2px 0 6px"><b>2026</b> · cifras de comunicados oficiales, copiadas a mano (no son descargables)</div>
+    <div class="skpis" id="skpis"></div>
+    <div class="sub" id="sbrote"></div>
+    <div class="sub" style="margin:14px 0 6px"><b>Histórico oficial SIVIGILA</b> (INS, datos abiertos; solo años cerrados) · <span id="ssub">Cargando…</span></div>
+    <div class="charts">
+      <div><div class="tablewrap"><table class="stbl" id="syear"><thead><tr><th>Año</th><th>Dengue</th><th>Dengue grave</th><th>Muertes por dengue</th><th>Fiebre amarilla</th></tr></thead><tbody></tbody></table></div></div>
+      <div><div class="sub">Casos de dengue por semana epidemiológica, Tolima</div><div class="chart"><canvas id="sweek"></canvas></div></div>
+    </div>
+    <div class="detail-head" style="margin-top:12px">
+      <div class="sub">Por municipio de ocurrencia</div>
+      <div class="hist-controls"><select id="syearsel" aria-label="Año"></select></div>
+    </div>
+    <div class="tablewrap" style="max-height:360px"><table class="stbl" id="smun"><thead><tr><th>Municipio</th><th>Dengue</th><th>Por 100.000 hab.</th><th>Dengue grave</th><th>Muertes por dengue</th><th>Fiebre amarilla</th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <section class="panel" id="detail">
@@ -1460,6 +1487,10 @@ function buildEmbLayer(){
   return g;
 }
 const INFO = {
+  salud: ["Dengue y fiebre amarilla",
+    `<p><b>2026:</b> el INS no publica todavía las cifras del año en curso como datos descargables; salen en su Boletín Epidemiológico Semanal (PDF) y en los tableros del Portal SIVIGILA. Por eso las cifras de 2026 de este panel se copian a mano de los comunicados de la <b>Secretaría de Salud del Tolima</b> y del <b>INS</b>, con su fecha de corte. No se actualizan solas.</p>
+     <p><b>Histórico:</b> se consulta en vivo el conjunto “SIVIGILA” del INS en <a href="https://www.datos.gov.co/d/wns8-p38i" target="_blank" rel="noopener">datos.gov.co (wns8-p38i)</a>: casos notificados por semana epidemiológica y municipio de ocurrencia. Solo trae años cerrados y validados (hoy, 2022 a 2024); cuando el INS agregue 2025 aparecerá aquí sin cambiar la página.</p>
+     <p>Dengue = eventos 210 (dengue con y sin signos de alarma) y 220 (dengue grave); muertes = evento 580 (mortalidad por dengue); fiebre amarilla = evento 310. La tasa por 100.000 habitantes usa la población GHS-POP 2025 del municipio, así que es aproximada.</p>`],
   embalses: ["Embalses (XM)",
     `<p>Volumen útil diario de los embalses del Tolima y de los vecinos que afectan sus ríos, según los datos abiertos de <b>XM</b>, el operador del sistema eléctrico colombiano: <b>Prado</b> (Tolima), <b>Amaní / Miel I</b> (Caldas, río La Miel) y <b>Betania</b> y <b>El Quimbo</b> (Huila, aguas arriba del Magdalena que pasa por el Tolima).</p>
      <p>El porcentaje es la parte del volumen útil que está llena; la flecha compara con hace 7 días y la curva muestra los últimos 30 días. El marcador se pone naranja desde el 85 % y rojo desde el 95 %: un embalse casi lleno puede tener que verter agua y aumentar el caudal aguas abajo. También se muestra el caudal que entra a cada embalse y a las centrales sin embalse de Amoyá y Cucuana, comparado con la media histórica del mes.</p>
@@ -1980,6 +2011,63 @@ document.getElementById("hcsv").addEventListener("click", () => {
   a.download = `historico_IDEAM_${sid(hId)}_${hFrom.value}_${hTo.value}.csv`;
   document.body.appendChild(a); a.click(); a.remove();
 });
+// ---- Public health: dengue and yellow fever. 2026 figures are copied by hand from official press releases (INS doesn't publish
+// the current year as data); history is read live from the INS "SIVIGILA" open dataset, which only holds closed years.
+const SALUD_2026 = {
+  dengue: {casos:3650, corte:"17 nov 2026", fuente:"Secretaría de Salud del Tolima"},
+  dengueSE42: {casos:3149, prev:5457},
+  brote: ["Falan","Venadillo","Ibagué","Ortega","Purificación","Dolores"],
+  alerta: ["Fresno","Mariquita","Armero","Líbano","Lérida","Alvarado","Piedras","San Luis","Flandes","Melgar","Saldaña","San Antonio","Chaparral","Natagaima"],
+  fa: {casos:55, nac:58, muertesNac:28, corte:"15 ago 2026 (preliminar)", fuente:"INS, periodo epidemiológico VIII"},
+};
+async function loadSalud(){
+  const S = SALUD_2026, n0 = v => (+v || 0).toLocaleString("es-CO");
+  document.getElementById("skpis").innerHTML = `
+    <div class="skpi"><span class="sub">Dengue, casos 2026</span><b>${n0(S.dengue.casos)}</b><span class="sub">al ${S.dengue.corte} · ${S.dengue.fuente}</span></div>
+    <div class="skpi"><span class="sub">Dengue a la semana 42</span><b>${n0(S.dengueSE42.casos)}</b><span class="sub">${n0(S.dengueSE42.prev)} en el mismo periodo de 2025</span></div>
+    <div class="skpi fa"><span class="sub">Fiebre amarilla, casos confirmados 2026</span><b>${n0(S.fa.casos)}</b><span class="sub">de ${S.fa.nac} en Colombia (${S.fa.muertesNac} muertes en el país) · ${S.fa.fuente}, corte ${S.fa.corte}</span></div>`;
+  document.getElementById("sbrote").innerHTML = `Dengue a la semana 42: <b>brote</b> en ${S.brote.join(", ")}; <b>alerta</b> en ${S.alerta.join(", ")}.`;
+  const sub = document.getElementById("ssub"), DS = API + "wns8-p38i.json";
+  const q = async sql => { const r = await fetch(DS + "?$query=" + encodeURIComponent(sql)); if (!r.ok) throw new Error(r.status); return r.json(); };
+  const EV = "cod_dpto_o='73' AND cod_eve in ('210','220','580','310')";
+  let rows, weeks;
+  try {
+    [rows, weeks] = await Promise.all([
+      q(`SELECT ano, cod_mun_o, municipio_ocurrencia, cod_eve, sum(conteo::number) AS n WHERE ${EV} GROUP BY ano, cod_mun_o, municipio_ocurrencia, cod_eve LIMIT 5000`),
+      q(`SELECT ano, semana::number AS s, sum(conteo::number) AS n WHERE cod_dpto_o='73' AND cod_eve in ('210','220') GROUP BY ano, s ORDER BY ano, s LIMIT 1000`)]);
+  } catch (e) { sub.innerHTML = `<span class="err">No se pudo consultar datos.gov.co (${esc(e.message)}).</span>`; return; }
+  const norm = t => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z ]/g, "").trim();
+  const pop = {}; Object.entries(MUNPOP).forEach(([k, v]) => { pop[norm(k)] = [k, v[2]]; pop[norm(k.replace(/ \(.*\)/, ""))] = [k, v[2]]; });
+  pop.VILLARICA = pop.VILLARRICA;
+  const col = {"210":"d", "220":"g", "580":"m", "310":"fa"}, years = {}, mun = {};
+  for (const r of rows) { const y = r.ano, k = col[r.cod_eve], n = +r.n;
+    years[y] = years[y] || {d:0, g:0, m:0, fa:0}; years[y][k] += n;
+    const m = ((mun[y] = mun[y] || {})[r.cod_mun_o] = mun[y][r.cod_mun_o] || {name:r.municipio_ocurrencia, d:0, g:0, m:0, fa:0}); m[k] += n; }
+  const ys = Object.keys(years).sort();
+  if (!ys.length) { sub.textContent = "El conjunto no devolvió datos del Tolima."; return; }
+  sub.textContent = `años ${ys[0]} a ${ys[ys.length - 1]}`;
+  document.querySelector("#syear tbody").innerHTML = ys.slice().reverse().map(y => { const v = years[y];
+    return `<tr><td>${y}</td><td class="num">${n0(v.d + v.g)}</td><td class="num">${n0(v.g)}</td><td class="num">${n0(v.m)}</td><td class="num">${n0(v.fa)}</td></tr>`; }).join("");
+  const pal = ["#b9c7d8", "#8aa3c0", "#5c7ea3", "#2f5684", "#0b2a5b"].slice(-ys.length), muted = css("--muted"), grid = css("--line");
+  if (charts.sweek) charts.sweek.destroy();
+  charts.sweek = new Chart(document.getElementById("sweek"), {type:"line",
+    data:{datasets: ys.map((y, i) => ({label:y, data:weeks.filter(w => w.ano === y).map(w => ({x:+w.s, y:+w.n})),
+      borderColor:pal[i], backgroundColor:pal[i], borderWidth: i === ys.length - 1 ? 2.2 : 1.4, pointRadius:0, tension:.25}))},
+    options:{responsive:true, maintainAspectRatio:false, animation:false, parsing:false, interaction:{mode:"index", intersect:false},
+      plugins:{legend:{labels:{color:muted, boxWidth:12, boxHeight:2, font:{size:11}}},
+        tooltip:{callbacks:{title: it => `Semana ${it[0].parsed.x}`, label: it => `${it.dataset.label}: ${n0(it.parsed.y)} casos`}}},
+      scales:{x:{type:"linear", min:1, max:53, grid:{color:grid}, ticks:{color:muted, stepSize:4}, title:{display:true, text:"Semana epidemiológica", color:muted, font:{size:11}}},
+        y:{beginAtZero:true, grid:{color:grid}, ticks:{color:muted}}}}});
+  const sel = document.getElementById("syearsel");
+  sel.innerHTML = ys.slice().reverse().map(y => `<option>${y}</option>`).join("");
+  const draw = () => { const list = Object.values(mun[sel.value] || {}).map(m => { const p = pop[norm(m.name)];
+      return {...m, label:p ? p[0] : m.name, tot:m.d + m.g, rate:p && p[1] ? (m.d + m.g) / p[1] * 1e5 : null}; })
+      .sort((a, b) => b.tot - a.tot || b.fa - a.fa);
+    document.querySelector("#smun tbody").innerHTML = list.map(m => `<tr><td>${esc(m.label)}</td><td class="num">${n0(m.tot)}</td>
+      <td class="num">${m.rate == null ? "–" : Math.round(m.rate).toLocaleString("es-CO")}</td><td class="num">${n0(m.g)}</td><td class="num">${n0(m.m)}</td><td class="num">${m.fa ? n0(m.fa) : "–"}</td></tr>`).join(""); };
+  sel.onchange = draw; draw();
+}
+loadSalud();
 document.getElementById("refresh").addEventListener("click", load);
 document.getElementById("avail").innerHTML = "Datos: " + VARS.map(([v,l]) => `<span>${icon(v, true, l)}${l}</span>`).join("")
   + `<span>${icon("rain", false, "Sin datos")}gris = sin datos</span>`;
