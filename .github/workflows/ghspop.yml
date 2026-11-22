@@ -1,0 +1,36 @@
+name: Extraer GHS-POP Tolima (una vez)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/ghspop.yml]
+permissions:
+  contents: write
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt-get -qq update && sudo apt-get -qq install -y gdal-bin >/dev/null
+      - name: Clip GHS-POP 2025 (3 arc-sec) and 2020 to the Tolima box
+        run: |
+          set -e
+          BASE=https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_POP_GLOBE_R2023A
+          mkdir out
+          for E in 2025 2020; do
+            D=$BASE/GHS_POP_E${E}_GLOBE_R2023A_4326_3ss/V1-0/
+            curl -s "$D" | grep -o 'href="[^"]*"' | head -40
+            Z=$(curl -s "$D" | grep -o 'href="[^"]*\.zip"' | sed 's/href="//;s/"$//' | grep -v -i tile | head -1)
+            echo "zip: $Z"
+            T=$(unzip -l /dev/null 2>/dev/null; gdalinfo "/vsizip//vsicurl/$D$Z" 2>&1 | head -5; echo)
+            INNER=$(python3 -c "import sys;print(sys.argv[1].replace('.zip','.tif'))" "$Z")
+            gdalinfo "/vsizip//vsicurl/$D$Z/$INNER" | head -30
+            gdal_translate -q -projwin -76.16 5.37 -74.37 2.82 -co COMPRESS=DEFLATE -co PREDICTOR=3 -co TILED=YES "/vsizip//vsicurl/$D$Z/$INNER" out/ghspop_${E}_tolima_3ss.tif
+            gdalinfo -stats out/ghspop_${E}_tolima_3ss.tif | grep -E 'Size is|Origin|Pixel Size|STATISTICS_(MEAN|MAXIMUM)'
+          done
+          ls -la out
+      - name: Save to the ghs-raw branch
+        run: |
+          cd out
+          git init -q -b ghs-raw && git config user.name "github-actions[bot]" && git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add . && git commit -q -m "GHS-POP R2023A recorte Tolima (3 arc-sec)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ghs-raw
