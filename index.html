@@ -23,7 +23,7 @@
 :root{
   --bg:#f4f6f5; --panel:#ffffff; --fg:#17221f; --muted:#5c6b66; --line:#dde3e0;
   --rain:#1f6fb2; --rain-soft:#d6e6f4; --temp:#c2552b; --hum:#2f8f6b; --wind:#6b5ca5;
-  --level:#0f7f8c; --warn:#b7791f; --bad:#b83a3a; --ok:#2f8f6b;
+  --level:#0f7f8c; --warn:#b7791f; --bad:#b83a3a; --ok:#2f8f6b; --off:#7b8794;
   --red:#c8102e; --red-dk:#9e0b23; --navy:#0b2a5b; --navy-dk:#0b2a5b; --navy-soft:#e6ecf6;
   --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -66,6 +66,7 @@ header button:focus-visible{outline-color:#fff}
 .pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-weight:500;font-size:12px;border:1px solid currentColor}
 .pill.ok{color:var(--ok)} .pill.warn{color:var(--warn)} .pill.bad{color:var(--bad)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+@media (min-width:700px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
 .kpi .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .kpi .v{font:500 26px/1.2 var(--mono);font-variant-numeric:tabular-nums;margin-top:4px}
@@ -83,7 +84,8 @@ table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
 th:first-child,td:first-child,th:nth-child(2),td:nth-child(2),th:nth-child(3),td:nth-child(3){text-align:left}
 .badge{display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:4px;margin-right:6px;color:#fff;vertical-align:1px}
-.badge.bad{background:var(--bad)} .badge.warn{background:var(--warn)}
+.badge.bad{background:var(--bad)} .badge.warn{background:var(--warn)} .badge.off{background:var(--off)}
+.offtxt{color:var(--off)}
 tbody tr.offrow td{color:var(--muted)}
 .badtxt{color:var(--bad)}
 .eqm span{display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid #1b1b1b;box-shadow:0 0 0 1.5px #fff;font:600 10px/1 var(--mono);color:#1b1b1b}
@@ -92,7 +94,7 @@ tbody tr.offrow td{color:var(--muted)}
 .eqctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-basis:100%}.eqctl input{font:inherit;font-size:12px;padding:1px 4px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg)}
 .eqctl .eqbtn[aria-pressed=true]{background:#c8102e;color:#fff;border-color:#c8102e}
 .eqbtn{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:999px;padding:2px 9px;font:inherit;font-size:12px;cursor:pointer}
-.xmark{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:var(--bad);color:#fff;font-size:9px;font-weight:700;margin-right:4px;vertical-align:-1px}
+.xmark{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:var(--off);color:#fff;font-size:9px;font-weight:700;margin-right:4px;vertical-align:-1px}
 .xmark.big{width:18px;height:18px;font-size:12px;border:2px solid #fff;box-shadow:0 0 0 1px #0006;margin:0}
 .xmark.sel{box-shadow:0 0 0 3px #0b2540}
 th{position:sticky;top:0;background:var(--panel);font-weight:500;color:var(--muted);cursor:pointer;user-select:none}
@@ -592,7 +594,7 @@ const CATALOG = "hp9r-jxuu"; // IDEAM station catalog
 const OFF_H = 6;             // no data for this many hours before the newest reading = not transmitting
 const VARS = [["rain","Lluvia"],["temp","Temperatura"],["hum","Humedad"],["wind","Viento"],["level","Nivel del río"]];
 const icon = (v, on=true, title="") => `<svg class="ic ${on ? v : "off"}" role="img" aria-label="${title}"><title>${title}</title><use href="#i-${v}"/></svg>`;
-const STATUS = {off:["bad","Sin transmisión"], incomplete:["warn","Datos incompletos"], odd:["warn","Valores dudosos"]};
+const STATUS = {off:["off","Sin transmisión"], incomplete:["warn","Datos incompletos"], odd:["warn","Valores dudosos"]};
 let hours = 24, latest = null, cut = null, stations = [], sel = null, map, layer, alertLayer, sortK = "rain", sortDir = -1;
 const charts = {};
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -699,6 +701,7 @@ async function load(){
     }
     stations = Object.values(byId);
     renderStatus(); renderKpis(); renderMap(); renderTable();
+    loadDry().then(renderKpis);
     if (sel && byId[sel]) loadDetail(sel); else if (topRain()) loadDetail(topRain().id);
   } catch (e) {
     setStatus(`<span class="err">No se pudieron cargar los datos: ${String(e.message).replace(/</g,"&lt;")}</span>`);
@@ -717,7 +720,7 @@ function renderStatus(){
   const alPill = worst ? `<span class="pill alert al-${worst}">${ALERTS[worst]} de nivel: ${al[worst].map(u => esc(u.name)).join(", ")}</span>`
     : `<span class="pill ok">Ningún río sobre umbral de alerta IDEAM</span>`;
   setStatus(`<span class="pill ${cls}">Último dato publicado: ${fmtLocal(latest)} (${age})</span> ${alPill}
-    <span>${stations.length - off} estaciones transmitiendo · <b class="badtxt">${off} sin transmisión</b></span>
+    <span>${stations.length - off} estaciones transmitiendo · <b class="offtxt">${off} sin transmisión</b></span>
     <span>Consultado ${now} hora Colombia · se actualiza cada ${REFRESH_MIN} min</span>`);
 }
 // alert state of every station with official thresholds, from the latest level reading
@@ -733,6 +736,29 @@ function alertSummary(){
 const reporting = () => stations.filter(s => s.rain != null);
 const topRain = () => reporting().reduce((a,b) => !a || b.rain > a.rain ? b : a, null);
 
+// Dry spells: for each transmitting station with rain data going back 30 days, the last 10-minute reading above 0 mm.
+// d15 = last rain 15 to 29 days ago, d30 = no rain in the last 30 days. Recomputed at most once an hour.
+const DRY = {ok:false, at:0, n:0, d15:[], d30:[], err:""};
+const dryNames = l => l.length ? l.slice(0, 3).map(s => s.name).join(", ") + (l.length > 3 ? ` y ${l.length - 3} más` : "") : "ninguna";
+async function loadDry(){
+  if (DRY.ok && Date.now() - DRY.at < 3600e3) return;
+  try {
+    const end = latest, t30 = new Date(end.getTime() - 30*864e5), t15 = new Date(end.getTime() - 15*864e5);
+    const [wet, cov] = await Promise.all([
+      both("rain", {select:"codigoestacion,max(fechaobservacion) as mx", group:"codigoestacion", limit:"1000"},
+        `${DEP} AND fechaobservacion>'${soqlTime(t30)}' AND valorobservado>0`),
+      both("rain", {select:"codigoestacion,min(fechaobservacion) as mn", group:"codigoestacion", limit:"1000"},
+        `${DEP} AND fechaobservacion>'${soqlTime(t30)}'`)]);
+    const lastWet = {}, first = {};
+    for (const r of wet) { const t = toDate(r.mx); if (!lastWet[r.codigoestacion] || t > lastWet[r.codigoestacion]) lastWet[r.codigoestacion] = t; }
+    for (const r of cov) { const t = toDate(r.mn); if (!first[r.codigoestacion] || t < first[r.codigoestacion]) first[r.codigoestacion] = t; }
+    // only stations that are transmitting now and whose rain record starts within 2 days of the 30-day window start
+    const ev = stations.filter(s => s.status !== "off" && s.has?.rain && first[s.id] && first[s.id] - t30 < 2*864e5);
+    DRY.d15 = ev.filter(s => lastWet[s.id] && lastWet[s.id] < t15);
+    DRY.d30 = ev.filter(s => !lastWet[s.id]);
+    DRY.n = ev.length; DRY.ok = true; DRY.at = Date.now(); DRY.err = "";
+  } catch (e) { DRY.err = "no se pudo calcular"; }
+}
 function renderKpis(){
   const lbl = hours === 168 ? "7 días" : hours + " h";
   const tr = topRain(), rep = reporting();
@@ -740,13 +766,15 @@ function renderKpis(){
   const tmax = withT.reduce((a,b) => !a || b.temp > a.temp ? b : a, null);
   const tmin = withT.reduce((a,b) => !a || b.temp < a.temp ? b : a, null);
   const rainy = rep.filter(s => s.rain >= 1).length;
-  const mean = rep.length ? rep.reduce((a,s)=>a+s.rain,0)/rep.length : 0;
   const off = stations.filter(s => s.status === "off").length;
   const k = [
     ["Lluvia máxima " + lbl, fmt(tr?.rain) + " mm", tr ? `${tr.name}, ${tr.mun}` : ""],
-    ["Lluvia media " + lbl, fmt(mean) + " mm", `promedio de ${rep.length} estaciones`],
     ["Estaciones con lluvia", `${rainy} / ${rep.length}`, "≥ 1 mm en la ventana"],
     ["Sin transmisión", `${off} / ${stations.length}`, `sin datos en las últimas ${OFF_H} h`],
+    ["Sin lluvia 15 a 29 días " + infoBtn("secas", "días sin lluvia"), DRY.ok ? `${DRY.d15.length} / ${DRY.n}` : "…",
+      DRY.ok ? dryNames(DRY.d15) : DRY.err || "calculando…"],
+    ["Sin lluvia 30 días o más " + infoBtn("secas", "días sin lluvia"), DRY.ok ? `${DRY.d30.length} / ${DRY.n}` : "…",
+      DRY.ok ? dryNames(DRY.d30) : DRY.err || "calculando…"],
     (() => { const a = alertSummary(), n = a.roja.length + a.naranja.length + a.amarilla.length;
       return ["Ríos en alerta (IDEAM)", `${n} / ${Object.keys(UMB).length}`,
         `${a.roja.length} roja · ${a.naranja.length} naranja · ${a.amarilla.length} amarilla · ${a.na.length} sin dato`]; })(),
@@ -1379,6 +1407,10 @@ const INFO = {
     `<p>Cada gota es una estación automática del IDEAM. El color y el tamaño indican cuánta lluvia ha registrado desde las 0:00 de hoy (hora Colombia): cuanto más oscura y grande, más lluvia.</p>
      <p>blanca = sin lluvia (0 mm) · azul claro = baja (hasta 10 mm) · azul medio = moderada (10.1–30 mm) · azul = alta (30.1–50 mm) · azul marino = muy alta (más de 50 mm).</p>
      <p>Una gota con borde punteado significa que la estación no ha enviado datos de lluvia hoy. Los datos llegan con 1 a 2 horas de retraso y son crudos, sin revisión.</p>`],
+  secas: ["Estaciones sin lluvia",
+    `<p>Cuenta las estaciones del IDEAM en el Tolima que <b>no han registrado lluvia</b> (ningún registro de 10 minutos por encima de 0 mm) en el periodo, contado hacia atrás desde el último dato publicado.</p>
+     <p><b>15 a 29 días:</b> la última lluvia fue hace entre 15 y 29 días. <b>30 días o más:</b> ninguna lluvia en los últimos 30 días (el IDEAM permite consultar más atrás, pero aquí se cuenta hasta 30 para que la página cargue rápido). Las dos casillas no se solapan.</p>
+     <p>Solo entran estaciones que están transmitiendo ahora y cuyo registro de lluvia cubre los 30 días completos, para no contar como “seca” una estación que simplemente dejó de enviar datos. El número después de la barra es cuántas estaciones cumplen eso. Se recalcula cada hora.</p>`],
   offline: ["Sin transmisión",
     `<p>Estación automática que el IDEAM tiene como activa en su catálogo, pero que no ha enviado ningún dato en las 6 horas anteriores al último dato publicado. Puede ser una falla de la estación, de la comunicación o de la publicación.</p>`],
   dudosos: ["Datos dudosos o incompletos",
