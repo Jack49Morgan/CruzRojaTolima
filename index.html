@@ -248,11 +248,6 @@ h2 button.info{vertical-align:2px}
       </div>
     </div>
     <div class="controls">
-      <div class="seg" id="wseg" role="group" aria-label="Ventana">
-        <button id="w24" data-h="24" aria-pressed="true">24 h</button>
-        <button id="w72" data-h="72" aria-pressed="false">72 h</button>
-        <button id="w168" data-h="168" aria-pressed="false">7 días</button>
-      </div>
       <button class="btn" id="refresh">Actualizar</button>
       <button class="btn new" type="button" data-newinc>＋ Incidente</button>
     </div>
@@ -738,7 +733,7 @@ const reporting = () => stations.filter(s => s.rain != null);
 const topRain = () => reporting().reduce((a,b) => !a || b.rain > a.rain ? b : a, null);
 
 // Dry spells: for each transmitting station with rain data going back 30 days, the last 10-minute reading above 0 mm.
-// d15 = last rain 15 to 29 days ago, d30 = no rain in the last 30 days. Recomputed at most once an hour.
+// d15 = no rain in the last 15 days (includes d30), d30 = no rain in the last 30 days. Recomputed at most once an hour.
 const DRY = {ok:false, at:0, n:0, d15:[], d30:[], err:""};
 const dryNames = l => l.length ? l.slice(0, 3).map(s => s.name).join(", ") + (l.length > 3 ? ` y ${l.length - 3} más` : "") : "ninguna";
 async function loadDry(){
@@ -755,7 +750,7 @@ async function loadDry(){
     for (const r of cov) { const t = toDate(r.mn); if (!first[r.codigoestacion] || t < first[r.codigoestacion]) first[r.codigoestacion] = t; }
     // only stations that are transmitting now and whose rain record starts within 2 days of the 30-day window start
     const ev = stations.filter(s => s.status !== "off" && s.has?.rain && first[s.id] && first[s.id] - t30 < 2*864e5);
-    DRY.d15 = ev.filter(s => lastWet[s.id] && lastWet[s.id] < t15);
+    DRY.d15 = ev.filter(s => !lastWet[s.id] || lastWet[s.id] < t15);   // includes the 30+ ones
     DRY.d30 = ev.filter(s => !lastWet[s.id]);
     DRY.n = ev.length; DRY.ok = true; DRY.at = Date.now(); DRY.err = "";
   } catch (e) { DRY.err = "no se pudo calcular"; }
@@ -772,7 +767,7 @@ function renderKpis(){
     ["Lluvia máxima " + lbl, fmt(tr?.rain) + " mm", tr ? `${tr.name}, ${tr.mun}` : ""],
     ["Estaciones con lluvia", `${rainy} / ${rep.length}`, "≥ 1 mm en la ventana"],
     ["Sin transmisión", `${off} / ${stations.length}`, `sin datos en las últimas ${OFF_H} h`],
-    ["Sin lluvia 15 a 29 días " + infoBtn("secas", "días sin lluvia"), DRY.ok ? `${DRY.d15.length} / ${DRY.n}` : "…",
+    ["Sin lluvia 15 días o más " + infoBtn("secas", "días sin lluvia"), DRY.ok ? `${DRY.d15.length} / ${DRY.n}` : "…",
       DRY.ok ? dryNames(DRY.d15) : DRY.err || "calculando…"],
     ["Sin lluvia 30 días o más " + infoBtn("secas", "días sin lluvia"), DRY.ok ? `${DRY.d30.length} / ${DRY.n}` : "…",
       DRY.ok ? dryNames(DRY.d30) : DRY.err || "calculando…"],
@@ -1476,7 +1471,7 @@ const INFO = {
      <p>Es un mapa de amenaza (qué puede pasar y dónde si hay una erupción), no de actividad actual. El nivel de actividad vigente lo da el boletín del Observatorio Vulcanológico del SGC en Manizales. Toque el mapa para ver la vereda y los fenómenos en ese punto.</p>`],
   secas: ["Estaciones sin lluvia",
     `<p>Cuenta las estaciones del IDEAM en el Tolima que <b>no han registrado lluvia</b> (ningún registro de 10 minutos por encima de 0 mm) en el periodo, contado hacia atrás desde el último dato publicado.</p>
-     <p><b>15 a 29 días:</b> la última lluvia fue hace entre 15 y 29 días. <b>30 días o más:</b> ninguna lluvia en los últimos 30 días (el IDEAM permite consultar más atrás, pero aquí se cuenta hasta 30 para que la página cargue rápido). Las dos casillas no se solapan.</p>
+     <p><b>15 días o más:</b> ninguna lluvia en los últimos 15 días; incluye las que llevan 30 días o más. <b>30 días o más:</b> ninguna lluvia en los últimos 30 días (el IDEAM permite consultar más atrás, pero aquí se cuenta hasta 30 para que la página cargue rápido).</p>
      <p>Solo entran estaciones que están transmitiendo ahora y cuyo registro de lluvia cubre los 30 días completos, para no contar como “seca” una estación que simplemente dejó de enviar datos. El número después de la barra es cuántas estaciones cumplen eso. Se recalcula cada hora.</p>`],
   offline: ["Sin transmisión",
     `<p>Estación automática que el IDEAM tiene como activa en su catálogo, pero que no ha enviado ningún dato en las 6 horas anteriores al último dato publicado. Puede ser una falla de la estación, de la comunicación o de la publicación.</p>`],
@@ -1797,10 +1792,6 @@ function draw(cv, type, data, color, unit, o={}){
   });
 }
 
-document.querySelectorAll("#wseg button").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll("#wseg button").forEach(x => x.setAttribute("aria-pressed", x === b));
-  hours = +b.dataset.h; load();
-}));
 
 // ---- Station history: daily (or monthly) aggregates from the historical datasets ----
 const hFrom = document.getElementById("hfrom"), hTo = document.getElementById("hto");
