@@ -1382,11 +1382,14 @@ function decPoly(s){ const out = []; let i = 0, x = 0, y = 0;
   while (i < s.length) { y += nx(); x += nx(); out.push([y / 1e4, x / 1e4]); } return out; }
 // border colours for the plain map and for the satellite basemap (light lines with a dark halo read better on imagery)
 let SATBASE = false;
+// k thickens lines when zoomed out (set from the map zoom); on satellite every border gets a dark casing underneath
+let BK = 1;
 const BSTY = () => SATBASE
-  ? {mun:{color:"#ffe14d", weight:1.6, opacity:0.95}, dep:{color:"#ffffff", weight:3.2, opacity:1},
-     ver:{color:"#ffffff", weight:0.8, opacity:0.75}, munHalo:{color:"#000", opacity:0.6}, munLine:{color:"#ffe14d"}}
+  ? {mun:{color:"#ffe14d", weight:2*BK, opacity:1}, munCase:{color:"#000", weight:2*BK + 3, opacity:0.6},
+     dep:{color:"#ffffff", weight:3.2*BK, opacity:1}, depCase:{color:"#000", weight:3.2*BK + 4, opacity:0.65},
+     ver:{color:"#ffffff", weight:0.8, opacity:BK > 1 ? 0.45 : 0.75}, munHalo:{color:"#000", weight:2.4*BK + 3, opacity:0.6}, munLine:{color:"#ffe14d", weight:2.4*BK}}
   : {mun:{color:"#3d4a46", weight:0.8, opacity:0.7}, dep:{color:"#17221f", weight:2.5, opacity:0.85},
-     ver:{color:"#9a7b4f", weight:0.6, opacity:0.7}, munHalo:{color:"#fff", opacity:0.85}, munLine:{color:"#0b2a5b"}};
+     ver:{color:"#9a7b4f", weight:0.6, opacity:0.7}, munHalo:{color:"#fff", weight:4.5, opacity:0.85}, munLine:{color:"#0b2a5b", weight:2}};
 function buildVeredaLayer(munLayer){
   const g = L.featureGroup(); let built = false, halo, line; const vp = [];
   g.restyle = () => { if (!built) return; const b = BSTY(); vp.forEach(p => p.setStyle(b.ver)); halo.setStyle(b.munHalo); line.setStyle(b.munLine); };
@@ -1634,8 +1637,18 @@ function renderMap(){
     // Layer list in four groups (Fronteras administrativas, Investigación, Clima actual, Pronósticos), plus Incidentes added later;
     // a heading is drawn above the first layer of each group every time Leaflet redraws the list
     const verL = buildVeredaLayer(mun);
-    map.on("baselayerchange", e => { SATBASE = e.layer === sat; const b = BSTY();
-      mun.setStyle({...b.mun, opacity: map.hasLayer(verL) ? 0 : b.mun.opacity}); dep.setStyle(b.dep); verL.restyle(); });
+    // dark casings under the municipio and department lines, shown only on the satellite basemap
+    const munCase = L.geoJSON(TOLIMA_GEO.mun, {interactive:false, style:{fill:false}});
+    const depCase = L.geoJSON(TOLIMA_GEO.dep, {interactive:false, style:{fill:false}});
+    const applyBorders = () => {
+      const z = map.getZoom(); BK = z <= 8 ? 1.5 : z <= 10 ? 1.2 : 1; const b = BSTY(), vOn = map.hasLayer(verL);
+      mun.setStyle({...b.mun, opacity: vOn ? 0 : b.mun.opacity}); dep.setStyle(b.dep); verL.restyle();
+      const showCase = (c, base, on, sty) => { if (SATBASE && on) { if (!map.hasLayer(c)) { c.addTo(map); c.bringToBack(); } c.setStyle({...sty, fill:false}); } else if (map.hasLayer(c)) map.removeLayer(c); };
+      showCase(munCase, mun, map.hasLayer(mun) && !vOn, b.munCase); showCase(depCase, dep, map.hasLayer(dep), b.depCase);
+    };
+    map.on("baselayerchange", e => { SATBASE = e.layer === sat; applyBorders(); });
+    map.on("zoomend", applyBorders);
+    map.on("overlayadd overlayremove", e => { if (e.layer === mun || e.layer === dep || e.layer === verL) applyBorders(); });
     const satL = k => [`${esc(SAT[k].name)} ${infoBtn(SAT[k].info, SAT[k].name)}`, SAT[k].layer];
     const LAYER_GROUPS = [
       ["Fronteras administrativas", [["Límite departamental", dep], ["Municipios", mun],
