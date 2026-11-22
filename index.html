@@ -906,6 +906,10 @@ async function refreshSat(k){
   renderSatInfo();
 }
 const infoBtn = (k, label = "") => `<button type="button" class="info" data-info="${k}" aria-label="Qué es ${esc(label || k)}">i</button>`;
+// Population popups (tap/click) for municipios and veredas; tooltips only on devices with a mouse
+const HOVER = matchMedia("(hover: hover)").matches;
+const popHtml = (title, sub, n) => `<div class="flpop"><b>${esc(title)}</b>${sub ? `<br><span class="sub">${esc(sub)}</span>` : ""}
+  <div style="margin-top:4px">Población: <b>${fmtPeople(n)}</b> personas</div><div class="sub">GHS-POP 2025 (JRC) ${infoBtn("poblacion", "población")}</div></div>`;
 function renderSatInfo(){
   const el = document.getElementById("satinfo"); if (!el) return;
   const on = Object.values(SAT).filter(o => map && o.layer && map.hasLayer(o.layer));
@@ -1090,6 +1094,8 @@ async function loadMunForecast(){
 }
 function buildFcLayer(munFeatures){
   const g = L.geoJSON(munFeatures, {style:{color:"#0b2a5b", weight:0.6, opacity:0.5, fillOpacity:0}, interactive:true});
+  // until the forecast arrives (or if it fails), a tap still shows the municipio's population
+  g.eachLayer(l => l.bindPopup(() => popHtml(l.feature.properties.n, "Municipio", MUNPOP[l.feature.properties.n]?.[2]), {maxWidth:260}));
   const box = document.getElementById("fcinfo"); let timer = null;
   async function paint(){
     try {
@@ -1097,7 +1103,7 @@ function buildFcLayer(munFeatures){
       let heavyPeople = 0, heavy = [];
       g.eachLayer(l => { const n = l.feature.properties.n, f = d[n], b = f ? rbin(Math.round(f.h24 * 10) / 10) : null, pop = MUNPOP[n]?.[2];
         l.setStyle({fillColor:b ? b.color : "#ccc", fillOpacity:b && b.max > 0 ? 0.55 : 0.2});
-        l.bindTooltip(`<b>${esc(n)}</b><br>Lluvia pronosticada:<br>próximas 24 h: <b>${fmt(f?.h24)} mm</b> (prob. máx. ${f?.p24 ?? "–"} %)<br>próximas 72 h: ${fmt(f?.h72)} mm<br>7 días: ${fmt(f?.d7)} mm<br>Población: ${fmtPeople(pop)} (GHS-POP 2025)`, {sticky:true});
+        { const html = `<b>${esc(n)}</b><br>Lluvia pronosticada:<br>próximas 24 h: <b>${fmt(f?.h24)} mm</b> (prob. máx. ${f?.p24 ?? "–"} %)<br>próximas 72 h: ${fmt(f?.h72)} mm<br>7 días: ${fmt(f?.d7)} mm<br>Población: ${fmtPeople(pop)} (GHS-POP 2025)`; if (HOVER) l.bindTooltip(html, {sticky:true}); l.bindPopup(html, {maxWidth:260}); }
         if (f && f.h24 > 30) { heavyPeople += pop || 0; heavy.push(n); } });
       box.innerHTML = `<span><b>Pronóstico 24 h</b> (Open-Meteo, ${fmtLocal(new Date(FC.at)).slice(11)}): `
         + (heavy.length ? `${heavy.length} municipio(s) con más de 30 mm, donde viven ${fmtPeople(heavyPeople)} personas (GHS-POP 2025) ${infoBtn("poblacion", "población")}: ${heavy.map(esc).join(", ")}.` : "ningún municipio supera 30 mm.")
@@ -1380,11 +1386,14 @@ function buildVeredaLayer(munLayer){
   const rend = L.canvas({padding:0.3, tolerance:3, pane:"veredas"});
   const base = {color:"#9a7b4f", weight:0.6, opacity:0.7, fill:true, fillColor:"#c8a26a", fillOpacity:0};
   // while veredas are on, municipal borders come from the same simplified lines (so they match exactly), drawn on top with a white halo
-  g.on("remove", () => munLayer && munLayer.setStyle({opacity:0.7}));
+  // also drop the canvas: left on the map it would swallow taps meant for the municipios underneath
+  g.on("remove", () => { munLayer && munLayer.setStyle({opacity:0.7}); if (g._mapRef) g._mapRef.removeLayer(rend); });
+  g.on("add", () => { g._mapRef = g._map; });
   g.on("add", () => { if (munLayer) munLayer.setStyle({opacity:0}); if (built) return; built = true;
     VEREDAS.f.forEach(([m, n, polys], vi) => {
       const p = L.polygon(polys.map(rs => rs.map(decPoly)), {...base, renderer:rend, pane:"veredas"});
-      p.bindTooltip(`<b>${esc(n)}</b><br>${esc(VEREDAS.m[m])}<br>Población: ${fmtPeople(VPOP[vi])} (GHS-POP 2025)`, {sticky:true, direction:"top", className:"muntip"});
+      if (HOVER) p.bindTooltip(`<b>${esc(n)}</b><br>${esc(VEREDAS.m[m])}<br>Población: ${fmtPeople(VPOP[vi])} (GHS-POP 2025)`, {sticky:true, direction:"top", className:"muntip"});
+      p.bindPopup(() => popHtml(n, `Vereda · ${VEREDAS.m[m]} (municipio: ${fmtPeople(MUNPOP[VEREDAS.m[m]]?.[2])} personas)`, VPOP[vi]), {maxWidth:280});
       p.on("mouseover", () => p.setStyle({fillOpacity:0.25, weight:1.6}));
       p.on("mouseout", () => p.setStyle({fillOpacity:0, weight:0.7}));
       p.addTo(g); });
@@ -1564,7 +1573,8 @@ function renderMap(){
     const mun = L.geoJSON(TOLIMA_GEO.mun, {
       style: {color:"#3d4a46", weight:0.8, opacity:0.7, fill:true, fillColor:"#3d4a46", fillOpacity:0},
       onEachFeature: (f, l) => {
-        l.bindTooltip(`<b>${esc(f.properties.n)}</b><br>Población: ${fmtPeople(MUNPOP[f.properties.n]?.[2])} (GHS-POP 2025)`, {sticky:true, direction:"top", className:"muntip"});
+        if (HOVER) l.bindTooltip(`<b>${esc(f.properties.n)}</b><br>Población: ${fmtPeople(MUNPOP[f.properties.n]?.[2])} (GHS-POP 2025)`, {sticky:true, direction:"top", className:"muntip"});
+        l.bindPopup(() => popHtml(f.properties.n, "Municipio", MUNPOP[f.properties.n]?.[2]), {maxWidth:260});
         l.on("mouseover", () => l.setStyle({fillOpacity:0.08}));
         l.on("mouseout", () => l.setStyle({fillOpacity:0}));
       }}).addTo(map);
