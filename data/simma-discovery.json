@@ -1,0 +1,9900 @@
+{
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA": {
+  "currentVersion": 10.91,
+  "folders": [],
+  "services": [
+   {
+    "name": "SIMMA/Capas_Generales",
+    "type": "FeatureServer"
+   },
+   {
+    "name": "SIMMA/Capas_Generales",
+    "type": "MapServer"
+   },
+   {
+    "name": "SIMMA/Capas_Principales_Cache_PRU",
+    "type": "MapServer"
+   },
+   {
+    "name": "SIMMA/Capas_Principales",
+    "type": "MapServer"
+   },
+   {
+    "name": "SIMMA/Capas_Tematicas",
+    "type": "MapServer"
+   },
+   {
+    "name": "SIMMA/CapasGeneralesView",
+    "type": "FeatureServer"
+   },
+   {
+    "name": "SIMMA/CapasGeneralesView",
+    "type": "MapServer"
+   },
+   {
+    "name": "SIMMA/CapasPrincipalesPru",
+    "type": "MapServer"
+   },
+   {
+    "name": "SIMMA/CapasTematicasXEscalas",
+    "type": "MapServer"
+   },
+   {
+    "name": "SIMMA/UnidadesGeomorfologicasCache",
+    "type": "MapServer"
+   },
+   {
+    "name": "SIMMA/ZonificacionAmenazaCache",
+    "type": "MapServer"
+   },
+   {
+    "name": "SIMMA/ZonificacionSusceptibilidadCache",
+    "type": "MapServer"
+   }
+  ]
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/FeatureServer": {
+  "layers": [
+   [
+    1,
+    "Grilla 25.000"
+   ],
+   [
+    2,
+    "Grilla 100.000"
+   ],
+   [
+    3,
+    "Grilla 500.000"
+   ],
+   [
+    4,
+    "Áreas de estudio"
+   ],
+   [
+    5,
+    "Municipios"
+   ],
+   [
+    6,
+    "Departamentos"
+   ],
+   [
+    7,
+    "Límite Nacional"
+   ]
+  ],
+  "_error": null
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/FeatureServer/1": {
+  "name": "Grilla 25.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NUMERO_PLANCHA",
+    "esriFieldTypeString",
+    "Número de Plancha"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeInteger",
+    "Escala de la Plancha"
+   ],
+   [
+    "SISTEMA_REFERENCIA",
+    "esriFieldTypeString",
+    "Sistema de Referencia"
+   ],
+   [
+    "ORIGEN_CARTOGRAFICO",
+    "esriFieldTypeString",
+    "Origen Cartográfico"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "RESPONSABLE_CARGUE_SISTEMA",
+    "esriFieldTypeString",
+    "Responsable del Cargue al Sistema"
+   ],
+   [
+    "FECHA_CARGUE_SISTEMA",
+    "esriFieldTypeDate",
+    "Fecha de Cargue al Sistema"
+   ],
+   [
+    "VERSION",
+    "esriFieldTypeString",
+    "Versión"
+   ],
+   [
+    "RULEID",
+    "esriFieldTypeInteger",
+    "RuleID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/FeatureServer/2": {
+  "name": "Grilla 100.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NUMERO_PLANCHA",
+    "esriFieldTypeString",
+    "Número de Plancha"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeInteger",
+    "Escala de la Plancha"
+   ],
+   [
+    "SISTEMA_REFERENCIA",
+    "esriFieldTypeString",
+    "Sistema de Referencia"
+   ],
+   [
+    "ORIGEN_CARTOGRAFICO",
+    "esriFieldTypeString",
+    "Origen Cartográfico"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "RESPONSABLE_CARGUE_SISTEMA",
+    "esriFieldTypeString",
+    "Responsable del Cargue al Sistema"
+   ],
+   [
+    "FECHA_CARGUE_SISTEMA",
+    "esriFieldTypeDate",
+    "Fecha de Cargue al Sistema"
+   ],
+   [
+    "VERSION",
+    "esriFieldTypeString",
+    "Versión"
+   ],
+   [
+    "RULEID",
+    "esriFieldTypeInteger",
+    "RuleID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/FeatureServer/3": {
+  "name": "Grilla 500.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NUMERO_PLANCHA",
+    "esriFieldTypeString",
+    "Número de Plancha"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeInteger",
+    "Escala de la Plancha"
+   ],
+   [
+    "SISTEMA_REFERENCIA",
+    "esriFieldTypeString",
+    "Sistema de Referencia"
+   ],
+   [
+    "ORIGEN_CARTOGRAFICO",
+    "esriFieldTypeString",
+    "Origen Cartográfico"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "RESPONSABLE_CARGUE_SISTEMA",
+    "esriFieldTypeString",
+    "Responsable del Cargue al Sistema"
+   ],
+   [
+    "FECHA_CARGUE_SISTEMA",
+    "esriFieldTypeDate",
+    "Fecha de Cargue al Sistema"
+   ],
+   [
+    "VERSION",
+    "esriFieldTypeString",
+    "Versión"
+   ],
+   [
+    "RULEID",
+    "esriFieldTypeInteger",
+    "RuleID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/FeatureServer/4": {
+  "name": "Áreas de estudio",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "COD_SICAT",
+    "esriFieldTypeString",
+    "Cod_SICAT"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeString",
+    "Escala"
+   ],
+   [
+    "URL_SICAT",
+    "esriFieldTypeString",
+    "URL_SICAT"
+   ],
+   [
+    "ANO_ESTUDIO",
+    "esriFieldTypeString",
+    "ANO_ESTUDIO"
+   ],
+   [
+    "CANT_PLANCHAS",
+    "esriFieldTypeSmallInteger",
+    "CANT_PLANCHAS"
+   ],
+   [
+    "NOMBRE_ESTUDIO",
+    "esriFieldTypeString",
+    "NOMBRE_ESTUDIO"
+   ],
+   [
+    "FECHA_ESTUDIO",
+    "esriFieldTypeDate",
+    "FECHA_ESTUDIO"
+   ],
+   [
+    "NOMBRE_TEMATICA_1",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_1"
+   ],
+   [
+    "CODIGO_TEMATICA_1",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_1"
+   ],
+   [
+    "NOMBRE_TEMATICA_2",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_2"
+   ],
+   [
+    "CODIGO_TEMATICA_2",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_2"
+   ],
+   [
+    "NOMBRE_TEMATICA_3",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_3"
+   ],
+   [
+    "CODIGO_TEMATICA_3",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_3"
+   ],
+   [
+    "NOMBRE_TEMATICA_4",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_4"
+   ],
+   [
+    "CODIGO_TEMATICA_4",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_4"
+   ],
+   [
+    "NOMBRE_TEMATICA_5",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_5"
+   ],
+   [
+    "CODIGO_TEMATICA_5",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_5"
+   ],
+   [
+    "NOMBRE_TEMATICA_6",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_6"
+   ],
+   [
+    "CODIGO_TEMATICA_6",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_6"
+   ],
+   [
+    "NOMBRE_TEMATICA_7",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_7"
+   ],
+   [
+    "CODIGO_TEMATICA_7",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_7"
+   ],
+   [
+    "NOMBRE_TEMATICA_8",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_8"
+   ],
+   [
+    "CODIGO_TEMATICA_8",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_8"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/FeatureServer/5": {
+  "name": "Municipios",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID_1"
+   ],
+   [
+    "NOMBRE_ENT",
+    "esriFieldTypeString",
+    "NOMBRE_ENT"
+   ],
+   [
+    "CATEGORIA",
+    "esriFieldTypeString",
+    "CATEGORIA"
+   ],
+   [
+    "DEPARTAMEN",
+    "esriFieldTypeString",
+    "DEPARTAMEN"
+   ],
+   [
+    "COD_DEPART",
+    "esriFieldTypeString",
+    "COD_DEPART"
+   ],
+   [
+    "COD_MUNICI",
+    "esriFieldTypeString",
+    "COD_MUNICI"
+   ],
+   [
+    "AREA_KM",
+    "esriFieldTypeDouble",
+    "AREA_KM"
+   ],
+   [
+    "OBSERVACIO",
+    "esriFieldTypeString",
+    "OBSERVACIO"
+   ],
+   [
+    "PK_CUE",
+    "esriFieldTypeDouble",
+    "PK_CUE"
+   ],
+   [
+    "ACTO_ADMINISTRATIVO",
+    "esriFieldTypeString",
+    "Acto_Administrativo"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/FeatureServer/6": {
+  "name": "Departamentos",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID_1"
+   ],
+   [
+    "ACTO_ADMINISTRATIVO",
+    "esriFieldTypeString",
+    "Acto_Administrativo"
+   ],
+   [
+    "OBSERVACION",
+    "esriFieldTypeString",
+    "Observacion"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "COD_DEPARTAMENTO",
+    "esriFieldTypeString",
+    "COD_DEPARTAMENTO"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/FeatureServer/7": {
+  "name": "Límite Nacional",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NOMBRE",
+    "esriFieldTypeString",
+    "Nombre Geográfico"
+   ],
+   [
+    "AREA_HA",
+    "esriFieldTypeDouble",
+    "Área en Hectareas"
+   ],
+   [
+    "PERIMETRO_KM",
+    "esriFieldTypeDouble",
+    "Perimetro en Kilometros"
+   ],
+   [
+    "OBSERVACIONES",
+    "esriFieldTypeString",
+    "Observaciones"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/MapServer": {
+  "layers": [
+   [
+    0,
+    "Grilla Indice"
+   ],
+   [
+    1,
+    "Grilla 25.000"
+   ],
+   [
+    2,
+    "Grilla 100.000"
+   ],
+   [
+    3,
+    "Grilla 500.000"
+   ],
+   [
+    4,
+    "Áreas de estudio"
+   ],
+   [
+    5,
+    "Municipios"
+   ],
+   [
+    6,
+    "Departamentos"
+   ],
+   [
+    7,
+    "Límite Nacional"
+   ]
+  ],
+  "_error": null
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/MapServer/0": {
+  "name": "Grilla Indice",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/MapServer/1": {
+  "name": "Grilla 25.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NUMERO_PLANCHA",
+    "esriFieldTypeString",
+    "Número de Plancha"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeInteger",
+    "Escala de la Plancha"
+   ],
+   [
+    "SISTEMA_REFERENCIA",
+    "esriFieldTypeString",
+    "Sistema de Referencia"
+   ],
+   [
+    "ORIGEN_CARTOGRAFICO",
+    "esriFieldTypeString",
+    "Origen Cartográfico"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "RESPONSABLE_CARGUE_SISTEMA",
+    "esriFieldTypeString",
+    "Responsable del Cargue al Sistema"
+   ],
+   [
+    "FECHA_CARGUE_SISTEMA",
+    "esriFieldTypeDate",
+    "Fecha de Cargue al Sistema"
+   ],
+   [
+    "VERSION",
+    "esriFieldTypeString",
+    "Versión"
+   ],
+   [
+    "RULEID",
+    "esriFieldTypeInteger",
+    "RuleID"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/MapServer/2": {
+  "name": "Grilla 100.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NUMERO_PLANCHA",
+    "esriFieldTypeString",
+    "Número de Plancha"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeInteger",
+    "Escala de la Plancha"
+   ],
+   [
+    "SISTEMA_REFERENCIA",
+    "esriFieldTypeString",
+    "Sistema de Referencia"
+   ],
+   [
+    "ORIGEN_CARTOGRAFICO",
+    "esriFieldTypeString",
+    "Origen Cartográfico"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "RESPONSABLE_CARGUE_SISTEMA",
+    "esriFieldTypeString",
+    "Responsable del Cargue al Sistema"
+   ],
+   [
+    "FECHA_CARGUE_SISTEMA",
+    "esriFieldTypeDate",
+    "Fecha de Cargue al Sistema"
+   ],
+   [
+    "VERSION",
+    "esriFieldTypeString",
+    "Versión"
+   ],
+   [
+    "RULEID",
+    "esriFieldTypeInteger",
+    "RuleID"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/MapServer/3": {
+  "name": "Grilla 500.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NUMERO_PLANCHA",
+    "esriFieldTypeString",
+    "Número de Plancha"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeInteger",
+    "Escala de la Plancha"
+   ],
+   [
+    "SISTEMA_REFERENCIA",
+    "esriFieldTypeString",
+    "Sistema de Referencia"
+   ],
+   [
+    "ORIGEN_CARTOGRAFICO",
+    "esriFieldTypeString",
+    "Origen Cartográfico"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "RESPONSABLE_CARGUE_SISTEMA",
+    "esriFieldTypeString",
+    "Responsable del Cargue al Sistema"
+   ],
+   [
+    "FECHA_CARGUE_SISTEMA",
+    "esriFieldTypeDate",
+    "Fecha de Cargue al Sistema"
+   ],
+   [
+    "VERSION",
+    "esriFieldTypeString",
+    "Versión"
+   ],
+   [
+    "RULEID",
+    "esriFieldTypeInteger",
+    "RuleID"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/MapServer/4": {
+  "name": "Áreas de estudio",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "COD_SICAT",
+    "esriFieldTypeString",
+    "Cod_SICAT"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeString",
+    "Escala"
+   ],
+   [
+    "URL_SICAT",
+    "esriFieldTypeString",
+    "URL_SICAT"
+   ],
+   [
+    "ANO_ESTUDIO",
+    "esriFieldTypeString",
+    "ANO_ESTUDIO"
+   ],
+   [
+    "CANT_PLANCHAS",
+    "esriFieldTypeSmallInteger",
+    "CANT_PLANCHAS"
+   ],
+   [
+    "NOMBRE_ESTUDIO",
+    "esriFieldTypeString",
+    "NOMBRE_ESTUDIO"
+   ],
+   [
+    "FECHA_ESTUDIO",
+    "esriFieldTypeDate",
+    "FECHA_ESTUDIO"
+   ],
+   [
+    "NOMBRE_TEMATICA_1",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_1"
+   ],
+   [
+    "CODIGO_TEMATICA_1",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_1"
+   ],
+   [
+    "NOMBRE_TEMATICA_2",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_2"
+   ],
+   [
+    "CODIGO_TEMATICA_2",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_2"
+   ],
+   [
+    "NOMBRE_TEMATICA_3",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_3"
+   ],
+   [
+    "CODIGO_TEMATICA_3",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_3"
+   ],
+   [
+    "NOMBRE_TEMATICA_4",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_4"
+   ],
+   [
+    "CODIGO_TEMATICA_4",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_4"
+   ],
+   [
+    "NOMBRE_TEMATICA_5",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_5"
+   ],
+   [
+    "CODIGO_TEMATICA_5",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_5"
+   ],
+   [
+    "NOMBRE_TEMATICA_6",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_6"
+   ],
+   [
+    "CODIGO_TEMATICA_6",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_6"
+   ],
+   [
+    "NOMBRE_TEMATICA_7",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_7"
+   ],
+   [
+    "CODIGO_TEMATICA_7",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_7"
+   ],
+   [
+    "NOMBRE_TEMATICA_8",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_8"
+   ],
+   [
+    "CODIGO_TEMATICA_8",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_8"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/MapServer/5": {
+  "name": "Municipios",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID_1"
+   ],
+   [
+    "NOMBRE_ENT",
+    "esriFieldTypeString",
+    "NOMBRE_ENT"
+   ],
+   [
+    "CATEGORIA",
+    "esriFieldTypeString",
+    "CATEGORIA"
+   ],
+   [
+    "DEPARTAMEN",
+    "esriFieldTypeString",
+    "DEPARTAMEN"
+   ],
+   [
+    "COD_DEPART",
+    "esriFieldTypeString",
+    "COD_DEPART"
+   ],
+   [
+    "COD_MUNICI",
+    "esriFieldTypeString",
+    "COD_MUNICI"
+   ],
+   [
+    "AREA_KM",
+    "esriFieldTypeDouble",
+    "AREA_KM"
+   ],
+   [
+    "OBSERVACIO",
+    "esriFieldTypeString",
+    "OBSERVACIO"
+   ],
+   [
+    "PK_CUE",
+    "esriFieldTypeDouble",
+    "PK_CUE"
+   ],
+   [
+    "ACTO_ADMINISTRATIVO",
+    "esriFieldTypeString",
+    "Acto_Administrativo"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/MapServer/6": {
+  "name": "Departamentos",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID_1"
+   ],
+   [
+    "ACTO_ADMINISTRATIVO",
+    "esriFieldTypeString",
+    "Acto_Administrativo"
+   ],
+   [
+    "OBSERVACION",
+    "esriFieldTypeString",
+    "Observacion"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "COD_DEPARTAMENTO",
+    "esriFieldTypeString",
+    "COD_DEPARTAMENTO"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Generales/MapServer/7": {
+  "name": "Límite Nacional",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NOMBRE",
+    "esriFieldTypeString",
+    "Nombre Geográfico"
+   ],
+   [
+    "AREA_HA",
+    "esriFieldTypeDouble",
+    "Área en Hectareas"
+   ],
+   [
+    "PERIMETRO_KM",
+    "esriFieldTypeDouble",
+    "Perimetro en Kilometros"
+   ],
+   [
+    "OBSERVACIONES",
+    "esriFieldTypeString",
+    "Observaciones"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer": {
+  "layers": [
+   [
+    0,
+    "Zonificación de Susceptibilidad"
+   ],
+   [
+    1,
+    "Zonificación de Amenaza"
+   ],
+   [
+    2,
+    "05K"
+   ],
+   [
+    3,
+    "1K"
+   ],
+   [
+    4,
+    "2K"
+   ],
+   [
+    5,
+    "4K"
+   ],
+   [
+    6,
+    "5K"
+   ],
+   [
+    7,
+    "10K"
+   ],
+   [
+    8,
+    "15K"
+   ],
+   [
+    9,
+    "20K"
+   ],
+   [
+    10,
+    "25K"
+   ],
+   [
+    11,
+    "50K"
+   ],
+   [
+    12,
+    "100K"
+   ],
+   [
+    13,
+    "500K"
+   ],
+   [
+    14,
+    "1500K"
+   ]
+  ],
+  "_error": null
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/0": {
+  "name": "Zonificación de Susceptibilidad",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "SUSMM",
+    "esriFieldTypeSmallInteger",
+    "SusMM"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/1": {
+  "name": "Zonificación de Amenaza",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/2": {
+  "name": "05K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/3": {
+  "name": "1K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/4": {
+  "name": "2K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/5": {
+  "name": "4K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/6": {
+  "name": "5K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/7": {
+  "name": "10K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/8": {
+  "name": "15K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/9": {
+  "name": "20K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/10": {
+  "name": "25K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/11": {
+  "name": "50K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/12": {
+  "name": "100K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/13": {
+  "name": "500K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales_Cache_PRU/MapServer/14": {
+  "name": "1500K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer": {
+  "layers": [
+   [
+    0,
+    "Inventario"
+   ],
+   [
+    1,
+    "Punto"
+   ],
+   [
+    2,
+    "Punto_cerca"
+   ],
+   [
+    3,
+    "Poligono"
+   ],
+   [
+    4,
+    "Catálogo"
+   ],
+   [
+    5,
+    "Punto"
+   ],
+   [
+    6,
+    "Punto_cerca"
+   ],
+   [
+    7,
+    "Poligono"
+   ],
+   [
+    8,
+    "Zonificación de Amenaza por Provincia"
+   ],
+   [
+    9,
+    "05K"
+   ],
+   [
+    10,
+    "1K"
+   ],
+   [
+    11,
+    "2K"
+   ],
+   [
+    12,
+    "4K"
+   ],
+   [
+    13,
+    "5K"
+   ],
+   [
+    14,
+    "10K"
+   ],
+   [
+    15,
+    "15K"
+   ],
+   [
+    16,
+    "20K"
+   ],
+   [
+    17,
+    "25K"
+   ],
+   [
+    18,
+    "50K"
+   ],
+   [
+    19,
+    "100K"
+   ],
+   [
+    20,
+    "500K"
+   ],
+   [
+    21,
+    "1500K"
+   ]
+  ],
+  "_error": null
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/0": {
+  "name": "Inventario",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/1": {
+  "name": "Punto",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPoint",
+  "maxRecordCount": 10000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeInteger",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "INV_MOVIMIENTO_MASA_ID",
+    "esriFieldTypeInteger",
+    "INV_MOVIMIENTO_MASA_ID"
+   ],
+   [
+    "F35DOV_TIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "F35DOV_TIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "TIPO"
+   ],
+   [
+    "SUBTIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "SUBTIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "SUBTIPO"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "CLAS_MAPA"
+   ],
+   [
+    "ETIQUETA_MAPA",
+    "esriFieldTypeString",
+    "ETIQUETA_MAPA"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeOID",
+    "ESRI_OID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/2": {
+  "name": "Punto_cerca",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPoint",
+  "maxRecordCount": 10000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeInteger",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "INV_MOVIMIENTO_MASA_ID",
+    "esriFieldTypeInteger",
+    "INV_MOVIMIENTO_MADA_ID"
+   ],
+   [
+    "F35DOV_TIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "F35DOV_TIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "TIPO"
+   ],
+   [
+    "SUBTIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "SUBTIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "SUBTIPO"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "CLAS_MAPA"
+   ],
+   [
+    "ETIQUETA_MAPA",
+    "esriFieldTypeString",
+    "ETIQUETA_MAPA"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeOID",
+    "ESRI_OID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/3": {
+  "name": "Poligono",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 10000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "INV_MOVIMIENTO_MASA_ID",
+    "esriFieldTypeInteger",
+    "INV_MOVIMIENTO_MASA_ID"
+   ],
+   [
+    "F35DOV_TIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "F35DOV_TIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "TIPO"
+   ],
+   [
+    "SUBTIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "SUBTIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "SUBTIPO"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "CLAS_MAPA"
+   ],
+   [
+    "ETIQUETA_MAPA",
+    "esriFieldTypeString",
+    "ETIQUETA_MAPA"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/4": {
+  "name": "Catálogo",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/5": {
+  "name": "Punto",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPoint",
+  "maxRecordCount": 10000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeInteger",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "CAT_MOVIMIENTO_MASA_ID",
+    "esriFieldTypeInteger",
+    "CAT_MOVIMIENTO_MASA_ID"
+   ],
+   [
+    "F35DOV_TIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "F35DOV_TIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "TIPO"
+   ],
+   [
+    "SUBTIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "SUBTIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "SUBTIPO"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "CLAS_MAPA"
+   ],
+   [
+    "ETIQUETA_MAPA",
+    "esriFieldTypeString",
+    "ETIQUETA_MAPA"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeOID",
+    "ESRI_OID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/6": {
+  "name": "Punto_cerca",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPoint",
+  "maxRecordCount": 10000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeInteger",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "CAT_MOVIMIENTO_MASA_ID",
+    "esriFieldTypeInteger",
+    "CAT_MOVIMIENTO_MASA_ID"
+   ],
+   [
+    "F35DOV_TIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "F35DOV_TIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "TIPO"
+   ],
+   [
+    "SUBTIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "SUBTIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "SUBTIPO"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "CLAS_MAPA"
+   ],
+   [
+    "ETIQUETA_MAPA",
+    "esriFieldTypeString",
+    "ETIQUETA_MAPA"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeOID",
+    "ESRI_OID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/7": {
+  "name": "Poligono",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 10000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeInteger",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "CAT_MOVIMIENTO_MASA_ID",
+    "esriFieldTypeInteger",
+    "CAT_MOVIMIENTO_MASA_ID"
+   ],
+   [
+    "F35DOV_TIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "F35DOV_TIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "TIPO"
+   ],
+   [
+    "SUBTIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "SUBTIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "SUBTIPO"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "CLAS_MAPA"
+   ],
+   [
+    "ETIQUETA_MAPA",
+    "esriFieldTypeString",
+    "ETIQUETA_MAPA"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeOID",
+    "ESRI_OID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/8": {
+  "name": "Zonificación de Amenaza por Provincia",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/9": {
+  "name": "05K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 10000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/10": {
+  "name": "1K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 10000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/11": {
+  "name": "2K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 10000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/12": {
+  "name": "4K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 10000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/13": {
+  "name": "5K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 10000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Principales/MapServer/14": {
+  "name": "10K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 10000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer": {
+  "layers": [
+   [
+    0,
+    "Toponimia"
+   ],
+   [
+    1,
+    "05K"
+   ],
+   [
+    2,
+    "Altiplano"
+   ],
+   [
+    3,
+    "1K"
+   ],
+   [
+    4,
+    "Altiplano"
+   ],
+   [
+    5,
+    "2K"
+   ],
+   [
+    6,
+    "Altiplano"
+   ],
+   [
+    7,
+    "4K"
+   ],
+   [
+    8,
+    "Altiplano"
+   ],
+   [
+    9,
+    "5K"
+   ],
+   [
+    10,
+    "Altiplano"
+   ],
+   [
+    11,
+    "10K"
+   ],
+   [
+    12,
+    "Altiplano"
+   ],
+   [
+    13,
+    "15K"
+   ],
+   [
+    14,
+    "Altiplano"
+   ],
+   [
+    15,
+    "20K"
+   ],
+   [
+    16,
+    "Altiplano"
+   ],
+   [
+    17,
+    "25K"
+   ],
+   [
+    18,
+    "Altiplano"
+   ],
+   [
+    19,
+    "50K"
+   ],
+   [
+    20,
+    "Altiplano"
+   ],
+   [
+    21,
+    "Red vial"
+   ],
+   [
+    22,
+    "05K"
+   ],
+   [
+    23,
+    "1K"
+   ],
+   [
+    24,
+    "2K"
+   ],
+   [
+    25,
+    "4K"
+   ],
+   [
+    26,
+    "5K"
+   ],
+   [
+    27,
+    "10K"
+   ],
+   [
+    28,
+    "15K"
+   ],
+   [
+    29,
+    "20K"
+   ],
+   [
+    30,
+    "25K"
+   ],
+   [
+    31,
+    "50K"
+   ],
+   [
+    32,
+    "Drenaje sencillo"
+   ],
+   [
+    33,
+    "05K"
+   ],
+   [
+    34,
+    "1K"
+   ],
+   [
+    35,
+    "2K"
+   ],
+   [
+    36,
+    "4K"
+   ],
+   [
+    37,
+    "5K"
+   ],
+   [
+    38,
+    "10K"
+   ],
+   [
+    39,
+    "15K"
+   ],
+   [
+    40,
+    "20K"
+   ],
+   [
+    41,
+    "25K"
+   ],
+   [
+    42,
+    "50K"
+   ],
+   [
+    43,
+    "Drenaje doble"
+   ],
+   [
+    44,
+    "05K"
+   ],
+   [
+    45,
+    "1K"
+   ],
+   [
+    46,
+    "2K"
+   ],
+   [
+    47,
+    "4K"
+   ],
+   [
+    48,
+    "5K"
+   ],
+   [
+    49,
+    "10K"
+   ],
+   [
+    50,
+    "15K"
+   ],
+   [
+    51,
+    "20K"
+   ],
+   [
+    52,
+    "25K"
+   ],
+   [
+    53,
+    "50K"
+   ],
+   [
+    54,
+    "Área urbana"
+   ],
+   [
+    55,
+    "05K"
+   ],
+   [
+    56,
+    "1K"
+   ],
+   [
+    57,
+    "2K"
+   ],
+   [
+    58,
+    "4K"
+   ],
+   [
+    59,
+    "5K"
+   ],
+   [
+    60,
+    "10K"
+   ],
+   [
+    61,
+    "15K"
+   ],
+   [
+    62,
+    "20K"
+   ],
+   [
+    63,
+    "25K"
+   ],
+   [
+    64,
+    "50K"
+   ],
+   [
+    65,
+    "Curvas de nivel"
+   ],
+   [
+    66,
+    "05K"
+   ],
+   [
+    67,
+    "1K"
+   ],
+   [
+    68,
+    "2K"
+   ],
+   [
+    69,
+    "4K"
+   ],
+   [
+    70,
+    "5K"
+   ],
+   [
+    71,
+    "10K"
+   ],
+   [
+    72,
+    "15K"
+   ],
+   [
+    73,
+    "20K"
+   ],
+   [
+    74,
+    "25K"
+   ],
+   [
+    75,
+    "50K"
+   ],
+   [
+    76,
+    "Amenazas por flujos"
+   ],
+   [
+    77,
+    "05K"
+   ],
+   [
+    78,
+    "1K"
+   ],
+   [
+    79,
+    "2K"
+   ],
+   [
+    80,
+    "4K"
+   ],
+   [
+    81,
+    "5K"
+   ],
+   [
+    82,
+    "10K"
+   ],
+   [
+    83,
+    "15K"
+   ],
+   [
+    84,
+    "20K"
+   ],
+   [
+    85,
+    "25K"
+   ],
+   [
+    86,
+    "50K"
+   ],
+   [
+    87,
+    "Coberturas de la tierra"
+   ],
+   [
+    88,
+    "05K"
+   ],
+   [
+    89,
+    "1K"
+   ],
+   [
+    90,
+    "2K"
+   ],
+   [
+    91,
+    "4K"
+   ],
+   [
+    92,
+    "5K"
+   ],
+   [
+    93,
+    "10K"
+   ],
+   [
+    94,
+    "15K"
+   ],
+   [
+    95,
+    "20K"
+   ],
+   [
+    96,
+    "25K"
+   ],
+   [
+    97,
+    "50K"
+   ],
+   [
+    98,
+    "100K"
+   ],
+   [
+    99,
+    "Uso del suelo"
+   ],
+   [
+    100,
+    "05K"
+   ],
+   [
+    101,
+    "1K"
+   ],
+   [
+    102,
+    "2K"
+   ],
+   [
+    103,
+    "4K"
+   ],
+   [
+    104,
+    "5K"
+   ],
+   [
+    105,
+    "10K"
+   ],
+   [
+    106,
+    "15K"
+   ],
+   [
+    107,
+    "20K"
+   ],
+   [
+    108,
+    "25K"
+   ],
+   [
+    109,
+    "50K"
+   ],
+   [
+    110,
+    "100K"
+   ],
+   [
+    111,
+    "Geología para ingeniería"
+   ],
+   [
+    112,
+    "05K"
+   ],
+   [
+    113,
+    "1K"
+   ],
+   [
+    114,
+    "2K"
+   ],
+   [
+    115,
+    "4K"
+   ],
+   [
+    116,
+    "5K"
+   ],
+   [
+    117,
+    "10K"
+   ],
+   [
+    118,
+    "15K"
+   ],
+   [
+    119,
+    "20K"
+   ],
+   [
+    120,
+    "25K"
+   ],
+   [
+    121,
+    "50K"
+   ],
+   [
+    122,
+    "Unidades geológicas superficiales"
+   ],
+   [
+    123,
+    "05K"
+   ],
+   [
+    124,
+    "1K"
+   ],
+   [
+    125,
+    "2K"
+   ],
+   [
+    126,
+    "4K"
+   ],
+   [
+    127,
+    "5K"
+   ],
+   [
+    128,
+    "10K"
+   ],
+   [
+    129,
+    "15K"
+   ],
+   [
+    130,
+    "20K"
+   ],
+   [
+    131,
+    "25K"
+   ],
+   [
+    132,
+    "50K"
+   ],
+   [
+    133,
+    "100K"
+   ]
+  ],
+  "_error": null
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/0": {
+  "name": "Toponimia",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/1": {
+  "name": "05K",
+  "type": "Annotation Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "FEATUREID",
+    "esriFieldTypeInteger",
+    "FeatureID"
+   ],
+   [
+    "ZORDER",
+    "esriFieldTypeInteger",
+    "ZOrder"
+   ],
+   [
+    "ANNOTATIONCLASSID",
+    "esriFieldTypeInteger",
+    "AnnotationClassID"
+   ],
+   [
+    "SYMBOLID",
+    "esriFieldTypeInteger",
+    "SymbolID"
+   ],
+   [
+    "STATUS",
+    "esriFieldTypeSmallInteger",
+    "Status"
+   ],
+   [
+    "TEXTSTRING",
+    "esriFieldTypeString",
+    "TextString"
+   ],
+   [
+    "FONTNAME",
+    "esriFieldTypeString",
+    "FontName"
+   ],
+   [
+    "FONTSIZE",
+    "esriFieldTypeDouble",
+    "FontSize"
+   ],
+   [
+    "BOLD",
+    "esriFieldTypeSmallInteger",
+    "Bold"
+   ],
+   [
+    "ITALIC",
+    "esriFieldTypeSmallInteger",
+    "Italic"
+   ],
+   [
+    "UNDERLINE",
+    "esriFieldTypeSmallInteger",
+    "Underline"
+   ],
+   [
+    "VERTICALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "VerticalAlignment"
+   ],
+   [
+    "HORIZONTALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "HorizontalAlignment"
+   ],
+   [
+    "XOFFSET",
+    "esriFieldTypeDouble",
+    "XOffset"
+   ],
+   [
+    "YOFFSET",
+    "esriFieldTypeDouble",
+    "YOffset"
+   ],
+   [
+    "ANGLE",
+    "esriFieldTypeDouble",
+    "Angle"
+   ],
+   [
+    "FONTLEADING",
+    "esriFieldTypeDouble",
+    "FontLeading"
+   ],
+   [
+    "WORDSPACING",
+    "esriFieldTypeDouble",
+    "WordSpacing"
+   ],
+   [
+    "CHARACTERWIDTH",
+    "esriFieldTypeDouble",
+    "CharacterWidth"
+   ],
+   [
+    "CHARACTERSPACING",
+    "esriFieldTypeDouble",
+    "CharacterSpacing"
+   ],
+   [
+    "FLIPANGLE",
+    "esriFieldTypeDouble",
+    "FlipAngle"
+   ],
+   [
+    "OVERRIDE",
+    "esriFieldTypeInteger",
+    "Override"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/2": {
+  "name": "Altiplano",
+  "type": "Annotation SubLayer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/3": {
+  "name": "1K",
+  "type": "Annotation Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "FEATUREID",
+    "esriFieldTypeInteger",
+    "FeatureID"
+   ],
+   [
+    "ZORDER",
+    "esriFieldTypeInteger",
+    "ZOrder"
+   ],
+   [
+    "ANNOTATIONCLASSID",
+    "esriFieldTypeInteger",
+    "AnnotationClassID"
+   ],
+   [
+    "SYMBOLID",
+    "esriFieldTypeInteger",
+    "SymbolID"
+   ],
+   [
+    "STATUS",
+    "esriFieldTypeSmallInteger",
+    "Status"
+   ],
+   [
+    "TEXTSTRING",
+    "esriFieldTypeString",
+    "TextString"
+   ],
+   [
+    "FONTNAME",
+    "esriFieldTypeString",
+    "FontName"
+   ],
+   [
+    "FONTSIZE",
+    "esriFieldTypeDouble",
+    "FontSize"
+   ],
+   [
+    "BOLD",
+    "esriFieldTypeSmallInteger",
+    "Bold"
+   ],
+   [
+    "ITALIC",
+    "esriFieldTypeSmallInteger",
+    "Italic"
+   ],
+   [
+    "UNDERLINE",
+    "esriFieldTypeSmallInteger",
+    "Underline"
+   ],
+   [
+    "VERTICALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "VerticalAlignment"
+   ],
+   [
+    "HORIZONTALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "HorizontalAlignment"
+   ],
+   [
+    "XOFFSET",
+    "esriFieldTypeDouble",
+    "XOffset"
+   ],
+   [
+    "YOFFSET",
+    "esriFieldTypeDouble",
+    "YOffset"
+   ],
+   [
+    "ANGLE",
+    "esriFieldTypeDouble",
+    "Angle"
+   ],
+   [
+    "FONTLEADING",
+    "esriFieldTypeDouble",
+    "FontLeading"
+   ],
+   [
+    "WORDSPACING",
+    "esriFieldTypeDouble",
+    "WordSpacing"
+   ],
+   [
+    "CHARACTERWIDTH",
+    "esriFieldTypeDouble",
+    "CharacterWidth"
+   ],
+   [
+    "CHARACTERSPACING",
+    "esriFieldTypeDouble",
+    "CharacterSpacing"
+   ],
+   [
+    "FLIPANGLE",
+    "esriFieldTypeDouble",
+    "FlipAngle"
+   ],
+   [
+    "OVERRIDE",
+    "esriFieldTypeInteger",
+    "Override"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/4": {
+  "name": "Altiplano",
+  "type": "Annotation SubLayer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/5": {
+  "name": "2K",
+  "type": "Annotation Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "FEATUREID",
+    "esriFieldTypeInteger",
+    "FeatureID"
+   ],
+   [
+    "ZORDER",
+    "esriFieldTypeInteger",
+    "ZOrder"
+   ],
+   [
+    "ANNOTATIONCLASSID",
+    "esriFieldTypeInteger",
+    "AnnotationClassID"
+   ],
+   [
+    "SYMBOLID",
+    "esriFieldTypeInteger",
+    "SymbolID"
+   ],
+   [
+    "STATUS",
+    "esriFieldTypeSmallInteger",
+    "Status"
+   ],
+   [
+    "TEXTSTRING",
+    "esriFieldTypeString",
+    "TextString"
+   ],
+   [
+    "FONTNAME",
+    "esriFieldTypeString",
+    "FontName"
+   ],
+   [
+    "FONTSIZE",
+    "esriFieldTypeDouble",
+    "FontSize"
+   ],
+   [
+    "BOLD",
+    "esriFieldTypeSmallInteger",
+    "Bold"
+   ],
+   [
+    "ITALIC",
+    "esriFieldTypeSmallInteger",
+    "Italic"
+   ],
+   [
+    "UNDERLINE",
+    "esriFieldTypeSmallInteger",
+    "Underline"
+   ],
+   [
+    "VERTICALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "VerticalAlignment"
+   ],
+   [
+    "HORIZONTALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "HorizontalAlignment"
+   ],
+   [
+    "XOFFSET",
+    "esriFieldTypeDouble",
+    "XOffset"
+   ],
+   [
+    "YOFFSET",
+    "esriFieldTypeDouble",
+    "YOffset"
+   ],
+   [
+    "ANGLE",
+    "esriFieldTypeDouble",
+    "Angle"
+   ],
+   [
+    "FONTLEADING",
+    "esriFieldTypeDouble",
+    "FontLeading"
+   ],
+   [
+    "WORDSPACING",
+    "esriFieldTypeDouble",
+    "WordSpacing"
+   ],
+   [
+    "CHARACTERWIDTH",
+    "esriFieldTypeDouble",
+    "CharacterWidth"
+   ],
+   [
+    "CHARACTERSPACING",
+    "esriFieldTypeDouble",
+    "CharacterSpacing"
+   ],
+   [
+    "FLIPANGLE",
+    "esriFieldTypeDouble",
+    "FlipAngle"
+   ],
+   [
+    "OVERRIDE",
+    "esriFieldTypeInteger",
+    "Override"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/6": {
+  "name": "Altiplano",
+  "type": "Annotation SubLayer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/7": {
+  "name": "4K",
+  "type": "Annotation Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "FEATUREID",
+    "esriFieldTypeInteger",
+    "FeatureID"
+   ],
+   [
+    "ZORDER",
+    "esriFieldTypeInteger",
+    "ZOrder"
+   ],
+   [
+    "ANNOTATIONCLASSID",
+    "esriFieldTypeInteger",
+    "AnnotationClassID"
+   ],
+   [
+    "SYMBOLID",
+    "esriFieldTypeInteger",
+    "SymbolID"
+   ],
+   [
+    "STATUS",
+    "esriFieldTypeSmallInteger",
+    "Status"
+   ],
+   [
+    "TEXTSTRING",
+    "esriFieldTypeString",
+    "TextString"
+   ],
+   [
+    "FONTNAME",
+    "esriFieldTypeString",
+    "FontName"
+   ],
+   [
+    "FONTSIZE",
+    "esriFieldTypeDouble",
+    "FontSize"
+   ],
+   [
+    "BOLD",
+    "esriFieldTypeSmallInteger",
+    "Bold"
+   ],
+   [
+    "ITALIC",
+    "esriFieldTypeSmallInteger",
+    "Italic"
+   ],
+   [
+    "UNDERLINE",
+    "esriFieldTypeSmallInteger",
+    "Underline"
+   ],
+   [
+    "VERTICALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "VerticalAlignment"
+   ],
+   [
+    "HORIZONTALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "HorizontalAlignment"
+   ],
+   [
+    "XOFFSET",
+    "esriFieldTypeDouble",
+    "XOffset"
+   ],
+   [
+    "YOFFSET",
+    "esriFieldTypeDouble",
+    "YOffset"
+   ],
+   [
+    "ANGLE",
+    "esriFieldTypeDouble",
+    "Angle"
+   ],
+   [
+    "FONTLEADING",
+    "esriFieldTypeDouble",
+    "FontLeading"
+   ],
+   [
+    "WORDSPACING",
+    "esriFieldTypeDouble",
+    "WordSpacing"
+   ],
+   [
+    "CHARACTERWIDTH",
+    "esriFieldTypeDouble",
+    "CharacterWidth"
+   ],
+   [
+    "CHARACTERSPACING",
+    "esriFieldTypeDouble",
+    "CharacterSpacing"
+   ],
+   [
+    "FLIPANGLE",
+    "esriFieldTypeDouble",
+    "FlipAngle"
+   ],
+   [
+    "OVERRIDE",
+    "esriFieldTypeInteger",
+    "Override"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/8": {
+  "name": "Altiplano",
+  "type": "Annotation SubLayer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/9": {
+  "name": "5K",
+  "type": "Annotation Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "FEATUREID",
+    "esriFieldTypeInteger",
+    "FeatureID"
+   ],
+   [
+    "ZORDER",
+    "esriFieldTypeInteger",
+    "ZOrder"
+   ],
+   [
+    "ANNOTATIONCLASSID",
+    "esriFieldTypeInteger",
+    "AnnotationClassID"
+   ],
+   [
+    "SYMBOLID",
+    "esriFieldTypeInteger",
+    "SymbolID"
+   ],
+   [
+    "STATUS",
+    "esriFieldTypeSmallInteger",
+    "Status"
+   ],
+   [
+    "TEXTSTRING",
+    "esriFieldTypeString",
+    "TextString"
+   ],
+   [
+    "FONTNAME",
+    "esriFieldTypeString",
+    "FontName"
+   ],
+   [
+    "FONTSIZE",
+    "esriFieldTypeDouble",
+    "FontSize"
+   ],
+   [
+    "BOLD",
+    "esriFieldTypeSmallInteger",
+    "Bold"
+   ],
+   [
+    "ITALIC",
+    "esriFieldTypeSmallInteger",
+    "Italic"
+   ],
+   [
+    "UNDERLINE",
+    "esriFieldTypeSmallInteger",
+    "Underline"
+   ],
+   [
+    "VERTICALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "VerticalAlignment"
+   ],
+   [
+    "HORIZONTALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "HorizontalAlignment"
+   ],
+   [
+    "XOFFSET",
+    "esriFieldTypeDouble",
+    "XOffset"
+   ],
+   [
+    "YOFFSET",
+    "esriFieldTypeDouble",
+    "YOffset"
+   ],
+   [
+    "ANGLE",
+    "esriFieldTypeDouble",
+    "Angle"
+   ],
+   [
+    "FONTLEADING",
+    "esriFieldTypeDouble",
+    "FontLeading"
+   ],
+   [
+    "WORDSPACING",
+    "esriFieldTypeDouble",
+    "WordSpacing"
+   ],
+   [
+    "CHARACTERWIDTH",
+    "esriFieldTypeDouble",
+    "CharacterWidth"
+   ],
+   [
+    "CHARACTERSPACING",
+    "esriFieldTypeDouble",
+    "CharacterSpacing"
+   ],
+   [
+    "FLIPANGLE",
+    "esriFieldTypeDouble",
+    "FlipAngle"
+   ],
+   [
+    "OVERRIDE",
+    "esriFieldTypeInteger",
+    "Override"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/10": {
+  "name": "Altiplano",
+  "type": "Annotation SubLayer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/11": {
+  "name": "10K",
+  "type": "Annotation Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "FEATUREID",
+    "esriFieldTypeInteger",
+    "FeatureID"
+   ],
+   [
+    "ZORDER",
+    "esriFieldTypeInteger",
+    "ZOrder"
+   ],
+   [
+    "ANNOTATIONCLASSID",
+    "esriFieldTypeInteger",
+    "AnnotationClassID"
+   ],
+   [
+    "SYMBOLID",
+    "esriFieldTypeInteger",
+    "SymbolID"
+   ],
+   [
+    "STATUS",
+    "esriFieldTypeSmallInteger",
+    "Status"
+   ],
+   [
+    "TEXTSTRING",
+    "esriFieldTypeString",
+    "TextString"
+   ],
+   [
+    "FONTNAME",
+    "esriFieldTypeString",
+    "FontName"
+   ],
+   [
+    "FONTSIZE",
+    "esriFieldTypeDouble",
+    "FontSize"
+   ],
+   [
+    "BOLD",
+    "esriFieldTypeSmallInteger",
+    "Bold"
+   ],
+   [
+    "ITALIC",
+    "esriFieldTypeSmallInteger",
+    "Italic"
+   ],
+   [
+    "UNDERLINE",
+    "esriFieldTypeSmallInteger",
+    "Underline"
+   ],
+   [
+    "VERTICALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "VerticalAlignment"
+   ],
+   [
+    "HORIZONTALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "HorizontalAlignment"
+   ],
+   [
+    "XOFFSET",
+    "esriFieldTypeDouble",
+    "XOffset"
+   ],
+   [
+    "YOFFSET",
+    "esriFieldTypeDouble",
+    "YOffset"
+   ],
+   [
+    "ANGLE",
+    "esriFieldTypeDouble",
+    "Angle"
+   ],
+   [
+    "FONTLEADING",
+    "esriFieldTypeDouble",
+    "FontLeading"
+   ],
+   [
+    "WORDSPACING",
+    "esriFieldTypeDouble",
+    "WordSpacing"
+   ],
+   [
+    "CHARACTERWIDTH",
+    "esriFieldTypeDouble",
+    "CharacterWidth"
+   ],
+   [
+    "CHARACTERSPACING",
+    "esriFieldTypeDouble",
+    "CharacterSpacing"
+   ],
+   [
+    "FLIPANGLE",
+    "esriFieldTypeDouble",
+    "FlipAngle"
+   ],
+   [
+    "OVERRIDE",
+    "esriFieldTypeInteger",
+    "Override"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/12": {
+  "name": "Altiplano",
+  "type": "Annotation SubLayer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/13": {
+  "name": "15K",
+  "type": "Annotation Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "FEATUREID",
+    "esriFieldTypeInteger",
+    "FeatureID"
+   ],
+   [
+    "ZORDER",
+    "esriFieldTypeInteger",
+    "ZOrder"
+   ],
+   [
+    "ANNOTATIONCLASSID",
+    "esriFieldTypeInteger",
+    "AnnotationClassID"
+   ],
+   [
+    "SYMBOLID",
+    "esriFieldTypeInteger",
+    "SymbolID"
+   ],
+   [
+    "STATUS",
+    "esriFieldTypeSmallInteger",
+    "Status"
+   ],
+   [
+    "TEXTSTRING",
+    "esriFieldTypeString",
+    "TextString"
+   ],
+   [
+    "FONTNAME",
+    "esriFieldTypeString",
+    "FontName"
+   ],
+   [
+    "FONTSIZE",
+    "esriFieldTypeDouble",
+    "FontSize"
+   ],
+   [
+    "BOLD",
+    "esriFieldTypeSmallInteger",
+    "Bold"
+   ],
+   [
+    "ITALIC",
+    "esriFieldTypeSmallInteger",
+    "Italic"
+   ],
+   [
+    "UNDERLINE",
+    "esriFieldTypeSmallInteger",
+    "Underline"
+   ],
+   [
+    "VERTICALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "VerticalAlignment"
+   ],
+   [
+    "HORIZONTALALIGNMENT",
+    "esriFieldTypeSmallInteger",
+    "HorizontalAlignment"
+   ],
+   [
+    "XOFFSET",
+    "esriFieldTypeDouble",
+    "XOffset"
+   ],
+   [
+    "YOFFSET",
+    "esriFieldTypeDouble",
+    "YOffset"
+   ],
+   [
+    "ANGLE",
+    "esriFieldTypeDouble",
+    "Angle"
+   ],
+   [
+    "FONTLEADING",
+    "esriFieldTypeDouble",
+    "FontLeading"
+   ],
+   [
+    "WORDSPACING",
+    "esriFieldTypeDouble",
+    "WordSpacing"
+   ],
+   [
+    "CHARACTERWIDTH",
+    "esriFieldTypeDouble",
+    "CharacterWidth"
+   ],
+   [
+    "CHARACTERSPACING",
+    "esriFieldTypeDouble",
+    "CharacterSpacing"
+   ],
+   [
+    "FLIPANGLE",
+    "esriFieldTypeDouble",
+    "FlipAngle"
+   ],
+   [
+    "OVERRIDE",
+    "esriFieldTypeInteger",
+    "Override"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/Capas_Tematicas/MapServer/14": {
+  "name": "Altiplano",
+  "type": "Annotation SubLayer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/FeatureServer": {
+  "layers": [
+   [
+    1,
+    "Grilla 25.000"
+   ],
+   [
+    2,
+    "Grilla 100.000"
+   ],
+   [
+    3,
+    "Grilla 500.000"
+   ],
+   [
+    4,
+    "Áreas de estudio"
+   ],
+   [
+    5,
+    "Municipios"
+   ],
+   [
+    6,
+    "Límite Nacional"
+   ]
+  ],
+  "_error": null
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/FeatureServer/1": {
+  "name": "Grilla 25.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NUMERO_PLANCHA",
+    "esriFieldTypeString",
+    "Número de Plancha"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeInteger",
+    "Escala de la Plancha"
+   ],
+   [
+    "SISTEMA_REFERENCIA",
+    "esriFieldTypeString",
+    "Sistema de Referencia"
+   ],
+   [
+    "ORIGEN_CARTOGRAFICO",
+    "esriFieldTypeString",
+    "Origen Cartográfico"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "RESPONSABLE_CARGUE_SISTEMA",
+    "esriFieldTypeString",
+    "Responsable del Cargue al Sistema"
+   ],
+   [
+    "FECHA_CARGUE_SISTEMA",
+    "esriFieldTypeDate",
+    "Fecha de Cargue al Sistema"
+   ],
+   [
+    "VERSION",
+    "esriFieldTypeString",
+    "Versión"
+   ],
+   [
+    "RULEID",
+    "esriFieldTypeInteger",
+    "RuleID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/FeatureServer/2": {
+  "name": "Grilla 100.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NUMERO_PLANCHA",
+    "esriFieldTypeString",
+    "Número de Plancha"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeInteger",
+    "Escala de la Plancha"
+   ],
+   [
+    "SISTEMA_REFERENCIA",
+    "esriFieldTypeString",
+    "Sistema de Referencia"
+   ],
+   [
+    "ORIGEN_CARTOGRAFICO",
+    "esriFieldTypeString",
+    "Origen Cartográfico"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "RESPONSABLE_CARGUE_SISTEMA",
+    "esriFieldTypeString",
+    "Responsable del Cargue al Sistema"
+   ],
+   [
+    "FECHA_CARGUE_SISTEMA",
+    "esriFieldTypeDate",
+    "Fecha de Cargue al Sistema"
+   ],
+   [
+    "VERSION",
+    "esriFieldTypeString",
+    "Versión"
+   ],
+   [
+    "RULEID",
+    "esriFieldTypeInteger",
+    "RuleID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/FeatureServer/3": {
+  "name": "Grilla 500.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NUMERO_PLANCHA",
+    "esriFieldTypeString",
+    "Número de Plancha"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeInteger",
+    "Escala de la Plancha"
+   ],
+   [
+    "SISTEMA_REFERENCIA",
+    "esriFieldTypeString",
+    "Sistema de Referencia"
+   ],
+   [
+    "ORIGEN_CARTOGRAFICO",
+    "esriFieldTypeString",
+    "Origen Cartográfico"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "RESPONSABLE_CARGUE_SISTEMA",
+    "esriFieldTypeString",
+    "Responsable del Cargue al Sistema"
+   ],
+   [
+    "FECHA_CARGUE_SISTEMA",
+    "esriFieldTypeDate",
+    "Fecha de Cargue al Sistema"
+   ],
+   [
+    "VERSION",
+    "esriFieldTypeString",
+    "Versión"
+   ],
+   [
+    "RULEID",
+    "esriFieldTypeInteger",
+    "RuleID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/FeatureServer/4": {
+  "name": "Áreas de estudio",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "COD_SICAT",
+    "esriFieldTypeString",
+    "Cod_SICAT"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeString",
+    "Escala"
+   ],
+   [
+    "URL_SICAT",
+    "esriFieldTypeString",
+    "URL_SICAT"
+   ],
+   [
+    "ANO_ESTUDIO",
+    "esriFieldTypeString",
+    "ANO_ESTUDIO"
+   ],
+   [
+    "CANT_PLANCHAS",
+    "esriFieldTypeSmallInteger",
+    "CANT_PLANCHAS"
+   ],
+   [
+    "NOMBRE_ESTUDIO",
+    "esriFieldTypeString",
+    "NOMBRE_ESTUDIO"
+   ],
+   [
+    "FECHA_ESTUDIO",
+    "esriFieldTypeDate",
+    "FECHA_ESTUDIO"
+   ],
+   [
+    "NOMBRE_TEMATICA_1",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_1"
+   ],
+   [
+    "CODIGO_TEMATICA_1",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_1"
+   ],
+   [
+    "NOMBRE_TEMATICA_2",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_2"
+   ],
+   [
+    "CODIGO_TEMATICA_2",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_2"
+   ],
+   [
+    "NOMBRE_TEMATICA_3",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_3"
+   ],
+   [
+    "CODIGO_TEMATICA_3",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_3"
+   ],
+   [
+    "NOMBRE_TEMATICA_4",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_4"
+   ],
+   [
+    "CODIGO_TEMATICA_4",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_4"
+   ],
+   [
+    "NOMBRE_TEMATICA_5",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_5"
+   ],
+   [
+    "CODIGO_TEMATICA_5",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_5"
+   ],
+   [
+    "NOMBRE_TEMATICA_6",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_6"
+   ],
+   [
+    "CODIGO_TEMATICA_6",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_6"
+   ],
+   [
+    "NOMBRE_TEMATICA_7",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_7"
+   ],
+   [
+    "CODIGO_TEMATICA_7",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_7"
+   ],
+   [
+    "NOMBRE_TEMATICA_8",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_8"
+   ],
+   [
+    "CODIGO_TEMATICA_8",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_8"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/FeatureServer/5": {
+  "name": "Municipios",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID_1"
+   ],
+   [
+    "NOMBRE_ENT",
+    "esriFieldTypeString",
+    "NOMBRE_ENT"
+   ],
+   [
+    "CATEGORIA",
+    "esriFieldTypeString",
+    "CATEGORIA"
+   ],
+   [
+    "DEPARTAMEN",
+    "esriFieldTypeString",
+    "DEPARTAMEN"
+   ],
+   [
+    "COD_DEPART",
+    "esriFieldTypeString",
+    "COD_DEPART"
+   ],
+   [
+    "COD_MUNICI",
+    "esriFieldTypeString",
+    "COD_MUNICI"
+   ],
+   [
+    "AREA_KM",
+    "esriFieldTypeDouble",
+    "AREA_KM"
+   ],
+   [
+    "OBSERVACIO",
+    "esriFieldTypeString",
+    "OBSERVACIO"
+   ],
+   [
+    "PK_CUE",
+    "esriFieldTypeDouble",
+    "PK_CUE"
+   ],
+   [
+    "ACTO_ADMINISTRATIVO",
+    "esriFieldTypeString",
+    "Acto_Administrativo"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/FeatureServer/6": {
+  "name": "Límite Nacional",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NOMBRE",
+    "esriFieldTypeString",
+    "Nombre Geográfico"
+   ],
+   [
+    "AREA_HA",
+    "esriFieldTypeDouble",
+    "Área en Hectareas"
+   ],
+   [
+    "PERIMETRO_KM",
+    "esriFieldTypeDouble",
+    "Perimetro en Kilometros"
+   ],
+   [
+    "OBSERVACIONES",
+    "esriFieldTypeString",
+    "Observaciones"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Unable to complete operation.",
+   "details": [
+    "Unable to perform query operation."
+   ]
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/MapServer": {
+  "layers": [
+   [
+    0,
+    "Grilla Indice"
+   ],
+   [
+    1,
+    "Grilla 25.000"
+   ],
+   [
+    2,
+    "Grilla 100.000"
+   ],
+   [
+    3,
+    "Grilla 500.000"
+   ],
+   [
+    4,
+    "Áreas de estudio"
+   ],
+   [
+    5,
+    "Municipios"
+   ],
+   [
+    6,
+    "Límite Nacional"
+   ]
+  ],
+  "_error": null
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/MapServer/0": {
+  "name": "Grilla Indice",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/MapServer/1": {
+  "name": "Grilla 25.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NUMERO_PLANCHA",
+    "esriFieldTypeString",
+    "Número de Plancha"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeInteger",
+    "Escala de la Plancha"
+   ],
+   [
+    "SISTEMA_REFERENCIA",
+    "esriFieldTypeString",
+    "Sistema de Referencia"
+   ],
+   [
+    "ORIGEN_CARTOGRAFICO",
+    "esriFieldTypeString",
+    "Origen Cartográfico"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "RESPONSABLE_CARGUE_SISTEMA",
+    "esriFieldTypeString",
+    "Responsable del Cargue al Sistema"
+   ],
+   [
+    "FECHA_CARGUE_SISTEMA",
+    "esriFieldTypeDate",
+    "Fecha de Cargue al Sistema"
+   ],
+   [
+    "VERSION",
+    "esriFieldTypeString",
+    "Versión"
+   ],
+   [
+    "RULEID",
+    "esriFieldTypeInteger",
+    "RuleID"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/MapServer/2": {
+  "name": "Grilla 100.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NUMERO_PLANCHA",
+    "esriFieldTypeString",
+    "Número de Plancha"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeInteger",
+    "Escala de la Plancha"
+   ],
+   [
+    "SISTEMA_REFERENCIA",
+    "esriFieldTypeString",
+    "Sistema de Referencia"
+   ],
+   [
+    "ORIGEN_CARTOGRAFICO",
+    "esriFieldTypeString",
+    "Origen Cartográfico"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "RESPONSABLE_CARGUE_SISTEMA",
+    "esriFieldTypeString",
+    "Responsable del Cargue al Sistema"
+   ],
+   [
+    "FECHA_CARGUE_SISTEMA",
+    "esriFieldTypeDate",
+    "Fecha de Cargue al Sistema"
+   ],
+   [
+    "VERSION",
+    "esriFieldTypeString",
+    "Versión"
+   ],
+   [
+    "RULEID",
+    "esriFieldTypeInteger",
+    "RuleID"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/MapServer/3": {
+  "name": "Grilla 500.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NUMERO_PLANCHA",
+    "esriFieldTypeString",
+    "Número de Plancha"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeInteger",
+    "Escala de la Plancha"
+   ],
+   [
+    "SISTEMA_REFERENCIA",
+    "esriFieldTypeString",
+    "Sistema de Referencia"
+   ],
+   [
+    "ORIGEN_CARTOGRAFICO",
+    "esriFieldTypeString",
+    "Origen Cartográfico"
+   ],
+   [
+    "DEPARTAMENTO",
+    "esriFieldTypeString",
+    "Departamento"
+   ],
+   [
+    "RESPONSABLE_CARGUE_SISTEMA",
+    "esriFieldTypeString",
+    "Responsable del Cargue al Sistema"
+   ],
+   [
+    "FECHA_CARGUE_SISTEMA",
+    "esriFieldTypeDate",
+    "Fecha de Cargue al Sistema"
+   ],
+   [
+    "VERSION",
+    "esriFieldTypeString",
+    "Versión"
+   ],
+   [
+    "RULEID",
+    "esriFieldTypeInteger",
+    "RuleID"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/MapServer/4": {
+  "name": "Áreas de estudio",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "COD_SICAT",
+    "esriFieldTypeString",
+    "Cod_SICAT"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeString",
+    "Escala"
+   ],
+   [
+    "URL_SICAT",
+    "esriFieldTypeString",
+    "URL_SICAT"
+   ],
+   [
+    "ANO_ESTUDIO",
+    "esriFieldTypeString",
+    "ANO_ESTUDIO"
+   ],
+   [
+    "CANT_PLANCHAS",
+    "esriFieldTypeSmallInteger",
+    "CANT_PLANCHAS"
+   ],
+   [
+    "NOMBRE_ESTUDIO",
+    "esriFieldTypeString",
+    "NOMBRE_ESTUDIO"
+   ],
+   [
+    "FECHA_ESTUDIO",
+    "esriFieldTypeDate",
+    "FECHA_ESTUDIO"
+   ],
+   [
+    "NOMBRE_TEMATICA_1",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_1"
+   ],
+   [
+    "CODIGO_TEMATICA_1",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_1"
+   ],
+   [
+    "NOMBRE_TEMATICA_2",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_2"
+   ],
+   [
+    "CODIGO_TEMATICA_2",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_2"
+   ],
+   [
+    "NOMBRE_TEMATICA_3",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_3"
+   ],
+   [
+    "CODIGO_TEMATICA_3",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_3"
+   ],
+   [
+    "NOMBRE_TEMATICA_4",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_4"
+   ],
+   [
+    "CODIGO_TEMATICA_4",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_4"
+   ],
+   [
+    "NOMBRE_TEMATICA_5",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_5"
+   ],
+   [
+    "CODIGO_TEMATICA_5",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_5"
+   ],
+   [
+    "NOMBRE_TEMATICA_6",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_6"
+   ],
+   [
+    "CODIGO_TEMATICA_6",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_6"
+   ],
+   [
+    "NOMBRE_TEMATICA_7",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_7"
+   ],
+   [
+    "CODIGO_TEMATICA_7",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_7"
+   ],
+   [
+    "NOMBRE_TEMATICA_8",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_8"
+   ],
+   [
+    "CODIGO_TEMATICA_8",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_8"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/MapServer/5": {
+  "name": "Municipios",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID_1"
+   ],
+   [
+    "NOMBRE_ENT",
+    "esriFieldTypeString",
+    "NOMBRE_ENT"
+   ],
+   [
+    "CATEGORIA",
+    "esriFieldTypeString",
+    "CATEGORIA"
+   ],
+   [
+    "DEPARTAMEN",
+    "esriFieldTypeString",
+    "DEPARTAMEN"
+   ],
+   [
+    "COD_DEPART",
+    "esriFieldTypeString",
+    "COD_DEPART"
+   ],
+   [
+    "COD_MUNICI",
+    "esriFieldTypeString",
+    "COD_MUNICI"
+   ],
+   [
+    "AREA_KM",
+    "esriFieldTypeDouble",
+    "AREA_KM"
+   ],
+   [
+    "OBSERVACIO",
+    "esriFieldTypeString",
+    "OBSERVACIO"
+   ],
+   [
+    "PK_CUE",
+    "esriFieldTypeDouble",
+    "PK_CUE"
+   ],
+   [
+    "ACTO_ADMINISTRATIVO",
+    "esriFieldTypeString",
+    "Acto_Administrativo"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasGeneralesView/MapServer/6": {
+  "name": "Límite Nacional",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "NOMBRE",
+    "esriFieldTypeString",
+    "Nombre Geográfico"
+   ],
+   [
+    "AREA_HA",
+    "esriFieldTypeDouble",
+    "Área en Hectareas"
+   ],
+   [
+    "PERIMETRO_KM",
+    "esriFieldTypeDouble",
+    "Perimetro en Kilometros"
+   ],
+   [
+    "OBSERVACIONES",
+    "esriFieldTypeString",
+    "Observaciones"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer": {
+  "layers": [
+   [
+    0,
+    "Inventario"
+   ],
+   [
+    1,
+    "Punto"
+   ],
+   [
+    2,
+    "Punto_cerca"
+   ],
+   [
+    3,
+    "Poligono"
+   ],
+   [
+    4,
+    "Catálogo"
+   ],
+   [
+    5,
+    "Punto"
+   ],
+   [
+    6,
+    "Punto_cerca"
+   ],
+   [
+    7,
+    "Poligono"
+   ],
+   [
+    8,
+    "Avenida Torrencial"
+   ],
+   [
+    9,
+    "Punto"
+   ],
+   [
+    10,
+    "Punto_cerca"
+   ],
+   [
+    11,
+    "Zonificación de Amenaza por Provincia"
+   ],
+   [
+    12,
+    "05K"
+   ],
+   [
+    13,
+    "1K"
+   ],
+   [
+    14,
+    "2K"
+   ],
+   [
+    15,
+    "4K"
+   ],
+   [
+    16,
+    "5K"
+   ],
+   [
+    17,
+    "10K"
+   ],
+   [
+    18,
+    "15K"
+   ],
+   [
+    19,
+    "20K"
+   ],
+   [
+    20,
+    "25K"
+   ],
+   [
+    21,
+    "50K"
+   ],
+   [
+    22,
+    "100K"
+   ],
+   [
+    23,
+    "500K"
+   ],
+   [
+    24,
+    "1500K"
+   ]
+  ],
+  "_error": null
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/0": {
+  "name": "Inventario",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/1": {
+  "name": "Punto",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPoint",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeInteger",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "INV_MOVIMIENTO_MASA_ID",
+    "esriFieldTypeInteger",
+    "INV_MOVIMIENTO_MASA_ID"
+   ],
+   [
+    "F35DOV_TIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "F35DOV_TIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "TIPO"
+   ],
+   [
+    "SUBTIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "SUBTIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "SUBTIPO"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "CLAS_MAPA"
+   ],
+   [
+    "ETIQUETA_MAPA",
+    "esriFieldTypeString",
+    "ETIQUETA_MAPA"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeOID",
+    "ESRI_OID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/2": {
+  "name": "Punto_cerca",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPoint",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeInteger",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "INV_MOVIMIENTO_MASA_ID",
+    "esriFieldTypeInteger",
+    "INV_MOVIMIENTO_MADA_ID"
+   ],
+   [
+    "F35DOV_TIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "F35DOV_TIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "TIPO"
+   ],
+   [
+    "SUBTIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "SUBTIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "SUBTIPO"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "CLAS_MAPA"
+   ],
+   [
+    "ETIQUETA_MAPA",
+    "esriFieldTypeString",
+    "ETIQUETA_MAPA"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeOID",
+    "ESRI_OID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/3": {
+  "name": "Poligono",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "INV_MOVIMIENTO_MASA_ID",
+    "esriFieldTypeInteger",
+    "INV_MOVIMIENTO_MASA_ID"
+   ],
+   [
+    "F35DOV_TIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "F35DOV_TIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "TIPO"
+   ],
+   [
+    "SUBTIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "SUBTIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "SUBTIPO"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "CLAS_MAPA"
+   ],
+   [
+    "ETIQUETA_MAPA",
+    "esriFieldTypeString",
+    "ETIQUETA_MAPA"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/4": {
+  "name": "Catálogo",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/5": {
+  "name": "Punto",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPoint",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeInteger",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "CAT_MOVIMIENTO_MASA_ID",
+    "esriFieldTypeInteger",
+    "CAT_MOVIMIENTO_MASA_ID"
+   ],
+   [
+    "F35DOV_TIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "F35DOV_TIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "TIPO"
+   ],
+   [
+    "SUBTIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "SUBTIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "SUBTIPO"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "CLAS_MAPA"
+   ],
+   [
+    "ETIQUETA_MAPA",
+    "esriFieldTypeString",
+    "ETIQUETA_MAPA"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeOID",
+    "ESRI_OID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/6": {
+  "name": "Punto_cerca",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPoint",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeInteger",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "CAT_MOVIMIENTO_MASA_ID",
+    "esriFieldTypeInteger",
+    "CAT_MOVIMIENTO_MASA_ID"
+   ],
+   [
+    "F35DOV_TIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "F35DOV_TIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "TIPO"
+   ],
+   [
+    "SUBTIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "SUBTIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "SUBTIPO"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "CLAS_MAPA"
+   ],
+   [
+    "ETIQUETA_MAPA",
+    "esriFieldTypeString",
+    "ETIQUETA_MAPA"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeOID",
+    "ESRI_OID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/7": {
+  "name": "Poligono",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeInteger",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "CAT_MOVIMIENTO_MASA_ID",
+    "esriFieldTypeInteger",
+    "CAT_MOVIMIENTO_MASA_ID"
+   ],
+   [
+    "F35DOV_TIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "F35DOV_TIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "TIPO"
+   ],
+   [
+    "SUBTIPO_MOVIMIENTO_ID",
+    "esriFieldTypeInteger",
+    "SUBTIPO_MOVIMIENTO_ID"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "SUBTIPO"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "CLAS_MAPA"
+   ],
+   [
+    "ETIQUETA_MAPA",
+    "esriFieldTypeString",
+    "ETIQUETA_MAPA"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "Shape"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeOID",
+    "ESRI_OID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/8": {
+  "name": "Avenida Torrencial",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/9": {
+  "name": "Punto",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPoint",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeInteger",
+    "OBJECTID"
+   ],
+   [
+    "INV_AVENIDA_TORRENCIAL_ID",
+    "esriFieldTypeInteger",
+    "INV_AVENIDA_TORRENCIAL_ID"
+   ],
+   [
+    "DR_ID_ESTACION",
+    "esriFieldTypeString",
+    "DR_ID_ESTACION"
+   ],
+   [
+    "DR_PROYECTO",
+    "esriFieldTypeString",
+    "DR_PROYECTO"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeOID",
+    "ESRI_OID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/10": {
+  "name": "Punto_cerca",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPoint",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeInteger",
+    "OBJECTID"
+   ],
+   [
+    "INV_AVENIDA_TORRENCIAL_ID",
+    "esriFieldTypeInteger",
+    "INV_AVENIDA_TORRENCIAL_ID"
+   ],
+   [
+    "DR_ID_ESTACION",
+    "esriFieldTypeString",
+    "DR_ID_ESTACION"
+   ],
+   [
+    "DR_PROYECTO",
+    "esriFieldTypeString",
+    "DR_PROYECTO"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeOID",
+    "ESRI_OID"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/11": {
+  "name": "Zonificación de Amenaza por Provincia",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/12": {
+  "name": "05K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/13": {
+  "name": "1K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasPrincipalesPru/MapServer/14": {
+  "name": "2K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer": {
+  "layers": [
+   [
+    0,
+    "Áreas de estudio"
+   ],
+   [
+    1,
+    "Estudios 1:2.000"
+   ],
+   [
+    2,
+    "Estudios 1:5.000"
+   ],
+   [
+    3,
+    "Estudios 1:10.000"
+   ],
+   [
+    4,
+    "Estudios 1:25.000"
+   ],
+   [
+    5,
+    "Estudios 1:50.000"
+   ],
+   [
+    6,
+    "Estudios 1:100.000"
+   ],
+   [
+    7,
+    "Estudios 1:500.000"
+   ],
+   [
+    8,
+    "Estudios 1:1'500.000"
+   ],
+   [
+    9,
+    "Zonificación de Amenaza"
+   ],
+   [
+    10,
+    "2K"
+   ],
+   [
+    11,
+    "5K"
+   ],
+   [
+    12,
+    "10K"
+   ],
+   [
+    13,
+    "25K"
+   ],
+   [
+    14,
+    "50K"
+   ],
+   [
+    15,
+    "100K"
+   ],
+   [
+    16,
+    "500K"
+   ],
+   [
+    17,
+    "1500K"
+   ],
+   [
+    18,
+    "Zonificación de Susceptibilidad"
+   ],
+   [
+    19,
+    "25K"
+   ],
+   [
+    20,
+    "100K"
+   ],
+   [
+    21,
+    "Amenazas por flujos"
+   ],
+   [
+    22,
+    "2K"
+   ],
+   [
+    23,
+    "5K"
+   ],
+   [
+    24,
+    "10K"
+   ],
+   [
+    25,
+    "25K"
+   ],
+   [
+    26,
+    "Coberturas de la tierra"
+   ],
+   [
+    27,
+    "2K"
+   ],
+   [
+    28,
+    "5K"
+   ],
+   [
+    29,
+    "10K"
+   ],
+   [
+    30,
+    "25K"
+   ],
+   [
+    31,
+    "Uso del suelo"
+   ],
+   [
+    32,
+    "2K"
+   ],
+   [
+    33,
+    "5K"
+   ],
+   [
+    34,
+    "10K"
+   ],
+   [
+    35,
+    "25K"
+   ],
+   [
+    36,
+    "Unidades geomorfológicas"
+   ],
+   [
+    37,
+    "2K"
+   ],
+   [
+    38,
+    "5K"
+   ],
+   [
+    39,
+    "10K"
+   ],
+   [
+    40,
+    "25K"
+   ],
+   [
+    41,
+    "100K"
+   ],
+   [
+    42,
+    "Geología para ingeniería"
+   ],
+   [
+    43,
+    "2K"
+   ],
+   [
+    44,
+    "5K"
+   ],
+   [
+    45,
+    "10K"
+   ],
+   [
+    46,
+    "Unidades geológicas superficiales"
+   ],
+   [
+    47,
+    "25K"
+   ],
+   [
+    48,
+    "50K"
+   ]
+  ],
+  "_error": null
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/0": {
+  "name": "Áreas de estudio",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": "TimeoutError('The read operation timed out')"
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/1": {
+  "name": "Estudios 1:2.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "COD_SICAT",
+    "esriFieldTypeString",
+    "Cod_SICAT"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeString",
+    "Escala"
+   ],
+   [
+    "URL_SICAT",
+    "esriFieldTypeString",
+    "URL_SICAT"
+   ],
+   [
+    "ANO_ESTUDIO",
+    "esriFieldTypeString",
+    "ANO_ESTUDIO"
+   ],
+   [
+    "CANT_PLANCHAS",
+    "esriFieldTypeSmallInteger",
+    "CANT_PLANCHAS"
+   ],
+   [
+    "NOMBRE_ESTUDIO",
+    "esriFieldTypeString",
+    "NOMBRE_ESTUDIO"
+   ],
+   [
+    "FECHA_ESTUDIO",
+    "esriFieldTypeDate",
+    "FECHA_ESTUDIO"
+   ],
+   [
+    "NOMBRE_TEMATICA_1",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_1"
+   ],
+   [
+    "CODIGO_TEMATICA_1",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_1"
+   ],
+   [
+    "NOMBRE_TEMATICA_2",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_2"
+   ],
+   [
+    "CODIGO_TEMATICA_2",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_2"
+   ],
+   [
+    "NOMBRE_TEMATICA_3",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_3"
+   ],
+   [
+    "CODIGO_TEMATICA_3",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_3"
+   ],
+   [
+    "NOMBRE_TEMATICA_4",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_4"
+   ],
+   [
+    "CODIGO_TEMATICA_4",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_4"
+   ],
+   [
+    "NOMBRE_TEMATICA_5",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_5"
+   ],
+   [
+    "CODIGO_TEMATICA_5",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_5"
+   ],
+   [
+    "NOMBRE_TEMATICA_6",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_6"
+   ],
+   [
+    "CODIGO_TEMATICA_6",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_6"
+   ],
+   [
+    "NOMBRE_TEMATICA_7",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_7"
+   ],
+   [
+    "CODIGO_TEMATICA_7",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_7"
+   ],
+   [
+    "NOMBRE_TEMATICA_8",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_8"
+   ],
+   [
+    "CODIGO_TEMATICA_8",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_8"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": "TimeoutError('The read operation timed out')"
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/2": {
+  "name": "Estudios 1:5.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "COD_SICAT",
+    "esriFieldTypeString",
+    "Cod_SICAT"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeString",
+    "Escala"
+   ],
+   [
+    "URL_SICAT",
+    "esriFieldTypeString",
+    "URL_SICAT"
+   ],
+   [
+    "ANO_ESTUDIO",
+    "esriFieldTypeString",
+    "ANO_ESTUDIO"
+   ],
+   [
+    "CANT_PLANCHAS",
+    "esriFieldTypeSmallInteger",
+    "CANT_PLANCHAS"
+   ],
+   [
+    "NOMBRE_ESTUDIO",
+    "esriFieldTypeString",
+    "NOMBRE_ESTUDIO"
+   ],
+   [
+    "FECHA_ESTUDIO",
+    "esriFieldTypeDate",
+    "FECHA_ESTUDIO"
+   ],
+   [
+    "NOMBRE_TEMATICA_1",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_1"
+   ],
+   [
+    "CODIGO_TEMATICA_1",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_1"
+   ],
+   [
+    "NOMBRE_TEMATICA_2",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_2"
+   ],
+   [
+    "CODIGO_TEMATICA_2",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_2"
+   ],
+   [
+    "NOMBRE_TEMATICA_3",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_3"
+   ],
+   [
+    "CODIGO_TEMATICA_3",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_3"
+   ],
+   [
+    "NOMBRE_TEMATICA_4",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_4"
+   ],
+   [
+    "CODIGO_TEMATICA_4",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_4"
+   ],
+   [
+    "NOMBRE_TEMATICA_5",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_5"
+   ],
+   [
+    "CODIGO_TEMATICA_5",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_5"
+   ],
+   [
+    "NOMBRE_TEMATICA_6",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_6"
+   ],
+   [
+    "CODIGO_TEMATICA_6",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_6"
+   ],
+   [
+    "NOMBRE_TEMATICA_7",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_7"
+   ],
+   [
+    "CODIGO_TEMATICA_7",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_7"
+   ],
+   [
+    "NOMBRE_TEMATICA_8",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_8"
+   ],
+   [
+    "CODIGO_TEMATICA_8",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_8"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": "TimeoutError('The read operation timed out')"
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/3": {
+  "name": "Estudios 1:10.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "COD_SICAT",
+    "esriFieldTypeString",
+    "Cod_SICAT"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeString",
+    "Escala"
+   ],
+   [
+    "URL_SICAT",
+    "esriFieldTypeString",
+    "URL_SICAT"
+   ],
+   [
+    "ANO_ESTUDIO",
+    "esriFieldTypeString",
+    "ANO_ESTUDIO"
+   ],
+   [
+    "CANT_PLANCHAS",
+    "esriFieldTypeSmallInteger",
+    "CANT_PLANCHAS"
+   ],
+   [
+    "NOMBRE_ESTUDIO",
+    "esriFieldTypeString",
+    "NOMBRE_ESTUDIO"
+   ],
+   [
+    "FECHA_ESTUDIO",
+    "esriFieldTypeDate",
+    "FECHA_ESTUDIO"
+   ],
+   [
+    "NOMBRE_TEMATICA_1",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_1"
+   ],
+   [
+    "CODIGO_TEMATICA_1",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_1"
+   ],
+   [
+    "NOMBRE_TEMATICA_2",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_2"
+   ],
+   [
+    "CODIGO_TEMATICA_2",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_2"
+   ],
+   [
+    "NOMBRE_TEMATICA_3",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_3"
+   ],
+   [
+    "CODIGO_TEMATICA_3",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_3"
+   ],
+   [
+    "NOMBRE_TEMATICA_4",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_4"
+   ],
+   [
+    "CODIGO_TEMATICA_4",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_4"
+   ],
+   [
+    "NOMBRE_TEMATICA_5",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_5"
+   ],
+   [
+    "CODIGO_TEMATICA_5",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_5"
+   ],
+   [
+    "NOMBRE_TEMATICA_6",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_6"
+   ],
+   [
+    "CODIGO_TEMATICA_6",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_6"
+   ],
+   [
+    "NOMBRE_TEMATICA_7",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_7"
+   ],
+   [
+    "CODIGO_TEMATICA_7",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_7"
+   ],
+   [
+    "NOMBRE_TEMATICA_8",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_8"
+   ],
+   [
+    "CODIGO_TEMATICA_8",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_8"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": "TimeoutError('The read operation timed out')"
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/4": {
+  "name": "Estudios 1:25.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "COD_SICAT",
+    "esriFieldTypeString",
+    "Cod_SICAT"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeString",
+    "Escala"
+   ],
+   [
+    "URL_SICAT",
+    "esriFieldTypeString",
+    "URL_SICAT"
+   ],
+   [
+    "ANO_ESTUDIO",
+    "esriFieldTypeString",
+    "ANO_ESTUDIO"
+   ],
+   [
+    "CANT_PLANCHAS",
+    "esriFieldTypeSmallInteger",
+    "CANT_PLANCHAS"
+   ],
+   [
+    "NOMBRE_ESTUDIO",
+    "esriFieldTypeString",
+    "NOMBRE_ESTUDIO"
+   ],
+   [
+    "FECHA_ESTUDIO",
+    "esriFieldTypeDate",
+    "FECHA_ESTUDIO"
+   ],
+   [
+    "NOMBRE_TEMATICA_1",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_1"
+   ],
+   [
+    "CODIGO_TEMATICA_1",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_1"
+   ],
+   [
+    "NOMBRE_TEMATICA_2",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_2"
+   ],
+   [
+    "CODIGO_TEMATICA_2",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_2"
+   ],
+   [
+    "NOMBRE_TEMATICA_3",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_3"
+   ],
+   [
+    "CODIGO_TEMATICA_3",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_3"
+   ],
+   [
+    "NOMBRE_TEMATICA_4",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_4"
+   ],
+   [
+    "CODIGO_TEMATICA_4",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_4"
+   ],
+   [
+    "NOMBRE_TEMATICA_5",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_5"
+   ],
+   [
+    "CODIGO_TEMATICA_5",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_5"
+   ],
+   [
+    "NOMBRE_TEMATICA_6",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_6"
+   ],
+   [
+    "CODIGO_TEMATICA_6",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_6"
+   ],
+   [
+    "NOMBRE_TEMATICA_7",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_7"
+   ],
+   [
+    "CODIGO_TEMATICA_7",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_7"
+   ],
+   [
+    "NOMBRE_TEMATICA_8",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_8"
+   ],
+   [
+    "CODIGO_TEMATICA_8",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_8"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/5": {
+  "name": "Estudios 1:50.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "COD_SICAT",
+    "esriFieldTypeString",
+    "Cod_SICAT"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeString",
+    "Escala"
+   ],
+   [
+    "URL_SICAT",
+    "esriFieldTypeString",
+    "URL_SICAT"
+   ],
+   [
+    "ANO_ESTUDIO",
+    "esriFieldTypeString",
+    "ANO_ESTUDIO"
+   ],
+   [
+    "CANT_PLANCHAS",
+    "esriFieldTypeSmallInteger",
+    "CANT_PLANCHAS"
+   ],
+   [
+    "NOMBRE_ESTUDIO",
+    "esriFieldTypeString",
+    "NOMBRE_ESTUDIO"
+   ],
+   [
+    "FECHA_ESTUDIO",
+    "esriFieldTypeDate",
+    "FECHA_ESTUDIO"
+   ],
+   [
+    "NOMBRE_TEMATICA_1",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_1"
+   ],
+   [
+    "CODIGO_TEMATICA_1",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_1"
+   ],
+   [
+    "NOMBRE_TEMATICA_2",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_2"
+   ],
+   [
+    "CODIGO_TEMATICA_2",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_2"
+   ],
+   [
+    "NOMBRE_TEMATICA_3",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_3"
+   ],
+   [
+    "CODIGO_TEMATICA_3",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_3"
+   ],
+   [
+    "NOMBRE_TEMATICA_4",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_4"
+   ],
+   [
+    "CODIGO_TEMATICA_4",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_4"
+   ],
+   [
+    "NOMBRE_TEMATICA_5",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_5"
+   ],
+   [
+    "CODIGO_TEMATICA_5",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_5"
+   ],
+   [
+    "NOMBRE_TEMATICA_6",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_6"
+   ],
+   [
+    "CODIGO_TEMATICA_6",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_6"
+   ],
+   [
+    "NOMBRE_TEMATICA_7",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_7"
+   ],
+   [
+    "CODIGO_TEMATICA_7",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_7"
+   ],
+   [
+    "NOMBRE_TEMATICA_8",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_8"
+   ],
+   [
+    "CODIGO_TEMATICA_8",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_8"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/6": {
+  "name": "Estudios 1:100.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "COD_SICAT",
+    "esriFieldTypeString",
+    "Cod_SICAT"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeString",
+    "Escala"
+   ],
+   [
+    "URL_SICAT",
+    "esriFieldTypeString",
+    "URL_SICAT"
+   ],
+   [
+    "ANO_ESTUDIO",
+    "esriFieldTypeString",
+    "ANO_ESTUDIO"
+   ],
+   [
+    "CANT_PLANCHAS",
+    "esriFieldTypeSmallInteger",
+    "CANT_PLANCHAS"
+   ],
+   [
+    "NOMBRE_ESTUDIO",
+    "esriFieldTypeString",
+    "NOMBRE_ESTUDIO"
+   ],
+   [
+    "FECHA_ESTUDIO",
+    "esriFieldTypeDate",
+    "FECHA_ESTUDIO"
+   ],
+   [
+    "NOMBRE_TEMATICA_1",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_1"
+   ],
+   [
+    "CODIGO_TEMATICA_1",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_1"
+   ],
+   [
+    "NOMBRE_TEMATICA_2",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_2"
+   ],
+   [
+    "CODIGO_TEMATICA_2",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_2"
+   ],
+   [
+    "NOMBRE_TEMATICA_3",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_3"
+   ],
+   [
+    "CODIGO_TEMATICA_3",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_3"
+   ],
+   [
+    "NOMBRE_TEMATICA_4",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_4"
+   ],
+   [
+    "CODIGO_TEMATICA_4",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_4"
+   ],
+   [
+    "NOMBRE_TEMATICA_5",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_5"
+   ],
+   [
+    "CODIGO_TEMATICA_5",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_5"
+   ],
+   [
+    "NOMBRE_TEMATICA_6",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_6"
+   ],
+   [
+    "CODIGO_TEMATICA_6",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_6"
+   ],
+   [
+    "NOMBRE_TEMATICA_7",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_7"
+   ],
+   [
+    "CODIGO_TEMATICA_7",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_7"
+   ],
+   [
+    "NOMBRE_TEMATICA_8",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_8"
+   ],
+   [
+    "CODIGO_TEMATICA_8",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_8"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/7": {
+  "name": "Estudios 1:500.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "COD_SICAT",
+    "esriFieldTypeString",
+    "Cod_SICAT"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeString",
+    "Escala"
+   ],
+   [
+    "URL_SICAT",
+    "esriFieldTypeString",
+    "URL_SICAT"
+   ],
+   [
+    "ANO_ESTUDIO",
+    "esriFieldTypeString",
+    "ANO_ESTUDIO"
+   ],
+   [
+    "CANT_PLANCHAS",
+    "esriFieldTypeSmallInteger",
+    "CANT_PLANCHAS"
+   ],
+   [
+    "NOMBRE_ESTUDIO",
+    "esriFieldTypeString",
+    "NOMBRE_ESTUDIO"
+   ],
+   [
+    "FECHA_ESTUDIO",
+    "esriFieldTypeDate",
+    "FECHA_ESTUDIO"
+   ],
+   [
+    "NOMBRE_TEMATICA_1",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_1"
+   ],
+   [
+    "CODIGO_TEMATICA_1",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_1"
+   ],
+   [
+    "NOMBRE_TEMATICA_2",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_2"
+   ],
+   [
+    "CODIGO_TEMATICA_2",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_2"
+   ],
+   [
+    "NOMBRE_TEMATICA_3",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_3"
+   ],
+   [
+    "CODIGO_TEMATICA_3",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_3"
+   ],
+   [
+    "NOMBRE_TEMATICA_4",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_4"
+   ],
+   [
+    "CODIGO_TEMATICA_4",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_4"
+   ],
+   [
+    "NOMBRE_TEMATICA_5",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_5"
+   ],
+   [
+    "CODIGO_TEMATICA_5",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_5"
+   ],
+   [
+    "NOMBRE_TEMATICA_6",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_6"
+   ],
+   [
+    "CODIGO_TEMATICA_6",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_6"
+   ],
+   [
+    "NOMBRE_TEMATICA_7",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_7"
+   ],
+   [
+    "CODIGO_TEMATICA_7",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_7"
+   ],
+   [
+    "NOMBRE_TEMATICA_8",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_8"
+   ],
+   [
+    "CODIGO_TEMATICA_8",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_8"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/8": {
+  "name": "Estudios 1:1'500.000",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "COD_SICAT",
+    "esriFieldTypeString",
+    "Cod_SICAT"
+   ],
+   [
+    "ESCALA",
+    "esriFieldTypeString",
+    "Escala"
+   ],
+   [
+    "URL_SICAT",
+    "esriFieldTypeString",
+    "URL_SICAT"
+   ],
+   [
+    "ANO_ESTUDIO",
+    "esriFieldTypeString",
+    "ANO_ESTUDIO"
+   ],
+   [
+    "CANT_PLANCHAS",
+    "esriFieldTypeSmallInteger",
+    "CANT_PLANCHAS"
+   ],
+   [
+    "NOMBRE_ESTUDIO",
+    "esriFieldTypeString",
+    "NOMBRE_ESTUDIO"
+   ],
+   [
+    "FECHA_ESTUDIO",
+    "esriFieldTypeDate",
+    "FECHA_ESTUDIO"
+   ],
+   [
+    "NOMBRE_TEMATICA_1",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_1"
+   ],
+   [
+    "CODIGO_TEMATICA_1",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_1"
+   ],
+   [
+    "NOMBRE_TEMATICA_2",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_2"
+   ],
+   [
+    "CODIGO_TEMATICA_2",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_2"
+   ],
+   [
+    "NOMBRE_TEMATICA_3",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_3"
+   ],
+   [
+    "CODIGO_TEMATICA_3",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_3"
+   ],
+   [
+    "NOMBRE_TEMATICA_4",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_4"
+   ],
+   [
+    "CODIGO_TEMATICA_4",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_4"
+   ],
+   [
+    "NOMBRE_TEMATICA_5",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_5"
+   ],
+   [
+    "CODIGO_TEMATICA_5",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_5"
+   ],
+   [
+    "NOMBRE_TEMATICA_6",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_6"
+   ],
+   [
+    "CODIGO_TEMATICA_6",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_6"
+   ],
+   [
+    "NOMBRE_TEMATICA_7",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_7"
+   ],
+   [
+    "CODIGO_TEMATICA_7",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_7"
+   ],
+   [
+    "NOMBRE_TEMATICA_8",
+    "esriFieldTypeString",
+    "NOMBRE_TEMATICA_8"
+   ],
+   [
+    "CODIGO_TEMATICA_8",
+    "esriFieldTypeString",
+    "CODIGO_TEMATICA_8"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/9": {
+  "name": "Zonificación de Amenaza",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/10": {
+  "name": "2K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/11": {
+  "name": "5K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/12": {
+  "name": "10K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/13": {
+  "name": "25K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/CapasTematicasXEscalas/MapServer/14": {
+  "name": "50K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer": {
+  "layers": [
+   [
+    0,
+    "Unidades geomorfológicas"
+   ],
+   [
+    1,
+    "05K"
+   ],
+   [
+    2,
+    "1K"
+   ],
+   [
+    3,
+    "2K"
+   ],
+   [
+    4,
+    "4K"
+   ],
+   [
+    5,
+    "5K"
+   ],
+   [
+    6,
+    "10K"
+   ],
+   [
+    7,
+    "15K"
+   ],
+   [
+    8,
+    "20K"
+   ],
+   [
+    9,
+    "25K"
+   ],
+   [
+    10,
+    "50K"
+   ],
+   [
+    11,
+    "100K"
+   ]
+  ],
+  "_error": null
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer/0": {
+  "name": "Unidades geomorfológicas",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer/1": {
+  "name": "05K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CODGMF",
+    "esriFieldTypeString",
+    "CodGmf"
+   ],
+   [
+    "UNIGMF",
+    "esriFieldTypeString",
+    "UniGmf"
+   ],
+   [
+    "DESCRIPCION",
+    "esriFieldTypeString",
+    "Descripcion"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer/2": {
+  "name": "1K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CODGMF",
+    "esriFieldTypeString",
+    "CodGmf"
+   ],
+   [
+    "UNIGMF",
+    "esriFieldTypeString",
+    "UniGmf"
+   ],
+   [
+    "DESCRIPCION",
+    "esriFieldTypeString",
+    "Descripcion"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer/3": {
+  "name": "2K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CODGMF",
+    "esriFieldTypeString",
+    "CodGmf"
+   ],
+   [
+    "UNIGMF",
+    "esriFieldTypeString",
+    "UniGmf"
+   ],
+   [
+    "DESCRIPCION",
+    "esriFieldTypeString",
+    "Descripcion"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer/4": {
+  "name": "4K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CODGMF",
+    "esriFieldTypeString",
+    "CodGmf"
+   ],
+   [
+    "UNIGMF",
+    "esriFieldTypeString",
+    "UniGmf"
+   ],
+   [
+    "DESCRIPCION",
+    "esriFieldTypeString",
+    "Descripcion"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer/5": {
+  "name": "5K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CODGMF",
+    "esriFieldTypeString",
+    "CodGmf"
+   ],
+   [
+    "UNIGMF",
+    "esriFieldTypeString",
+    "UniGmf"
+   ],
+   [
+    "DESCRIPCION",
+    "esriFieldTypeString",
+    "Descripcion"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer/6": {
+  "name": "10K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CODGMF",
+    "esriFieldTypeString",
+    "CodGmf"
+   ],
+   [
+    "UNIGMF",
+    "esriFieldTypeString",
+    "UniGmf"
+   ],
+   [
+    "DESCRIPCION",
+    "esriFieldTypeString",
+    "Descripcion"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer/7": {
+  "name": "15K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CODGMF",
+    "esriFieldTypeString",
+    "CodGmf"
+   ],
+   [
+    "UNIGMF",
+    "esriFieldTypeString",
+    "UniGmf"
+   ],
+   [
+    "DESCRIPCION",
+    "esriFieldTypeString",
+    "Descripcion"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer/8": {
+  "name": "20K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CODGMF",
+    "esriFieldTypeString",
+    "CodGmf"
+   ],
+   [
+    "UNIGMF",
+    "esriFieldTypeString",
+    "UniGmf"
+   ],
+   [
+    "DESCRIPCION",
+    "esriFieldTypeString",
+    "Descripcion"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer/9": {
+  "name": "25K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CODGMF",
+    "esriFieldTypeString",
+    "CodGmf"
+   ],
+   [
+    "UNIGMF",
+    "esriFieldTypeString",
+    "UniGmf"
+   ],
+   [
+    "DESCRIPCION",
+    "esriFieldTypeString",
+    "Descripcion"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer/10": {
+  "name": "50K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CODGMF",
+    "esriFieldTypeString",
+    "CodGmf"
+   ],
+   [
+    "UNIGMF",
+    "esriFieldTypeString",
+    "UniGmf"
+   ],
+   [
+    "DESCRIPCION",
+    "esriFieldTypeString",
+    "Descripcion"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/UnidadesGeomorfologicasCache/MapServer/11": {
+  "name": "100K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CODGMF",
+    "esriFieldTypeString",
+    "CodGmf"
+   ],
+   [
+    "UNIGMF",
+    "esriFieldTypeString",
+    "UniGmf"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "DSCRIPCION",
+    "esriFieldTypeString",
+    "Dscripcion"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer": {
+  "layers": [
+   [
+    0,
+    "Zonificación de Amenaza"
+   ],
+   [
+    1,
+    "05K"
+   ],
+   [
+    2,
+    "1K"
+   ],
+   [
+    3,
+    "2K"
+   ],
+   [
+    4,
+    "4K"
+   ],
+   [
+    5,
+    "5K"
+   ],
+   [
+    6,
+    "10K"
+   ],
+   [
+    7,
+    "15K"
+   ],
+   [
+    8,
+    "20K"
+   ],
+   [
+    9,
+    "25K"
+   ],
+   [
+    10,
+    "50K"
+   ],
+   [
+    11,
+    "100K"
+   ],
+   [
+    12,
+    "500K"
+   ],
+   [
+    13,
+    "1500K"
+   ]
+  ],
+  "_error": null
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/0": {
+  "name": "Zonificación de Amenaza",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/1": {
+  "name": "05K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/2": {
+  "name": "1K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/3": {
+  "name": "2K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/4": {
+  "name": "4K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/5": {
+  "name": "5K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/6": {
+  "name": "10K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/7": {
+  "name": "15K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/8": {
+  "name": "20K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/9": {
+  "name": "25K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/10": {
+  "name": "50K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/11": {
+  "name": "100K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/12": {
+  "name": "500K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionAmenazaCache/MapServer/13": {
+  "name": "1500K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "CATAME",
+    "esriFieldTypeString",
+    "CatAme"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionSusceptibilidadCache/MapServer": {
+  "layers": [
+   [
+    0,
+    "Zonificación de Susceptibilidad"
+   ],
+   [
+    1,
+    "25K"
+   ],
+   [
+    2,
+    "100K"
+   ]
+  ],
+  "_error": null
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionSusceptibilidadCache/MapServer/0": {
+  "name": "Zonificación de Susceptibilidad",
+  "type": "Group Layer",
+  "geometryType": null,
+  "maxRecordCount": null,
+  "_error": null,
+  "_text": null,
+  "fields": [],
+  "sample": {
+   "code": 400,
+   "message": "Invalid or missing input parameters.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionSusceptibilidadCache/MapServer/1": {
+  "name": "25K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "SUSMM",
+    "esriFieldTypeSmallInteger",
+    "SusMM"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "https://geoportal.sgc.gov.co/arcgis/rest/services/SIMMA/ZonificacionSusceptibilidadCache/MapServer/2": {
+  "name": "100K",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPolygon",
+  "maxRecordCount": 1000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "OBJECTID",
+    "esriFieldTypeOID",
+    "OBJECTID"
+   ],
+   [
+    "SUSMM",
+    "esriFieldTypeSmallInteger",
+    "SusMM"
+   ],
+   [
+    "LEYENDA",
+    "esriFieldTypeString",
+    "Leyenda"
+   ],
+   [
+    "PLANCHA",
+    "esriFieldTypeString",
+    "Plancha"
+   ],
+   [
+    "MAPA",
+    "esriFieldTypeString",
+    "Mapa"
+   ],
+   [
+    "SHAPE",
+    "esriFieldTypeGeometry",
+    "SHAPE"
+   ],
+   [
+    "SHAPE.AREA",
+    "esriFieldTypeDouble",
+    "SHAPE.AREA"
+   ],
+   [
+    "SHAPE.LEN",
+    "esriFieldTypeDouble",
+    "SHAPE.LEN"
+   ]
+  ],
+  "sample": {
+   "code": 400,
+   "message": "Pagination is not supported.",
+   "details": []
+  }
+ },
+ "hub_item": {
+  "title": "Inventario de movimientos en masa",
+  "url": "https://services1.arcgis.com/Og2nrTKe5bptW02d/arcgis/rest/services/Inventario_de_movimientos_en_masa/FeatureServer",
+  "type": "Feature Service",
+  "modified": 1583855599000,
+  "_error": null
+ },
+ "hub_layer": {
+  "name": "Inventario_de_movimientos_en_masa",
+  "type": "Feature Layer",
+  "geometryType": "esriGeometryPoint",
+  "maxRecordCount": 2000,
+  "_error": null,
+  "_text": null,
+  "fields": [
+   [
+    "FID",
+    "esriFieldTypeOID",
+    "FID"
+   ],
+   [
+    "OBJECTID",
+    "esriFieldTypeDouble",
+    "OBJECTID"
+   ],
+   [
+    "ID",
+    "esriFieldTypeInteger",
+    "ID"
+   ],
+   [
+    "INV_MOVIMI",
+    "esriFieldTypeInteger",
+    "Inentario_Movimiento"
+   ],
+   [
+    "F35DOV_TIP",
+    "esriFieldTypeInteger",
+    "F35DOV_TIP"
+   ],
+   [
+    "TIPO",
+    "esriFieldTypeString",
+    "Tipo_Movimiento"
+   ],
+   [
+    "SUBTIPO_MO",
+    "esriFieldTypeInteger",
+    "Subtipo_Movimiento"
+   ],
+   [
+    "SUBTIPO",
+    "esriFieldTypeString",
+    "Subtipo_nombre"
+   ],
+   [
+    "CLAS_MAPA",
+    "esriFieldTypeString",
+    "Etiqueta"
+   ],
+   [
+    "ETIQUETA_M",
+    "esriFieldTypeString",
+    "Representación_mapa"
+   ],
+   [
+    "ESRI_OID",
+    "esriFieldTypeInteger",
+    "ESRI_OID"
+   ]
+  ]
+ },
+ "hub_sample": {
+  "objectIdFieldName": "FID",
+  "uniqueIdField": {
+   "name": "FID",
+   "isSystemMaintained": true
+  },
+  "globalIdFieldName": "",
+  "geometryType": "esriGeometryPoint",
+  "spatialReference": {
+   "wkid": 4326,
+   "latestWkid": 4326
+  },
+  "fields": [
+   {
+    "name": "FID",
+    "type": "esriFieldTypeOID",
+    "alias": "FID",
+    "sqlType": "sqlTypeInteger",
+    "domain": null,
+    "defaultValue": null
+   },
+   {
+    "name": "OBJECTID",
+    "type": "esriFieldTypeDouble",
+    "alias": "OBJECTID",
+    "sqlType": "sqlTypeFloat",
+    "domain": null,
+    "defaultValue": null
+   },
+   {
+    "name": "ID",
+    "type": "esriFieldTypeInteger",
+    "alias": "ID",
+    "sqlType": "sqlTypeInteger",
+    "domain": null,
+    "defaultValue": null
+   },
+   {
+    "name": "INV_MOVIMI",
+    "type": "esriFieldTypeInteger",
+    "alias": "Inentario_Movimiento",
+    "sqlType": "sqlTypeInteger",
+    "domain": null,
+    "defaultValue": null
+   },
+   {
+    "name": "F35DOV_TIP",
+    "type": "esriFieldTypeInteger",
+    "alias": "F35DOV_TIP",
+    "sqlType": "sqlTypeInteger",
+    "domain": null,
+    "defaultValue": null
+   },
+   {
+    "name": "TIPO",
+    "type": "esriFieldTypeString",
+    "alias": "Tipo_Movimiento",
+    "sqlType": "sqlTypeNVarchar",
+    "length": 254,
+    "domain": null,
+    "defaultValue": null
+   },
+   {
+    "name": "SUBTIPO_MO",
+    "type": "esriFieldTypeInteger",
+    "alias": "Subtipo_Movimiento",
+    "sqlType": "sqlTypeInteger",
+    "domain": null,
+    "defaultValue": null
+   },
+   {
+    "name": "SUBTIPO",
+    "type": "esriFieldTypeString",
+    "alias": "Subtipo_nombre",
+    "sqlType": "sqlTypeNVarchar",
+    "length": 254,
+    "domain": null,
+    "defaultValue": null
+   },
+   {
+    "name": "CLAS_MAPA",
+    "type": "esriFieldTypeString",
+    "alias": "Etiqueta",
+    "sqlType": "sqlTypeNVarchar",
+    "length": 50,
+    "domain": null,
+    "defaultValue": null
+   },
+   {
+    "name": "ETIQUETA_M",
+    "type": "esriFieldTypeString",
+    "alias": "Representación_mapa",
+    "sqlType": "sqlTypeNVarchar",
+    "length": 4,
+    "domain": null,
+    "defaultValue": null
+   },
+   {
+    "name": "ESRI_OID",
+    "type": "esriFieldTypeInteger",
+    "alias": "ESRI_OID",
+    "sqlType": "sqlTypeInteger",
+    "domain": null,
+    "defaultValue": null
+   }
+  ],
+  "exceededTransferLimit": true,
+  "features": [
+   {
+    "attributes": {
+     "FID": 1,
+     "OBJECTID": -7.58397098089e+56,
+     "ID": 1752,
+     "INV_MOVIMI": 31553,
+     "F35DOV_TIP": 69,
+     "TIPO": "Deslizamiento",
+     "SUBTIPO_MO": 4,
+     "SUBTIPO": "Deslizamiento traslacional",
+     "CLAS_MAPA": "Deslizamiento",
+     "ETIQUETA_M": "dt",
+     "ESRI_OID": 130
+    },
+    "geometry": {
+     "x": -75.72861111099996,
+     "y": 2.3199999999236116
+    }
+   },
+   {
+    "attributes": {
+     "FID": 2,
+     "OBJECTID": -7.58397098089e+56,
+     "ID": 1753,
+     "INV_MOVIMI": 31534,
+     "F35DOV_TIP": 67,
+     "TIPO": "Caida",
+     "SUBTIPO_MO": 20,
+     "SUBTIPO": "Caida de detritos",
+     "CLAS_MAPA": "Caida",
+     "ETIQUETA_M": "cd",
+     "ESRI_OID": 131
+    },
+    "geometry": {
+     "x": -75.83583333299997,
+     "y": 2.2616666669255334
+    }
+   },
+   {
+    "attributes": {
+     "FID": 3,
+     "OBJECTID": -7.58397098089e+56,
+     "ID": 1754,
+     "INV_MOVIMI": 31551,
+     "F35DOV_TIP": 69,
+     "TIPO": "Deslizamiento",
+     "SUBTIPO_MO": 82,
+     "SUBTIPO": "Deslizamiento traslacional planar",
+     "CLAS_MAPA": "Deslizamiento",
+     "ETIQUETA_M": "dtp",
+     "ESRI_OID": 132
+    },
+    "geometry": {
+     "x": -75.84444444399998,
+     "y": 2.3022222219242376
+    }
+   }
+  ]
+ }
+}
