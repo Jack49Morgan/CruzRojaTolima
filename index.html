@@ -1380,13 +1380,21 @@ const VEREDAS = {"m":["Ibagué","Villarrica","Venadillo","Valle de San Juan","Su
 function decPoly(s){ const out = []; let i = 0, x = 0, y = 0;
   const nx = () => { let r = 0, sh = 0, b; do { b = s.charCodeAt(i++) - 63; r |= (b & 31) << sh; sh += 5; } while (b >= 32); return r & 1 ? ~(r >> 1) : r >> 1; };
   while (i < s.length) { y += nx(); x += nx(); out.push([y / 1e4, x / 1e4]); } return out; }
+// border colours for the plain map and for the satellite basemap (light lines with a dark halo read better on imagery)
+let SATBASE = false;
+const BSTY = () => SATBASE
+  ? {mun:{color:"#ffe14d", weight:1.6, opacity:0.95}, dep:{color:"#ffffff", weight:3.2, opacity:1},
+     ver:{color:"#ffffff", weight:0.8, opacity:0.75}, munHalo:{color:"#000", opacity:0.6}, munLine:{color:"#ffe14d"}}
+  : {mun:{color:"#3d4a46", weight:0.8, opacity:0.7}, dep:{color:"#17221f", weight:2.5, opacity:0.85},
+     ver:{color:"#9a7b4f", weight:0.6, opacity:0.7}, munHalo:{color:"#fff", opacity:0.85}, munLine:{color:"#0b2a5b"}};
 function buildVeredaLayer(munLayer){
-  const g = L.featureGroup(); let built = false;
+  const g = L.featureGroup(); let built = false, halo, line; const vp = [];
+  g.restyle = () => { if (!built) return; const b = BSTY(); vp.forEach(p => p.setStyle(b.ver)); halo.setStyle(b.munHalo); line.setStyle(b.munLine); };
   const rend = L.canvas({padding:0.3, tolerance:3, pane:"veredas"});
   const base = {color:"#9a7b4f", weight:0.6, opacity:0.7, fill:true, fillColor:"#c8a26a", fillOpacity:0};
   // while veredas are on, municipal borders come from the same simplified lines (so they match exactly), drawn on top with a white halo
   // also drop the canvas: left on the map it would swallow taps meant for the municipios underneath
-  g.on("remove", () => { munLayer && munLayer.setStyle({opacity:0.7}); if (g._mapRef) g._mapRef.removeLayer(rend); });
+  g.on("remove", () => { munLayer && munLayer.setStyle({opacity:BSTY().mun.opacity}); if (g._mapRef) g._mapRef.removeLayer(rend); });
   g.on("add", () => { g._mapRef = g._map; });
   g.on("add", () => { if (munLayer) munLayer.setStyle({opacity:0}); if (built) return; built = true;
     VEREDAS.f.forEach(([m, n, polys], vi) => {
@@ -1394,11 +1402,11 @@ function buildVeredaLayer(munLayer){
       if (HOVER) p.bindTooltip(`<b>${esc(n)}</b><br>${esc(VEREDAS.m[m])}<br>Población: ${fmtPeople(VPOP[vi])} (GHS-POP 2025)`, {sticky:true, direction:"top", className:"muntip"});
       p.bindPopup(() => popHtml(n, `Vereda · ${VEREDAS.m[m]} (municipio: ${fmtPeople(MUNPOP[VEREDAS.m[m]]?.[2])} personas)`, VPOP[vi]), {maxWidth:280});
       p.on("mouseover", () => p.setStyle({fillOpacity:0.25, weight:1.6}));
-      p.on("mouseout", () => p.setStyle({fillOpacity:0, weight:0.7}));
-      p.addTo(g); });
+      p.on("mouseout", () => p.setStyle({fillOpacity:0, weight:BSTY().ver.weight}));
+      vp.push(p); p.addTo(g); });
     const rings = VEREDAS.mb.flatMap(([, rs]) => rs.map(decPoly)), lo = {renderer:rend, pane:"veredas", interactive:false};
-    L.polyline(rings, {...lo, color:"#fff", weight:4.5, opacity:0.85}).addTo(g);
-    L.polyline(rings, {...lo, color:"#0b2a5b", weight:2, opacity:1}).addTo(g); });
+    halo = L.polyline(rings, {...lo, color:"#fff", weight:4.5, opacity:0.85}).addTo(g);
+    line = L.polyline(rings, {...lo, color:"#0b2a5b", weight:2, opacity:1}).addTo(g); g.restyle(); });
   return g;
 }
 // ---- Reservoirs (XM open data): % useful volume, trend and inflows. XM's API is not readable from other sites, so a scheduled job
@@ -1625,10 +1633,13 @@ function renderMap(){
     const camLayer = buildCamLayer();
     // Layer list in four groups (Fronteras administrativas, Investigación, Clima actual, Pronósticos), plus Incidentes added later;
     // a heading is drawn above the first layer of each group every time Leaflet redraws the list
+    const verL = buildVeredaLayer(mun);
+    map.on("baselayerchange", e => { SATBASE = e.layer === sat; const b = BSTY();
+      mun.setStyle({...b.mun, opacity: map.hasLayer(verL) ? 0 : b.mun.opacity}); dep.setStyle(b.dep); verL.restyle(); });
     const satL = k => [`${esc(SAT[k].name)} ${infoBtn(SAT[k].info, SAT[k].name)}`, SAT[k].layer];
     const LAYER_GROUPS = [
       ["Fronteras administrativas", [["Límite departamental", dep], ["Municipios", mun],
-        [`Veredas (DANE 2020) ${infoBtn("veredas", "veredas")}`, buildVeredaLayer(mun)]]],
+        [`Veredas (DANE 2020) ${infoBtn("veredas", "veredas")}`, verL]]],
       ["Investigación", [
         [`Sismos M4+ (elija las fechas) ${infoBtn("sismos", "sismos")}`, buildEqLayer()],
         [`Movimientos en masa (SGC, ${MOVMASA.length}) ${infoBtn("movmasa", "movimientos en masa")}`, buildMovLayer()],
