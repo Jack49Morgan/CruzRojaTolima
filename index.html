@@ -363,6 +363,7 @@ h2 button.info{vertical-align:2px}
     Los niveles también son datos crudos: un pico aislado (por ejemplo, más de 16 m en La Mora a finales de 2025) suele ser un error del sensor, así que conviene confirmarlo antes de leerlo como crecida.
     Mapa: cada gota es una estación, y su color y tamaño indican la lluvia acumulada desde las 0:00 de hoy; los botones 24 h / 72 h / 7 días cambian la tabla, los indicadores y los gráficos.
     Límites municipales: shapefile del Tolima suministrado (MAGNA-SIRGAS / Origen Nacional, simplificado a unos 150 m).
+    Población expuesta: WorldPop 2020, ajustada a Naciones Unidas, malla de 1 km (CC BY 4.0) <button type="button" class="info" data-info="poblacion" aria-label="Fuente y metodología de la población">i</button>.
   </p>
   <p class="note">
     <b>Capas de radar y satélite</b> (botón de capas del mapa, apagadas por defecto; la hora de cada imagen aparece bajo el mapa y se revisa cada 5 minutos):
@@ -1103,7 +1104,7 @@ function buildFcLayer(munFeatures){
         l.bindTooltip(`<b>${esc(n)}</b><br>Lluvia pronosticada:<br>próximas 24 h: <b>${fmt(f?.h24)} mm</b> (prob. máx. ${f?.p24 ?? "–"} %)<br>próximas 72 h: ${fmt(f?.h72)} mm<br>7 días: ${fmt(f?.d7)} mm<br>Población: ${fmtPeople(pop)}`, {sticky:true});
         if (f && f.h24 > 30) { heavyPeople += pop || 0; heavy.push(n); } });
       box.innerHTML = `<span><b>Pronóstico 24 h</b> (Open-Meteo, ${fmtLocal(new Date(FC.at)).slice(11)}): `
-        + (heavy.length ? `${heavy.length} municipio(s) con más de 30 mm, donde viven ${fmtPeople(heavyPeople)} personas: ${heavy.map(esc).join(", ")}.` : "ningún municipio supera 30 mm.")
+        + (heavy.length ? `${heavy.length} municipio(s) con más de 30 mm, donde viven ${fmtPeople(heavyPeople)} personas ${infoBtn("poblacion", "población")}: ${heavy.map(esc).join(", ")}.` : "ningún municipio supera 30 mm.")
         + `</span>${infoBtn("pronostico", "pronóstico")}`;
       box.hidden = false;
     } catch (e) { box.textContent = "No se pudo cargar el pronóstico de Open-Meteo."; box.hidden = false; }
@@ -1432,9 +1433,13 @@ const INFO = {
     `<p>Pronóstico de caudal diario del <b>Sistema Mundial de Alerta de Inundaciones (GloFAS)</b> del programa Copernicus, servido por la API de inundaciones de Open-Meteo, para cuatro puntos del río Magdalena: Honda, Ambalema, Flandes y Natagaima.</p>
      <p>El color del marcador compara el pico del pronóstico de los próximos 10 días con el caudal que en el modelo se supera en promedio una vez cada 2 años (amarillo), 5 años (naranja) o 20 años (rojo); verde es por debajo del de 2 años. Esos umbrales se calcularon con los máximos anuales de GloFAS de 1984 a 2024 en cada punto.</p>
      <p>GloFAS usa una malla de unos 5 km, así que solo representa bien los ríos grandes. Ríos como el Combeima, el Coello, el Totare o la Lagunilla son demasiado pequeños para esa malla y no se muestran: para ellos sirven los niveles de las estaciones del IDEAM.</p>`],
-  poblacion: ["Población expuesta (WorldPop)",
-    `<p>Estimación de cuántas personas viven en un área, con la malla de población <b>WorldPop 2020</b> (ajustada a las cifras de Naciones Unidas, celdas de 1 km agrupadas a unos 2.8 km), licencia CC BY 4.0.</p>
-     <p>Para un incidente con límite se suma la población de la parte de cada celda que queda dentro del límite; para un incidente con solo un punto, la de 1 km a la redonda. Es una cifra aproximada para dimensionar la respuesta, no un censo: en áreas pequeñas o en el borde de un pueblo el error puede ser grande.</p>`],
+  poblacion: ["Población expuesta: fuente y metodología",
+    `<p><b>Qué es:</b> una estimación de cuántas personas viven en un área (el límite de un incidente, 1 km alrededor de un punto o un municipio). Sirve para dimensionar la respuesta; no es un censo ni cuenta población flotante.</p>
+     <p><b>Fuente:</b> WorldPop (Universidad de Southampton), <i>Unconstrained individual countries 2000-2020 UN adjusted (1 km resolution)</i>, año 2020, Colombia. Licencia CC BY 4.0.
+       <a href="https://hub.worldpop.org/geodata/listing?id=75" target="_blank" rel="noopener">Ficha del conjunto de datos en WorldPop</a>.</p>
+     <p><b>Cómo la construye WorldPop:</b> parte de la población por municipio de los censos y proyecciones oficiales y la reparte en celdas de unos 100 m con un modelo estadístico (<i>random forest</i>) que usa imágenes de satélite y otras capas: zonas construidas, vías, luces nocturnas, relieve, cobertura del suelo. Luego suma las celdas a 1 km y ajusta el total del país a las estimaciones de Naciones Unidas (World Population Prospects 2019).</p>
+     <p><b>Cómo se calcula aquí:</b> la malla de 1 km se agrupó de a 3×3 celdas, en cuadros de 0,025° (unos 2,8 km de lado), sobre el Tolima y sus bordes. Para un área, se supone que la gente de cada celda está repartida de forma pareja y se suma la fracción de cada celda que queda dentro del límite (se prueba con 144 puntos por celda). Un incidente con solo un punto usa un círculo de 1 km de radio. La población de cada municipio es la suma de la malla dentro de su límite.</p>
+     <p><b>Límites:</b> son cifras de 2020, no actualizadas al año en curso. En áreas pequeñas, en el borde de un casco urbano o en veredas muy dispersas el error puede ser grande, porque una celda de 2,8 km mezcla zonas habitadas y vacías. Las cifras se redondean (a decenas o centenas) para no dar una falsa precisión. Para decisiones finas, contraste con el censo del DANE o con el conocimiento local.</p>`],
   sismos: ["Sismos de magnitud 4 o más",
     `<p>Sismos de magnitud 4.0 o mayor en el Tolima y alrededores (unos 150 km a la redonda), según el catálogo del <b>Servicio Geológico de Estados Unidos (USGS)</b>, que se actualiza minutos después de cada sismo. La capa se revisa cada 10 minutos.</p>
      <p><b>Fechas:</b> bajo el mapa puede elegir el periodo (desde / hasta) o usar los atajos de 30 días a 20 años. Por defecto muestra el último año.</p>
