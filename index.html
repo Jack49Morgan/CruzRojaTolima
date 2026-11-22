@@ -975,7 +975,7 @@ async function startAnim(k){
   try {
     const fr = await o.frames(); if (!fr.length) throw new Error("sin imágenes");
     ANIM.k = k; ANIM.frames = fr;
-    ANIM.layers = fr.map(f => L.tileLayer(o.url(f.key), {pane:"sat", opacity:0, maxNativeZoom:o.maxNative, maxZoom:14}).addTo(map));
+    ANIM.layers = fr.map(f => L.tileLayer(o.url(f.key), {pane:"sat", opacity:0, maxNativeZoom:o.maxNative, maxZoom:17}).addTo(map));
     o.layer.setOpacity(0);
     bar.innerHTML = `<b>${esc(o.name)}</b> · últimas ${Math.round((fr.at(-1).time - fr[0].time) / 36e5 * 10) / 10} h
       <button type="button" class="btn pp"></button><input type="range" min="0" max="${fr.length - 1}" step="1" aria-label="Imagen">
@@ -1590,8 +1590,15 @@ function renderMap(){
     map = L.map("map", {scrollWheelZoom:false}).setView([4.1,-75.1], 8);
     // Esri World Topo basemap: works when the page is opened as a local file
     // (OSM and CARTO tile servers refuse requests that carry no Referer)
-    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
-      {maxZoom:14, attribution:"Tiles © Esri — Esri, HERE, Garmin, USGS, NGA, OpenStreetMap contributors"}).addTo(map);
+    const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/";
+    const topo = L.tileLayer(ESRI + "World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+      {maxZoom:17, attribution:"Tiles © Esri — Esri, HERE, Garmin, USGS, NGA, OpenStreetMap contributors"}).addTo(map);
+    // satellite: Esri World Imagery (Maxar, Airbus and others) with place-name and boundary labels on top
+    const sat = L.layerGroup([
+      L.tileLayer(ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}", {maxZoom:17,
+        attribution:"Imágenes © Esri — Esri, Maxar, Earthstar Geographics, Airbus DS, USDA, USGS, IGN y la comunidad de usuarios SIG"}),
+      L.tileLayer(ESRI + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {maxZoom:17})]);
+    var BASES = {"Mapa topográfico": topo, "Imagen satelital": sat};
     // municipal boundaries (hover shows the name) and the department outline
     const mun = L.geoJSON(TOLIMA_GEO.mun, {
       style: {color:"#3d4a46", weight:0.8, opacity:0.7, fill:true, fillColor:"#3d4a46", fillOpacity:0},
@@ -1610,7 +1617,7 @@ function renderMap(){
     map.createPane("veredas").style.zIndex = 410;
     const satOverlays = {};
     for (const [k, o] of Object.entries(SAT)) {
-      o.layer = o.make ? o.make() : L.tileLayer(o.url(""), {pane:"sat", opacity:o.opacity, maxNativeZoom:o.maxNative, maxZoom:14, attribution:o.attribution});
+      o.layer = o.make ? o.make() : L.tileLayer(o.url(""), {pane:"sat", opacity:o.opacity, maxNativeZoom:o.maxNative, maxZoom:17, attribution:o.attribution});
       o.layer.on("add", () => { refreshSat(k); if (k === "ir") irLegend.addTo(map); });
       o.layer.on("remove", () => { if (ANIM.k === k) stopAnim(); if (k === "ir") irLegend.remove(); renderSatInfo(); });
       satOverlays[`${esc(o.name)} ${infoBtn(o.info, o.name)}`] = o.layer;
@@ -1641,11 +1648,12 @@ function renderMap(){
     const groupOf = new Map();
     const overlays = {};
     for (const [gname, ls] of LAYER_GROUPS) for (const [label, l] of ls) { overlays[label] = l; groupOf.set(L.stamp(l), gname); }
-    const ctrl = L.control.layers(null, overlays, {collapsed:true});
+    const ctrl = L.control.layers(BASES, overlays, {collapsed:true});
     const baseUpdate = ctrl._update;
     ctrl._update = function(){
       const r = baseUpdate.apply(this, arguments);
       let last = null;
+      const bh = document.createElement("div"); bh.className = "lgrp"; bh.textContent = "Mapa base"; this._baseLayersList.prepend(bh);
       for (const lab of [...this._overlaysList.children]) {
         const inp = lab.querySelector("input"); if (!inp) continue;
         const gname = groupOf.get(inp.layerId) || "Incidentes";
