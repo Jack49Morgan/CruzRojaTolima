@@ -84,7 +84,7 @@ table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
 th:first-child,td:first-child,th:nth-child(2),td:nth-child(2),th:nth-child(3),td:nth-child(3){text-align:left}
 .badge{display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:4px;margin-right:6px;color:#fff;vertical-align:1px}
-.badge.bad{background:var(--bad)} .badge.warn{background:var(--warn)} .badge.off{background:var(--off)}
+.badge.bad{background:var(--bad)} .badge.warn{background:var(--warn)} .badge.off{background:var(--off)} .badge.ok{background:var(--ok)}
 .offtxt{color:var(--off)}
 tbody tr.offrow td{color:var(--muted)}
 .badtxt{color:var(--bad)}
@@ -109,6 +109,9 @@ tbody tr.sel{background:var(--rain-soft);font-weight:600}
 .note a{color:var(--rain)}
 .err{color:var(--bad);font-weight:500}
 .leaflet-popup-content{font:13px/1.4 var(--sans)}
+.stpop{min-width:200px}.stpop .nm{font-size:14px;display:block}.stpop .mu{color:#5b6b7d;font-size:12px;margin:1px 0 5px}
+.stpop table{border-collapse:collapse;width:100%;margin-top:6px;font-size:12.5px}.stpop td{padding:2px 0;border-top:1px solid #e3e8ee;vertical-align:top}
+.stpop td+td{display:table-cell!important;text-align:right!important;padding-left:10px}.stpop .al{margin-top:6px;padding-top:5px;border-top:1px solid #e3e8ee;font-size:12px}
 .brand{display:flex;gap:14px;align-items:center;min-width:0}
 .emblem{width:84px;height:84px;flex:none;border-radius:10px;background:#fff;border:1px solid var(--line);object-fit:contain}
 @media (max-width:500px){.emblem{width:60px;height:60px}}
@@ -752,6 +755,7 @@ async function loadDry(){
     const ev = stations.filter(s => s.status !== "off" && s.has?.rain && first[s.id] && first[s.id] - t30 < 2*864e5);
     DRY.d15 = ev.filter(s => !lastWet[s.id] || lastWet[s.id] < t15);   // includes the 30+ ones
     DRY.d30 = ev.filter(s => !lastWet[s.id]);
+    DRY.lastWet = lastWet; DRY.ev = new Set(ev.map(s => s.id));
     DRY.n = ev.length; DRY.ok = true; DRY.at = Date.now(); DRY.err = "";
   } catch (e) { DRY.err = "no se pudo calcular"; }
 }
@@ -1557,6 +1561,30 @@ document.addEventListener("click", e => {
 }, true);
 dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
 
+// compact info box opened on tap/click; a map-level popup so renderMap's clearLayers doesn't close it
+function dryText(s){
+  if (!DRY.ok) return "calculando…";
+  if (s.status === "off" || !s.has?.rain) return "sin dato";
+  const t = DRY.lastWet?.[s.id];
+  if (t) { const d = Math.floor((latest - t) / 864e5); return d < 1 ? "llovió en las últimas 24 h" : d === 1 ? "1 día" : d + " días"; }
+  return DRY.ev?.has(s.id) ? "más de 30 días" : "sin dato (registro incompleto)";
+}
+function openStationPop(s, extra){
+  const row = (l, v) => `<tr><td>${l}</td><td><b>${v}</b></td></tr>`;
+  const stt = s.status === "ok" ? `<span class="badge ok">Transmitiendo</span>` : `<span class="badge ${STATUS[s.status][0]}">${STATUS[s.status][1]}</span>`;
+  const html = `<div class="stpop"><b class="nm">${esc(s.name)}</b><div class="mu">${esc(s.mun)} · cód. ${esc(String(s.id).replace(/^0+(?=\d)/,""))}</div>${stt}<table>`
+    + row("Lluvia hoy (desde 0:00)", s.today != null ? fmt(s.today) + " mm" : "sin dato")
+    + row("Lluvia últimas 24 h", s.rain != null ? fmt(s.rain) + " mm" : "sin dato")
+    + row("Días sin lluvia", dryText(s))
+    + (s.temp != null ? row("Temperatura", fmt(s.temp) + " °C") : "")
+    + (s.hum != null ? row("Humedad", fmt(s.hum,0) + " %") : "")
+    + (s.wind != null ? row("Viento", fmt(s.wind) + " m/s") : "")
+    + (s.level != null ? row("Nivel del río", fmt(s.level,2) + " m") : "")
+    + row("Último dato", s.last ? fmtLocal(s.last) : "sin datos recientes")
+    + `</table>${extra ? `<div class="al">${extra}</div>` : ""}<div class="mu">Gráficas de esta estación más abajo.</div></div>`;
+  L.popup({maxWidth: Math.min(280, innerWidth - 60), autoPanPadding:[12,12]}).setLatLng([s.lat, s.lon]).setContent(html).openOn(map);
+  loadDetail(s.id);
+}
 function renderMap(){
   if (!map) {
     map = L.map("map", {scrollWheelZoom:false}).setView([4.1,-75.1], 8);
@@ -1657,8 +1685,8 @@ function renderMap(){
                      : triSvg("#ffffffcc", sz, s.status === "ok" ? "#6b7a8c" : css("--warn"), s.status === "ok" ? 1.4 : 2.6, "2 1.5");
       m = L.marker([s.lat, s.lon], {icon: L.divIcon({className:"", html:`<span class="tri${s.id===sel ? " sel" : ""}">${html}</span>`, iconSize:[sz,sz], iconAnchor:[sz/2, sz*0.7]})});
     }
-    m.bindTooltip(tip);
-    m.on("click", () => loadDetail(s.id));
+    if (HOVER) m.bindTooltip(tip);
+    m.on("click", () => openStationPop(s));
     m.addTo(layer);
   }
   // river-level alert diamonds, drawn just above-right of the station point so they don't hide the rain drop
@@ -1671,8 +1699,8 @@ function renderMap(){
     const lat = st && isFinite(st.lat) ? st.lat : u.lat, lon = st && isFinite(st.lon) ? st.lon : u.lon;
     const m = L.marker([lat, lon], {zIndexOffset:500, icon: L.divIcon({className:"",
       html:`<span class="dia al-${u.alert}${st && st.id===sel ? " sel" : ""}"></span>`, iconSize:[14,14], iconAnchor:[-4,18]})});
-    m.bindTooltip(tip);
-    if (st) m.on("click", () => loadDetail(st.id));
+    if (HOVER || !st) m.bindTooltip(tip);
+    if (st) m.on("click", () => openStationPop(st, tip));
     m.addTo(alertLayer);
   }
   document.getElementById("maptitle").textContent = `Lluvia acumulada hoy desde las 0:00 (hora Colombia) · ${fmtLocal(new Date()).slice(0,10)}`;
