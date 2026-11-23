@@ -425,7 +425,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=17"></script>
+<script src="incstore.js?v=18"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -487,7 +487,8 @@ function initIncidents(map, ctrl){
     const mb = await slow(IncStore.mediaFor(show.map(inc => inc.id)), "Las fotos").catch(() => ({}));
     const medias = show.map(inc => mb[inc.id] || []);
     for (const [n, inc] of show.entries()) {
-      const [tname, color] = INC_TIPOS[inc.tipo] || INC_TIPOS.otro;
+      const [tname, tcolor] = INC_TIPOS[inc.tipo] || INC_TIPOS.otro;
+      const color = inc.estado === "cerrado" ? "#8a8f8d" : tcolor;   // closed events turn grey on the map and card
       const items = medias[n].map(m => ({u:m.url, video:(m.type || "").startsWith("video"), name:m.name, upd:m.updId || null}));
       const thumb = (x, i, cls = "incth") => `<button type="button" class="${cls}" data-g="${escI(inc.id)}" data-i="${i}" aria-label="Ver ${x.video ? "video" : "foto"}">${x.video ? `<video src="${x.u}#t=0.1" muted preload="metadata" playsinline></video><span class="play">▶</span>` : `<img src="${x.u}" alt="" loading="lazy">`}</button>`;
       // message board: each update carries its own photos and videos, under its time
