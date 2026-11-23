@@ -218,15 +218,6 @@ h2 button.info{vertical-align:2px}
 .incth.sm{width:52px;height:52px}
 .incseg summary{cursor:pointer;font-size:12px;color:var(--muted)}
 .incseg .incups{margin-top:6px}
-.incmore>summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--navy-dk);list-style:none;display:flex;align-items:center;gap:6px}
-.incmore>summary::-webkit-details-marker{display:none}
-.incmore>summary::before{content:"▸";transition:transform .15s}
-.incmore[open]>summary::before{transform:rotate(90deg)}
-.inccard:has(.incmore[open]) > .incups{display:none}
-.incmore dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:8px 0 0;font-size:13px}
-.incmore dt{color:var(--muted);font-weight:500}
-.incmore dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
-.incmore h4{margin:10px 0 4px;font-size:13px;color:var(--navy-dk)}
 .incmig{font-size:13px;border:2px solid var(--red);border-radius:8px;padding:8px 10px;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .incmig .btn{padding:4px 12px}
 .incquick{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:8px}
@@ -434,7 +425,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=11"></script>
+<script src="incstore.js?v=12"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -527,16 +518,6 @@ function initIncidents(map, ctrl){
           return vic || rest ? `<div class="incaf">${vic ? `<b style="color:var(--red)">${escI(vic)}</b>` : ""}${vic && rest ? " · " : ""}${rest ? "Afectados: " + escI(rest) : ""}</div>` : ""; })()}
         ${inc.descripcion ? `<p class="incdesc">${escI(inc.descripcion)}</p>` : ""}
         ${iu.length ? `<ul class="incups" aria-label="Actualizaciones">${iu.slice(0, 3).map(upItem).join("")}</ul>` : ""}
-        <details class="incmore" data-more="${escI(inc.id)}"${openMore.has(inc.id) ? " open" : ""}><summary>Ver toda la información${iu.length > 3 ? ` y las ${iu.length} actualizaciones` : ""}</summary>
-          <dl>${[["Tipo", tname], ["Estado", INC_ESTADOS[inc.estado] || inc.estado], ["Fecha y hora", fmt(inc.fecha)], ["Municipio", inc.municipio], ["Lugar", inc.lugar],
-            ["Fallecidos", inc.afectados?.fallecidos], ["Heridos", inc.afectados?.heridos], ["Personas afectadas", inc.afectados?.personas], ["Familias", inc.afectados?.familias], ["Viviendas", inc.afectados?.viviendas],
-            ["Descripción", inc.descripcion], ["Acciones de respuesta", inc.acciones],
-            ["Ubicación", ll ? `${(+ll[0]).toFixed(5)}, ${(+ll[1]).toFixed(5)}` : ""], ["Área afectada", inc.geo ? (inc.geoName || "límite cargado") : ""],
-            ["Fotos y videos", items.length || ""], ["Registrado", [IncUtil.when(inc.creado), inc.autor].filter(Boolean).join(" · ")],
-            ["Última actualización", IncUtil.when(inc.actualizado)]]
-            .filter(([, v]) => v != null && v !== "").map(([k, v]) => `<dt>${k}</dt><dd>${escI(v)}</dd>`).join("")}</dl>
-          ${iu.length ? `<h4>Todas las actualizaciones (${iu.length})</h4><ul class="incups">${iu.map(upItem).join("")}</ul>` : ""}
-        </details>
         ${th ? `<div class="incmedia">${th}</div>` : ""}
         ${canEdit ? `<form class="incquick" data-q="${escI(inc.id)}">
           <textarea name="t" rows="2" maxlength="4000" placeholder="Escriba una actualización…" aria-label="Nueva actualización para ${escI(inc.titulo)}">${escI(drafts[inc.id] || "")}</textarea>
@@ -552,9 +533,7 @@ function initIncidents(map, ctrl){
     list.innerHTML = cards.join("");
   }
   // quick update box on each card: type, optionally add photos, Publicar
-  const drafts = {}, qfiles = {}, openMore = new Set();
-  list.addEventListener("toggle", e => { const d = e.target; if (!d.dataset?.more) return;
-    d.open ? openMore.add(d.dataset.more) : openMore.delete(d.dataset.more); }, true);
+  const drafts = {}, qfiles = {};
   const qmsg = (fm, t, bad) => { const m = fm.querySelector(".qm"); m.textContent = t; m.classList.toggle("bad", !!bad); };
   list.addEventListener("input", e => { const fm = e.target.closest("[data-q]"); if (fm && e.target.name === "t") drafts[fm.dataset.q] = e.target.value; });
   list.addEventListener("change", e => { const fm = e.target.closest("[data-q]"); if (!fm || e.target.name !== "f") return;
