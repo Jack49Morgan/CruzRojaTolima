@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=12"></script>
+<script src="incstore.js?v=13"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -85,7 +85,8 @@ details.edit>summary{cursor:pointer;font-weight:600;color:var(--navy);padding:10
 details.edit[open]>summary{margin-bottom:14px}
 details.edit.nosum>summary{display:none}
 /* public read-only view of an event's follow-up */
-.ro #uf,.ro #edit,.ro .sel,.ro #mig,.ro [data-delu]{display:none!important}
+.ro #uf,.ro #edit,.ro .sel,.ro #mig,.ro [data-delu],.ro .delrow{display:none!important}
+.delrow{margin-top:10px}
 #uf textarea{min-height:110px}
 </style>
 </head>
@@ -96,7 +97,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=12" id="back">Ver tablero</a>
+    <a class="btn" href="index.html?v=13" id="back">Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -342,7 +343,9 @@ function drawSummary(){
     <div><span class="chip st-${esc(cur.estado)}">${esc(INC_ESTADOS[cur.estado] || cur.estado)}</span>${IncUtil.afect(cur.afectados) ? `<span class="chip af">${esc(IncUtil.afect(cur.afectados))}</span>` : ""}</div>
     <div class="sub">${esc(tname)} · ${esc(cur.municipio)}${cur.lugar ? " · " + esc(cur.lugar) : ""}<br>
     Inicio: ${esc((cur.fecha || "").replace("T", " "))}${cur.actualizado ? ` · Última actualización ${esc(IncUtil.ago(cur.actualizado))}` : ""}</div>
-    ${cur.acciones ? `<div class="sub"><b>Acciones de respuesta:</b> ${esc(cur.acciones)}</div>` : ""}`;
+    ${cur.acciones ? `<div class="sub"><b>Acciones de respuesta:</b> ${esc(cur.acciones)}</div>` : ""}
+    ${!IncStore.remote || IncStore.user() ? `<div class="delrow"><button type="button" class="btn danger" id="delsum">Eliminar evento</button> <span class="msg" id="dmsg" role="status"></span></div>` : ""}`;
+  const b = $("#delsum"); if (b) b.onclick = () => delEvent(b, "Eliminar evento", $("#dmsg"), true);
 }
 let delu = null, lastUps = [];
 async function drawTimeline(medP, updP){
@@ -469,12 +472,16 @@ f.addEventListener("submit", async e => {
   $("#save").disabled = false;
 });
 let delarm = false;
-$("#del").onclick = async () => {
+// two taps to delete: the first arms the button for 4 s, the second deletes the event with its updates and photos
+async function delEvent(btn, label, msg, toBoard){
   if (!cur) return;
-  if (!delarm) { delarm = true; $("#del").textContent = "Toque otra vez para eliminar"; setTimeout(() => { delarm = false; $("#del").textContent = "Eliminar"; }, 4000); return; }
-  try { await IncStore.remove(cur.id); } catch (err) { return setMsg($("#smsg"), "No se pudo eliminar: " + err.message, "bad"); }
+  if (!delarm) { delarm = true; btn.textContent = "Toque otra vez para eliminar"; setTimeout(() => { delarm = false; btn.textContent = label; }, 4000); return; }
+  delarm = false; btn.disabled = true; btn.textContent = "Eliminando…";
+  try { await IncStore.remove(cur.id); } catch (err) { btn.disabled = false; btn.textContent = label; return setMsg(msg, "No se pudo eliminar: " + err.message, "bad"); }
+  if (toBoard) { location.href = $("#back").href; return; }
   await load(""); setMsg($("#smsg"), "Evento eliminado.", "ok");
-};
+}
+$("#del").onclick = () => delEvent($("#del"), "Eliminar", $("#smsg"));
 
 // another phone or computer changed something: refresh the timeline (not the edit form, which may have unsaved edits)
 let busy = false;
