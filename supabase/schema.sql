@@ -46,6 +46,10 @@ create policy "equipo" on public.incidentes      for all to authenticated using 
 create policy "equipo" on public.actualizaciones for all to authenticated using (true) with check (true);
 create policy "equipo" on public.medios          for all to authenticated using (true) with check (true);
 
+-- Permiso de tabla para las cuentas del equipo (los proyectos nuevos de Supabase no lo dan solos).
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.incidentes, public.actualizaciones, public.medios to authenticated;
+
 -- Avisos en vivo: el tablero y el formulario se refrescan solos cuando otro dispositivo guarda algo.
 do $$ begin
   alter publication supabase_realtime add table public.incidentes, public.actualizaciones, public.medios;
