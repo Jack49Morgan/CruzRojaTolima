@@ -22,10 +22,12 @@ const INC_TIPOS = {
   accidente:    ["Accidente / emergencia", "#c8102e"],
   otro:         ["Otro", "#616161"],
 };
-const INC_ESTADOS = {activo:"Activo", atencion:"En atención", controlado:"Controlado", cerrado:"Cerrado"};
+const INC_ESTADOS = {activo:"Activo", controlado:"Controlado", cerrado:"Cerrado"};
+// "En atención" is no longer offered; kept hidden (not enumerable) so events saved with it still show a label
+Object.defineProperty(INC_ESTADOS, "atencion", {value:"En atención", enumerable:false});
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "familias", "viviendas"];   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 13;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 15;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
 //   remote, ready(), user(), signIn(email, pw), signOut(), onAuth(fn)
