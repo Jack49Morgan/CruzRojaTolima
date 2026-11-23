@@ -25,7 +25,7 @@ const INC_TIPOS = {
 const INC_ESTADOS = {activo:"Activo", atencion:"En atención", controlado:"Controlado", cerrado:"Cerrado"};
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "familias", "viviendas"];   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 6;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 8;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
 //   remote, ready(), user(), signIn(email, pw), signOut(), onAuth(fn)
@@ -76,8 +76,11 @@ function incLocalStore(){
       if (!d.objectStoreNames.contains("media")) d.createObjectStore("media", {keyPath:"id"}).createIndex("inc", "incId");
       if (!d.objectStoreNames.contains("upd")) d.createObjectStore("upd", {keyPath:"id"}).createIndex("inc", "incId");
     };
-    r.onsuccess = () => res(r.result);
-    r.onerror = () => rej(r.error);
+    // another tab still running an older copy of the page can block the upgrade forever: give up after 4 s
+    const tm = setTimeout(() => { dbp = null; rej(new Error("Cierre las otras pestañas del tablero o del formulario y recargue.")); }, 4000);
+    r.onblocked = () => {};
+    r.onsuccess = () => { clearTimeout(tm); const d = r.result; d.onversionchange = () => { d.close(); dbp = null; }; res(d); };
+    r.onerror = () => { clearTimeout(tm); dbp = null; rej(r.error); };
   });
   const tx = async (stores, mode, fn) => { const d = await open();
     return new Promise((res, rej) => { const t = d.transaction(stores, mode); let out;
@@ -113,6 +116,7 @@ function incLocalStore(){
       ping();
     },
     media: incId => tx(["media"], "readonly", t => req(t.objectStore("media").index("inc").getAll(incId))).then(a => a.map(toUrl)),
+    mediaFor: async ids => Object.fromEntries(await Promise.all(ids.map(async id => [id, await S.media(id)]))),
     updates: incId => tx(["upd"], "readonly", t => req(t.objectStore("upd").index("inc").getAll(incId)))
       .then(a => a.sort((x, y) => x.creado.localeCompare(y.creado))),
     allUpdates: () => tx(["upd"], "readonly", t => req(t.objectStore("upd").getAll()))
@@ -162,6 +166,7 @@ function incSupabaseStore(cfg){
     if (s) listen(); else if (channel) { sb.removeChannel(channel); channel = null; }
     if (was !== !!s) authFns.forEach(f => f(s));
   });
+  const signedCache = {};
   const ok = ({data, error}) => { if (error) throw new Error(error.message || String(error)); return data; };
   const who = () => session?.user?.email || null;
   const safe = n => (n || "archivo").normalize("NFD").replace(/[^\w.-]+/g, "_").slice(-80);
@@ -197,21 +202,26 @@ function incSupabaseStore(cfg){
       const isNew = !creado;
       const row = {id, estado, afectados, fecha, datos:{...datos, fecha}, actualizado:new Date().toISOString()};
       if (isNew) row.autor = who();
-      ok(await sb.from("incidentes").upsert(row));
-      if (drop.length) await dropMedia(ok(await sb.from("medios").select("id,ruta").in("id", drop)));
-      await upload(id, add);
-      return {...inc, ...(await S.get(id))};
+      // the row comes back with its server dates, so no second read is needed
+      const saved = ok(await sb.from("incidentes").upsert(row).select().single());   // must exist before its photos
+      await Promise.all([drop.length ? sb.from("medios").select("id,ruta").in("id", drop).then(ok).then(dropMedia) : null, upload(id, add)]);
+      return {...inc, ...fromRow(saved)};
     },
     remove: async id => {
       await dropMedia(ok(await sb.from("medios").select("id,ruta").eq("incidente_id", id)));
       ok(await sb.from("incidentes").delete().eq("id", id));   // updates go with it (on delete cascade)
     },
-    media: async incId => {
-      const rows = ok(await sb.from("medios").select("*").eq("incidente_id", incId).order("creado"));
-      if (!rows.length) return [];
-      const signed = ok(await sb.storage.from(BUCKET).createSignedUrls(rows.map(r => r.ruta), 6 * 3600));
-      const byPath = Object.fromEntries(signed.map(s => [s.path, s.signedUrl]));
-      return rows.map(r => ({id:r.id, name:r.nombre, type:r.tipo || "", updId:r.actualizacion_id, url:byPath[r.ruta], ruta:r.ruta}));
+    media: async incId => (await S.mediaFor([incId]))[incId] || [],
+    // media of several events in two requests; signed links are reused for 5 hours instead of asked for again
+    mediaFor: async ids => {
+      if (!ids.length) return {};
+      const rows = ok(await sb.from("medios").select("*").in("incidente_id", ids).order("creado"));
+      const need = rows.map(r => r.ruta).filter(p => !(signedCache[p]?.until > Date.now()));
+      if (need.length) for (const x of ok(await sb.storage.from(BUCKET).createSignedUrls(need, 6 * 3600)))
+        if (x.signedUrl) signedCache[x.path] = {url:x.signedUrl, until:Date.now() + 5 * 3600e3};
+      const out = {};
+      for (const r of rows) (out[r.incidente_id] ??= []).push({id:r.id, name:r.nombre, type:r.tipo || "", updId:r.actualizacion_id, url:signedCache[r.ruta]?.url, ruta:r.ruta});
+      return out;
     },
     updates: async incId => ok(await sb.from("actualizaciones").select("*").eq("incidente_id", incId).order("creado"))
       .map(r => ({...r, incId:r.incidente_id})),
@@ -219,12 +229,11 @@ function incSupabaseStore(cfg){
       .map(r => ({...r, incId:r.incidente_id})),
     addUpdate: async (incId, u, files = []) => {
       const upd = {id:IncUtil.uid(), incidente_id:incId, autor:who(), texto:u.texto || "", estado:u.estado || null, afectados:u.afectados || null};
-      ok(await sb.from("actualizaciones").insert(upd));
       const patch = {actualizado:new Date().toISOString()};
       if (upd.estado) patch.estado = upd.estado;
       if (upd.afectados) { const cur = await S.get(incId); patch.afectados = {...cur?.afectados, ...upd.afectados}; }
-      ok(await sb.from("incidentes").update(patch).eq("id", incId));
-      await upload(incId, files, upd.id);
+      ok(await sb.from("actualizaciones").insert(upd));   // first, so the photos below can point to it
+      await Promise.all([sb.from("incidentes").update(patch).eq("id", incId).then(ok), upload(incId, files, upd.id)]);
       return upd;
     },
     removeUpdate: async upd => {

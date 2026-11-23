@@ -432,7 +432,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=6"></script>
+<script src="incstore.js?v=8"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -470,14 +470,16 @@ function initIncidents(map, ctrl){
       document.getElementById("incout").onclick = () => IncStore.signOut(); }
     if (IncStore.remote && !IncStore.user()) { layer.clearLayers(); byId = {}; cnt.textContent = "";
       incLoginBox(list, rr, "Inicie sesión con su cuenta del equipo para ver los eventos y su seguimiento."); return; }
-    // events saved only in this browser (before the shared server was connected): offer to upload them
-    if (IncStore.remote && "indexedDB" in self) try {
+    // events saved only in this browser (before the shared server was connected): offer to upload them.
+    // Runs on the side so it can never hold up the list.
+    if (IncStore.remote && "indexedDB" in self) (async () => {
       let done = []; try { done = JSON.parse(localStorage.getItem("sat-tolima-migrados") || "[]"); } catch {}
       const n = (await incLocalStore().list()).filter(i => !done.includes(i.id)).length;
       if (n) { mig.hidden = false; mig.innerHTML = `<b>${n} evento(s) guardados solo en este dispositivo.</b> Súbalos para que el equipo los vea. <button type="button" class="btn redbtn" data-newinc-up>Subirlos</button>`; }
       else mig.hidden = true;
-    } catch {}
-    try { [incs, ups] = await Promise.all([IncStore.list(), IncStore.allUpdates()]); }
+    })().catch(() => {});
+    const slow = (pr, what) => Promise.race([pr, new Promise((_, rej) => setTimeout(() => rej(new Error(what + " tardó más de 25 s; revise la conexión y recargue")), 25000))]);
+    try { [incs, ups] = await slow(Promise.all([IncStore.list(), IncStore.allUpdates()]), "El servidor"); }
     catch (e) { list.innerHTML = `<p class="sub">No se pudo abrir el registro de eventos (${escI(e.message)}).</p>`; return; }
     byId = {}; layer.clearLayers();
     const upsBy = {}; for (const u of ups) (upsBy[u.incId] ??= []).push(u);   // newest first
@@ -485,7 +487,8 @@ function initIncidents(map, ctrl){
     cnt.textContent = incs.length ? `${show.length} de ${incs.length}` : "";
     if (!show.length) { list.innerHTML = `<p class="sub">${incs.length ? "No hay eventos abiertos. Elija “Todos” para ver los cerrados." : `Aún no hay eventos registrados${IncStore.remote ? "" : " en este dispositivo"}. Use “Registrar evento” para agregar el primero.`}</p>`; return; }
     const cards = [];
-    const medias = await Promise.all(show.map(inc => IncStore.media(inc.id).catch(() => [])));
+    const mb = await slow(IncStore.mediaFor(show.map(inc => inc.id)), "Las fotos").catch(() => ({}));
+    const medias = show.map(inc => mb[inc.id] || []);
     for (const [n, inc] of show.entries()) {
       const [tname, color] = INC_TIPOS[inc.tipo] || INC_TIPOS.otro;
       const items = medias[n].map(m => ({u:m.url, video:(m.type || "").startsWith("video"), name:m.name}));

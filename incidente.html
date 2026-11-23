@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=6"></script>
+<script src="incstore.js?v=8"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -94,7 +94,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=6" id="back">Ver tablero</a>
+    <a class="btn" href="index.html?v=8" id="back">Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -342,10 +342,10 @@ function drawSummary(){
     Inicio: ${esc((cur.fecha || "").replace("T", " "))}${cur.actualizado ? ` · Última actualización ${esc(IncUtil.ago(cur.actualizado))}` : ""}</div>`;
 }
 let delu = null, lastUps = [];
-async function drawTimeline(medP){
+async function drawTimeline(medP, updP){
   if (!cur) return;
   const id = cur.id;
-  const [ups, med] = await Promise.all([IncStore.updates(id), medP || IncStore.media(id)]);
+  const [ups, med] = await Promise.all([updP || IncStore.updates(id), medP || IncStore.media(id)]);
   if (cur?.id !== id) return;
   const byUpd = {}; for (const m of med) if (m.updId) (byUpd[m.updId] ??= []).push(m);
   const thumbs = list => list?.length ? `<div class="thumbs">${list.map(m => `<a class="thumb" href="${m.url}" target="_blank" rel="noopener">${isVid(m)
@@ -409,10 +409,13 @@ function fitCur(){
   else if (punto) map.setView(punto, 13); else map.fitBounds(home);
 }
 $("#edit").addEventListener("toggle", () => { if ($("#edit").open) setTimeout(fitCur, 0); });
-async function load(id){
+async function load(id, pre){
   media.forEach(m => m.isNew && URL.revokeObjectURL(m.url)); media = []; drop = [];
   umedia.forEach(m => URL.revokeObjectURL(m.url)); umedia = []; drawUThumbs();
-  cur = id ? await IncStore.get(id) : null;
+  // ask for the event, its photos and its timeline at the same time
+  const medP = id ? IncStore.media(id) : null, updP = id ? IncStore.updates(id) : null;
+  medP?.catch(() => {}); updP?.catch(() => {});
+  cur = id ? (pre || await IncStore.get(id)) : null;
   f.reset(); uf.reset(); delu = null;
   for (const el of ["#smsg", "#mmsg", "#bmsg", "#umsg", "#ummsg"]) setMsg($(el), "");
   if (cur) {
@@ -422,8 +425,8 @@ async function load(id){
     try { uf.texto.value = localStorage.getItem(draftKey()) || ""; } catch {}
     drawSummary();
     // photos and timeline load together; the page is usable before they arrive
-    const medP = IncStore.media(cur.id), loadedId = cur.id;
-    drawTimeline(medP);
+    const loadedId = cur.id;
+    drawTimeline(medP, updP);
     medP.then(med => { if (cur?.id !== loadedId) return;
       media = med.filter(m => !m.updId).map(m => ({...m, isNew:false})); drawThumbs(); }).catch(() => {});
   } else { f.fecha.value = nowLocal(); f.estado.value = "activo"; setPoint(null); setGeo(null); }
@@ -454,7 +457,7 @@ f.addEventListener("submit", async e => {
   try {
     const add = media.filter(m => m.isNew).map(({id, name, type, blob}) => ({id, name, type, blob}));
     const saved = await IncStore.save(inc, add, drop);
-    if (isNew) { await load(saved.id); window.scrollTo({top:0, behavior:"smooth"});
+    if (isNew) { await load(saved.id, saved); window.scrollTo({top:0, behavior:"smooth"});
       setMsg($("#umsg"), "Evento guardado. Agregue aquí las actualizaciones a medida que avance.", "ok"); }
     else { cur = saved; media = (await IncStore.media(cur.id)).filter(m => !m.updId).map(m => ({...m, isNew:false})); drop = []; drawThumbs();
       drawSummary(); drawTimeline(); await fillPick();
