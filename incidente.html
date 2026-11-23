@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=17"></script>
+<script src="incstore.js?v=18"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -105,7 +105,9 @@ details.edit.nosum>summary{display:none}
   header,.sum{break-inside:avoid}
   .tl li{break-inside:avoid}
   .chip,.tl li::before,.thumb{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .thumb{background:#ddd}
+  .thumb{background:#e6e6e6}
+  .thumb video{visibility:hidden}
+  .thumb:has(video)::after{content:"▶";position:absolute;inset:0;display:grid;place-items:center;font-size:22px;color:#555}
 }
 #uf textarea{min-height:110px}
 </style>
@@ -117,7 +119,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=17" id="back">Ver tablero</a>
+    <a class="btn" href="index.html?v=18" id="back">Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
