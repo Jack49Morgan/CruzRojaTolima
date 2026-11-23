@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Registrar incidente</title>
+<title>Registrar evento</title>
 <meta name="theme-color" content="#c8102e">
 <link rel="icon" href="icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js"></script>
+<script src="incstore.js?v=4"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -91,10 +91,10 @@ details.edit.nosum>summary{display:none}
 <div class="wrap">
   <header>
     <img src="data:image/jpeg;base64,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" alt="Cruz Roja Colombiana, Seccional Tolima">
-    <div><h1>Registrar incidente</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
+    <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html" id="back">Ver tablero</a>
+    <a class="btn" href="index.html?v=4" id="back">Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -102,9 +102,9 @@ details.edit.nosum>summary{display:none}
   <div class="card" id="mig" hidden></div>
 
   <div class="sel">
-    <label>Abrir un incidente
-      <select id="pick"><option value="">— Nuevo incidente —</option></select></label>
-    <button type="button" class="btn" id="newbtn">Nuevo incidente</button>
+    <label>Abrir un evento
+      <select id="pick"><option value="">— Nuevo evento —</option></select></label>
+    <button type="button" class="btn" id="newbtn">Nuevo evento</button>
   </div>
 
   <section id="seg" hidden style="display:grid;gap:14px">
@@ -113,11 +113,13 @@ details.edit.nosum>summary{display:none}
       <b>Nueva actualización</b>
       <label><span>¿Qué hay de nuevo?</span><textarea name="texto" maxlength="4000" placeholder="Ej.: El río bajó 40 cm. 12 familias evacuadas al coliseo. Llegaron 2 vehículos de la Defensa Civil."></textarea></label>
       <div class="row">
-        <label><span>Estado del incidente</span><select name="estado"><option value="">Sin cambio</option></select></label>
+        <label><span>Estado del evento</span><select name="estado"><option value="">Sin cambio</option></select></label>
       </div>
-      <details id="ufaf"><summary class="hint" style="cursor:pointer">Cambiar cifras de personas, familias o viviendas afectadas</summary>
+      <details id="ufaf"><summary class="hint" style="cursor:pointer">Cambiar cifras: fallecidos, heridos, personas, familias o viviendas</summary>
         <div class="row" style="margin-top:8px">
-          <label><span>Personas</span><input type="number" name="personas" min="0" inputmode="numeric"></label>
+          <label><span>Fallecidos</span><input type="number" name="fallecidos" min="0" inputmode="numeric"></label>
+        <label><span>Heridos</span><input type="number" name="heridos" min="0" inputmode="numeric"></label>
+        <label><span>Personas afectadas</span><input type="number" name="personas" min="0" inputmode="numeric"></label>
           <label><span>Familias</span><input type="number" name="familias" min="0" inputmode="numeric"></label>
           <label><span>Viviendas</span><input type="number" name="viviendas" min="0" inputmode="numeric"></label>
         </div></details>
@@ -131,14 +133,14 @@ details.edit.nosum>summary{display:none}
     <div class="card"><b>Seguimiento</b><ol class="tl" id="tl"></ol></div>
   </section>
 
-  <details class="edit" id="edit" open><summary>Ver o editar los datos del incidente</summary>
+  <details class="edit" id="edit" open><summary>Ver o editar los datos del evento</summary>
 
   <form id="f" novalidate>
     <div style="display:grid;gap:14px">
     <fieldset>
-      <legend>Datos del incidente</legend>
+      <legend>Datos del evento</legend>
       <div class="row">
-        <label class="req"><span>Tipo de incidente</span><select name="tipo" required></select></label>
+        <label class="req"><span>Tipo de evento</span><select name="tipo" required></select></label>
         <label class="req"><span>Estado</span><select name="estado" required></select></label>
       </div>
       <label class="req"><span>Título</span><input name="titulo" required maxlength="120" placeholder="Ej.: Creciente del río Combeima en Juntas"></label>
@@ -152,9 +154,11 @@ details.edit.nosum>summary{display:none}
     </fieldset>
 
     <fieldset>
-      <legend>Personas y viviendas afectadas</legend>
+      <legend>Víctimas, personas y viviendas afectadas</legend>
       <div class="row">
-        <label><span>Personas</span><input type="number" name="personas" min="0" inputmode="numeric"></label>
+        <label><span>Fallecidos</span><input type="number" name="fallecidos" min="0" inputmode="numeric"></label>
+        <label><span>Heridos</span><input type="number" name="heridos" min="0" inputmode="numeric"></label>
+        <label><span>Personas afectadas</span><input type="number" name="personas" min="0" inputmode="numeric"></label>
         <label><span>Familias</span><input type="number" name="familias" min="0" inputmode="numeric"></label>
         <label><span>Viviendas</span><input type="number" name="viviendas" min="0" inputmode="numeric"></label>
       </div>
@@ -162,7 +166,7 @@ details.edit.nosum>summary{display:none}
 
     <fieldset>
       <legend>Ubicación y área afectada</legend>
-      <div class="hint">Toque el mapa para marcar el punto del incidente (el municipio se elige solo). Use “Mi ubicación” si está en el sitio.</div>
+      <div class="hint">Toque el mapa para marcar el punto del evento (el municipio se elige solo). Use “Mi ubicación” si está en el sitio.</div>
       <div id="map"></div>
       <div class="sel" style="align-items:center">
         <button type="button" class="btn" id="gps">Mi ubicación</button>
@@ -190,7 +194,7 @@ details.edit.nosum>summary{display:none}
     </div>
 
     <div class="bar">
-      <button type="submit" class="btn red" id="save">Guardar incidente</button>
+      <button type="submit" class="btn red" id="save">Guardar evento</button>
       <button type="button" class="btn danger" id="del" hidden>Eliminar</button>
       <button type="button" class="btn" id="closew" hidden>Cerrar ventana</button>
       <span class="msg" id="smsg" role="status"></span>
@@ -217,8 +221,8 @@ for (const n of MUNS) f.municipio.add(new Option(n, n));
 if (window.opener) { $("#closew").hidden = false; $("#back").hidden = true; }
 $("#closew").onclick = () => window.close();
 $("#note").textContent = IncStore.remote
-  ? "Los incidentes y sus actualizaciones se guardan en el servidor del equipo: se ven y se actualizan desde cualquier teléfono o computador con una cuenta del equipo."
-  : "Los incidentes se guardan en este navegador y este dispositivo, y el tablero abierto en el mismo navegador los muestra al instante. Para compartirlos entre varios teléfonos y computadores hay que conectar el servidor (supabase/LEEME.md).";
+  ? "Los eventos y sus actualizaciones se guardan en el servidor del equipo: se ven y se actualizan desde cualquier teléfono o computador con una cuenta del equipo."
+  : "Los eventos se guardan en este navegador y este dispositivo, y el tablero abierto en el mismo navegador los muestra al instante. Para compartirlos entre varios teléfonos y computadores hay que conectar el servidor (supabase/LEEME.md).";
 
 // ---- map: Tolima municipalities, a point and the uploaded boundary
 const map = L.map("map", {zoomSnap:0.5});
@@ -347,12 +351,12 @@ async function drawTimeline(){
   const thumbs = list => list?.length ? `<div class="thumbs">${list.map(m => `<a class="thumb" href="${m.url}" target="_blank" rel="noopener">${isVid(m)
     ? `<video src="${m.url}#t=0.1" muted preload="metadata" playsinline></video><span class="tag">video</span>` : `<img src="${m.url}" alt="${esc(m.name)}" loading="lazy">`}</a>`).join("")}</div>` : "";
   const items = [...ups].reverse().map(u => `<li>
-      <div class="meta">${esc(IncUtil.ago(u.creado))} · ${esc(IncUtil.when(u.creado))}${u.autor ? " · " + esc(u.autor) : ""}
+      <div class="meta"><b style="color:var(--red)">${esc(IncUtil.hora(u.creado))}</b> · ${esc(IncUtil.ago(u.creado))}${u.autor ? " · " + esc(u.autor) : ""}
         <button type="button" class="linkbtn" data-delu="${esc(u.id)}">${delu === u.id ? "Toque otra vez para borrar" : "Borrar"}</button></div>
       ${u.estado || u.afectados ? `<div style="margin-top:3px">${u.estado ? `<span class="chip st-${esc(u.estado)}">${esc(INC_ESTADOS[u.estado] || u.estado)}</span>` : ""}${u.afectados ? `<span class="chip af">${esc(IncUtil.afect(u.afectados))}</span>` : ""}</div>` : ""}
       ${u.texto ? `<p class="txt">${esc(u.texto)}</p>` : ""}${thumbs(byUpd[u.id])}</li>`);
   items.push(`<li class="reg"><div class="meta">${esc(IncUtil.when(cur.creado))}${cur.autor ? " · " + esc(cur.autor) : ""}</div>
-    <p class="txt"><b>Incidente registrado.</b>${cur.descripcion ? " " + esc(cur.descripcion) : ""}</p></li>`);
+    <p class="txt"><b>Evento registrado.</b>${cur.descripcion ? " " + esc(cur.descripcion) : ""}</p></li>`);
   $("#tl").innerHTML = items.join("");
   lastUps = ups;
 }
@@ -365,7 +369,7 @@ uf.texto.addEventListener("input", () => { try { localStorage.setItem(draftKey()
 uf.addEventListener("submit", async e => {
   e.preventDefault(); if (!cur) return;
   const texto = uf.texto.value.trim(), estado = uf.estado.value && uf.estado.value !== cur.estado ? uf.estado.value : null;
-  const af = {}; for (const k of ["personas", "familias", "viviendas"]) if (uf[k].value !== "") af[k] = Math.max(0, Math.round(+uf[k].value));
+  const af = {}; for (const k of INC_AFECT_KEYS) if (uf[k].value !== "") af[k] = Math.max(0, Math.round(+uf[k].value));
   if (!texto && !estado && !Object.keys(af).length && !umedia.length)
     return setMsg($("#umsg"), "Escriba qué hay de nuevo, cambie el estado o agregue una foto.", "bad");
   $("#upost").disabled = true; setMsg($("#umsg"), umedia.length ? "Subiendo fotos y publicando…" : "Publicando…");
@@ -375,7 +379,7 @@ uf.addEventListener("submit", async e => {
     umedia.forEach(m => URL.revokeObjectURL(m.url)); umedia = []; drawUThumbs(); setMsg($("#ummsg"), "");
     uf.reset(); $("#ufaf").open = false; try { localStorage.removeItem(draftKey()); } catch {}
     await refreshCur();
-    f.estado.value = cur.estado; for (const k of ["personas", "familias", "viviendas"]) f[k].value = cur.afectados?.[k] ?? "";
+    f.estado.value = cur.estado; for (const k of INC_AFECT_KEYS) f[k].value = cur.afectados?.[k] ?? "";
     setMsg($("#umsg"), `Publicada (${new Date().toLocaleTimeString("es-CO", {hour:"2-digit", minute:"2-digit"})}).`, "ok");
   } catch (err) { setMsg($("#umsg"), "No se pudo publicar: " + err.message + ". El texto sigue aquí; intente de nuevo cuando tenga señal.", "bad"); }
   $("#upost").disabled = false;
@@ -383,7 +387,7 @@ uf.addEventListener("submit", async e => {
 async function refreshCur(){
   if (!cur) return;
   const fresh = await IncStore.get(cur.id);
-  if (!fresh) { await load(""); return setMsg($("#smsg"), "Este incidente fue eliminado desde otro dispositivo.", "bad"); }
+  if (!fresh) { await load(""); return setMsg($("#smsg"), "Este evento fue eliminado desde otro dispositivo.", "bad"); }
   cur = fresh; drawSummary(); await drawTimeline(); await fillPick();
 }
 
@@ -413,7 +417,7 @@ async function load(id){
   for (const el of ["#smsg", "#mmsg", "#bmsg", "#umsg", "#ummsg"]) setMsg($(el), "");
   if (cur) {
     for (const k of ["tipo", "estado", "titulo", "fecha", "municipio", "lugar", "descripcion", "acciones"]) f[k].value = cur[k] ?? "";
-    for (const k of ["personas", "familias", "viviendas"]) f[k].value = cur.afectados?.[k] ?? "";
+    for (const k of INC_AFECT_KEYS) f[k].value = cur.afectados?.[k] ?? "";
     setPoint(cur.punto, false); setGeo(cur.geo || null, cur.geoName);
     media = (await IncStore.media(cur.id)).filter(m => !m.updId).map(m => ({...m, isNew:false}));
     try { uf.texto.value = localStorage.getItem(draftKey()) || ""; } catch {}
@@ -421,12 +425,12 @@ async function load(id){
   } else { f.fecha.value = nowLocal(); f.estado.value = "activo"; setPoint(null); setGeo(null); }
   $("#seg").hidden = !cur;
   $("#edit").open = !cur; $("#edit").classList.toggle("nosum", !cur);
-  document.querySelector("h1").textContent = cur ? "Seguimiento del incidente" : "Registrar incidente";
+  document.querySelector("h1").textContent = cur ? "Seguimiento del evento" : "Registrar evento";
   if (!cur) setTimeout(fitCur, 0);
   drawThumbs();
   $("#del").hidden = !cur; $("#del").textContent = "Eliminar"; delarm = false;
-  $("#save").textContent = cur ? "Guardar cambios" : "Guardar incidente";
-  history.replaceState(null, "", cur ? "?id=" + encodeURIComponent(cur.id) : location.pathname);
+  $("#save").textContent = cur ? "Guardar cambios" : "Guardar evento";
+  history.replaceState(null, "", cur ? "?v=" + INC_VERSION + "&id=" + encodeURIComponent(cur.id) : location.pathname + "?v=" + INC_VERSION);
   await fillPick();
 }
 $("#pick").onchange = e => load(e.target.value);
@@ -440,14 +444,14 @@ f.addEventListener("submit", async e => {
   const inc = {...(cur || {id:IncStore.uid()}),
     tipo:f.tipo.value, estado:f.estado.value, titulo:f.titulo.value.trim(), fecha:f.fecha.value, municipio:f.municipio.value,
     lugar:f.lugar.value.trim(), descripcion:f.descripcion.value.trim(), acciones:f.acciones.value.trim(),
-    afectados:{personas:n("personas"), familias:n("familias"), viviendas:n("viviendas")},
+    afectados:Object.fromEntries(INC_AFECT_KEYS.map(k => [k, n(k)])),
     punto, geo, geoName};
   $("#save").disabled = true; setMsg($("#smsg"), media.some(m => m.isNew) ? "Subiendo fotos y guardando…" : "Guardando…");
   try {
     const add = media.filter(m => m.isNew).map(({id, name, type, blob}) => ({id, name, type, blob}));
     const saved = await IncStore.save(inc, add, drop);
     if (isNew) { await load(saved.id); window.scrollTo({top:0, behavior:"smooth"});
-      setMsg($("#umsg"), "Incidente guardado. Agregue aquí las actualizaciones a medida que avance.", "ok"); }
+      setMsg($("#umsg"), "Evento guardado. Agregue aquí las actualizaciones a medida que avance.", "ok"); }
     else { cur = saved; media = (await IncStore.media(cur.id)).filter(m => !m.updId).map(m => ({...m, isNew:false})); drop = []; drawThumbs();
       drawSummary(); drawTimeline(); await fillPick();
       setMsg($("#smsg"), `Guardado (${new Date().toLocaleTimeString("es-CO", {hour:"2-digit", minute:"2-digit"})}). El tablero ya lo muestra.`, "ok"); }
@@ -459,7 +463,7 @@ $("#del").onclick = async () => {
   if (!cur) return;
   if (!delarm) { delarm = true; $("#del").textContent = "Toque otra vez para eliminar"; setTimeout(() => { delarm = false; $("#del").textContent = "Eliminar"; }, 4000); return; }
   try { await IncStore.remove(cur.id); } catch (err) { return setMsg($("#smsg"), "No se pudo eliminar: " + err.message, "bad"); }
-  await load(""); setMsg($("#smsg"), "Incidente eliminado.", "ok");
+  await load(""); setMsg($("#smsg"), "Evento eliminado.", "ok");
 };
 
 // another phone or computer changed something: refresh the timeline (not the edit form, which may have unsaved edits)
@@ -477,7 +481,7 @@ async function offerMigration(){
   try { todo = (await loc.list()).filter(i => !done().includes(i.id)); } catch { return; }
   if (!todo.length) return;
   box.hidden = false;
-  box.innerHTML = `<b>Incidentes guardados solo en este dispositivo</b><div class="hint">${todo.length} incidente(s) quedaron en este navegador de antes de conectar el servidor. Súbalos para que el equipo los vea.</div>
+  box.innerHTML = `<b>Eventos guardados solo en este dispositivo</b><div class="hint">${todo.length} evento(s) quedaron en este navegador de antes de conectar el servidor. Súbalos para que el equipo los vea.</div>
     <div class="sel" style="align-items:center"><button type="button" class="btn red" id="migbtn">Subir ${todo.length} al servidor</button><span class="msg" id="migmsg"></span></div>`;
   $("#migbtn").onclick = async () => { $("#migbtn").disabled = true;
     let n = 0;
@@ -501,14 +505,14 @@ async function start(){
   try { await IncStore.ready(); } catch {}
   const signedOut = IncStore.remote && !IncStore.user();
   $("#auth").hidden = !signedOut; $("#main").hidden = signedOut; $("#who").hidden = !IncStore.user();
-  if (signedOut) return incLoginBox($("#auth"), start, "Inicie sesión con su cuenta del equipo para registrar incidentes y publicar actualizaciones.");
+  if (signedOut) return incLoginBox($("#auth"), start, "Inicie sesión con su cuenta del equipo para registrar eventos y publicar actualizaciones.");
   $("#whoe").textContent = IncStore.user() || "";
   offerMigration();
   await load(new URLSearchParams(location.search).get("id") || "");
 }
 $("#logout").onclick = () => IncStore.signOut();
 IncStore.onAuth(s => { if (!s) start(); });
-start().catch(e => setMsg($("#smsg"), "No se pudo abrir el registro de incidentes: " + e.message, "bad"));
+start().catch(e => setMsg($("#smsg"), "No se pudo abrir el registro de eventos: " + e.message, "bad"));
 })();
 </script>
 </body>

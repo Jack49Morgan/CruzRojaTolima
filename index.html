@@ -209,12 +209,29 @@ h2 button.info{vertical-align:2px}
 .incth .play{position:absolute;inset:0;display:grid;place-items:center;font-size:20px;text-shadow:0 0 4px #000}
 .incth.more{background:var(--navy-dk)}
 .incbtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.inclast{font-size:13px;border-left:3px solid var(--line);padding-left:8px}
-.inclast .sub{font-size:12px}
-.inclast p{margin:2px 0 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
-.incseg summary{cursor:pointer;font-size:13px;color:var(--muted)}
-.incseg ol{margin:6px 0 0;padding-left:18px;font-size:13px;display:grid;gap:6px}
-.incseg li p{margin:0;white-space:pre-wrap}
+.incups{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:13px}
+.incups li{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:baseline}
+.incups time{font:600 12px var(--sans);color:var(--red);white-space:nowrap}
+.incups .ut{white-space:pre-wrap;overflow-wrap:anywhere}
+.incups .um{grid-column:2;font-size:11px;color:var(--muted)}
+.incseg summary{cursor:pointer;font-size:12px;color:var(--muted)}
+.incseg .incups{margin-top:6px}
+.incmore>summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--navy-dk);list-style:none;display:flex;align-items:center;gap:6px}
+.incmore>summary::-webkit-details-marker{display:none}
+.incmore>summary::before{content:"▸";transition:transform .15s}
+.incmore[open]>summary::before{transform:rotate(90deg)}
+.inccard:has(.incmore[open]) > .incups{display:none}
+.incmore dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:8px 0 0;font-size:13px}
+.incmore dt{color:var(--muted);font-weight:500}
+.incmore dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.incmore h4{margin:10px 0 4px;font-size:13px;color:var(--navy-dk)}
+.incquick{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:8px}
+.incquick textarea{font:inherit;font-size:14px;width:100%;min-height:44px;resize:vertical;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);box-sizing:border-box}
+.incquick textarea:focus{outline:2px solid var(--navy);outline-offset:1px}
+.incqrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.incqrow .btn{padding:5px 12px}
+.incqrow .qm{font-size:12px;color:var(--muted)}
+.incqrow .qm.bad{color:var(--red)}
 .incwho{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .incwho button{border:0;background:none;color:inherit;text-decoration:underline;cursor:pointer;font:inherit;padding:0}
 .incpin{background:none;border:0}
@@ -265,7 +282,7 @@ h2 button.info{vertical-align:2px}
     </div>
     <div class="controls">
       <button class="btn" id="refresh">Actualizar</button>
-      <button class="btn new" type="button" data-newinc>＋ Incidente</button>
+      <button class="btn new" type="button" data-newinc hidden>＋ Evento</button>
     </div>
   </header>
 
@@ -305,13 +322,13 @@ h2 button.info{vertical-align:2px}
 
   <section class="panel" id="incidents">
     <div class="detail-head">
-      <h2>Incidentes <span class="sub" id="inccount"></span> <button type="button" class="info" data-info="incidentes" aria-label="Cómo funcionan los incidentes">i</button></h2>
+      <h2>Eventos <span class="sub" id="inccount"></span> <button type="button" class="info" data-info="incidentes" aria-label="Cómo funcionan los eventos">i</button></h2>
       <div class="hist-controls">
-        <select id="incfilt" aria-label="Qué incidentes mostrar"><option value="abiertos">Abiertos</option><option value="todos">Todos</option></select>
-        <button class="btn redbtn" type="button" data-newinc>＋ Registrar incidente</button>
+        <select id="incfilt" aria-label="Qué eventos mostrar"><option value="abiertos">Abiertos</option><option value="todos">Todos</option></select>
+        <button class="btn redbtn" type="button" data-newinc hidden>＋ Registrar evento</button>
       </div>
     </div>
-    <div class="inclist" id="inclist"><p class="sub">Cargando incidentes…</p></div>
+    <div class="inclist" id="inclist"><p class="sub">Cargando eventos…</p></div>
   </section>
 
   <section class="panel" id="detail">
@@ -406,14 +423,14 @@ const VPOP = [963,256,41,0,299,4,14,161,81,117,39,0,31,255,16,62,165,6,20,35,7,6
 const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (n < 1000 ? Math.round(n / 10) * 10 : Math.round(n / 100) * 100).toLocaleString("es-CO");
 
 </script>
-<dialog id="mediadlg" aria-label="Fotos y videos del incidente">
+<dialog id="mediadlg" aria-label="Fotos y videos del evento">
   <form method="dialog">
     <div id="mediabox"></div>
     <div class="dlgfoot"><button type="button" class="btn" id="mprev">‹ Anterior</button><span class="sub" id="mediacap"></span><button type="button" class="btn" id="mnext">Siguiente ›</button><button class="btn">Cerrar</button></div>
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js"></script>
+<script src="incstore.js?v=4"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -421,7 +438,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
 function initIncidents(map, ctrl){
   const escI = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const FORM = "incidente.html";
-  const openForm = id => { const u = FORM + (id ? "?id=" + encodeURIComponent(id) : "");
+  const openForm = id => { const u = FORM + "?v=" + INC_VERSION + (id ? "&id=" + encodeURIComponent(id) : "");
     const w = window.open(u, "incidente", "width=820,height=920");
     if (!w) location.href = u; else w.focus(); };
   const pane = document.getElementById("incidents"), list = document.getElementById("inclist"), cnt = document.getElementById("inccount");
@@ -429,7 +446,7 @@ function initIncidents(map, ctrl){
   document.querySelectorAll("[data-newinc]").forEach(b => b.addEventListener("click", () => openForm()));
   map.createPane("inc").style.zIndex = 440;
   const layer = L.featureGroup().addTo(map);
-  ctrl.addOverlay(layer, "Incidentes registrados");
+  ctrl.addOverlay(layer, "Eventos registrados");
   let byId = {}, gallery = [];
   const fmt = f => f ? f.replace("T", " ") : "";
   const pin = color => L.divIcon({className:"incpin", iconSize:[26,32], iconAnchor:[13,31], popupAnchor:[0,-28],
@@ -441,24 +458,29 @@ function initIncidents(map, ctrl){
     let incs = [], ups = [];
     try { await IncStore.ready(); } catch {}
     who.hidden = !IncStore.user();
+    // only signed-in team members get "Registrar evento" (and the update box / edit buttons, which need a login to work)
+    const canEdit = !IncStore.remote || !!IncStore.user();
+    document.querySelectorAll("[data-newinc]").forEach(b => b.hidden = !canEdit);
     if (IncStore.user()) { who.innerHTML = `Conectado como ${escI(IncStore.user())} <button type="button" id="incout">Salir</button>`;
       document.getElementById("incout").onclick = () => IncStore.signOut(); }
     if (IncStore.remote && !IncStore.user()) { layer.clearLayers(); byId = {}; cnt.textContent = "";
-      incLoginBox(list, rr, "Inicie sesión con su cuenta del equipo para ver los incidentes y su seguimiento."); return; }
+      incLoginBox(list, rr, "Inicie sesión con su cuenta del equipo para ver los eventos y su seguimiento."); return; }
     try { [incs, ups] = await Promise.all([IncStore.list(), IncStore.allUpdates()]); }
-    catch (e) { list.innerHTML = `<p class="sub">No se pudo abrir el registro de incidentes (${escI(e.message)}).</p>`; return; }
+    catch (e) { list.innerHTML = `<p class="sub">No se pudo abrir el registro de eventos (${escI(e.message)}).</p>`; return; }
     byId = {}; layer.clearLayers();
     const upsBy = {}; for (const u of ups) (upsBy[u.incId] ??= []).push(u);   // newest first
     const show = filt.value === "todos" ? incs : incs.filter(i => i.estado !== "cerrado");
     cnt.textContent = incs.length ? `${show.length} de ${incs.length}` : "";
-    if (!show.length) { list.innerHTML = `<p class="sub">${incs.length ? "No hay incidentes abiertos. Elija “Todos” para ver los cerrados." : `Aún no hay incidentes registrados${IncStore.remote ? "" : " en este dispositivo"}. Use “Registrar incidente” para agregar el primero.`}</p>`; return; }
+    if (!show.length) { list.innerHTML = `<p class="sub">${incs.length ? "No hay eventos abiertos. Elija “Todos” para ver los cerrados." : `Aún no hay eventos registrados${IncStore.remote ? "" : " en este dispositivo"}. Use “Registrar evento” para agregar el primero.`}</p>`; return; }
     const cards = [];
     const medias = await Promise.all(show.map(inc => IncStore.media(inc.id).catch(() => [])));
     for (const [n, inc] of show.entries()) {
       const [tname, color] = INC_TIPOS[inc.tipo] || INC_TIPOS.otro;
       const items = medias[n].map(m => ({u:m.url, video:(m.type || "").startsWith("video"), name:m.name}));
       const iu = upsBy[inc.id] || [], last = iu[0];
-      const upLine = u => `${escI(IncUtil.ago(u.creado))}${u.autor ? " · " + escI(u.autor.split("@")[0]) : ""}${u.estado ? " · " + escI(INC_ESTADOS[u.estado] || u.estado) : ""}`;
+      const upItem = u => `<li><time datetime="${escI(u.creado)}" title="${escI(IncUtil.when(u.creado))}">${escI(IncUtil.hora(u.creado))}</time>
+        <span class="ut">${u.texto ? escI(u.texto) : u.estado ? "Estado: " + escI(INC_ESTADOS[u.estado] || u.estado) : u.afectados ? escI(IncUtil.afect(u.afectados)) : "Foto o video"}</span>
+        ${u.autor || (u.texto && (u.estado || u.afectados)) ? `<span class="um">${[u.autor ? escI(u.autor.split("@")[0]) : "", u.texto && u.estado ? escI(INC_ESTADOS[u.estado] || u.estado) : "", u.texto && u.afectados ? escI(IncUtil.afect(u.afectados)) : ""].filter(Boolean).join(" · ")}</span>` : ""}</li>`;
       byId[inc.id] = {inc, items};
       // map: boundary, then a pin at the chosen point or the middle of the boundary
       let ll = inc.punto, gl = null;
@@ -475,19 +497,53 @@ function initIncidents(map, ctrl){
       cards.push(`<article class="inccard" id="inc-${escI(inc.id)}" style="--c:${color}">
         <div class="inchead"><h3>${escI(inc.titulo)}</h3><span class="incst st-${escI(inc.estado)}">${escI(INC_ESTADOS[inc.estado] || inc.estado)}</span></div>
         <div class="sub">${escI(tname)} · ${escI(inc.municipio)}${inc.lugar ? " · " + escI(inc.lugar) : ""}<br>${escI(fmt(inc.fecha))}</div>
-        ${afect(inc.afectados) ? `<div class="incaf">Afectados: ${escI(afect(inc.afectados))}</div>` : ""}
-        ${last ? `<div class="inclast"><div class="sub">Última actualización ${upLine(last)}</div>${last.texto ? `<p>${escI(last.texto)}</p>` : ""}</div>`
-          : inc.descripcion ? `<p class="incdesc">${escI(inc.descripcion)}</p>` : ""}
-        ${iu.length > 1 ? `<details class="incseg"><summary>Seguimiento: ${iu.length} actualizaciones</summary><ol reversed>${iu.map(u =>
-          `<li><span class="sub">${upLine(u)}</span>${u.afectados ? `<div class="sub">${escI(IncUtil.afect(u.afectados))}</div>` : ""}${u.texto ? `<p>${escI(u.texto)}</p>` : ""}</li>`).join("")}</ol></details>` : ""}
+        ${(() => { const a = inc.afectados || {}, vic = afect({fallecidos:a.fallecidos, heridos:a.heridos}), rest = afect({personas:a.personas, familias:a.familias, viviendas:a.viviendas});
+          return vic || rest ? `<div class="incaf">${vic ? `<b style="color:var(--red)">${escI(vic)}</b>` : ""}${vic && rest ? " · " : ""}${rest ? "Afectados: " + escI(rest) : ""}</div>` : ""; })()}
+        ${inc.descripcion ? `<p class="incdesc">${escI(inc.descripcion)}</p>` : ""}
+        ${iu.length ? `<ul class="incups" aria-label="Actualizaciones">${iu.slice(0, 3).map(upItem).join("")}</ul>` : ""}
+        <details class="incmore" data-more="${escI(inc.id)}"${openMore.has(inc.id) ? " open" : ""}><summary>Ver toda la información${iu.length > 3 ? ` y las ${iu.length} actualizaciones` : ""}</summary>
+          <dl>${[["Tipo", tname], ["Estado", INC_ESTADOS[inc.estado] || inc.estado], ["Fecha y hora", fmt(inc.fecha)], ["Municipio", inc.municipio], ["Lugar", inc.lugar],
+            ["Fallecidos", inc.afectados?.fallecidos], ["Heridos", inc.afectados?.heridos], ["Personas afectadas", inc.afectados?.personas], ["Familias", inc.afectados?.familias], ["Viviendas", inc.afectados?.viviendas],
+            ["Descripción", inc.descripcion], ["Acciones de respuesta", inc.acciones],
+            ["Ubicación", ll ? `${(+ll[0]).toFixed(5)}, ${(+ll[1]).toFixed(5)}` : ""], ["Área afectada", inc.geo ? (inc.geoName || "límite cargado") : ""],
+            ["Fotos y videos", items.length || ""], ["Registrado", [IncUtil.when(inc.creado), inc.autor].filter(Boolean).join(" · ")],
+            ["Última actualización", IncUtil.when(inc.actualizado)]]
+            .filter(([, v]) => v != null && v !== "").map(([k, v]) => `<dt>${k}</dt><dd>${escI(v)}</dd>`).join("")}</dl>
+          ${iu.length ? `<h4>Todas las actualizaciones (${iu.length})</h4><ul class="incups">${iu.map(upItem).join("")}</ul>` : ""}
+        </details>
         ${th ? `<div class="incmedia">${th}</div>` : ""}
-        <div class="incbtns"><button type="button" class="btn redbtn" data-edit="${escI(inc.id)}">Actualizar</button>
+        <form class="incquick" data-q="${escI(inc.id)}">
+          <textarea name="t" rows="2" maxlength="4000" placeholder="Escriba una actualización…" aria-label="Nueva actualización para ${escI(inc.titulo)}">${escI(drafts[inc.id] || "")}</textarea>
+          <div class="incqrow"><button class="btn redbtn" type="submit">Publicar</button>
+            <label class="btn" title="Agregar fotos o videos">📷 Foto<input type="file" name="f" multiple hidden accept="image/*,video/*"></label>
+            <span class="qm" role="status"></span></div>
+        </form>
+        <div class="incbtns"><button type="button" class="btn" data-edit="${escI(inc.id)}">Editar datos</button>
           ${ll ? `<button type="button" class="btn" data-zoom="${escI(inc.id)}">Ver en mapa</button>` : `<span class="sub">Sin ubicación</span>`}</div>
       </article>`);
       byId[inc.id].ll = ll; byId[inc.id].gl = gl;
     }
     list.innerHTML = cards.join("");
   }
+  // quick update box on each card: type, optionally add photos, Publicar
+  const drafts = {}, qfiles = {}, openMore = new Set();
+  list.addEventListener("toggle", e => { const d = e.target; if (!d.dataset?.more) return;
+    d.open ? openMore.add(d.dataset.more) : openMore.delete(d.dataset.more); }, true);
+  const qmsg = (fm, t, bad) => { const m = fm.querySelector(".qm"); m.textContent = t; m.classList.toggle("bad", !!bad); };
+  list.addEventListener("input", e => { const fm = e.target.closest("[data-q]"); if (fm && e.target.name === "t") drafts[fm.dataset.q] = e.target.value; });
+  list.addEventListener("change", e => { const fm = e.target.closest("[data-q]"); if (!fm || e.target.name !== "f") return;
+    const max = (IncStore.remote ? INC_MAX_MB : 300) * 1048576, all = [...e.target.files];
+    const ok = all.filter(x => /^(image|video)\//.test(x.type) && x.size <= max);
+    qfiles[fm.dataset.q] = [...(qfiles[fm.dataset.q] || []), ...ok.map(x => ({id:IncStore.uid(), name:x.name, type:x.type, blob:x}))];
+    qmsg(fm, `${qfiles[fm.dataset.q].length} foto(s)/video(s) listos` + (ok.length < all.length ? ` · ${all.length - ok.length} no se agregaron (más de ${max / 1048576} MB o no son fotos)` : ""), ok.length < all.length);
+    e.target.value = ""; });
+  list.addEventListener("submit", async e => { const fm = e.target.closest("[data-q]"); if (!fm) return; e.preventDefault();
+    const id = fm.dataset.q, texto = fm.t.value.trim(), files = qfiles[id] || [];
+    if (!texto && !files.length) { qmsg(fm, "Escriba algo o agregue una foto.", true); fm.t.focus(); return; }
+    const btn = fm.querySelector("button[type=submit]"); btn.disabled = true; qmsg(fm, files.length ? "Subiendo…" : "Publicando…");
+    try { await IncStore.addUpdate(id, {texto}, files); delete drafts[id]; delete qfiles[id]; fm.t.value = ""; fm.t.blur(); rr(); }
+    catch (err) { qmsg(fm, "No se pudo publicar: " + err.message + ". El texto sigue aquí.", true); }
+    btn.disabled = false; });
   function focusCard(id){ const el = document.getElementById("inc-" + id); if (!el) return;
     el.scrollIntoView({behavior:"smooth", block:"center"}); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1600); }
   function zoomTo(id){ const r = byId[id]; if (!r) return;
@@ -512,8 +568,13 @@ function initIncidents(map, ctrl){
     else if (b.dataset.card) { map.closePopup(); focusCard(b.dataset.card); }
   });
   let busy = null, again = false;
-  const rr = () => { if (dlg.open) return; if (busy) { again = true; return; }
+  // don't redraw the cards while someone is typing in an update box; redraw when they leave it
+  let held = false;
+  const rr = () => { if (dlg.open) return;
+    if (list.querySelector(".incquick textarea:focus")) { held = true; return; }
+    if (busy) { again = true; return; }
     busy = render().finally(() => { busy = null; if (again) { again = false; rr(); } }); };
+  list.addEventListener("focusout", () => setTimeout(() => { if (held && !list.querySelector(".incquick textarea:focus")) { held = false; rr(); } }, 200));
   filt.addEventListener("change", rr);
   IncStore.onChange(rr);
   IncStore.onAuth(rr);
@@ -1468,11 +1529,11 @@ const INFO = {
   umbrales: ["Umbrales de alerta por nivel del río",
     `<p>El IDEAM define, para algunas estaciones de nivel, tres alturas del río: <b>amarilla</b> (estar atentos), <b>naranja</b> (prepararse) y <b>roja</b> (actuar). Están publicados en su sistema de alertas FEWS.</p>
      <p>Los rombos comparan el último nivel publicado con esos umbrales. En el Tolima solo 8 estaciones tienen umbrales. Es un cálculo de esta página: el boletín oficial del IDEAM manda.</p>`],
-  incidentes: ["Incidentes",
-    `<p>Incidentes registrados por el equipo con el formulario <b>Registrar incidente</b>, que se abre en una ventana aparte: tipo, municipio, fecha, estado, personas afectadas, ubicación en el mapa, límite del área afectada (shapefile, KML o KMZ) y fotos y videos.</p>
-     <p>En el mapa, cada incidente es un marcador del color de su tipo, y su área aparece con borde punteado. El tablero se actualiza solo al guardar en el formulario.</p>
-     <p><b>Seguimiento:</b> con <b>Actualizar</b> en cada tarjeta se publican novedades mientras el incidente sigue en curso (texto, cambio de estado, cifras de afectados, fotos y videos). Se ven en orden en “Seguimiento”.</p>
-     <p>${IncStore.remote ? "Los incidentes se guardan en el servidor del equipo: se ven y se actualizan desde cualquier teléfono o computador con una cuenta del equipo." : "<b>Importante:</b> por ahora los incidentes se guardan solo en este navegador y este dispositivo. Para compartirlos entre teléfonos y computadores hay que conectar el servidor (supabase/LEEME.md)."}</p>`],
+  incidentes: ["Eventos",
+    `<p>Eventos registrados por el equipo con el formulario <b>Registrar evento</b>, que se abre en una ventana aparte: tipo, municipio, fecha, estado, personas afectadas, ubicación en el mapa, límite del área afectada (shapefile, KML o KMZ) y fotos y videos.</p>
+     <p>En el mapa, cada evento es un marcador del color de su tipo, y su área aparece con borde punteado. El tablero se actualiza solo al guardar en el formulario.</p>
+     <p><b>Seguimiento:</b> en el recuadro de cada tarjeta se publican novedades, con su hora, mientras el evento sigue en curso (texto, cambio de estado, cifras de afectados, fotos y videos). Se ven en orden en “Seguimiento”.</p>
+     <p>${IncStore.remote ? "Los eventos se guardan en el servidor del equipo: se ven y se actualizan desde cualquier teléfono o computador con una cuenta del equipo." : "<b>Importante:</b> por ahora los eventos se guardan solo en este navegador y este dispositivo. Para compartirlos entre teléfonos y computadores hay que conectar el servidor (supabase/LEEME.md)."}</p>`],
   pronostico: ["Pronóstico de lluvia (Open-Meteo)",
     `<p>Pronóstico hora a hora de <b>Open-Meteo</b>, que combina los modelos meteorológicos globales y regionales disponibles para Colombia (por ejemplo ECMWF, GFS e ICON) y se actualiza varias veces al día. Es gratuito y no requiere clave.</p>
      <p><b>En el mapa</b> (capa “Lluvia pronosticada 24 h por municipio”), cada municipio se colorea con la lluvia esperada en las próximas 24 horas, con la misma escala de gotas que las estaciones. Pase el dedo o el ratón por encima para ver 24 h, 72 h, 7 días, la probabilidad máxima de lluvia y la población. Bajo el mapa se resumen los municipios con más de 30 mm y cuántas personas viven en ellos.</p>
@@ -1607,7 +1668,7 @@ function renderMap(){
       satOverlays[`${esc(o.name)} ${infoBtn(o.info, o.name)}`] = o.layer;
     }
     const camLayer = buildCamLayer();
-    // Layer list in four groups (Fronteras administrativas, Investigación, Clima actual, Pronósticos), plus Incidentes added later;
+    // Layer list in four groups (Fronteras administrativas, Investigación, Clima actual, Pronósticos), plus Eventos added later;
     // a heading is drawn above the first layer of each group every time Leaflet redraws the list
     const verL = buildVeredaLayer(mun);
     // dark casings under the municipio and department lines, shown only on the satellite basemap
@@ -1653,7 +1714,7 @@ function renderMap(){
       const bh = document.createElement("div"); bh.className = "lgrp"; bh.textContent = "Mapa base"; this._baseLayersList.prepend(bh);
       for (const lab of [...this._overlaysList.children]) {
         const inp = lab.querySelector("input"); if (!inp) continue;
-        const gname = groupOf.get(inp.layerId) || "Incidentes";
+        const gname = groupOf.get(inp.layerId) || "Eventos";
         if (gname !== last) { const h = document.createElement("div"); h.className = "lgrp"; h.textContent = gname; lab.before(h); last = gname; }
       }
       return r;

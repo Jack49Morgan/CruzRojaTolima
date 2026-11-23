@@ -23,7 +23,9 @@ const INC_TIPOS = {
   otro:         ["Otro", "#616161"],
 };
 const INC_ESTADOS = {activo:"Activo", atencion:"En atención", controlado:"Controlado", cerrado:"Cerrado"};
-const INC_MAX_MB = 50;   // Supabase free plan: 50 MB per file
+const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "familias", "viviendas"];   // counts kept on each incident
+const INC_MAX_MB = 50;
+const INC_VERSION = 4;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
 //   remote, ready(), user(), signIn(email, pw), signOut(), onAuth(fn)
@@ -41,10 +43,14 @@ const IncUtil = {
     if (s < 60) return "hace un momento"; if (s < 3600) return `hace ${Math.round(s / 60)} min`;
     if (s < 86400) return `hace ${Math.round(s / 3600)} h`;
     return d.toLocaleString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"}); },
+  // time of an update: "10:24" today, "ayer 18:05", else "21 nov 10:24" (Colombia time)
+  hora: iso => { if (!iso) return ""; const tz = {timeZone:"America/Bogota"}, d = new Date(iso);
+    const day = x => x.toLocaleDateString("en-CA", tz), hm = d.toLocaleTimeString("es-CO", {...tz, hour:"2-digit", minute:"2-digit", hour12:false});
+    if (day(d) === day(new Date())) return hm;
+    if (day(d) === day(new Date(Date.now() - 864e5))) return "ayer " + hm;
+    return d.toLocaleDateString("es-CO", {...tz, day:"numeric", month:"short"}).replace(".", "") + " " + hm; },
   when: iso => iso ? new Date(iso).toLocaleString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit"}) : "",
-  afect: a => { const p = [];
-    if (a?.personas != null) p.push(`${a.personas} personas`); if (a?.familias != null) p.push(`${a.familias} familias`);
-    if (a?.viviendas != null) p.push(`${a.viviendas} viviendas`); return p.join(" · "); },
+  afect: a => INC_AFECT_KEYS.filter(k => a?.[k] != null).map(k => `${a[k]} ${a[k] === 1 ? k.slice(0, -1) : k}`).join(" · "),
 };
 
 function incLocalStore(){
@@ -100,7 +106,7 @@ function incLocalStore(){
     allUpdates: () => tx(["upd"], "readonly", t => req(t.objectStore("upd").getAll()))
       .then(a => a.sort((x, y) => y.creado.localeCompare(x.creado))),
     addUpdate: async (incId, u, files = []) => {
-      const inc = await S.get(incId); if (!inc) throw new Error("El incidente ya no existe.");
+      const inc = await S.get(incId); if (!inc) throw new Error("El evento ya no existe.");
       const upd = {id:IncUtil.uid(), incId, creado:new Date().toISOString(), autor:null,
         texto:u.texto || "", estado:u.estado || null, afectados:u.afectados || null};
       if (upd.estado) inc.estado = upd.estado;
@@ -217,7 +223,7 @@ IncStore.uid = IncUtil.uid;
 
 // Sign-in box drawn into `el`; calls done() once signed in. Accounts are created by the
 // administrator in Supabase (Authentication > Users), so there is no sign-up here.
-function incLoginBox(el, done, intro = "Inicie sesión para ver y registrar incidentes."){
+function incLoginBox(el, done, intro = "Inicie sesión para ver y registrar eventos."){
   el.innerHTML = `<form class="inclogin" style="display:grid;gap:8px;max-width:360px">
     <div class="sub">${IncUtil.esc(intro)}</div>
     <input type="email" name="email" autocomplete="username" placeholder="Correo" required style="font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)">
