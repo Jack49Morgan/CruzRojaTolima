@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=15"></script>
+<script src="incstore.js?v=16"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -86,7 +86,21 @@ details.edit[open]>summary{margin-bottom:14px}
 details.edit.nosum>summary{display:none}
 /* public read-only view of an event's follow-up */
 .ro #uf,.ro #edit,.ro .sel,.ro #mig,.ro [data-delu],.ro .delrow{display:none!important}
-.delrow{margin-top:10px}
+.sumbtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.printnote{display:none}
+@media print{
+  :root{--bg:#fff; --panel:#fff; --fg:#000; --muted:#444; --line:#bbb; --navy:#0b2a5b; color-scheme:light}
+  @page{margin:14mm}
+  body{background:#fff;font-size:12px}
+  .wrap{padding:0;max-width:none}
+  header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  header .btn,#who,#auth,#mig,.sel,#uf,#edit,.sumbtns,[data-delu],.msg{display:none!important}
+  .printnote{display:block;font-size:10px;color:#555}
+  .card{break-inside:avoid-page;border-color:#bbb}
+  .tl li{break-inside:avoid}
+  .chip,.tl li::before,.thumb{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .thumb{background:#ddd}
+}
 #uf textarea{min-height:110px}
 </style>
 </head>
@@ -97,7 +111,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=15" id="back">Ver tablero</a>
+    <a class="btn" href="index.html?v=16" id="back">Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -345,8 +359,20 @@ function drawSummary(){
     <div class="sub">${esc(tname)} · ${esc(cur.municipio)}${cur.lugar ? " · " + esc(cur.lugar) : ""}<br>
     Inicio: ${esc((cur.fecha || "").replace("T", " "))}${cur.actualizado ? ` · Última actualización ${esc(IncUtil.ago(cur.actualizado))}` : ""}</div>
     ${cur.acciones ? `<div class="sub"><b>Acciones de respuesta:</b> ${esc(cur.acciones)}</div>` : ""}
-    ${!IncStore.remote || IncStore.user() ? `<div class="delrow"><button type="button" class="btn danger" id="delsum">Eliminar evento</button> <span class="msg" id="dmsg" role="status"></span></div>` : ""}`;
+    <div class="sumbtns"><button type="button" class="btn" id="pdfbtn">Guardar en PDF</button>
+    ${!IncStore.remote || IncStore.user() ? `<span class="delrow"><button type="button" class="btn danger" id="delsum">Eliminar evento</button> <span class="msg" id="dmsg" role="status"></span></span>` : ""}</div>
+    <div class="printnote">Seguimiento impreso el ${esc(new Date().toLocaleString("es-CO", {dateStyle:"long", timeStyle:"short"}))} · ${esc(location.href.split("#")[0])}</div>`;
   const b = $("#delsum"); if (b) b.onclick = () => delEvent(b, "Eliminar evento", $("#dmsg"), true);
+  $("#pdfbtn").onclick = savePdf;
+}
+// "Guardar en PDF": the browser's print dialog, where "Guardar como PDF" is a destination (on iPhone: Compartir > Imprimir > Compartir > Guardar en Archivos)
+async function savePdf(){
+  if (!cur) return;
+  const t = document.title; document.title = `Evento ${cur.titulo} ${(cur.fecha || "").slice(0, 10)}`.replace(/[\\/:*?"<>|]+/g, " ");
+  $(".printnote").textContent = `Seguimiento impreso el ${new Date().toLocaleString("es-CO", {dateStyle:"long", timeStyle:"short"})} · ${location.href.split("#")[0]}`;
+  // wait for the timeline's photos so they are in the PDF
+  await Promise.all([...document.querySelectorAll("#tl img")].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; setTimeout(r, 5000); })));
+  window.print(); setTimeout(() => { document.title = t; }, 1000);
 }
 let delu = null, lastUps = [];
 async function drawTimeline(medP, updP){
