@@ -434,7 +434,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=10"></script>
+<script src="incstore.js?v=11"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -544,7 +544,7 @@ function initIncidents(map, ctrl){
             <label class="btn" title="Agregar fotos o videos">📷 Foto<input type="file" name="f" multiple hidden accept="image/*,video/*"></label>
             <span class="qm" role="status"></span></div>
         </form>` : ""}
-        <div class="incbtns">${canEdit ? `<button type="button" class="btn" data-edit="${escI(inc.id)}">Editar datos</button>` : ""}
+        <div class="incbtns"><button type="button" class="btn redbtn" data-edit="${escI(inc.id)}" title="${canEdit ? "Seguimiento, actualizaciones y datos del evento" : "Seguimiento del evento (solo lectura)"}">Abrir evento</button>
           ${ll ? `<button type="button" class="btn" data-zoom="${escI(inc.id)}">Ver en mapa</button>` : `<span class="sub">Sin ubicación</span>`}</div>
       </article>`);
       byId[inc.id].ll = ll; byId[inc.id].gl = gl;

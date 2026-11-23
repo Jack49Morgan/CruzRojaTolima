@@ -25,7 +25,7 @@ const INC_TIPOS = {
 const INC_ESTADOS = {activo:"Activo", atencion:"En atención", controlado:"Controlado", cerrado:"Cerrado"};
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "familias", "viviendas"];   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 10;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 11;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
 //   remote, ready(), user(), signIn(email, pw), signOut(), onAuth(fn)
