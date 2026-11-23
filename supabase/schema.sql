@@ -62,3 +62,5 @@ on conflict (id) do nothing;
 drop policy if exists "equipo incidentes" on storage.objects;
 create policy "equipo incidentes" on storage.objects for all to authenticated
   using (bucket_id = 'incidentes') with check (bucket_id = 'incidentes');
+
+-- Vista pública de solo lectura: ver supabase/publico.sql

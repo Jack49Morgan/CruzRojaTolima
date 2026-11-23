@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=9"></script>
+<script src="incstore.js?v=10"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -84,6 +84,8 @@ header .btn.sm{padding:4px 10px;font-size:13px}
 details.edit>summary{cursor:pointer;font-weight:600;color:var(--navy);padding:10px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
 details.edit[open]>summary{margin-bottom:14px}
 details.edit.nosum>summary{display:none}
+/* public read-only view of an event's follow-up */
+.ro #uf,.ro #edit,.ro .sel,.ro #mig,.ro [data-delu]{display:none!important}
 #uf textarea{min-height:110px}
 </style>
 </head>
@@ -94,7 +96,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=9" id="back">Ver tablero</a>
+    <a class="btn" href="index.html?v=10" id="back">Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -510,14 +512,20 @@ async function offerMigration(){
 // ---- start: sign in first when the shared server is on
 async function start(){
   try { await IncStore.ready(); } catch {}
-  const signedOut = IncStore.remote && !IncStore.user();
-  $("#auth").hidden = !signedOut; $("#main").hidden = signedOut; $("#who").hidden = !IncStore.user();
-  if (signedOut) return incLoginBox($("#auth"), start, "Inicie sesión con su cuenta del equipo para registrar eventos y publicar actualizaciones.");
-  $("#whoe").textContent = IncStore.user() || "";
+  const signedOut = IncStore.remote && !IncStore.user(), id = new URLSearchParams(location.search).get("id") || "";
+  const login = () => { $("#auth").hidden = false; incLoginBox($("#auth"), start, "Inicie sesión con su cuenta del equipo para registrar eventos y publicar actualizaciones."); };
+  document.body.classList.toggle("ro", signedOut);
+  $("#who").hidden = false; $("#auth").hidden = true;
+  $("#whoe").textContent = signedOut ? "Solo lectura" : IncStore.user() || "";
+  $("#logout").textContent = signedOut ? "Entrar (equipo)" : "Salir";
+  if (signedOut && !id) { $("#main").hidden = true; return login(); }   // registering needs a team account
+  $("#main").hidden = false;
+  if (signedOut) return load(id);   // anyone with the link can follow an event
   offerMigration();
   await load(new URLSearchParams(location.search).get("id") || "");
 }
-$("#logout").onclick = () => IncStore.signOut();
+$("#logout").onclick = () => { if (IncStore.user()) IncStore.signOut();
+  else { $("#auth").hidden = false; incLoginBox($("#auth"), start, "Inicie sesión con su cuenta del equipo para publicar actualizaciones."); } };
 IncStore.onAuth(s => { if (!s) start(); });
 start().catch(e => setMsg($("#smsg"), "No se pudo abrir el registro de eventos: " + e.message, "bad"));
 })();

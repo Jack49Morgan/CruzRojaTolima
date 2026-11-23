@@ -434,7 +434,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=9"></script>
+<script src="incstore.js?v=10"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -458,6 +458,8 @@ function initIncidents(map, ctrl){
   const afect = a => IncUtil.afect(Object.fromEntries(Object.entries(a || {}).filter(([, v]) => v)));
   const who = document.createElement("div"); who.className = "incwho"; who.hidden = true;
   list.before(who);
+  const loginBox = document.createElement("div"); loginBox.hidden = true; loginBox.style.marginBottom = "10px";
+  list.before(loginBox);
   const mig = document.createElement("div"); mig.className = "incmig"; mig.hidden = true;
   list.before(mig);
   mig.addEventListener("click", e => { if (e.target.closest("[data-newinc-up]")) openForm(); });
@@ -469,12 +471,14 @@ function initIncidents(map, ctrl){
     const canEdit = !IncStore.remote || !!IncStore.user();
     document.querySelectorAll("[data-newinc]").forEach(b => b.hidden = !canEdit);
     if (IncStore.user()) { who.innerHTML = `Conectado como ${escI(IncStore.user())} <button type="button" id="incout">Salir</button>`;
-      document.getElementById("incout").onclick = () => IncStore.signOut(); }
-    if (IncStore.remote && !IncStore.user()) { layer.clearLayers(); byId = {}; cnt.textContent = "";
-      incLoginBox(list, rr, "Inicie sesión con su cuenta del equipo para ver los eventos y su seguimiento."); return; }
+      document.getElementById("incout").onclick = () => IncStore.signOut(); loginBox.hidden = true; }
+    else if (IncStore.remote) { who.hidden = false;
+      who.innerHTML = `Vista pública de solo lectura · <button type="button" id="incin">Entrar (equipo)</button>`;
+      document.getElementById("incin").onclick = () => { loginBox.hidden = false;
+        incLoginBox(loginBox, rr, "Inicie sesión con su cuenta del equipo para registrar eventos y publicar actualizaciones."); }; }
     // events saved only in this browser (before the shared server was connected): offer to upload them.
     // Runs on the side so it can never hold up the list.
-    if (IncStore.remote && "indexedDB" in self) (async () => {
+    if (IncStore.remote && canEdit && "indexedDB" in self) (async () => {
       let done = []; try { done = JSON.parse(localStorage.getItem("sat-tolima-migrados") || "[]"); } catch {}
       const n = (await incLocalStore().list()).filter(i => !done.includes(i.id)).length;
       if (n) { mig.hidden = false; mig.innerHTML = `<b>${n} evento(s) guardados solo en este dispositivo.</b> Súbalos para que el equipo los vea. <button type="button" class="btn redbtn" data-newinc-up>Subirlos</button>`; }
@@ -534,13 +538,13 @@ function initIncidents(map, ctrl){
           ${iu.length ? `<h4>Todas las actualizaciones (${iu.length})</h4><ul class="incups">${iu.map(upItem).join("")}</ul>` : ""}
         </details>
         ${th ? `<div class="incmedia">${th}</div>` : ""}
-        <form class="incquick" data-q="${escI(inc.id)}">
+        ${canEdit ? `<form class="incquick" data-q="${escI(inc.id)}">
           <textarea name="t" rows="2" maxlength="4000" placeholder="Escriba una actualización…" aria-label="Nueva actualización para ${escI(inc.titulo)}">${escI(drafts[inc.id] || "")}</textarea>
           <div class="incqrow"><button class="btn redbtn" type="submit">Publicar</button>
             <label class="btn" title="Agregar fotos o videos">📷 Foto<input type="file" name="f" multiple hidden accept="image/*,video/*"></label>
             <span class="qm" role="status"></span></div>
-        </form>
-        <div class="incbtns"><button type="button" class="btn" data-edit="${escI(inc.id)}">Editar datos</button>
+        </form>` : ""}
+        <div class="incbtns">${canEdit ? `<button type="button" class="btn" data-edit="${escI(inc.id)}">Editar datos</button>` : ""}
           ${ll ? `<button type="button" class="btn" data-zoom="${escI(inc.id)}">Ver en mapa</button>` : `<span class="sub">Sin ubicación</span>`}</div>
       </article>`);
       byId[inc.id].ll = ll; byId[inc.id].gl = gl;

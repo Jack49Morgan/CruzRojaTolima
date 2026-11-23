@@ -25,7 +25,7 @@ const INC_TIPOS = {
 const INC_ESTADOS = {activo:"Activo", atencion:"En atención", controlado:"Controlado", cerrado:"Cerrado"};
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "familias", "viviendas"];   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 9;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 10;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
 //   remote, ready(), user(), signIn(email, pw), signOut(), onAuth(fn)
@@ -167,6 +167,9 @@ function incSupabaseStore(cfg){
     if (was !== !!s) authFns.forEach(f => f(s));
   });
   const signedCache = {};
+  // signed out = public read-only view: only these columns are readable (no team e-mails), no photos
+  const PUB = {incidentes:"id,datos,estado,afectados,fecha,creado,actualizado", actualizaciones:"id,incidente_id,creado,texto,estado,afectados"};
+  const cols = t => session ? "*" : PUB[t];
   const ok = ({data, error}) => { if (error) throw new Error(error.message || String(error)); return data; };
   const who = () => session?.user?.email || null;
   const safe = n => (n || "archivo").normalize("NFD").replace(/[^\w.-]+/g, "_").slice(-80);
@@ -195,8 +198,8 @@ function incSupabaseStore(cfg){
     onAuth: fn => authFns.push(fn),
     signIn: async (email, password) => { session = ok(await sb.auth.signInWithPassword({email, password})).session; listen(); authFns.forEach(f => f(session)); },
     signOut: async () => { await sb.auth.signOut(); },
-    list: async () => ok(await sb.from("incidentes").select("*").order("fecha", {ascending:false})).map(fromRow),
-    get: async id => { const r = ok(await sb.from("incidentes").select("*").eq("id", id).maybeSingle()); return r ? fromRow(r) : null; },
+    list: async () => ok(await sb.from("incidentes").select(cols("incidentes")).order("fecha", {ascending:false})).map(fromRow),
+    get: async id => { const r = ok(await sb.from("incidentes").select(cols("incidentes")).eq("id", id).maybeSingle()); return r ? fromRow(r) : null; },
     save: async (inc, add = [], drop = []) => {
       const {id, estado, afectados, fecha, creado, actualizado, autor, ...datos} = inc;
       const isNew = !creado;
@@ -214,7 +217,7 @@ function incSupabaseStore(cfg){
     media: async incId => (await S.mediaFor([incId]))[incId] || [],
     // media of several events in two requests; signed links are reused for 5 hours instead of asked for again
     mediaFor: async ids => {
-      if (!ids.length) return {};
+      if (!ids.length || !session) return {};
       const rows = ok(await sb.from("medios").select("*").in("incidente_id", ids).order("creado"));
       const need = rows.map(r => r.ruta).filter(p => !(signedCache[p]?.until > Date.now()));
       if (need.length) for (const x of ok(await sb.storage.from(BUCKET).createSignedUrls(need, 6 * 3600)))
@@ -223,9 +226,9 @@ function incSupabaseStore(cfg){
       for (const r of rows) (out[r.incidente_id] ??= []).push({id:r.id, name:r.nombre, type:r.tipo || "", updId:r.actualizacion_id, url:signedCache[r.ruta]?.url, ruta:r.ruta});
       return out;
     },
-    updates: async incId => ok(await sb.from("actualizaciones").select("*").eq("incidente_id", incId).order("creado"))
+    updates: async incId => ok(await sb.from("actualizaciones").select(cols("actualizaciones")).eq("incidente_id", incId).order("creado"))
       .map(r => ({...r, incId:r.incidente_id})),
-    allUpdates: async () => ok(await sb.from("actualizaciones").select("*").order("creado", {ascending:false}).limit(500))
+    allUpdates: async () => ok(await sb.from("actualizaciones").select(cols("actualizaciones")).order("creado", {ascending:false}).limit(500))
       .map(r => ({...r, incId:r.incidente_id})),
     addUpdate: async (incId, u, files = []) => {
       const upd = {id:IncUtil.uid(), incidente_id:incId, autor:who(), texto:u.texto || "", estado:u.estado || null, afectados:u.afectados || null};
@@ -242,6 +245,8 @@ function incSupabaseStore(cfg){
     },
     onChange: fn => changeFns.push(fn),
   };
+  // the public view has no live channel; it checks for news every minute instead
+  setInterval(() => { if (!session && document.visibilityState === "visible") fire(); }, 60e3);
   return S;
 }
 
