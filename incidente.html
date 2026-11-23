@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=5"></script>
+<script src="incstore.js?v=6"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -94,7 +94,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=5" id="back">Ver tablero</a>
+    <a class="btn" href="index.html?v=6" id="back">Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -342,10 +342,10 @@ function drawSummary(){
     Inicio: ${esc((cur.fecha || "").replace("T", " "))}${cur.actualizado ? ` · Última actualización ${esc(IncUtil.ago(cur.actualizado))}` : ""}</div>`;
 }
 let delu = null, lastUps = [];
-async function drawTimeline(){
+async function drawTimeline(medP){
   if (!cur) return;
   const id = cur.id;
-  const [ups, med] = await Promise.all([IncStore.updates(id), IncStore.media(id)]);
+  const [ups, med] = await Promise.all([IncStore.updates(id), medP || IncStore.media(id)]);
   if (cur?.id !== id) return;
   const byUpd = {}; for (const m of med) if (m.updId) (byUpd[m.updId] ??= []).push(m);
   const thumbs = list => list?.length ? `<div class="thumbs">${list.map(m => `<a class="thumb" href="${m.url}" target="_blank" rel="noopener">${isVid(m)
@@ -419,9 +419,13 @@ async function load(id){
     for (const k of ["tipo", "estado", "titulo", "fecha", "municipio", "lugar", "descripcion", "acciones"]) f[k].value = cur[k] ?? "";
     for (const k of INC_AFECT_KEYS) f[k].value = cur.afectados?.[k] ?? "";
     setPoint(cur.punto, false); setGeo(cur.geo || null, cur.geoName);
-    media = (await IncStore.media(cur.id)).filter(m => !m.updId).map(m => ({...m, isNew:false}));
     try { uf.texto.value = localStorage.getItem(draftKey()) || ""; } catch {}
-    drawSummary(); drawTimeline();
+    drawSummary();
+    // photos and timeline load together; the page is usable before they arrive
+    const medP = IncStore.media(cur.id), loadedId = cur.id;
+    drawTimeline(medP);
+    medP.then(med => { if (cur?.id !== loadedId) return;
+      media = med.filter(m => !m.updId).map(m => ({...m, isNew:false})); drawThumbs(); }).catch(() => {});
   } else { f.fecha.value = nowLocal(); f.estado.value = "activo"; setPoint(null); setGeo(null); }
   $("#seg").hidden = !cur;
   $("#edit").open = !cur; $("#edit").classList.toggle("nosum", !cur);
@@ -431,7 +435,7 @@ async function load(id){
   $("#del").hidden = !cur; $("#del").textContent = "Eliminar"; delarm = false;
   $("#save").textContent = cur ? "Guardar cambios" : "Guardar evento";
   history.replaceState(null, "", cur ? "?v=" + INC_VERSION + "&id=" + encodeURIComponent(cur.id) : location.pathname + "?v=" + INC_VERSION);
-  await fillPick();
+  fillPick().catch(() => {});
 }
 $("#pick").onchange = e => load(e.target.value);
 $("#newbtn").onclick = () => load("");

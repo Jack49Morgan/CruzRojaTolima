@@ -25,7 +25,7 @@ const INC_TIPOS = {
 const INC_ESTADOS = {activo:"Activo", atencion:"En atención", controlado:"Controlado", cerrado:"Cerrado"};
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "familias", "viviendas"];   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 5;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 6;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
 //   remote, ready(), user(), signIn(email, pw), signOut(), onAuth(fn)
@@ -49,6 +49,18 @@ const IncUtil = {
     if (day(d) === day(new Date())) return hm;
     if (day(d) === day(new Date(Date.now() - 864e5))) return "ayer " + hm;
     return d.toLocaleDateString("es-CO", {...tz, day:"numeric", month:"short"}).replace(".", "") + " " + hm; },
+  // photo → JPEG at most 1600 px wide/high; videos, GIFs and small images are left as they are
+  shrink: async blob => {
+    if (!/^image\/(jpeg|png|webp|heic|heif)$/i.test(blob.type || "") || blob.size < 500e3) return blob;
+    try {
+      const bmp = await createImageBitmap(blob, {imageOrientation:"from-image"});
+      const k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+      const c = document.createElement("canvas"); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+      c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height); bmp.close?.();
+      const out = await new Promise(r => c.toBlob(r, "image/jpeg", 0.82));
+      return out && out.size < blob.size ? out : blob;
+    } catch { return blob; }
+  },
   when: iso => iso ? new Date(iso).toLocaleString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit"}) : "",
   afect: a => INC_AFECT_KEYS.filter(k => a?.[k] != null).map(k => `${a[k]} ${a[k] === 1 ? k.slice(0, -1) : k}`).join(" · "),
 };
@@ -130,7 +142,10 @@ function incLocalStore(){
 }
 
 function incSupabaseStore(cfg){
-  const sb = supabase.createClient(cfg.url, cfg.key, {auth:{persistSession:true, autoRefreshToken:true, storageKey:"sat-tolima-auth"}});
+  const sb = supabase.createClient(cfg.url, cfg.key, {auth:{persistSession:true, autoRefreshToken:true, storageKey:"sat-tolima-auth",
+    // supabase-js serialises auth calls across tabs with a browser lock; with the dashboard and the form open
+    // at once that lock can stall every request for several seconds. A no-op lock avoids it.
+    lock:async (name, timeout, fn) => fn()}});
   const BUCKET = "incidentes";
   let session = null, authFns = [], changeFns = [], channel = null;
   const fire = () => changeFns.forEach(f => { try { f(); } catch {} });
@@ -154,11 +169,14 @@ function incSupabaseStore(cfg){
     creado:r.creado, actualizado:r.actualizado, autor:r.autor});
   const upload = async (incId, files, updId = null) => {
     const rows = [];
-    for (const f of files) {
-      const ruta = `${incId}/${f.id}-${safe(f.name)}`;
-      ok(await sb.storage.from(BUCKET).upload(ruta, f.blob, {contentType:f.type || "application/octet-stream", upsert:true}));
-      rows.push({id:f.id, incidente_id:incId, actualizacion_id:updId, ruta, nombre:f.name, tipo:f.type});
-    }
+    // photos are shrunk first (a phone photo of 4 MB becomes ~300 KB), then everything uploads in parallel
+    await Promise.all(files.map(async f => {
+      const blob = await IncUtil.shrink(f.blob), type = blob === f.blob ? f.type : "image/jpeg";
+      const name = blob === f.blob ? f.name : f.name.replace(/\.[^.]*$/, "") + ".jpg";
+      const ruta = `${incId}/${f.id}-${safe(name)}`;
+      ok(await sb.storage.from(BUCKET).upload(ruta, blob, {contentType:type || "application/octet-stream", upsert:true}));
+      rows.push({id:f.id, incidente_id:incId, actualizacion_id:updId, ruta, nombre:name, tipo:type});
+    }));
     if (rows.length) ok(await sb.from("medios").insert(rows));
   };
   const dropMedia = async rows => {
