@@ -214,6 +214,8 @@ h2 button.info{vertical-align:2px}
 .incups time{font:600 12px var(--sans);color:var(--red);white-space:nowrap}
 .incups .ut{white-space:pre-wrap;overflow-wrap:anywhere}
 .incups .um{grid-column:2;font-size:11px;color:var(--muted)}
+.incups .uth{grid-column:2;display:flex;gap:4px;flex-wrap:wrap;margin-top:2px}
+.incth.sm{width:52px;height:52px}
 .incseg summary{cursor:pointer;font-size:12px;color:var(--muted)}
 .incseg .incups{margin-top:6px}
 .incmore>summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--navy-dk);list-style:none;display:flex;align-items:center;gap:6px}
@@ -432,7 +434,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=8"></script>
+<script src="incstore.js?v=9"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -491,11 +493,14 @@ function initIncidents(map, ctrl){
     const medias = show.map(inc => mb[inc.id] || []);
     for (const [n, inc] of show.entries()) {
       const [tname, color] = INC_TIPOS[inc.tipo] || INC_TIPOS.otro;
-      const items = medias[n].map(m => ({u:m.url, video:(m.type || "").startsWith("video"), name:m.name}));
+      const items = medias[n].map(m => ({u:m.url, video:(m.type || "").startsWith("video"), name:m.name, upd:m.updId || null}));
+      const thumb = (x, i, cls = "incth") => `<button type="button" class="${cls}" data-g="${escI(inc.id)}" data-i="${i}" aria-label="Ver ${x.video ? "video" : "foto"}">${x.video ? `<video src="${x.u}#t=0.1" muted preload="metadata" playsinline></video><span class="play">▶</span>` : `<img src="${x.u}" alt="" loading="lazy">`}</button>`;
+      // message board: each update carries its own photos and videos, under its time
+      const upThumbs = u => { const t = items.map((x, i) => x.upd === u.id ? thumb(x, i, "incth sm") : "").join(""); return t ? `<span class="uth">${t}</span>` : ""; };
       const iu = upsBy[inc.id] || [], last = iu[0];
       const upItem = u => `<li><time datetime="${escI(u.creado)}" title="${escI(IncUtil.when(u.creado))}">${escI(IncUtil.hora(u.creado))}</time>
-        <span class="ut">${u.texto ? escI(u.texto) : u.estado ? "Estado: " + escI(INC_ESTADOS[u.estado] || u.estado) : u.afectados ? escI(IncUtil.afect(u.afectados)) : "Foto o video"}</span>
-        ${u.autor || (u.texto && (u.estado || u.afectados)) ? `<span class="um">${[u.autor ? escI(u.autor.split("@")[0]) : "", u.texto && u.estado ? escI(INC_ESTADOS[u.estado] || u.estado) : "", u.texto && u.afectados ? escI(IncUtil.afect(u.afectados)) : ""].filter(Boolean).join(" · ")}</span>` : ""}</li>`;
+        <span class="ut">${u.texto ? escI(u.texto) : u.estado ? "Estado: " + escI(INC_ESTADOS[u.estado] || u.estado) : u.afectados ? escI(IncUtil.afect(u.afectados)) : ""}</span>
+        ${u.autor || (u.texto && (u.estado || u.afectados)) ? `<span class="um">${[u.autor ? escI(u.autor.split("@")[0]) : "", u.texto && u.estado ? escI(INC_ESTADOS[u.estado] || u.estado) : "", u.texto && u.afectados ? escI(IncUtil.afect(u.afectados)) : ""].filter(Boolean).join(" · ")}</span>` : ""}${upThumbs(u)}</li>`;
       byId[inc.id] = {inc, items};
       // map: boundary, then a pin at the chosen point or the middle of the boundary
       let ll = inc.punto, gl = null;
@@ -507,8 +512,10 @@ function initIncidents(map, ctrl){
           .bindPopup(`<div class="incpop"><b>${escI(inc.titulo)}</b><div class="sub">${escI(tname)} · ${escI(inc.municipio)}<br>${escI(fmt(inc.fecha))} · ${escI(INC_ESTADOS[inc.estado] || "")}</div>
             ${first ? `<img src="${first.u}" alt="">` : ""}${afect(inc.afectados) ? `<div>${escI(afect(inc.afectados))}</div>` : ""}
             <button type="button" class="btn" data-card="${escI(inc.id)}">Ver detalles</button></div>`, {maxWidth:Math.min(280, innerWidth - 90)}); }
-      const th = items.slice(0, 4).map((x, i) => `<button type="button" class="incth" data-g="${escI(inc.id)}" data-i="${i}" aria-label="Ver ${x.video ? "video" : "foto"} ${i + 1}">${x.video ? `<video src="${x.u}#t=0.1" muted preload="metadata"></video><span class="play">▶</span>` : `<img src="${x.u}" alt="">`}</button>`).join("")
-        + (items.length > 4 ? `<button type="button" class="incth more" data-g="${escI(inc.id)}" data-i="4">+${items.length - 4}</button>` : "");
+      // photos of the event itself (not of an update) go in the strip under the description
+      const own = items.map((x, i) => [x, i]).filter(([x]) => !x.upd);
+      const th = own.slice(0, 4).map(([x, i]) => thumb(x, i)).join("")
+        + (own.length > 4 ? `<button type="button" class="incth more" data-g="${escI(inc.id)}" data-i="${own[4][1]}">+${own.length - 4}</button>` : "");
       cards.push(`<article class="inccard" id="inc-${escI(inc.id)}" style="--c:${color}">
         <div class="inchead"><h3>${escI(inc.titulo)}</h3><span class="incst st-${escI(inc.estado)}">${escI(INC_ESTADOS[inc.estado] || inc.estado)}</span></div>
         <div class="sub">${escI(tname)} · ${escI(inc.municipio)}${inc.lugar ? " · " + escI(inc.lugar) : ""}<br>${escI(fmt(inc.fecha))}</div>
