@@ -209,6 +209,14 @@ h2 button.info{vertical-align:2px}
 .incth .play{position:absolute;inset:0;display:grid;place-items:center;font-size:20px;text-shadow:0 0 4px #000}
 .incth.more{background:var(--navy-dk)}
 .incbtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.inclast{font-size:13px;border-left:3px solid var(--line);padding-left:8px}
+.inclast .sub{font-size:12px}
+.inclast p{margin:2px 0 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
+.incseg summary{cursor:pointer;font-size:13px;color:var(--muted)}
+.incseg ol{margin:6px 0 0;padding-left:18px;font-size:13px;display:grid;gap:6px}
+.incseg li p{margin:0;white-space:pre-wrap}
+.incwho{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.incwho button{border:0;background:none;color:inherit;text-decoration:underline;cursor:pointer;font:inherit;padding:0}
 .incpin{background:none;border:0}
 .incpop img{width:100%;max-height:160px;object-fit:cover;border-radius:4px;margin:6px 0}
 .incpop .btn{margin-top:6px}
@@ -404,69 +412,9 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
     <div class="dlgfoot"><button type="button" class="btn" id="mprev">‹ Anterior</button><span class="sub" id="mediacap"></span><button type="button" class="btn" id="mnext">Siguiente ›</button><button class="btn">Cerrar</button></div>
   </form>
 </dialog>
+<script src="vendor/supabase-2.45.4.min.js"></script>
+<script src="incstore.js"></script>
 <script>
-// Incident store shared by the dashboard and the incident form (same site = same browser database).
-// Everything stays in this browser (IndexedDB). To share incidents between devices, swap these
-// functions for a backend; the rest of both pages only calls IncStore.*.
-const IncStore = (() => {
-  const DB = "sat-tolima", V = 1;
-  let dbp = null;
-  const open = () => dbp ??= new Promise((res, rej) => {
-    const r = indexedDB.open(DB, V);
-    r.onupgradeneeded = () => {
-      const d = r.result;
-      if (!d.objectStoreNames.contains("inc")) d.createObjectStore("inc", {keyPath:"id"});
-      if (!d.objectStoreNames.contains("media")) d.createObjectStore("media", {keyPath:"id"}).createIndex("inc", "incId");
-    };
-    r.onsuccess = () => res(r.result);
-    r.onerror = () => rej(r.error);
-  });
-  const tx = async (stores, mode, fn) => { const d = await open();
-    return new Promise((res, rej) => { const t = d.transaction(stores, mode); let out;
-      Promise.resolve(fn(t)).then(v => out = v);
-      t.oncomplete = () => res(out); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error); }); };
-  const req = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
-  const chan = "BroadcastChannel" in self ? new BroadcastChannel("sat-tolima-inc") : null;
-  const ping = () => { chan?.postMessage("changed"); try { localStorage.setItem("sat-tolima-inc", String(Date.now())); } catch {} };
-  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-  return {
-    uid,
-    list: () => tx(["inc"], "readonly", t => req(t.objectStore("inc").getAll()))
-      .then(a => a.sort((x, y) => (y.fecha || "").localeCompare(x.fecha || ""))),
-    get: id => tx(["inc"], "readonly", t => req(t.objectStore("inc").get(id))),
-    // inc: the incident record; add: [{id,name,type,blob}] new media; drop: media ids to remove
-    save: async (inc, add = [], drop = []) => {
-      inc.actualizado = new Date().toISOString(); inc.creado ??= inc.actualizado;
-      await tx(["inc", "media"], "readwrite", t => {
-        const m = t.objectStore("media");
-        for (const f of add) m.put({...f, incId:inc.id});
-        for (const id of drop) m.delete(id);
-        t.objectStore("inc").put(inc);
-      });
-      ping(); return inc;
-    },
-    remove: async id => {
-      const keys = await tx(["media"], "readonly", t => req(t.objectStore("media").index("inc").getAllKeys(id)));
-      await tx(["inc", "media"], "readwrite", t => { t.objectStore("inc").delete(id); for (const k of keys) t.objectStore("media").delete(k); });
-      ping();
-    },
-    media: incId => tx(["media"], "readonly", t => req(t.objectStore("media").index("inc").getAll(incId))),
-    onChange: fn => { chan?.addEventListener("message", fn);
-      addEventListener("storage", e => { if (e.key === "sat-tolima-inc") fn(); }); },
-  };
-})();
-const INC_TIPOS = {
-  inundacion:   ["Inundación", "#1f6fb2"],
-  avenida:      ["Avenida torrencial", "#0b2a5b"],
-  deslizamiento:["Deslizamiento / movimiento en masa", "#8d5524"],
-  vendaval:     ["Vendaval", "#6b5ca5"],
-  incendio:     ["Incendio forestal", "#e65100"],
-  volcan:       ["Actividad volcánica", "#5d4037"],
-  sismo:        ["Sismo", "#455a64"],
-  accidente:    ["Accidente / emergencia", "#c8102e"],
-  otro:         ["Otro", "#616161"],
-};
-const INC_ESTADOS = {activo:"Activo", atencion:"En atención", controlado:"Controlado", cerrado:"Cerrado"};
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
 // Records are entered in incidente.html (its own window) and read here from the shared browser store.
@@ -482,25 +430,35 @@ function initIncidents(map, ctrl){
   map.createPane("inc").style.zIndex = 440;
   const layer = L.featureGroup().addTo(map);
   ctrl.addOverlay(layer, "Incidentes registrados");
-  let urls = [], byId = {}, gallery = [];
+  let byId = {}, gallery = [];
   const fmt = f => f ? f.replace("T", " ") : "";
   const pin = color => L.divIcon({className:"incpin", iconSize:[26,32], iconAnchor:[13,31], popupAnchor:[0,-28],
     html:`<svg viewBox="0 0 26 32" width="26" height="32" aria-hidden="true"><path d="M13 31C13 31 2 19 2 12a11 11 0 0 1 22 0c0 7-11 19-11 19z" fill="${color}" stroke="#fff" stroke-width="2"/><path d="M11.5 6h3v8h-3zM11.5 16h3v3h-3z" fill="#fff"/></svg>`});
-  const afect = a => { const p = [];
-    if (a?.personas) p.push(`${a.personas} personas`); if (a?.familias) p.push(`${a.familias} familias`); if (a?.viviendas) p.push(`${a.viviendas} viviendas`);
-    return p.join(" · "); };
+  const afect = a => IncUtil.afect(Object.fromEntries(Object.entries(a || {}).filter(([, v]) => v)));
+  const who = document.createElement("div"); who.className = "incwho"; who.hidden = true;
+  list.before(who);
   async function render(){
-    let incs = [];
-    try { incs = await IncStore.list(); } catch (e) { list.innerHTML = `<p class="sub">No se pudo abrir el registro de incidentes en este navegador (${escI(e.message)}).</p>`; return; }
-    urls.forEach(URL.revokeObjectURL); urls = []; byId = {}; layer.clearLayers();
+    let incs = [], ups = [];
+    try { await IncStore.ready(); } catch {}
+    who.hidden = !IncStore.user();
+    if (IncStore.user()) { who.innerHTML = `Conectado como ${escI(IncStore.user())} <button type="button" id="incout">Salir</button>`;
+      document.getElementById("incout").onclick = () => IncStore.signOut(); }
+    if (IncStore.remote && !IncStore.user()) { layer.clearLayers(); byId = {}; cnt.textContent = "";
+      incLoginBox(list, rr, "Inicie sesión con su cuenta del equipo para ver los incidentes y su seguimiento."); return; }
+    try { [incs, ups] = await Promise.all([IncStore.list(), IncStore.allUpdates()]); }
+    catch (e) { list.innerHTML = `<p class="sub">No se pudo abrir el registro de incidentes (${escI(e.message)}).</p>`; return; }
+    byId = {}; layer.clearLayers();
+    const upsBy = {}; for (const u of ups) (upsBy[u.incId] ??= []).push(u);   // newest first
     const show = filt.value === "todos" ? incs : incs.filter(i => i.estado !== "cerrado");
     cnt.textContent = incs.length ? `${show.length} de ${incs.length}` : "";
-    if (!show.length) { list.innerHTML = `<p class="sub">${incs.length ? "No hay incidentes abiertos. Elija “Todos” para ver los cerrados." : "Aún no hay incidentes registrados en este dispositivo. Use “Registrar incidente” para agregar el primero."}</p>`; return; }
+    if (!show.length) { list.innerHTML = `<p class="sub">${incs.length ? "No hay incidentes abiertos. Elija “Todos” para ver los cerrados." : `Aún no hay incidentes registrados${IncStore.remote ? "" : " en este dispositivo"}. Use “Registrar incidente” para agregar el primero.`}</p>`; return; }
     const cards = [];
-    for (const inc of show) {
+    const medias = await Promise.all(show.map(inc => IncStore.media(inc.id).catch(() => [])));
+    for (const [n, inc] of show.entries()) {
       const [tname, color] = INC_TIPOS[inc.tipo] || INC_TIPOS.otro;
-      const media = await IncStore.media(inc.id).catch(() => []);
-      const items = media.map(m => { const u = URL.createObjectURL(m.blob); urls.push(u); return {u, video:m.type.startsWith("video"), name:m.name}; });
+      const items = medias[n].map(m => ({u:m.url, video:(m.type || "").startsWith("video"), name:m.name}));
+      const iu = upsBy[inc.id] || [], last = iu[0];
+      const upLine = u => `${escI(IncUtil.ago(u.creado))}${u.autor ? " · " + escI(u.autor.split("@")[0]) : ""}${u.estado ? " · " + escI(INC_ESTADOS[u.estado] || u.estado) : ""}`;
       byId[inc.id] = {inc, items};
       // map: boundary, then a pin at the chosen point or the middle of the boundary
       let ll = inc.punto, gl = null;
@@ -518,10 +476,13 @@ function initIncidents(map, ctrl){
         <div class="inchead"><h3>${escI(inc.titulo)}</h3><span class="incst st-${escI(inc.estado)}">${escI(INC_ESTADOS[inc.estado] || inc.estado)}</span></div>
         <div class="sub">${escI(tname)} · ${escI(inc.municipio)}${inc.lugar ? " · " + escI(inc.lugar) : ""}<br>${escI(fmt(inc.fecha))}</div>
         ${afect(inc.afectados) ? `<div class="incaf">Afectados: ${escI(afect(inc.afectados))}</div>` : ""}
-        ${inc.descripcion ? `<p class="incdesc">${escI(inc.descripcion)}</p>` : ""}
+        ${last ? `<div class="inclast"><div class="sub">Última actualización ${upLine(last)}</div>${last.texto ? `<p>${escI(last.texto)}</p>` : ""}</div>`
+          : inc.descripcion ? `<p class="incdesc">${escI(inc.descripcion)}</p>` : ""}
+        ${iu.length > 1 ? `<details class="incseg"><summary>Seguimiento: ${iu.length} actualizaciones</summary><ol reversed>${iu.map(u =>
+          `<li><span class="sub">${upLine(u)}</span>${u.afectados ? `<div class="sub">${escI(IncUtil.afect(u.afectados))}</div>` : ""}${u.texto ? `<p>${escI(u.texto)}</p>` : ""}</li>`).join("")}</ol></details>` : ""}
         ${th ? `<div class="incmedia">${th}</div>` : ""}
-        <div class="incbtns">${ll ? `<button type="button" class="btn" data-zoom="${escI(inc.id)}">Ver en mapa</button>` : `<span class="sub">Sin ubicación</span>`}
-          <button type="button" class="btn" data-edit="${escI(inc.id)}">Editar</button></div>
+        <div class="incbtns"><button type="button" class="btn redbtn" data-edit="${escI(inc.id)}">Actualizar</button>
+          ${ll ? `<button type="button" class="btn" data-zoom="${escI(inc.id)}">Ver en mapa</button>` : `<span class="sub">Sin ubicación</span>`}</div>
       </article>`);
       byId[inc.id].ll = ll; byId[inc.id].gl = gl;
     }
@@ -555,6 +516,7 @@ function initIncidents(map, ctrl){
     busy = render().finally(() => { busy = null; if (again) { again = false; rr(); } }); };
   filt.addEventListener("change", rr);
   IncStore.onChange(rr);
+  IncStore.onAuth(rr);
   addEventListener("focus", rr);
   rr();
 }
@@ -1509,7 +1471,8 @@ const INFO = {
   incidentes: ["Incidentes",
     `<p>Incidentes registrados por el equipo con el formulario <b>Registrar incidente</b>, que se abre en una ventana aparte: tipo, municipio, fecha, estado, personas afectadas, ubicación en el mapa, límite del área afectada (shapefile, KML o KMZ) y fotos y videos.</p>
      <p>En el mapa, cada incidente es un marcador del color de su tipo, y su área aparece con borde punteado. El tablero se actualiza solo al guardar en el formulario.</p>
-     <p><b>Importante:</b> por ahora los incidentes se guardan solo en este navegador y este dispositivo. Para verlos en otros teléfonos o computadores hace falta conectar un servidor de datos.</p>`],
+     <p><b>Seguimiento:</b> con <b>Actualizar</b> en cada tarjeta se publican novedades mientras el incidente sigue en curso (texto, cambio de estado, cifras de afectados, fotos y videos). Se ven en orden en “Seguimiento”.</p>
+     <p>${IncStore.remote ? "Los incidentes se guardan en el servidor del equipo: se ven y se actualizan desde cualquier teléfono o computador con una cuenta del equipo." : "<b>Importante:</b> por ahora los incidentes se guardan solo en este navegador y este dispositivo. Para compartirlos entre teléfonos y computadores hay que conectar el servidor (supabase/LEEME.md)."}</p>`],
   pronostico: ["Pronóstico de lluvia (Open-Meteo)",
     `<p>Pronóstico hora a hora de <b>Open-Meteo</b>, que combina los modelos meteorológicos globales y regionales disponibles para Colombia (por ejemplo ECMWF, GFS e ICON) y se actualiza varias veces al día. Es gratuito y no requiere clave.</p>
      <p><b>En el mapa</b> (capa “Lluvia pronosticada 24 h por municipio”), cada municipio se colorea con la lluvia esperada en las próximas 24 horas, con la misma escala de gotas que las estaciones. Pase el dedo o el ratón por encima para ver 24 h, 72 h, 7 días, la probabilidad máxima de lluvia y la población. Bajo el mapa se resumen los municipios con más de 30 mm y cuántas personas viven en ellos.</p>
