@@ -225,6 +225,8 @@ h2 button.info{vertical-align:2px}
 .incmore dt{color:var(--muted);font-weight:500}
 .incmore dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .incmore h4{margin:10px 0 4px;font-size:13px;color:var(--navy-dk)}
+.incmig{font-size:13px;border:2px solid var(--red);border-radius:8px;padding:8px 10px;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.incmig .btn{padding:4px 12px}
 .incquick{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:8px}
 .incquick textarea{font:inherit;font-size:14px;width:100%;min-height:44px;resize:vertical;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);box-sizing:border-box}
 .incquick textarea:focus{outline:2px solid var(--navy);outline-offset:1px}
@@ -430,7 +432,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=4"></script>
+<script src="incstore.js?v=5"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -454,6 +456,9 @@ function initIncidents(map, ctrl){
   const afect = a => IncUtil.afect(Object.fromEntries(Object.entries(a || {}).filter(([, v]) => v)));
   const who = document.createElement("div"); who.className = "incwho"; who.hidden = true;
   list.before(who);
+  const mig = document.createElement("div"); mig.className = "incmig"; mig.hidden = true;
+  list.before(mig);
+  mig.addEventListener("click", e => { if (e.target.closest("[data-newinc-up]")) openForm(); });
   async function render(){
     let incs = [], ups = [];
     try { await IncStore.ready(); } catch {}
@@ -465,6 +470,13 @@ function initIncidents(map, ctrl){
       document.getElementById("incout").onclick = () => IncStore.signOut(); }
     if (IncStore.remote && !IncStore.user()) { layer.clearLayers(); byId = {}; cnt.textContent = "";
       incLoginBox(list, rr, "Inicie sesión con su cuenta del equipo para ver los eventos y su seguimiento."); return; }
+    // events saved only in this browser (before the shared server was connected): offer to upload them
+    if (IncStore.remote && "indexedDB" in self) try {
+      let done = []; try { done = JSON.parse(localStorage.getItem("sat-tolima-migrados") || "[]"); } catch {}
+      const n = (await incLocalStore().list()).filter(i => !done.includes(i.id)).length;
+      if (n) { mig.hidden = false; mig.innerHTML = `<b>${n} evento(s) guardados solo en este dispositivo.</b> Súbalos para que el equipo los vea. <button type="button" class="btn redbtn" data-newinc-up>Subirlos</button>`; }
+      else mig.hidden = true;
+    } catch {}
     try { [incs, ups] = await Promise.all([IncStore.list(), IncStore.allUpdates()]); }
     catch (e) { list.innerHTML = `<p class="sub">No se pudo abrir el registro de eventos (${escI(e.message)}).</p>`; return; }
     byId = {}; layer.clearLayers();
