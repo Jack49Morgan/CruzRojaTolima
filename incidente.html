@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=14"></script>
+<script src="incstore.js?v=15"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -97,7 +97,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=14" id="back">Ver tablero</a>
+    <a class="btn" href="index.html?v=15" id="back">Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -363,7 +363,7 @@ async function drawTimeline(medP, updP){
       ${u.estado || u.afectados ? `<div style="margin-top:3px">${u.estado ? `<span class="chip st-${esc(u.estado)}">${esc(INC_ESTADOS[u.estado] || u.estado)}</span>` : ""}${u.afectados ? `<span class="chip af">${esc(IncUtil.afect(u.afectados))}</span>` : ""}</div>` : ""}
       ${u.texto ? `<p class="txt">${esc(u.texto)}</p>` : ""}${thumbs(byUpd[u.id])}</li>`);
   items.push(`<li class="reg"><div class="meta">${esc(IncUtil.when(cur.creado))}${cur.autor ? " · " + esc(cur.autor) : ""}</div>
-    <p class="txt"><b>Evento registrado.</b>${cur.descripcion ? " " + esc(cur.descripcion) : ""}</p></li>`);
+    <p class="txt"><b>Evento registrado.</b>${cur.descripcion ? " " + esc(cur.descripcion) : ""}</p>${thumbs(med.filter(m => !m.updId))}</li>`);
   $("#tl").innerHTML = items.join("");
   lastUps = ups;
 }
