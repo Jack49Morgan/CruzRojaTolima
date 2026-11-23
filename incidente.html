@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=16"></script>
+<script src="incstore.js?v=17"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -95,8 +95,14 @@ details.edit.nosum>summary{display:none}
   .wrap{padding:0;max-width:none}
   header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   header .btn,#who,#auth,#mig,.sel,#uf,#edit,.sumbtns,[data-delu],.msg{display:none!important}
-  .printnote{display:block;font-size:10px;color:#555}
-  .card{break-inside:avoid-page;border-color:#bbb}
+  .printnote{display:block;font-size:11px;color:#333}
+  .printnote a{color:#0b2a5b;overflow-wrap:anywhere}
+  /* plain blocks, no grid: grids and whole-card "avoid break" left a big blank gap on page 1 */
+  .wrap,#main,#seg,.card{display:block!important}
+  .wrap>*,#main>*,#seg>*{margin-bottom:10px}
+  .card{border-color:#bbb;padding:10px 12px}
+  .card>*+*{margin-top:6px}
+  header,.sum{break-inside:avoid}
   .tl li{break-inside:avoid}
   .chip,.tl li::before,.thumb{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .thumb{background:#ddd}
@@ -111,7 +117,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=16" id="back">Ver tablero</a>
+    <a class="btn" href="index.html?v=17" id="back">Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -361,7 +367,7 @@ function drawSummary(){
     ${cur.acciones ? `<div class="sub"><b>Acciones de respuesta:</b> ${esc(cur.acciones)}</div>` : ""}
     <div class="sumbtns"><button type="button" class="btn" id="pdfbtn">Guardar en PDF</button>
     ${!IncStore.remote || IncStore.user() ? `<span class="delrow"><button type="button" class="btn danger" id="delsum">Eliminar evento</button> <span class="msg" id="dmsg" role="status"></span></span>` : ""}</div>
-    <div class="printnote">Seguimiento impreso el ${esc(new Date().toLocaleString("es-CO", {dateStyle:"long", timeStyle:"short"}))} · ${esc(location.href.split("#")[0])}</div>`;
+    <div class="printnote"></div>`;
   const b = $("#delsum"); if (b) b.onclick = () => delEvent(b, "Eliminar evento", $("#dmsg"), true);
   $("#pdfbtn").onclick = savePdf;
 }
@@ -369,7 +375,8 @@ function drawSummary(){
 async function savePdf(){
   if (!cur) return;
   const t = document.title; document.title = `Evento ${cur.titulo} ${(cur.fecha || "").slice(0, 10)}`.replace(/[\\/:*?"<>|]+/g, " ");
-  $(".printnote").textContent = `Seguimiento impreso el ${new Date().toLocaleString("es-CO", {dateStyle:"long", timeStyle:"short"})} · ${location.href.split("#")[0]}`;
+  const link = location.origin + location.pathname + "?id=" + encodeURIComponent(cur.id);   // the live follow-up page, readable without signing in
+  $(".printnote").innerHTML = `Impreso el ${esc(new Date().toLocaleString("es-CO", {dateStyle:"long", timeStyle:"short"}))}.<br>Seguimiento en línea: <a href="${esc(link)}">${esc(link)}</a>`;
   // wait for the timeline's photos so they are in the PDF
   await Promise.all([...document.querySelectorAll("#tl img")].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; setTimeout(r, 5000); })));
   window.print(); setTimeout(() => { document.title = t; }, 1000);
