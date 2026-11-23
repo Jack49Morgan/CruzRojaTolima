@@ -28,7 +28,7 @@ del equipo puede agregarle actualizaciones mientras está en curso. Supabase es 
 **Project Settings** > **API** (o **Data API**): copie
 
 - **Project URL** (algo como `https://abcdxyz.supabase.co`)
-- la clave **anon public** (una cadena larga que empieza por `eyJ`)
+- la clave **Publishable** (`sb_publishable_…`) o, en proyectos antiguos, la **anon public** (`eyJ…`)
 
 y péguelas en `INC_CONFIG` al comienzo de `incstore.js`. Esa clave es pública por diseño: sin una
 cuenta del equipo no permite leer ni escribir nada.

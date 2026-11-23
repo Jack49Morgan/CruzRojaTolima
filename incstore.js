@@ -7,8 +7,8 @@
 // Setup steps: supabase/LEEME.md. The anon key is meant to be public; access is controlled by
 // sign-in plus the row-level security rules in supabase/schema.sql.
 const INC_CONFIG = {
-  url: "",   // e.g. "https://abcdxyz.supabase.co"
-  key: "",   // the project's "anon public" key
+  url: "https://hxwntvubhxahzsfhxgav.supabase.co",
+  key: "sb_publishable_2pHCd189amDjitNxYtalsw_1bnILR_Y",   // publishable (public) key
 };
 
 const INC_TIPOS = {
