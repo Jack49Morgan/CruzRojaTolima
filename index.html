@@ -859,19 +859,21 @@ const SAT = {
   ir: {name:"Nubes GOES-East · infrarrojo (NASA)", info:"ir", gibs:"GOES-East_ABI_Band13_Clean_Infrared", tms:"GoogleMapsCompatible_Level6", opacity:0.55, maxNative:6, every:5},
   geo: {name:"Satélite GOES-East · GeoColor (NASA)", info:"geo", gibs:"GOES-East_ABI_GeoColor", tms:"GoogleMapsCompatible_Level7", opacity:0.8, maxNative:7, every:5},
   imerg: {name:"Lluvia satelital NASA IMERG (30 min)", info:"imerg", gibs:"IMERG_Precipitation_Rate_30min", tms:"GoogleMapsCompatible_Level6", opacity:0.75, maxNative:6, every:15},
+  so2: {name:"Dióxido de azufre volcánico (Sentinel-5P)", info:"so2", gibs:"TROPOMI_L2_Sulfur_Dioxide_Total_Vertical_Column", tms:"GoogleMapsCompatible_Level6", opacity:0.8, maxNative:6, every:180, days:45,
+    label: t => `pasada del ${t.toLocaleDateString("es-CO", {day:"numeric", month:"short", timeZone:"UTC"})}, hacia la 1:30 p. m.`},
 };
 for (const o of Object.values(SAT)) if (o.gibs) {
   o.url = GIBS(o.gibs, o.tms);
   o.attribution = GIBS_ATTR;
   // newest available time from the layer's DescribeDomains document (small XML, CORS open)
   o.latest = async () => {
-    const d0 = new Date(Date.now() - 2*86400e3).toISOString().slice(0,10), d1 = new Date(Date.now() + 86400e3).toISOString().slice(0,10);
+    const d0 = new Date(Date.now() - (o.days || 2)*86400e3).toISOString().slice(0,10), d1 = new Date(Date.now() + 86400e3).toISOString().slice(0,10);
     const x = await (await fetch(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/${o.gibs}/default/${o.tms}/all/${d0}--${d1}.xml`)).text();
     const dom = (x.match(/<Domain>([^<]*)<\/Domain>/) || [])[1] || "";
     let last = dom.split(",").pop().split("/"); last = last.length > 1 ? last[1] : last[0];
     if (!last) throw new Error("sin fechas");
-    if (!/T/.test(last)) last += "T00:00:00Z";
-    return {key:last, time:new Date(last)};
+    // daily layers list plain dates: keep the date as the tile key, read it as midnight UTC
+    return {key:last, time:new Date(/T/.test(last) ? last : last + "T00:00:00Z")};
   };
 }
 // GLM lightning: one-minute frames of detected flash groups; stack the last 10 minutes, older frames fainter
@@ -952,7 +954,7 @@ function renderSatInfo(){
   el.innerHTML = on.map(o => {
     const ago = o.time ? Math.round((Date.now() - o.time) / 60e3) : null;
     const when = o.err ? `<span class="err">${o.err}</span>` : o.time
-      ? `${o.label ? o.label(o.time) : `imagen de ${fmtLocal(o.time).slice(11)} hora Colombia`} (hace ${ago < 90 ? ago + " min" : (ago/60).toFixed(1).replace(".0","") + " h"})` : "cargando…";
+      ? `${o.label ? o.label(o.time) : `imagen de ${fmtLocal(o.time).slice(11)} hora Colombia`} (hace ${ago < 90 ? ago + " min" : ago < 2880 ? (ago/60).toFixed(1).replace(".0","") + " h" : Math.round(ago/1440) + " días"})` : "cargando…";
     const k = Object.keys(SAT).find(x => SAT[x] === o);
     const anim = o.frames && ANIM.k !== k ? ` <button type="button" class="btn animbtn" data-anim="${k}">▶ Ver movimiento (últimas 2 h)</button>` : "";
     return `<span><b>${esc(o.name)}</b>${infoBtn(o.info, o.name)} ${when}${anim}</span>`; }).join("");
@@ -1601,6 +1603,12 @@ const INFO = {
     `<p><b>IMERG</b> (Integrated Multi-satellitE Retrievals for GPM) es la estimación de lluvia de la NASA que combina todos los satélites de la misión GPM. Aquí se muestra la versión <b>temprana</b> (“Early”), cada 30 minutos, en mm por hora.</p>
      <p>Es muy usada y cubre todo el planeta, pero no es rápida: la NASA la publica unas 4 horas después y llega a este mapa con unas 5 a 6 horas de retraso. Para lo que está pasando ahora, use el radar, CMORPH2 o los rayos.</p>
      <img src="${GL}GPM_Precipitation_Rate_H.svg" alt="Escala de lluvia en mm/h" loading="lazy">`],
+  so2: ["Dióxido de azufre volcánico (Sentinel-5P)",
+    `<p>Gas <b>dióxido de azufre (SO₂)</b> medido desde el espacio por el instrumento <b>TROPOMI</b> del satélite europeo <b>Sentinel-5P</b> (programa Copernicus). El satélite pasa una vez al día, hacia la 1:30 p. m. hora local, y ve cada píxel de unos 5.5 × 3.5 km. Se muestra la columna total de SO₂ en <b>unidades Dobson (DU)</b>.</p>
+     <p>El SO₂ es el gas que más emite el <b>Nevado del Ruiz</b>; la mancha muestra hacia dónde lo lleva el viento. El <b>Cerro Machín</b> emite muy poco y normalmente no se ve. Las nubes pueden tapar parte de la pluma, y los valores bajos aislados pueden ser ruido.</p>
+     <p><b>No es tiempo real:</b> NASA GIBS publica este producto con unos 10 días de retraso. Para la actividad actual del volcán use los boletines y las cámaras del SGC.</p>
+     <img src="${GL}OMI_SO2_Lower_Troposphere_H.svg" alt="Escala de SO₂ en unidades Dobson" loading="lazy">
+     <p>Fuente: <a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a>, datos Copernicus Sentinel-5P (ESA/KNMI).</p>`],
 };
 const dlg = document.getElementById("infodlg");
 document.addEventListener("click", e => {
@@ -1698,7 +1706,8 @@ function renderMap(){
       ["Investigación", [
         [`Sismos M4+ (elija las fechas) ${infoBtn("sismos", "sismos")}`, buildEqLayer()],
         [`Movimientos en masa (SGC, ${MOVMASA.length}) ${infoBtn("movmasa", "movimientos en masa")}`, buildMovLayer()],
-        [`Amenaza volcánica Cerro Machín (SGC 2026) ${infoBtn("machin", "amenaza del Cerro Machín")}`, buildMachinLayer()]]],
+        [`Amenaza volcánica Cerro Machín (SGC 2026) ${infoBtn("machin", "amenaza del Cerro Machín")}`, buildMachinLayer()],
+        satL("so2")]],
       ["Clima actual", [["Estaciones (lluvia)", layer], ["Alertas de nivel IDEAM", alertLayer],
         ...["radar", "glm", "cmorph", "ir", "geo", "imerg"].filter(k => SAT[k]).map(satL),
         [`Embalses: volumen útil (XM) ${infoBtn("embalses", "embalses")}`, buildEmbLayer()],
