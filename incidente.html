@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=21"></script>
+<script src="incstore.js?v=22"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -49,6 +49,7 @@ label.req>span::after{content:" *";color:var(--red)}
 input,select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
 textarea{min-height:90px;resize:vertical}
 .hint{font-size:12px;color:var(--muted)}
+#map.drawing{cursor:crosshair}
 #map{height:380px;border-radius:8px}
 .drop{border:2px dashed var(--line);border-radius:10px;padding:14px;text-align:center;display:grid;gap:6px;justify-items:center}
 .drop.over{border-color:var(--red);background:#c8102e10}
@@ -120,7 +121,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="namebtn" hidden>Mi nombre</button><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=21" id="back">Ver tablero</a>
+    <a class="btn" href="index.html?v=22" id="back">Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -141,13 +142,12 @@ details.edit.nosum>summary{display:none}
       <div class="row">
         <label><span>Estado del evento</span><select name="estado"><option value="">Sin cambio</option></select></label>
       </div>
-      <details id="ufaf"><summary class="hint" style="cursor:pointer">Cambiar cifras: fallecidos, heridos, personas, familias o viviendas</summary>
+      <details id="ufaf"><summary class="hint" style="cursor:pointer">Cambiar cifras: fallecidos, heridos, personas o viviendas afectadas</summary>
         <div class="row" style="margin-top:8px">
           <label><span>Fallecidos</span><input type="number" name="fallecidos" min="0" inputmode="numeric"></label>
         <label><span>Heridos</span><input type="number" name="heridos" min="0" inputmode="numeric"></label>
         <label><span>Personas afectadas</span><input type="number" name="personas" min="0" inputmode="numeric"></label>
-          <label><span>Familias</span><input type="number" name="familias" min="0" inputmode="numeric"></label>
-          <label><span>Viviendas</span><input type="number" name="viviendas" min="0" inputmode="numeric"></label>
+          <label><span>Viviendas afectadas</span><input type="number" name="viviendas" min="0" inputmode="numeric"></label>
         </div></details>
       <div class="sel" style="align-items:center">
         <label class="btn navy" style="color:#fff;flex:none">Agregar fotos o videos<input type="file" id="ufile" multiple hidden accept="image/*,video/*"></label>
@@ -174,7 +174,7 @@ details.edit.nosum>summary{display:none}
         <label class="req"><span>Fecha y hora (hora Colombia)</span><input type="datetime-local" name="fecha" required></label>
         <label class="req"><span>Municipio</span><select name="municipio" required><option value="">Elija…</option></select></label>
       </div>
-      <label><span>Lugar (vereda, barrio, vía)</span><input name="lugar" maxlength="160"></label>
+      <label><span>Lugar (vereda)</span><select name="lugar"></select></label>
       <label><span>Descripción</span><textarea name="descripcion" maxlength="4000" placeholder="Qué pasó, situación actual, necesidades"></textarea></label>
       <label><span>Acciones de respuesta</span><textarea name="acciones" maxlength="4000" placeholder="Equipos desplegados, ayudas entregadas, coordinación"></textarea></label>
     </fieldset>
@@ -185,8 +185,7 @@ details.edit.nosum>summary{display:none}
         <label><span>Fallecidos</span><input type="number" name="fallecidos" min="0" inputmode="numeric"></label>
         <label><span>Heridos</span><input type="number" name="heridos" min="0" inputmode="numeric"></label>
         <label><span>Personas afectadas</span><input type="number" name="personas" min="0" inputmode="numeric"></label>
-        <label><span>Familias</span><input type="number" name="familias" min="0" inputmode="numeric"></label>
-        <label><span>Viviendas</span><input type="number" name="viviendas" min="0" inputmode="numeric"></label>
+        <label><span>Viviendas afectadas</span><input type="number" name="viviendas" min="0" inputmode="numeric"></label>
       </div>
     </fieldset>
 
@@ -205,6 +204,14 @@ details.edit.nosum>summary{display:none}
         <label class="btn navy" style="color:#fff">Elegir archivo(s)<input type="file" id="bfile" multiple hidden accept=".kml,.kmz,.zip,.shp,.dbf,.prj,.cpg,.shx,.geojson,.json"></label>
         <span class="msg" id="bmsg"></span>
         <button type="button" class="btn danger" id="bclr" hidden>Quitar límite</button>
+        <span class="hint">o dibújelo en el mapa:</span>
+        <span class="sel" style="align-items:center;gap:6px">
+          <button type="button" class="btn" id="dstart">Dibujar área</button>
+          <button type="button" class="btn red" id="dend" hidden>Terminar área</button>
+          <button type="button" class="btn" id="dundo" hidden>Deshacer punto</button>
+          <button type="button" class="btn" id="dcancel" hidden>Cancelar</button>
+          <span class="hint" id="dmsg2"></span>
+        </span>
       </div>
     </fieldset>
 
@@ -271,14 +278,53 @@ const munAt = (lat, lng) => { for (const x of TOLIMA_GEO.mun.features) { const g
 function setPoint(ll, pick = true){
   punto = ll; if (pmark) pmark.remove(); pmark = null;
   if (ll) { pmark = L.marker(ll, {draggable:true}).addTo(map); pmark.on("dragend", () => { const p = pmark.getLatLng(); setPoint([+p.lat.toFixed(6), +p.lng.toFixed(6)]); });
-    const m = munAt(ll[0], ll[1]); if (pick && m) f.municipio.value = m; }
+    const m = munAt(ll[0], ll[1]); if (pick && m) { if (f.municipio.value !== m) { f.municipio.value = m; fillLugar(""); } lugarFromPoint(ll[0], ll[1]); } }
   $("#ptxt").textContent = ll ? `Punto: ${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}` : "Sin punto";
 }
-map.on("click", e => setPoint([+e.latlng.lat.toFixed(6), +e.latlng.lng.toFixed(6)]));
+map.on("click", e => { if (drawing) return addVertex(e.latlng); setPoint([+e.latlng.lat.toFixed(6), +e.latlng.lng.toFixed(6)]); });
+// ---- drawing the affected area by tapping its corners
+let drawing = null, dline = null;
+const drawUi = on => { $("#dstart").hidden = on; for (const b of ["#dend", "#dundo", "#dcancel"]) $(b).hidden = !on;
+  $("#map").classList.toggle("drawing", on); };
+const drawShow = () => { if (dline) dline.remove();
+  dline = drawing.length ? L.polygon(drawing, {color:"#c8102e", weight:2.5, dashArray:"4 4", fillOpacity:0.1}).addTo(map) : null;
+  $("#dmsg2").textContent = drawing.length < 3 ? `Toque el mapa en cada esquina del área (${drawing.length} de mínimo 3)` : `${drawing.length} puntos · pulse “Terminar área”`; };
+function addVertex(ll){ drawing.push([+ll.lat.toFixed(6), +ll.lng.toFixed(6)]); drawShow(); }
+function stopDraw(){ drawing = null; if (dline) dline.remove(); dline = null; drawUi(false); $("#dmsg2").textContent = ""; }
+$("#dstart").onclick = () => { drawing = []; drawUi(true); drawShow(); };
+$("#dundo").onclick = () => { drawing.pop(); drawShow(); };
+$("#dcancel").onclick = stopDraw;
+$("#dend").onclick = () => { if (drawing.length < 3) return drawShow();
+  const ring = drawing.map(([la, ln]) => [ln, la]); ring.push(ring[0]);
+  stopDraw();
+  setGeo({type:"FeatureCollection", features:[{type:"Feature", properties:{nombre:"Área dibujada"}, geometry:{type:"Polygon", coordinates:[ring]}}]}, "Área dibujada en el mapa"); };
 $("#clrpt").onclick = () => setPoint(null);
 $("#gps").onclick = () => { if (!navigator.geolocation) return setMsg($("#smsg"), "Este navegador no da la ubicación.", "bad");
   navigator.geolocation.getCurrentPosition(p => { const ll = [+p.coords.latitude.toFixed(6), +p.coords.longitude.toFixed(6)]; setPoint(ll); map.setView(ll, 14); },
     e => setMsg($("#smsg"), "No se pudo obtener la ubicación: " + e.message, "bad"), {enableHighAccuracy:true, timeout:15000}); };
+// ---- "Lugar": two fixed choices, then the veredas of the chosen municipio (veredas.js loads after the page)
+const LUGAR_FIJOS = ["Se desconoce en este momento", "Casco urbano"];
+function fillLugar(keep = f.lugar.value){
+  const list = window.incVeredasOf && f.municipio.value ? incVeredasOf(f.municipio.value) : [];
+  f.lugar.innerHTML = "";
+  for (const n of LUGAR_FIJOS) f.lugar.add(new Option(n, n));
+  if (list.length) { const g = document.createElement("optgroup"); g.label = "Veredas de " + f.municipio.value;
+    for (const n of list) g.append(new Option(n, n)); f.lugar.add(g); }
+  else if (f.municipio.value && !window.incVeredasOf) f.lugar.add(new Option("Cargando veredas…", "", false, false));
+  // an older free-text place (or one from another municipio) stays selectable
+  if (keep && ![...f.lugar.options].some(o => o.value === keep)) f.lugar.add(new Option(keep, keep));
+  f.lugar.value = keep || LUGAR_FIJOS[0];
+}
+// the map point decides the place: its vereda, or "Casco urbano" when it falls outside every vereda
+function lugarFromPoint(lat, lng){
+  if (!window.incVeredaAt) return;
+  const v = incVeredaAt(lat, lng);
+  if (v && v.mun === f.municipio.value) fillLugar(v.name); else if (!v && munAt(lat, lng)) fillLugar("Casco urbano");
+}
+{ const sc = document.createElement("script"); sc.src = "veredas.js?v=" + INC_VERSION;
+  sc.onload = () => { fillLugar(); if (punto) lugarFromPoint(punto[0], punto[1]); }; document.head.append(sc); }
+fillLugar();
+f.municipio.addEventListener("change", () => fillLugar(LUGAR_FIJOS.includes(f.lugar.value) ? f.lugar.value : ""));
 f.municipio.addEventListener("change", () => { if (punto || geo) return;
   const l = mun.getLayers().find(l => l.feature.properties.n === f.municipio.value); if (l) map.fitBounds(l.getBounds()); });
 
@@ -309,11 +355,13 @@ async function readBoundary(files){
     throw new Error("Las coordenadas no son geográficas. Si es un shapefile, incluya el archivo .prj.");
   return fc;
 }
-function setGeo(fc, name){
+function setGeo(fc, name, fromUser = true){
   geo = fc; geoName = name || ""; if (glayer) glayer.remove(); glayer = null;
   if (fc) { glayer = L.geoJSON(fc, {style:{color:"#c8102e", weight:2.5, dashArray:"6 4", fillColor:"#c8102e", fillOpacity:0.15}}).addTo(map);
     map.fitBounds(glayer.getBounds(), {padding:[20,20], maxZoom:15});
-    if (!f.municipio.value) { const c = glayer.getBounds().getCenter(), m = munAt(c.lat, c.lng); if (m) f.municipio.value = m; }
+    const c = glayer.getBounds().getCenter();
+    if (fromUser && !f.municipio.value) { const m = munAt(c.lat, c.lng); if (m) { f.municipio.value = m; fillLugar(""); } }
+    if (fromUser && !punto) lugarFromPoint(c.lat, c.lng);
     setMsg($("#bmsg"), `${geoName}: ${fc.features.length} elemento(s) cargado(s)`, "ok"); }
   else setMsg($("#bmsg"), "");
   $("#bclr").hidden = !fc;
@@ -473,10 +521,11 @@ async function load(id, pre){
   f.reset(); uf.reset(); delu = null;
   for (const el of ["#smsg", "#mmsg", "#bmsg", "#umsg", "#ummsg"]) setMsg($(el), "");
   if (cur) {
-    for (const k of ["tipo", "estado", "titulo", "fecha", "municipio", "lugar", "descripcion", "acciones"]) f[k].value = cur[k] ?? "";
+    for (const k of ["tipo", "estado", "titulo", "fecha", "municipio", "descripcion", "acciones"]) f[k].value = cur[k] ?? "";
+    fillLugar(cur.lugar || "");
     f.estado.value = INC_ESTADO_OPT(cur.estado);
     for (const k of INC_AFECT_KEYS) f[k].value = cur.afectados?.[k] ?? "";
-    setPoint(cur.punto, false); setGeo(cur.geo || null, cur.geoName);
+    if (drawing) stopDraw(); setPoint(cur.punto, false); setGeo(cur.geo || null, cur.geoName, false);
     try { uf.texto.value = localStorage.getItem(draftKey()) || ""; } catch {}
     drawSummary();
     // photos and timeline load together; the page is usable before they arrive
@@ -484,7 +533,7 @@ async function load(id, pre){
     drawTimeline(medP, updP);
     medP.then(med => { if (cur?.id !== loadedId) return;
       media = med.filter(m => !m.updId).map(m => ({...m, isNew:false})); drawThumbs(); }).catch(() => {});
-  } else { f.fecha.value = nowLocal(); f.estado.value = "activo"; setPoint(null); setGeo(null); }
+  } else { if (drawing) stopDraw(); f.fecha.value = nowLocal(); f.estado.value = "activo"; fillLugar(""); setPoint(null); setGeo(null, "", false); }
   $("#seg").hidden = !cur;
   $("#edit").open = !cur; $("#edit").classList.toggle("nosum", !cur);
   document.querySelector("h1").textContent = cur ? "Seguimiento del evento" : "Registrar evento";

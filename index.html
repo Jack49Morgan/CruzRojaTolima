@@ -425,7 +425,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=21"></script>
+<script src="incstore.js?v=22"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -517,7 +517,7 @@ function initIncidents(map, ctrl){
       cards.push(`<article class="inccard" id="inc-${escI(inc.id)}" style="--c:${color}">
         <div class="inchead"><h3>${escI(inc.titulo)}</h3><span class="incst st-${escI(inc.estado)}">${escI(INC_ESTADOS[inc.estado] || inc.estado)}</span></div>
         <div class="sub">${escI(tname)} · ${escI(inc.municipio)}${inc.lugar ? " · " + escI(inc.lugar) : ""}<br>${escI(fmt(inc.fecha))}</div>
-        ${(() => { const a = inc.afectados || {}, vic = afect({fallecidos:a.fallecidos, heridos:a.heridos}), rest = afect({personas:a.personas, familias:a.familias, viviendas:a.viviendas});
+        ${(() => { const a = inc.afectados || {}, vic = afect({fallecidos:a.fallecidos, heridos:a.heridos}), rest = afect({personas:a.personas, viviendas:a.viviendas});
           return vic || rest ? `<div class="incaf">${vic ? `<b style="color:var(--red)">${escI(vic)}</b>` : ""}${vic && rest ? " · " : ""}${rest ? escI(rest) : ""}</div>` : ""; })()}
         ${inc.descripcion ? `<p class="incdesc">${escI(inc.descripcion)}</p>` : ""}
         ${iu.length ? `<ul class="incups" aria-label="Actualizaciones">${iu.slice(0, 3).map(upItem).join("")}</ul>` : ""}
