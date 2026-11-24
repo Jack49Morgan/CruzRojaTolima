@@ -1,0 +1,42 @@
+name: Publicar sitio (minificado)
+# Publishes a minified copy of the site to GitHub Pages; the repository keeps the readable source.
+# Takes effect once Settings > Pages > Build and deployment > Source is set to "GitHub Actions"
+# (until then Pages keeps serving the branch as it is).
+on:
+  push:
+    branches: [main]
+  # the data jobs commit with the workflow token, which does not start other workflows, so redeploy after them
+  workflow_run:
+    workflows: ["Actualizar embalses (XM)"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Minify into _site
+        run: |
+          npm i --no-save --no-audit --no-fund html-minifier-terser@7.2.0 terser@5.31.0
+          node tools/build_site.mjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

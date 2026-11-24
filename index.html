@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta name="copyright" content="© 2026 Cruz Roja Colombiana, Seccional Tolima. Todos los derechos reservados.">
+<meta name="author" content="Cruz Roja Colombiana, Seccional Tolima">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Sistema de Monitoreo Cruz Roja Seccional Tolima</title>
 <meta name="description" content="Lluvia, temperatura, humedad, viento y nivel de ríos de las estaciones automáticas del IDEAM en el Tolima, casi en tiempo real.">
@@ -431,7 +433,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=22"></script>
+<script src="incstore.js?v=23"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -2262,5 +2264,8 @@ setInterval(load, REFRESH_MIN*60e3);
 load();
 })();
 </script>
+<footer class="copyright" style="max-width:1400px;margin:8px auto 24px;padding:0 16px;font-size:12px;color:var(--muted);text-align:center">
+  <img src="icon-192.png" alt="" width="20" height="20" style="vertical-align:middle;border-radius:4px;margin-right:6px">© 2026 Cruz Roja Colombiana, Seccional Tolima. Todos los derechos reservados. Prohibida su copia, reproducción o distribución sin autorización escrita.
+</footer>
 </body>
 </html>
