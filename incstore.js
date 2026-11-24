@@ -27,7 +27,7 @@ const INC_ESTADOS = {activo:"Activo", controlado:"Controlado", cerrado:"Cerrado"
 Object.defineProperty(INC_ESTADOS, "atencion", {value:"En atención", enumerable:false});
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "viviendas"];   // "familias" dropped 2026-11-23   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 24;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 25;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
 //   remote, ready(), user(), handle(), setHandle(name), signIn(email, pw), signOut(), onAuth(fn), sendAlert({title, body, url, tag})
@@ -240,10 +240,15 @@ function incSupabaseStore(cfg){
     media: async incId => (await S.mediaFor([incId]))[incId] || [],
     // media of several events in two requests; signed links are reused for 5 hours instead of asked for again
     mediaFor: async ids => {
-      if (!ids.length || !session) return {};
-      const rows = ok(await sb.from("medios").select("*").in("incidente_id", ids).order("creado"));
+      if (!ids.length) return {};
+      // signed out: only videos are public (supabase/videos-publicos.sql); photos stay with the team
+      let rows;
+      if (session) rows = ok(await sb.from("medios").select("*").in("incidente_id", ids).order("creado"));
+      else try { rows = ok(await sb.from("medios").select("id,incidente_id,actualizacion_id,ruta,nombre,tipo,creado").in("incidente_id", ids).like("tipo", "video/%").order("creado")); }
+        catch { return {}; }   // the public-video grant has not been applied
+      if (!rows.length) return {};
       const need = rows.map(r => r.ruta).filter(p => !(signedCache[p]?.until > Date.now()));
-      if (need.length) for (const x of ok(await sb.storage.from(BUCKET).createSignedUrls(need, 6 * 3600)))
+      if (need.length) for (const x of await sb.storage.from(BUCKET).createSignedUrls(need, 6 * 3600).then(ok).catch(e => { if (session) throw e; return []; }))
         if (x.signedUrl) signedCache[x.path] = {url:x.signedUrl, until:Date.now() + 5 * 3600e3};
       const out = {};
       for (const r of rows) (out[r.incidente_id] ??= []).push({id:r.id, name:r.nombre, type:r.tipo || "", updId:r.actualizacion_id, url:signedCache[r.ruta]?.url, ruta:r.ruta});
