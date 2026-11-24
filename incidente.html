@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta name="copyright" content="© 2026 Cruz Roja Colombiana, Seccional Tolima. Todos los derechos reservados.">
+<meta name="author" content="Cruz Roja Colombiana, Seccional Tolima">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Registrar evento</title>
 <meta name="theme-color" content="#c8102e">
@@ -16,7 +18,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=22"></script>
+<script src="incstore.js?v=23"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -121,7 +123,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="namebtn" hidden>Mi nombre</button><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=22" id="back">Ver tablero</a>
+    <a class="btn" href="index.html?v=23" id="back">Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -639,5 +641,8 @@ IncStore.onAuth(s => { if (!s) start(); });
 start().catch(e => setMsg($("#smsg"), "No se pudo abrir el registro de eventos: " + e.message, "bad"));
 })();
 </script>
+<footer class="copyright" style="max-width:1400px;margin:8px auto 24px;padding:0 16px;font-size:12px;color:var(--muted);text-align:center">
+  <img src="icon-192.png" alt="" width="20" height="20" style="vertical-align:middle;border-radius:4px;margin-right:6px">© 2026 Cruz Roja Colombiana, Seccional Tolima. Todos los derechos reservados. Prohibida su copia, reproducción o distribución sin autorización escrita.
+</footer>
 </body>
 </html>

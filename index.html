@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta name="copyright" content="© 2026 Cruz Roja Colombiana, Seccional Tolima. Todos los derechos reservados.">
+<meta name="author" content="Cruz Roja Colombiana, Seccional Tolima">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Sistema de Monitoreo Cruz Roja Seccional Tolima</title>
 <meta name="description" content="Lluvia, temperatura, humedad, viento y nivel de ríos de las estaciones automáticas del IDEAM en el Tolima, casi en tiempo real.">
@@ -89,6 +91,8 @@ th:first-child,td:first-child,th:nth-child(2),td:nth-child(2),th:nth-child(3),td
 tbody tr.offrow td{color:var(--muted)}
 .badtxt{color:var(--bad)}
 .eqm span{display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid #1b1b1b;box-shadow:0 0 0 1.5px #fff;font:600 10px/1 var(--mono);color:#1b1b1b}
+.saludgrp{border-radius:50%;background:#1565c0d9;color:#fff;border:2px solid #fff;font:700 11px/1 var(--sans);text-align:center;box-shadow:0 1px 3px #0006}
+.saludlist{max-height:220px;overflow:auto;margin-top:6px;font-size:12px}.saludlist div{padding:3px 0;border-top:1px solid #0001}
 .leaflet-control-layers .lgrp{font:600 11px/1.2 var(--sans);text-transform:uppercase;letter-spacing:.04em;color:#c8102e;margin:8px 0 3px;padding-top:6px;border-top:1px solid #0002}
 .leaflet-control-layers .lgrp:first-child{border-top:0;padding-top:0;margin-top:2px}
 .eqctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-basis:100%}.eqctl input{font:inherit;font-size:12px;padding:1px 4px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg)}
@@ -431,7 +435,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=22"></script>
+<script src="incstore.js?v=23"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -1212,6 +1216,74 @@ function buildMovLayer(){
   }
   return g;
 }
+// Health facilities (REPS, Minsalud) in Tolima: hospitals, health centres, clinics and patient-transport providers.
+// data/salud-reps.json holds a snapshot of the REPS records with a location for each site (OpenStreetMap match,
+// the centre of the vereda named in the site, or the town centre); on first show the layer asks datos.gov.co for the
+// current REPS list, so new or renamed sites appear (new ones at their town centre) without rebuilding the file.
+const SALUD_CLS = {
+  pub: ["Hospital o centro de salud público", "#c8102e", 6.5],
+  ips: ["IPS privada (clínica, consultorio, laboratorio)", "#1565c0", 4.5],
+  tep: ["Transporte especial de pacientes (ambulancias)", "#ef6c00", 5],
+  osd: ["Otro prestador (servicio de salud dentro de otra entidad)", "#6d7b8d", 4],
+};
+const saludKind = r => r.c === "ips" ? (r.n === "Priv" ? "ips" : "pub") : r.c;
+function buildSaludLayer(){
+  const g = L.layerGroup(); let loaded = false;
+  const crossIcon = (col, r) => L.divIcon({className:"", iconSize:[2*r+4, 2*r+4], iconAnchor:[r+2, r+2],
+    html:`<svg width="${2*r+4}" height="${2*r+4}" viewBox="-${r+2} -${r+2} ${2*r+4} ${2*r+4}"><circle r="${r}" fill="${col}" stroke="#fff" stroke-width="1.5"/><path d="M-${r*.55} 0H${r*.55}M0 -${r*.55}V${r*.55}" stroke="#fff" stroke-width="${r > 6 ? 2.4 : 2}"/></svg>`});
+  const tel = t => t ? `<br>Tel.: ${String(t).split(/\s*[-\/,;]\s*(?=\d{7})/).map(n => `<a href="tel:${esc(n.replace(/[^\d+]/g, ""))}">${esc(n)}</a>`).join(" · ")}` : "";
+  const UB = ["ubicación según OpenStreetMap", "ubicación aproximada: centro de la vereda", "ubicación aproximada: cabecera municipal"];
+  const popup = (r, mun) => `<b>${esc(r.s)}</b>${r.p && r.p.toUpperCase() !== r.s.toUpperCase() ? `<br>${esc(r.p)}` : ""}`
+    + `<br>${esc(SALUD_CLS[saludKind(r)][0])}${r.e ? " · E.S.E." : ""} · ${r.n === "Priv" ? "privada" : r.n === "Públ" ? "pública" : "mixta"}`
+    + `<br>${esc(r.a)}${r.a ? ", " : ""}${esc(mun)}${tel(r.t)}`
+    + `<br><span class="sub">Código de habilitación ${esc(r.k)} · ${UB[r.u ? r.u[2] : 2]}</span>`;
+  async function load(){
+    loaded = true;
+    let D;
+    try { D = await (await fetch("data/salud-reps.json")).json(); } catch (e) { loaded = false; return; }
+    // current REPS list (CORS-open); keep the snapshot when it fails
+    try {
+      const q = "https://www.datos.gov.co/resource/c36g-9fc2.json?$limit=5000&$select=codigohabilitacionsede,nombresede,nombreprestador,claseprestador,naturalezajuridica,ese,municipiosede,direcci_nsede,t_lefonosede,fecha_corte_reps"
+        + "&$where=" + encodeURIComponent("departamentodededesc='Tolima' AND claseprestador!='Profesional Independiente'");
+      const live = await (await fetch(q)).json();
+      if (Array.isArray(live) && live.length > 100) {
+        const old = new Map(D.r.map(r => [r.k, r]));
+        const CL = {"Transporte Especial de Pacientes":"tep", "Objeto Social Diferente a la Prestación de Servicios de Salud":"osd"};
+        D.r = live.map(x => ({k:x.codigohabilitacionsede, s:String(x.nombresede || "").replace(/\s*-?\s*\(\d+\)\s*$/, "").trim(), p:String(x.nombreprestador || "").trim(),
+          c:CL[x.claseprestador] || "ips", n:String(x.naturalezajuridica || "").slice(0, 4), e:x.ese === "SI", m:x.municipiosede,
+          a:String(x.direcci_nsede || "").trim(), t:String(x.t_lefonosede || "").trim(), u:old.get(x.codigohabilitacionsede)?.u || null}));
+        if (live[0].fecha_corte_reps) D.corte = live[0].fecha_corte_reps.replace("Fecha corte REPS: ", "");
+      }
+    } catch (e) {}
+    if (D.corte) INFO.salud[1] = INFO.salud[1].replace("al abrir la capa.", `al abrir la capa (corte del REPS: ${esc(D.corte.replace(/\s+\d+:\d+\s*[AP]M$/, ""))}).`);
+    // sites with only a town-centre location: public ones get their own marker there (the main hospital usually is
+    // in the cabecera); private ones are grouped into one numbered marker per municipio with the list in its popup
+    const groups = new Map();
+    for (const r of D.r) {
+      const cab = D.cab[r.m]; if (!cab && !r.u) continue;
+      const mun = cab ? cab[0] : "", kind = saludKind(r), [, col, rad] = SALUD_CLS[kind];
+      const exact = r.u && r.u[2] < 2;
+      if (!exact && kind !== "pub") { if (!groups.has(r.m)) groups.set(r.m, []); groups.get(r.m).push(r); continue; }
+      const ll = r.u ? [r.u[0], r.u[1]] : [cab[1], cab[2]];
+      const m = kind === "pub" ? L.marker(ll, {icon:crossIcon(col, r.e && /HOSPITAL/i.test(r.s) ? rad + 1.5 : rad), zIndexOffset: 200})
+        : L.circleMarker(ll, {radius:rad, color:"#fff", weight:1, fillColor:col, fillOpacity:0.95});
+      m.bindPopup(popup(r, mun)).bindTooltip(`${esc(r.s)} · ${esc(mun)}`, {direction:"top"}).addTo(g);
+    }
+    for (const [code, rs] of groups) {
+      const cab = D.cab[code]; if (!cab) continue;
+      const ORD = {tep:0, ips:1, osd:2, pub:3};
+      rs.sort((a, b) => ORD[saludKind(a)] - ORD[saludKind(b)] || a.s.localeCompare(b.s, "es"));
+      const n = rs.length, sz = n > 99 ? 30 : n > 9 ? 25 : 21;
+      L.marker([cab[1] - 0.004, cab[2] + 0.004], {icon:L.divIcon({className:"", iconSize:[sz, sz], iconAnchor:[sz/2, sz/2],
+          html:`<div class="saludgrp" style="width:${sz}px;height:${sz}px;line-height:${sz - 4}px">${n}</div>`}), zIndexOffset:400})
+        .bindPopup(`<b>${esc(cab[0])}: ${n} prestador${n === 1 ? "" : "es"} sin ubicación exacta</b><br><span class="sub">Ambulancias (primero), clínicas, consultorios y laboratorios privados registrados en el municipio. El número está junto a la cabecera, no en cada sede.</span>`
+          + `<div class="saludlist">${rs.map(r => `<div><span style="color:${SALUD_CLS[saludKind(r)][1]}">●</span> <b>${esc(r.s)}</b>${r.a ? `<br>${esc(r.a)}` : ""}${tel(r.t)}</div>`).join("")}</div>`, {maxWidth:320})
+        .bindTooltip(`${n} prestador${n === 1 ? "" : "es"} en ${esc(cab[0])} sin ubicación exacta`, {direction:"top"}).addTo(g);
+    }
+  }
+  g.on("add", () => { if (!loaded) load(); });
+  return g;
+}
 // Earthquakes M4+ in and around Tolima over the last year, from the USGS FDSN service.
 // (The SGC feed at archive.sgc.gov.co only answers its own website, so a browser page elsewhere cannot read it.)
 // Date range chosen under the map (local dates, YYYY-MM-DD); defaults to the last 365 days
@@ -1778,6 +1850,10 @@ const INFO = {
      <p><b>Fechas:</b> bajo el mapa puede elegir el periodo (desde / hasta) o usar los atajos de 30 días a 20 años. Por defecto muestra el último año.</p>
      <p>Cada círculo lleva escrita su magnitud y crece con ella. Bajo el mapa aparece la lista de los sismos más recientes; tóquelos para ir a cada uno. El color indica cuándo ocurrió: <span style="color:#e0b000">●</span> últimas 24 horas · <span style="color:#ff8a3d">●</span> última semana · <span style="color:#c77dff">●</span> último mes · <span style="color:#8a93a3">●</span> último año.</p>
      <p>La red oficial de Colombia es la del <b>Servicio Geológico Colombiano</b>. Su visor no permite que otras páginas lean sus datos, así que aquí se usa el USGS; la magnitud puede diferir unas décimas de la del SGC. Cada sismo tiene un enlace al <a href="https://www.sgc.gov.co/sismos" target="_blank" rel="noopener">visor de sismos del SGC</a>.</p>`],
+  salud: ["Hospitales y prestadores de salud (REPS)",
+    `<p>Sedes de prestadores de servicios de salud habilitados en el Tolima, del <b>Registro Especial de Prestadores (REPS)</b> del Ministerio de Salud, publicado en datos.gov.co. Se excluyen los profesionales independientes. La lista se consulta en línea al abrir la capa.</p>
+     <p><span style="color:#c8102e">⊕</span> hospital, centro o puesto de salud público (las E.S.E. de cada municipio; el símbolo grande es un hospital) · <span style="color:#1565c0">●</span> IPS privada · <span style="color:#ef6c00">●</span> transporte especial de pacientes (ambulancias) · <span style="color:#6d7b8d">●</span> otro prestador. El círculo con número agrupa los prestadores privados de un municipio cuya sede no se pudo ubicar; tóquelo para ver la lista con dirección y teléfono.</p>
+     <p>El REPS no trae coordenadas. Las sedes se ubicaron buscando su nombre en <b>OpenStreetMap</b>; los puestos de salud rurales, en el centro de la vereda que lleva su nombre (veredas DANE 2020); y el resto, en la cabecera municipal. Cada ficha dice cuál de las tres se usó. Un prestador habilitado no siempre tiene urgencias ni camas: confirme por teléfono antes de remitir pacientes.</p>`],
   movmasa: ["Inventario de movimientos en masa (SGC)",
     `<p>Movimientos en masa registrados por el <b>Servicio Geológico Colombiano</b> en su Sistema de Información de Movimientos en Masa (SIMMA), solo los que caen dentro del Tolima (${MOVMASA.length} puntos de ${"6826"} en el archivo nacional).</p>
      <p>Cada punto es un evento inventariado, coloreado por tipo:
@@ -1941,6 +2017,8 @@ function renderMap(){
         [`Lluvia pronosticada 24 h por municipio ${infoBtn("pronostico", "pronóstico")}`, buildFcLayer(TOLIMA_GEO.mun)],
         [`Caudal pronosticado del Magdalena (GloFAS) ${infoBtn("glofas", "caudales")}`, buildFloodLayer()],
         [`Peligro de incendio, pronóstico (GWIS) ${infoBtn("fwi", "índice de incendio")}`, buildFwiLayer()]]],
+      ["Salud", [
+        [`Hospitales y prestadores de salud (REPS) ${infoBtn("salud", "prestadores de salud")}`, buildSaludLayer()]]],
     ];
     const inGroup = new Set(LAYER_GROUPS.flatMap(([, ls]) => ls.map(([, l]) => l)));
     for (const o of Object.values(SAT)) if (!inGroup.has(o.layer)) LAYER_GROUPS[2][1].push(satL(Object.keys(SAT).find(k => SAT[k] === o)));
@@ -2262,5 +2340,8 @@ setInterval(load, REFRESH_MIN*60e3);
 load();
 })();
 </script>
+<footer class="copyright" style="max-width:1400px;margin:8px auto 24px;padding:0 16px;font-size:12px;color:var(--muted);text-align:center">
+  <img src="icon-192.png" alt="" width="20" height="20" style="vertical-align:middle;border-radius:4px;margin-right:6px">© 2026 Cruz Roja Colombiana, Seccional Tolima. Todos los derechos reservados. Prohibida su copia, reproducción o distribución sin autorización escrita.
+</footer>
 </body>
 </html>
