@@ -1462,6 +1462,20 @@ const EMBS = [
   {k:"EL QUIMBO", n:"Embalse El Quimbo",             d:"Gigante, Huila",      ll:[2.4560, -75.5520], rio:"EL QUIMBO",  rn:"río Magdalena"},
 ];
 const RIOS_SOLOS = [["AMOYA", "Amoyá (Chaparral)"], ["CUCUANA", "Cucuana (Roncesvalles)"]];
+// Hydro plants with hourly output from XM (code -> label, place, approximate powerhouse position).
+const CENTRALES = [{k:"MOY1", n:"Central Amoyá La Esperanza", d:"Chaparral, Tolima (río Amoyá)", ll:[3.852, -75.646]}];
+const genPts = a => (a || []).flatMap(([d, v]) => { const t0 = Date.parse(d + "T00:00:00-05:00"); return v.map((x, h) => x == null ? null : [t0 + h * 36e5, x]).filter(Boolean); });
+const genAvg = v => { const x = v.filter(y => y != null); return x.length ? x.reduce((a, b) => a + b, 0) / x.length : null; };
+function genSpark(real, prog, cap){ const W = 230, H = 70, all = [...real, ...prog]; if (!all.length) return "";
+  const t0 = Math.min(...all.map(x => x[0])), t1 = Math.max(...all.map(x => x[0])), hi = Math.max(cap || 0, ...all.map(x => x[1]));
+  const X = t => (t - t0) / (t1 - t0 || 1) * W, Y = v => H - 12 - v / (hi || 1) * (H - 20);
+  const line = (p, c, dash) => p.length ? `<polyline fill="none" stroke="${c}" stroke-width="1.6"${dash ? ' stroke-dasharray="4 3"' : ""} points="${p.map(x => X(x[0]).toFixed(1) + "," + Y(x[1]).toFixed(1)).join(" ")}"/>` : "";
+  const day = t => new Date(t).toLocaleDateString("es-CO", {day:"numeric", month:"short", timeZone:"America/Bogota"});
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="Generación por hora">
+    ${cap ? `<line x1="0" x2="${W}" y1="${Y(cap).toFixed(1)}" y2="${Y(cap).toFixed(1)}" stroke="#5c6b80" stroke-width="0.6" stroke-dasharray="2 2"/>` : ""}
+    ${line(real, "#1d7a46")}${line(prog, "#f77f00", true)}
+    <text x="2" y="${Math.max(9, Y(hi) + 9).toFixed(1)}" font-size="9" fill="#5c6b80">${fmtN(hi, 0)} MW</text>
+    <text x="0" y="${H - 1}" font-size="9" fill="#5c6b80">${day(t0)}</text><text x="${W}" y="${H - 1}" font-size="9" fill="#5c6b80" text-anchor="end">${day(t1)}</text></svg>`; }
 const embCol = p => p >= 95 ? "#d62828" : p >= 85 ? "#f77f00" : "#0b2a5b";
 const fmtN = (v, d = 1) => v == null ? "–" : (+v).toLocaleString("es-CO", {minimumFractionDigits:d, maximumFractionDigits:d});
 const lastQ = (D, r) => { const a = D.rio?.[r] || []; const x = a[a.length - 1]; return x ? {d:x[0], q:x[1], m:x[2], pct:x[2] ? x[1] / x[2] * 100 : null} : null; };
@@ -1489,9 +1503,23 @@ function buildEmbLayer(){
           <div class="sub">Dato diario de XM del ${esc(d)}. Posición aproximada de la presa.</div></div>`, {maxWidth:Math.min(260, innerWidth - 80)})
         .addTo(g);
       parts.push(`${esc(e.n.replace(/^Embalse (de |)/, ""))}: <b>${fmtN(p)} %</b>${wk == null ? "" : ` (${wk >= 0 ? "+" : "−"}${fmtN(Math.abs(wk))} en 7 días)`}`); }
+    const gparts = [];
+    for (const c of CENTRALES) { const G = D.gen?.[c.k]; if (!G || !(G.real?.length || G.prog?.length)) continue;
+      const lr = G.real?.[G.real.length - 1], avg = lr ? genAvg(lr[1]) : null, lp = G.prog?.[G.prog.length - 1], pavg = lp ? genAvg(lp[1]) : null;
+      const real = genPts((G.real || []).slice(-7)), prog = genPts(G.prog), shown = avg ?? pavg;
+      L.marker(c.ll, {icon:L.divIcon({className:"", iconSize:[58,22], iconAnchor:[29,11],
+          html:`<span class="emm" style="background:#1d7a46">⚡ ${fmtN(shown, 0)} MW</span>`})})
+        .bindTooltip(`${esc(c.n)} · ${fmtN(shown, 0)} MW`, {direction:"top"})
+        .bindPopup(`<div class="flpop"><b>${esc(c.n)}</b> <span class="sub">${esc(c.d)}</span><br>
+          ${lr ? `Generación real del ${esc(lr[0])}: <b>${fmtN(avg)} MW</b> en promedio (${fmtN(avg / G.cap * 100, 0)} % de su capacidad de ${fmtN(G.cap, 0)} MW)<br>` : ""}
+          ${lp ? `Programada para el ${esc(lp[0])}: <b>${fmtN(pavg)} MW</b> en promedio<br>` : ""}
+          ${genSpark(real, prog, G.cap)}
+          <div class="sub"><span style="color:#1d7a46">━</span> real por hora (XM la publica con 3 a 4 días de retraso) · <span style="color:#f77f00">╍</span> programada por XM (plan del despacho, no medida) · ┄ capacidad. Es una central a filo de agua: su generación sigue el caudal del río Amoyá. Posición aproximada.</div></div>`, {maxWidth:Math.min(260, innerWidth - 80)})
+        .addTo(g);
+      gparts.push(`${esc(c.n.replace(/^Central /, ""))} ${lr ? `${fmtN(avg, 0)} MW el ${esc(lr[0])}` : ""}${lr && lp ? ", " : ""}${lp ? `programada ${fmtN(pavg, 0)} MW el ${esc(lp[0])}` : ""}`); }
     const rs = RIOS_SOLOS.map(([k, n]) => { const q = lastQ(D, k); return q ? `${esc(n)} ${fmtN(q.q)} m³/s${q.pct != null ? ` (${fmtN(q.pct, 0)} % de la media)` : ""}` : null; }).filter(Boolean);
     const last = Object.values(D.emb || {}).map(a => a[a.length - 1]?.[0]).filter(Boolean).sort().pop();
-    box.innerHTML = `<span><b>Embalses</b> (XM, volumen útil al ${esc(last || "–")}): ${parts.join(" · ")}.${rs.length ? ` Ríos de centrales sin embalse: ${rs.join(" · ")}.` : ""}</span>${infoBtn("embalses", "embalses")}`;
+    box.innerHTML = `<span><b>Embalses</b> (XM, volumen útil al ${esc(last || "–")}): ${parts.join(" · ")}.${rs.length ? ` Ríos de centrales sin embalse: ${rs.join(" · ")}.` : ""}${gparts.length ? ` Generación: ${gparts.join(" · ")}.` : ""}</span>${infoBtn("embalses", "embalses")}`;
     box.hidden = false;
   }
   g.on("add", () => { load(); timer = setInterval(load, 3*3600e3); });
@@ -1502,6 +1530,7 @@ const INFO = {
   embalses: ["Embalses (XM)",
     `<p>Volumen útil diario de los embalses del Tolima y de los vecinos que afectan sus ríos, según los datos abiertos de <b>XM</b>, el operador del sistema eléctrico colombiano: <b>Prado</b> (Tolima), <b>Amaní / Miel I</b> (Caldas, río La Miel) y <b>Betania</b> y <b>El Quimbo</b> (Huila, aguas arriba del Magdalena que pasa por el Tolima).</p>
      <p>El porcentaje es la parte del volumen útil que está llena; la flecha compara con hace 7 días y la curva muestra los últimos 30 días. El marcador se pone naranja desde el 85 % y rojo desde el 95 %: un embalse casi lleno puede tener que verter agua y aumentar el caudal aguas abajo. También se muestra el caudal que entra a cada embalse y a las centrales sin embalse de Amoyá y Cucuana, comparado con la media histórica del mes.</p>
+     <p>El marcador verde ⚡ es la <b>central hidroeléctrica Amoyá La Esperanza</b> (80 MW, Chaparral), que no tiene embalse: toma el agua del río Amoyá, así que su generación sube y baja con el caudal del río. Muestra la generación real por hora de los últimos días, que XM publica con 3 a 4 días de retraso, y la generación programada por XM para ayer y hoy, que es un plan y no una medición. Un cambio brusco puede deberse a una creciente, a poco caudal o a un mantenimiento.</p>
      <p>XM publica el dato del día anterior. Su servicio no permite que otras páginas lo lean directamente, así que el sitio lo copia cada 6 horas a un archivo propio; si ese archivo no está disponible, se muestra la última copia incluida en la página. Las posiciones de las presas son aproximadas. XM no publica la cota (nivel en metros) del embalse.</p>`],
   veredas: ["Veredas del Tolima (DANE 2020)",
     `<p>Límites de las <b>${VEREDAS.f.length} veredas</b> del Tolima según la capa de veredas del <b>DANE</b> (2020), en la versión depurada que se cargó a este proyecto. Pase el ratón o toque una vereda para ver su nombre y su municipio.</p>
