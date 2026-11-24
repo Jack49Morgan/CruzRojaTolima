@@ -144,6 +144,7 @@ th .ic{margin-right:3px}
 .irleg .sw{flex:none;width:30px;height:12px;border-radius:3px;border:1px solid #0003}
 .irleg .t{color:#5c6b80;font-family:var(--mono);font-size:10px}
 .emm{display:inline-block;min-width:40px;text-align:center;padding:3px 5px;border-radius:11px;border:2px solid #fff;box-shadow:0 0 0 1px #0007;color:#fff;font:700 11px/1 var(--sans);white-space:nowrap}
+.vlvl{display:inline-block;padding:2px 7px;border-radius:9px;font:700 12px/1.4 var(--sans);margin:3px 0;white-space:nowrap}
 .fwdays{display:flex;gap:4px;flex-wrap:wrap}
 .fwday{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line,#d6dbe3);background:var(--panel,#fff);color:inherit;border-radius:14px;padding:3px 8px;font:12px var(--sans);cursor:pointer}
 .fwday.on{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy);font-weight:600}
@@ -1235,6 +1236,36 @@ function buildCamLayer(){
   }
   return g;
 }
+// SGC volcano alert levels (Machín, Ruiz, Tolima). SGC's volcanos.json only lets sgc.gov.co read it from a browser and
+// returns 403 to GitHub Actions, so it is copied by hand: run tools/sgc_volcanes.py from a Colombian connection (or with
+// --from a saved volcanos.json) to refresh data/volcanes-sgc.json. VOLC_SNAP is the copy made when this was built.
+const VOLC_SNAP = {"updated":"2026-11-24T01:18Z","source":"https://archive.sgc.gov.co/volcanos/volcanos.json","volc":[{"id":10,"n":"Volcán Cerro Machín","ll":[4.487,-75.386],"m":"4487 m s. n. m.","lvl":3,"t":"Alerta amarilla","s":"Volcán activo con cambios en el comportamiento del nivel base de los parámetros monitoreados y otras manifestaciones.","link":"https://www2.sgc.gov.co/sgc/volcanes/VolcanCerroMachin/Paginas/generalidades-volcan-cerro-machin.aspx","b":[{"n":"Boletín semanal de actividad del volcán Cerro Machín del 10 al 16 de noviembre del 2026","d":"2026-11-17","f":"https://archive.sgc.gov.co/volcanos/bulletins/Boletin_volcan_Cerro_Machin_del_10_al_16_de_nov_de_2026.pdf","k":"Semanales"},{"n":"Boletín mensual septiembre 2026","d":"2026-10-30","f":"https://archive.sgc.gov.co/volcanos/bulletins/9052a20c-ccef-4787-863b-e67cceb1e017.pdf","k":"Mensuales"}]},{"id":12,"n":"Volcán Nevado del Ruiz","ll":[4.895,-75.321],"m":"4895 m s. n. m.","lvl":3,"t":"Alerta amarilla","s":"Volcán activo con cambios en el comportamiento del nivel base de los parámetros monitoreados y otras manifestaciones.","link":"https://www2.sgc.gov.co/sgc/volcanes/VolcanNevadoRuiz/Paginas/generalidades-volcan-nevado-ruiz.aspx","b":[{"n":"Boletín semanal de actividad del volcán Nevado del Ruiz del 10 al 16 de noviembre del 2026","d":"2026-11-17","f":"https://archive.sgc.gov.co/volcanos/bulletins/Boletin_volcan_Nevado_del_Ruiz_del_10_al_16_de_nov_de_2026.pdf","k":"Semanales"},{"n":"Boletín mensual septiembre 2026","d":"2026-10-30","f":"https://archive.sgc.gov.co/volcanos/bulletins/a9d78536-3740-40eb-b4b9-218095e2f43a.pdf","k":"Mensuales"}]},{"id":13,"n":"Volcán Nevado del Tolima","ll":[4.659,-75.329],"m":"5215 m s. n. m.","lvl":4,"t":"Alerta verde","s":"Volcán activo en reposo","link":"https://www2.sgc.gov.co/sgc/volcanes/VolcanNevadoTolima/Paginas/generalidades-volcan-nevado-tolima.aspx","b":[{"n":"Boletín mensual septiembre 2026","d":"2026-10-30","f":"https://archive.sgc.gov.co/volcanos/bulletins/8d18b445-8c48-4381-a9bf-384b0ba857f6.pdf","k":"Mensuales"}]}]};
+const VOLC_LVL = {1:["I","#d32f2f","#fff"], 2:["II","#f57c00","#fff"], 3:["III","#fdd835","#222"], 4:["IV","#43a047","#fff"]};
+const fmtFecha = d => { const m = /^(\d{4})-(\d\d)-(\d\d)/.exec(d || ""); return m ? `${+m[3]} ${["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][m[2] - 1]} ${m[1]}` : (d || ""); };
+function buildVolcLayer(){
+  const g = L.layerGroup(); let timer = null;
+  async function load(){
+    let D = VOLC_SNAP;
+    try { const r = await fetch("data/volcanes-sgc.json?t=" + Math.floor(Date.now() / 36e5)); if (r.ok) { const j = await r.json(); if (j.updated > D.updated && j.volc?.length) D = j; } } catch (e) {}
+    g.clearLayers();
+    for (const v of D.volc) {
+      const [rom, bg, fg] = VOLC_LVL[v.lvl] || ["?", "#757575", "#fff"], name = v.n.replace(/^Volcán /, "");
+      const html = `<svg viewBox="0 0 34 30" width="34" height="30" aria-hidden="true"><path d="M17 2 32 28H2z" fill="${bg}" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/><path d="M17 2 32 28H2z" fill="none" stroke="#0006" stroke-width=".8" stroke-linejoin="round"/><text x="17" y="24" text-anchor="middle" font-size="${rom.length > 2 ? 8.5 : 10}" font-weight="700" font-family="system-ui,sans-serif" fill="${fg}">${rom}</text></svg>`;
+      const bl = (v.b || []).map(b => `<div>📄 <a href="${esc(b.f)}" target="_blank" rel="noopener">${b.k === "Semanales" ? "Boletín semanal" : "Boletín mensual"}</a> <span class="sub">(${esc(fmtFecha(b.d))})</span></div>`).join("");
+      L.marker(v.ll, {icon:L.divIcon({className:"", html, iconSize:[34,30], iconAnchor:[17,22]}), title:`${name}: ${v.t}`, keyboard:true, zIndexOffset:500})
+        .bindTooltip(`🌋 ${esc(name)} · ${esc(v.t)} (${rom})`, {direction:"top", offset:[0,-14]})
+        .bindPopup(`<div class="flpop"><b>${esc(v.n)}</b> <span class="sub">${esc(v.m || "")}</span><br>
+          <span class="vlvl" style="background:${bg};color:${fg}">${esc(v.t)} · nivel ${rom}</span><br>
+          <span class="sub">${esc(v.s)}</span>${bl ? `<div style="margin-top:6px">${bl}</div>` : ""}
+          <div class="sub" style="margin-top:6px">Fuente: <a href="${esc(v.link || "https://www.sgc.gov.co/volcanes")}" target="_blank" rel="noopener">Servicio Geológico Colombiano</a> · copia del ${esc(fmtFecha(D.updated))}. Ante cualquier cambio, el SGC publica boletines extraordinarios en <a href="https://www.sgc.gov.co/volcanes" target="_blank" rel="noopener">sgc.gov.co/volcanes</a>.</div></div>`,
+          {maxWidth:Math.min(290, innerWidth - 80)})
+        .addTo(g);
+    }
+  }
+  g.on("add", () => { load(); timer = setInterval(load, 3*3600e3); });
+  g.on("remove", () => clearInterval(timer));
+  return g;
+}
 // Explanations shown by the "i" buttons (Spanish, plain language)
 const GL = "https://gibs.earthdata.nasa.gov/legends/";
 // ---- Fire weather (GWIS / Copernicus): ECMWF Fire Weather Index forecast as danger classes, and active fire hotspots.
@@ -1572,6 +1603,11 @@ const INFO = {
      <p>Cada punto es un evento inventariado, coloreado por tipo:
      <span style="color:#8d5524">●</span> deslizamiento · <span style="color:#e0a100">●</span> caída (de roca, detritos o tierra) · <span style="color:#00897b">●</span> flujo (de lodo, detritos o tierra, avalanchas) · <span style="color:#7cb342">●</span> reptación · <span style="color:#616161">●</span> otros (volcamiento, deformaciones).</p>
      <p>Es un inventario histórico: muestra dónde ya ha habido movimientos, que suelen repetirse con lluvias fuertes, no alertas actuales. Toque un punto para ver tipo, subtipo, municipio y código SIMMA. El archivo del inventario no trae la fecha de cada evento; la fecha se puede consultar con el código en el SIMMA. Más información en <a href="https://simma.sgc.gov.co" target="_blank" rel="noopener">simma.sgc.gov.co</a>.</p>`],
+  volcanes: ["Alerta volcánica (SGC)",
+    `<p>Nivel de actividad que el <b>Servicio Geológico Colombiano</b> asigna a los volcanes que pueden afectar al Tolima: <b>Cerro Machín</b> (Cajamarca), <b>Nevado del Ruiz</b> (límite Caldas–Tolima) y <b>Nevado del Tolima</b>. El triángulo lleva el color y el número del nivel:</p>
+     <p><span class="vlvl" style="background:#43a047;color:#fff">Verde · IV</span> volcán activo en reposo · <span class="vlvl" style="background:#fdd835;color:#222">Amarilla · III</span> cambios en el nivel base de lo que se vigila · <span class="vlvl" style="background:#f57c00;color:#fff">Naranja · II</span> erupción probable en días o semanas · <span class="vlvl" style="background:#d32f2f;color:#fff">Roja · I</span> erupción inminente o en curso.</p>
+     <p>Toque un volcán para ver la descripción del nivel y los enlaces al último boletín semanal y mensual del SGC (PDF). El SGC vigila estos volcanes con sismómetros, GNSS, inclinómetros, sensores de gases y cámaras, pero no publica las lecturas ni las coordenadas de sus estaciones; sus mapas de redes están en las páginas de cada volcán.</p>
+     <p>El SGC no permite que otras páginas ni servidores en la nube lean ese dato, así que aquí se muestra una <b>copia</b> con su fecha (en cada volcán dice «copia del …»); se actualiza a mano. El nivel cambia pocas veces, pero el SGC lo puede subir en cualquier momento con un boletín extraordinario. <b>Para decisiones, confirme siempre en <a href="https://www.sgc.gov.co/volcanes" target="_blank" rel="noopener">sgc.gov.co/volcanes</a></b>.</p>`],
   camaras: ["Cámaras web de volcanes (SGC)",
     `<p>Imágenes en vivo de las cámaras que el <b>Servicio Geológico Colombiano</b> usa para vigilar el volcán Nevado del Ruiz (en el límite entre Caldas y Tolima) y el volcán Cerro Machín (Cajamarca, Tolima). Se actualizan cada pocos minutos.</p>
      <p>Toque un ícono de cámara para ver la última imagen; toque la imagen para abrirla en tamaño completo. Con nubes o de noche puede no verse nada. La posición de cada cámara en el mapa es aproximada, porque el SGC no publica sus coordenadas.</p>
@@ -1707,6 +1743,7 @@ function renderMap(){
         [`Sismos M4+ (elija las fechas) ${infoBtn("sismos", "sismos")}`, buildEqLayer()],
         [`Movimientos en masa (SGC, ${MOVMASA.length}) ${infoBtn("movmasa", "movimientos en masa")}`, buildMovLayer()],
         [`Amenaza volcánica Cerro Machín (SGC 2026) ${infoBtn("machin", "amenaza del Cerro Machín")}`, buildMachinLayer()],
+        [`Alerta volcánica (SGC) ${infoBtn("volcanes", "alerta volcánica")}`, buildVolcLayer()],
         satL("so2")]],
       ["Clima actual", [["Estaciones (lluvia)", layer], ["Alertas de nivel IDEAM", alertLayer],
         ...["radar", "glm", "cmorph", "ir", "geo", "imerg"].filter(k => SAT[k]).map(satL),
