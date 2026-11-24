@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Fetch daily reservoir data for Tolima and neighbours from XM's open API (servapibi.xm.com.co) into data/embalses.json.
+"""Fetch daily reservoir data and the hourly output of the Amoyá La Esperanza hydro plant for Tolima and neighbours from XM's open API (servapibi.xm.com.co) into data/embalses.json.
 XM's API does not allow browsers on other sites to read it, so this runs on a schedule (GitHub Actions) and the page reads the JSON file."""
 import json, sys, urllib.request, datetime as dt, pathlib
 API = "https://servapibi.xm.com.co/daily"
 EMB = ["PRADO", "BETANIA", "EL QUIMBO", "AMANI"]
+GEN = {"MOY1": ("AMOYA LA ESPERANZA", 80)}  # XM resource code -> (name, nominal MW)
 RIO = ["PRADO", "AMOYA", "CUCUANA", "MIEL I", "BETANIA CP", "EL QUIMBO"]
 def get(metric, entity, names, start, end):
     body = json.dumps({"MetricId": metric, "StartDate": start, "EndDate": end, "Entity": entity}).encode()
@@ -14,6 +15,29 @@ def get(metric, entity, names, start, end):
         for e in it["DailyEntities"]:
             if e["Name"] in names and e.get("Value") not in (None, ""): out.setdefault(e["Name"], {})[it["Date"]] = float(e["Value"])
     return out
+def post(ep, metric, entity, start, end):
+    body = json.dumps({"MetricId": metric, "StartDate": start, "EndDate": end, "Entity": entity}).encode()
+    req = urllib.request.Request(API.rsplit("/", 1)[0] + "/" + ep, data=body, headers={"Content-Type": "application/json", "User-Agent": "sat-tolima-dashboard"})
+    with urllib.request.urlopen(req, timeout=120) as r: return json.load(r).get("Items") or []
+def hourly(metric, start, end):
+    """{code: {date: [24 values in MW or None]}} for the plants in GEN (XM gives kWh per hour)."""
+    out = {}
+    for it in post("hourly", metric, "Recurso", start, end):
+        for e in it.get("HourlyEntities") or []:
+            v = e.get("Values") or {}
+            if v.get("code") in GEN:
+                out.setdefault(v["code"], {})[it["Date"]] = [round(float(v[f"Hour{h:02d}"]) / 1000, 1) if v.get(f"Hour{h:02d}") not in (None, "") else None for h in range(1, 25)]
+    return out
+def generation(today):
+    """Real hourly generation lags 3 to 4 days; the redispatch program covers yesterday and today (planned, not measured)."""
+    real = hourly("Gene", (today - dt.timedelta(days=14)).isoformat(), today.isoformat())
+    prog = hourly("GeneProgRedesp", (today - dt.timedelta(days=1)).isoformat(), (today + dt.timedelta(days=1)).isoformat())
+    cap = {}
+    for it in post("daily", "CapEfecNeta", "Recurso", (today - dt.timedelta(days=10)).isoformat(), today.isoformat()):
+        for e in it.get("DailyEntities") or []:
+            if e.get("Code") in GEN and e.get("Value") not in (None, ""): cap[e["Code"]] = round(float(e["Value"]) / 1000, 1)
+    return {c: {"n": n, "cap": cap.get(c, mw), "real": sorted([d, v] for d, v in real.get(c, {}).items() if any(x is not None for x in v)),
+                "prog": sorted([d, v] for d, v in prog.get(c, {}).items() if any(x is not None for x in v))} for c, (n, mw) in GEN.items()}
 def main(path):
     end = (dt.datetime.utcnow() - dt.timedelta(hours=5)).date()
     start = end - dt.timedelta(days=30)
@@ -23,9 +47,14 @@ def main(path):
     emb = {n: [[d, round(pct[n][d] * 100, 2), round(vol.get(n, {}).get(d, 0) / 1e6, 2), round(cap.get(n, {}).get(d, 0) / 1e6, 2)] for d in sorted(pct.get(n, {}))] for n in EMB}
     rio = {n: [[d, q[n][d], qh.get(n, {}).get(d)] for d in sorted(q.get(n, {}))] for n in RIO}
     if not any(emb.values()): sys.exit("XM returned no reservoir data; keeping the old file")
-    data = {"updated": dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%MZ"), "source": "XM, API pública (servapibi.xm.com.co)", "emb": emb, "rio": rio}
+    try: gen = generation(end)
+    except Exception as ex:
+        print("generation fetch failed:", ex); gen = {}
+        try: gen = json.loads(pathlib.Path(path).read_text()).get("gen", {})
+        except Exception: pass
+    data = {"updated": dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%MZ"), "source": "XM, API pública (servapibi.xm.com.co)", "emb": emb, "rio": rio, "gen": gen}
     p = pathlib.Path(path); p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")))
-    print("wrote", path, {n: (v[-1] if v else None) for n, v in emb.items()})
+    print("wrote", path, {n: (v[-1] if v else None) for n, v in emb.items()}, {c: (g["real"][-1][0] if g["real"] else None, g["prog"][-1][0] if g["prog"] else None) for c, g in gen.items()})
 if __name__ == "__main__":
     main(sys.argv[1] if len(sys.argv) > 1 else "data/embalses.json")
