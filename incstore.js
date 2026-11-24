@@ -27,7 +27,7 @@ const INC_ESTADOS = {activo:"Activo", controlado:"Controlado", cerrado:"Cerrado"
 Object.defineProperty(INC_ESTADOS, "atencion", {value:"En atención", enumerable:false});
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "familias", "viviendas"];   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 20;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 21;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
 //   remote, ready(), user(), handle(), setHandle(name), signIn(email, pw), signOut(), onAuth(fn)
@@ -66,7 +66,10 @@ const IncUtil = {
     } catch { return blob; }
   },
   when: iso => iso ? new Date(iso).toLocaleString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit"}) : "",
-  afect: a => INC_AFECT_KEYS.filter(k => a?.[k] != null).map(k => `${a[k]} ${a[k] === 1 ? k.slice(0, -1) : k}`).join(" · "),
+  // counts with clear labels: "5 fallecidos · 2 heridos · 30 personas afectadas · 8 familias afectadas · 3 viviendas afectadas"
+  afect: a => INC_AFECT_KEYS.filter(k => a?.[k] != null).map(k => {
+    const n = a[k], w = n === 1 ? k.slice(0, -1) : k;
+    return `${n} ${w}${/^(personas|familias|viviendas)$/.test(k) ? (n === 1 ? " afectada" : " afectadas") : ""}`; }).join(" · "),
 };
 
 function incLocalStore(){
