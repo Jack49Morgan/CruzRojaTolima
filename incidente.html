@@ -18,7 +18,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=24"></script>
+<script src="incstore.js?v=25"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -89,6 +89,7 @@ details.edit[open]>summary{margin-bottom:14px}
 details.edit.nosum>summary{display:none}
 /* public read-only view of an event's follow-up */
 .ro #uf,.ro #edit,.ro .sel,.ro #mig,.ro [data-delu],.ro .delrow{display:none!important}
+.backtop{justify-self:start;font-size:13px;padding:5px 10px}
 .sumbtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
 #alertbox{display:grid;gap:8px;margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--red);border-radius:8px}
 #alertbox[hidden]{display:none}
@@ -102,7 +103,7 @@ details.edit.nosum>summary{display:none}
   body{background:#fff;font-size:12px}
   .wrap{padding:0;max-width:none}
   header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  header .btn,#who,#auth,#mig,.sel,#uf,#edit,.sumbtns,[data-delu],.msg{display:none!important}
+  header .btn,#who,#auth,#mig,.sel,#uf,#edit,.sumbtns,.backtop,[data-delu],.msg{display:none!important}
   .printnote{display:block;font-size:11px;color:#333}
   .printnote a{color:#0b2a5b;overflow-wrap:anywhere}
   /* plain blocks, no grid: grids and whole-card "avoid break" left a big blank gap on page 1 */
@@ -127,7 +128,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="namebtn" hidden>Mi nombre</button><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=24" id="back">Ver tablero</a>
+    <a class="btn" href="index.html?v=25" id="back">← Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -258,8 +259,15 @@ const INC_ESTADO_OPT = e => Object.keys(INC_ESTADOS).includes(e) ? e : "activo";
 for (const [k, n] of Object.entries(INC_ESTADOS)) { f.estado.add(new Option(n, k)); uf.estado.add(new Option(n, k)); }
 const MUNS = TOLIMA_GEO.mun.features.map(x => x.properties.n).sort((a, b) => a.localeCompare(b, "es"));
 for (const n of MUNS) f.municipio.add(new Option(n, n));
-if (window.opener) { $("#closew").hidden = false; $("#back").hidden = true; }
+if (window.opener) $("#closew").hidden = false;
+// back to the dashboard: when this page was opened from it in a new tab, close this tab and return to that one
+// (the dashboard stays where it was); otherwise go to the dashboard in this tab
+function toBoard(e){
+  let o = null; try { o = window.opener && !window.opener.closed ? window.opener : null; } catch {}
+  if (o) { e?.preventDefault(); try { o.focus(); } catch {} window.close(); }
+}
 $("#closew").onclick = () => window.close();
+$("#back").addEventListener("click", toBoard);
 $("#note").textContent = IncStore.remote
   ? "Los eventos y sus actualizaciones se guardan en el servidor del equipo: se ven y se actualizan desde cualquier teléfono o computador con una cuenta del equipo."
   : "Los eventos se guardan en este navegador y este dispositivo, y el tablero abierto en el mismo navegador los muestra al instante. Para compartirlos entre varios teléfonos y computadores hay que conectar el servidor (supabase/LEEME.md).";
@@ -417,7 +425,7 @@ let cur = null;
 const draftKey = () => "sat-tolima-borrador-" + cur?.id;
 function drawSummary(){
   const [tname] = INC_TIPOS[cur.tipo] || INC_TIPOS.otro;
-  $("#sum").innerHTML = `<h2>${esc(cur.titulo)}</h2>
+  $("#sum").innerHTML = `<a class="btn sm backtop" href="${esc($("#back").getAttribute("href"))}">← Volver al tablero</a><h2>${esc(cur.titulo)}</h2>
     <div><span class="chip st-${esc(cur.estado)}">${esc(INC_ESTADOS[cur.estado] || cur.estado)}</span>${IncUtil.afect(cur.afectados) ? `<span class="chip af">${esc(IncUtil.afect(cur.afectados))}</span>` : ""}</div>
     <div class="sub">${esc(tname)} · ${esc(cur.municipio)}${cur.lugar ? " · " + esc(cur.lugar) : ""}<br>
     Inicio: ${esc((cur.fecha || "").replace("T", " "))}${cur.actualizado ? ` · Última actualización ${esc(IncUtil.ago(cur.actualizado))}` : ""}</div>
@@ -432,6 +440,7 @@ function drawSummary(){
   if ($("#alertsum")) $("#alertsum").onclick = openAlertBox;
   const b = $("#delsum"); if (b) b.onclick = () => delEvent(b, "Eliminar evento", $("#dmsg"), true);
   $("#pdfbtn").onclick = savePdf;
+  $("#sum .backtop").addEventListener("click", toBoard);
   if ($("#sharebtn")) $("#sharebtn").onclick = () => navigator.share({title:cur.titulo, text:shareText(), url:pubLink()}).catch(() => {});
   if ($("#copybtn")) $("#copybtn").onclick = async () => { try { await navigator.clipboard.writeText(pubLink()); $("#copybtn").textContent = "Enlace copiado"; } catch { prompt("Copie el enlace:", pubLink()); } };
 }
