@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: python3 tools/xm_amoya_probe.py || true
       - run: python3 tools/xm_embalses.py data/embalses.json
       - run: |
           git config user.name "github-actions[bot]"
