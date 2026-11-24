@@ -425,7 +425,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=19"></script>
+<script src="incstore.js?v=20"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -461,8 +461,10 @@ function initIncidents(map, ctrl){
     // only signed-in team members get "Registrar evento" (and the update box / edit buttons, which need a login to work)
     const canEdit = !IncStore.remote || !!IncStore.user();
     document.querySelectorAll("[data-newinc]").forEach(b => b.hidden = !canEdit);
-    if (IncStore.user()) { who.innerHTML = `Conectado como ${escI(IncStore.user())} <button type="button" id="incout">Salir</button>`;
-      document.getElementById("incout").onclick = () => IncStore.signOut(); loginBox.hidden = true; }
+    if (IncStore.user()) { const h = IncStore.handle();
+      who.innerHTML = `Conectado como <b>${escI(h || IncStore.user())}</b> <button type="button" id="incname">${h ? "Cambiar nombre" : "Elegir mi nombre"}</button> <button type="button" id="incout">Salir</button>`;
+      document.getElementById("incout").onclick = () => IncStore.signOut(); loginBox.hidden = true;
+      document.getElementById("incname").onclick = () => incAskHandle(rr); }
     else if (IncStore.remote) { who.hidden = false;
       who.innerHTML = `Vista pública de solo lectura · <button type="button" id="incin">Entrar (equipo)</button>`;
       document.getElementById("incin").onclick = () => { loginBox.hidden = false;
@@ -496,7 +498,7 @@ function initIncidents(map, ctrl){
       const iu = upsBy[inc.id] || [], last = iu[0];
       const upItem = u => `<li><time datetime="${escI(u.creado)}" title="${escI(IncUtil.when(u.creado))}">${escI(IncUtil.hora(u.creado))}</time>
         <span class="ut">${u.texto ? escI(u.texto) : u.estado ? "Estado: " + escI(INC_ESTADOS[u.estado] || u.estado) : u.afectados ? escI(IncUtil.afect(u.afectados)) : ""}</span>
-        ${u.autor || (u.texto && (u.estado || u.afectados)) ? `<span class="um">${[u.autor ? escI(u.autor.split("@")[0]) : "", u.texto && u.estado ? escI(INC_ESTADOS[u.estado] || u.estado) : "", u.texto && u.afectados ? escI(IncUtil.afect(u.afectados)) : ""].filter(Boolean).join(" · ")}</span>` : ""}${upThumbs(u)}</li>`;
+        ${u.autor || (u.texto && (u.estado || u.afectados)) ? `<span class="um">${[u.autor ? escI(IncUtil.autor(u.autor)) : "", u.texto && u.estado ? escI(INC_ESTADOS[u.estado] || u.estado) : "", u.texto && u.afectados ? escI(IncUtil.afect(u.afectados)) : ""].filter(Boolean).join(" · ")}</span>` : ""}${upThumbs(u)}</li>`;
       byId[inc.id] = {inc, items};
       // map: boundary, then a pin at the chosen point or the middle of the boundary
       let ll = inc.punto, gl = null;

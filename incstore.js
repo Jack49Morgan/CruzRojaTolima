@@ -27,10 +27,10 @@ const INC_ESTADOS = {activo:"Activo", controlado:"Controlado", cerrado:"Cerrado"
 Object.defineProperty(INC_ESTADOS, "atencion", {value:"En atención", enumerable:false});
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "familias", "viviendas"];   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 19;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 20;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
-//   remote, ready(), user(), signIn(email, pw), signOut(), onAuth(fn)
+//   remote, ready(), user(), handle(), setHandle(name), signIn(email, pw), signOut(), onAuth(fn)
 //   list(), get(id), save(inc, add, drop), remove(id)
 //   media(incId) -> [{id,name,type,url,updId}]
 //   updates(incId) -> oldest first; allUpdates() -> every update, newest first
@@ -39,6 +39,8 @@ const INC_VERSION = 19;   // bump with each change to the incident pages, so pho
 // "add" items are {id,name,type,blob}; "drop" is a list of media ids.
 const IncUtil = {
   uid: () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+  // how an author shows on updates: their handle, or for older entries the part of the e-mail before "@"
+  autor: a => String(a || "").split("@")[0],
   esc: s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])),
   // "hace 5 min", "hace 3 h", else a Colombian date and time
   ago: iso => { if (!iso) return ""; const d = new Date(iso), s = (Date.now() - d) / 1000;
@@ -96,7 +98,7 @@ function incLocalStore(){
     return {id:m.id, name:m.name, type:m.type, updId:m.updId || null, url:urls.get(m.id), blob:m.blob}; };
   const S = {
     remote:false,
-    ready: async () => null, user: () => null, onAuth: () => {}, signIn: async () => {}, signOut: async () => {},
+    ready: async () => null, user: () => null, handle: () => null, setHandle: async () => {}, onAuth: () => {}, signIn: async () => {}, signOut: async () => {},
     list: () => tx(["inc"], "readonly", t => req(t.objectStore("inc").getAll()))
       .then(a => a.sort((x, y) => (y.fecha || "").localeCompare(x.fecha || ""))),
     get: id => tx(["inc"], "readonly", t => req(t.objectStore("inc").get(id))),
@@ -173,7 +175,9 @@ function incSupabaseStore(cfg){
   const PUB = {incidentes:"id,datos,estado,afectados,fecha,creado,actualizado", actualizaciones:"id,incidente_id,creado,texto,estado,afectados"};
   const cols = t => session ? "*" : PUB[t];
   const ok = ({data, error}) => { if (error) throw new Error(error.message || String(error)); return data; };
-  const who = () => session?.user?.email || null;
+  // the handle each team member picks ("Mi nombre") is kept in their account's metadata and written as the author
+  const handle = () => { const m = session?.user?.user_metadata || {}; return (m.handle || m.display_name || m.full_name || m.name || "").trim() || null; };
+  const who = () => session ? handle() || session.user.email : null;
   const safe = n => (n || "archivo").normalize("NFD").replace(/[^\w.-]+/g, "_").slice(-80);
   const fromRow = r => ({...r.datos, id:r.id, estado:r.estado ?? r.datos.estado, afectados:r.afectados ?? r.datos.afectados,
     creado:r.creado, actualizado:r.actualizado, autor:r.autor});
@@ -196,7 +200,14 @@ function incSupabaseStore(cfg){
   };
   const S = {
     remote:true,
-    ready: () => ready, user: who,
+    ready: () => ready, user: () => session?.user?.email || null, handle,
+    // set the handle, then relabel this person's earlier events and updates (saved under their e-mail or old handle)
+    setHandle: async name => {
+      name = String(name || "").trim().slice(0, 40); if (!name || !session) return;
+      const old = [session.user.email, handle()].filter(Boolean);
+      session = {...session, user:ok(await sb.auth.updateUser({data:{handle:name}})).user};
+      await Promise.all(["incidentes", "actualizaciones"].map(t => sb.from(t).update({autor:name}).in("autor", old).then(ok)));
+    },
     onAuth: fn => authFns.push(fn),
     signIn: async (email, password) => { session = ok(await sb.auth.signInWithPassword({email, password})).session; listen(); authFns.forEach(f => f(session)); },
     signOut: async () => { await sb.auth.signOut(); },
@@ -268,4 +279,12 @@ function incLoginBox(el, done, intro = "Inicie sesión para ver y registrar even
   fm.onsubmit = async e => { e.preventDefault(); msg.textContent = "Entrando…"; msg.style.color = "";
     try { await IncStore.signIn(fm.email.value.trim(), fm.pw.value); done?.(); }
     catch (err) { msg.textContent = /invalid/i.test(err.message) ? "Correo o contraseña incorrectos." : "No se pudo entrar: " + err.message; msg.style.color = "var(--bad, #b83a3a)"; } };
+}
+
+// "Mi nombre": asks for the handle shown on this person's updates instead of their e-mail, then calls done()
+async function incAskHandle(done){
+  const name = prompt("¿Con qué nombre quiere aparecer en los eventos y actualizaciones? (por ejemplo: Jack - Cruz Roja Ibagué)", IncStore.handle() || "");
+  if (name === null || !name.trim()) return;
+  try { await IncStore.setHandle(name); done?.(); }
+  catch (err) { alert("No se pudo guardar el nombre: " + err.message); }
 }
