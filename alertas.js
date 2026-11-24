@@ -26,7 +26,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;", "<":"&lt;", ">
 
 async function setLabel(){
   const on = !!(await current()) && Notification.permission === "granted";
-  btn.textContent = on ? "🔔 Alertas activas" : "🔔 Activar alertas";
+  btn.textContent = on ? "🔔 Alertas activas" : "🔔 Recibir alertas";
   btn.setAttribute("aria-pressed", on);
 }
 
@@ -42,7 +42,7 @@ async function render(msg = ""){
   else if (ios && !standalone) html += `<p><b>En iPhone primero hay que instalar el tablero:</b></p>
     <ol><li>Abra esta página en <b>Safari</b>.</li><li>Toque <b>Compartir</b> (el cuadro con la flecha hacia arriba).</li>
     <li>Elija <b>Añadir a pantalla de inicio</b> y toque <b>Añadir</b>.</li>
-    <li>Abra el tablero desde el nuevo ícono de Cruz Roja Tolima y toque otra vez <b>🔔 Activar alertas</b>.</li></ol>
+    <li>Abra el tablero desde el nuevo ícono de Cruz Roja Tolima y toque otra vez <b>🔔 Recibir alertas</b>.</li></ol>
     <p>Necesita iOS 16.4 o más reciente (Ajustes &gt; General &gt; Información).</p>`;
   else if (!supported) html += `<p class="err">Este navegador no recibe notificaciones. En Android use Chrome; en iPhone, Safari con iOS 16.4 o más reciente.</p>`;
   else if (Notification.permission === "denied") html += `<p class="err">Las notificaciones están bloqueadas para este sitio.
@@ -78,7 +78,32 @@ body.addEventListener("click", async e => {
   setLabel();
 });
 
-btn.addEventListener("click", async () => { await render(); dlg.showModal(); });
+btn.addEventListener("click", async () => { dlg.querySelector("#alertt").textContent = "Alertas al celular"; await render(); dlg.showModal(); });
+
+// "📣 Enviar alerta" (signed-in team only): free-text alert to every subscribed phone
+const send = document.getElementById("sendalertbtn");
+if (send && typeof IncStore !== "undefined" && IncStore.remote) {
+  const show = () => { send.hidden = !IncStore.user(); };
+  IncStore.ready().then(show); IncStore.onAuth(show);
+  send.addEventListener("click", () => {
+    dlg.querySelector("#alertt").textContent = "Enviar alerta a los celulares";
+    body.innerHTML = `<p>Llega a todos los celulares que activaron las alertas. Úsela para avisos importantes.</p>
+      <label><span>Título</span><input id="sat" maxlength="120" placeholder="🚨 Cierre de la vía Ibagué–Cajamarca"></label>
+      <label><span>Mensaje</span><textarea id="sab" rows="3" maxlength="400" placeholder="Qué pasa, dónde y qué hacer"></textarea></label>
+      <p><button type="button" class="btn new" data-s="go">Enviar a todos</button> <span id="sam" role="status"></span></p>`;
+    dlg.showModal();
+  });
+  body.addEventListener("click", async e => {
+    if (!e.target.closest("[data-s=go]")) return;
+    const t = body.querySelector("#sat").value.trim(), m = body.querySelector("#sam");
+    if (!t) { m.innerHTML = `<span class="err">Escriba un título.</span>`; return; }
+    e.target.disabled = true; m.textContent = "Enviando…";
+    try { const r = await IncStore.sendAlert({title:t, body:body.querySelector("#sab").value.trim(), url:"./"});
+      m.textContent = `Enviada a ${r.enviadas} celular(es)${r.errores ? `, ${r.errores} con error` : ""}.`; }
+    catch (err) { m.innerHTML = `<span class="err">No se pudo enviar: ${esc(err.message)}</span>`; }
+    e.target.disabled = false;
+  });
+}
 // keep Supabase in sync if the browser renewed the subscription keys
 current().then(s => { if (s && cfg.url) { const j = s.toJSON(); rpc("push_alta", {endpoint:j.endpoint, p256dh:j.keys.p256dh, auth:j.keys.auth, agente:navigator.userAgent}).catch(() => {}); } });
 if (supported) setLabel();

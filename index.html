@@ -186,6 +186,8 @@ h2 button.info{vertical-align:2px}
 #infodlg h3,#alertdlg h3{margin:0 0 6px;font-size:16px}
 #infodlg p,#alertdlg p{margin:6px 0}
 #alertdlg ol{margin:6px 0;padding-left:22px}
+#alertdlg label{display:grid;gap:4px;margin:8px 0}
+#alertdlg input,#alertdlg textarea{font:inherit;width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg)}
 #infodlg a{color:var(--rain)}
 #infodlg img{display:block;max-width:100%;margin:8px 0;background:#fff;border-radius:4px;padding:2px}
 .dlgfoot{display:flex;justify-content:flex-end;margin-top:10px}
@@ -288,7 +290,8 @@ h2 button.info{vertical-align:2px}
     </div>
     <div class="controls">
       <button class="btn" id="refresh">Actualizar</button>
-      <button class="btn" id="alertbtn" type="button" aria-haspopup="dialog">🔔 Activar alertas</button>
+      <button class="btn" id="alertbtn" type="button" aria-haspopup="dialog">🔔 Recibir alertas</button>
+      <button class="btn new" id="sendalertbtn" type="button" aria-haspopup="dialog" hidden>📣 Enviar alerta</button>
       <button class="btn new" type="button" data-newinc hidden>＋ Evento</button>
     </div>
   </header>
@@ -437,8 +440,8 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=23"></script>
-<script src="alertas.js?v=1" defer></script>
+<script src="incstore.js?v=24"></script>
+<script src="alertas.js?v=2" defer></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.

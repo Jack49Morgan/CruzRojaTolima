@@ -54,5 +54,10 @@ Para activarlo (una sola vez):
    La llave pública VAPID es la misma que está en `alertas.js`; si cambia el par de llaves, cambie
    también esa línea y todos los celulares deberán activar las alertas de nuevo.
 
+4. **Alertas enviadas a mano** (botón **📣 Enviar alerta** del tablero y de cada evento, solo con sesión iniciada):
+   **Supabase** > **Edge Functions** > **Deploy a new function** > **Via Editor**. Nombre: `enviar-alerta`.
+   Borre el ejemplo, pegue todo [`functions/enviar-alerta/index.ts`](functions/enviar-alerta/index.ts) y pulse **Deploy**.
+   Luego **Edge Functions** > **Secrets**: agregue `VAPID_PUBLIC_KEY` y `VAPID_PRIVATE_KEY` (los mismos valores del paso 3).
+
 Para cambiar los umbrales, edite `data/umbrales-lluvia.json` en GitHub (por municipio o por estación).
 Para probar la entrega: **Actions** > **Alertas de lluvia** > **Run workflow**, marque *prueba*.

@@ -40,3 +40,19 @@ create table if not exists public.alertas_lluvia_estado (
   actualizado timestamptz not null default now()
 );
 alter table public.alertas_lluvia_estado enable row level security;
+
+-- Registro de las alertas enviadas a mano desde el tablero o desde un evento (función "enviar-alerta").
+create table if not exists public.alertas_enviadas (
+  id       bigint generated always as identity primary key,
+  creado   timestamptz not null default now(),
+  tipo     text,          -- "manual"
+  titulo   text,
+  texto    text,
+  enlace   text,
+  autor    text,
+  enviadas int,
+  errores  int
+);
+alter table public.alertas_enviadas enable row level security;
+drop policy if exists "equipo lee alertas enviadas" on public.alertas_enviadas;
+create policy "equipo lee alertas enviadas" on public.alertas_enviadas for select to authenticated using (true);
