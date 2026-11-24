@@ -181,10 +181,11 @@ button.info{display:inline-flex;align-items:center;justify-content:center;width:
 button.info:hover{background:var(--rain);color:#fff;border-color:var(--rain)}
 .leaflet-control-layers button.info{color:#1f6fb2}
 h2 button.info{vertical-align:2px}
-#infodlg{max-width:min(520px,calc(100vw - 32px));border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--fg);padding:16px 18px;font:14px/1.5 var(--sans)}
-#infodlg::backdrop{background:#0008}
-#infodlg h3{margin:0 0 6px;font-size:16px}
-#infodlg p{margin:6px 0}
+#infodlg,#alertdlg{max-width:min(520px,calc(100vw - 32px));border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--fg);padding:16px 18px;font:14px/1.5 var(--sans)}
+#infodlg::backdrop,#alertdlg::backdrop{background:#0008}
+#infodlg h3,#alertdlg h3{margin:0 0 6px;font-size:16px}
+#infodlg p,#alertdlg p{margin:6px 0}
+#alertdlg ol{margin:6px 0;padding-left:22px}
 #infodlg a{color:var(--rain)}
 #infodlg img{display:block;max-width:100%;margin:8px 0;background:#fff;border-radius:4px;padding:2px}
 .dlgfoot{display:flex;justify-content:flex-end;margin-top:10px}
@@ -287,6 +288,7 @@ h2 button.info{vertical-align:2px}
     </div>
     <div class="controls">
       <button class="btn" id="refresh">Actualizar</button>
+      <button class="btn" id="alertbtn" type="button" aria-haspopup="dialog">🔔 Activar alertas</button>
       <button class="btn new" type="button" data-newinc hidden>＋ Evento</button>
     </div>
   </header>
@@ -436,6 +438,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
 <script src="incstore.js?v=23"></script>
+<script src="alertas.js?v=1" defer></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -601,6 +604,13 @@ function initIncidents(map, ctrl){
 }
 
 </script>
+<dialog id="alertdlg" aria-labelledby="alertt">
+  <form method="dialog">
+    <h3 id="alertt">Alertas de lluvia al celular</h3>
+    <div id="alertb"></div>
+    <div class="dlgfoot"><button class="btn">Cerrar</button></div>
+  </form>
+</dialog>
 <dialog id="infodlg" aria-labelledby="infot">
   <form method="dialog">
     <h3 id="infot"></h3>
@@ -640,7 +650,7 @@ const OFF_H = 6;             // no data for this many hours before the newest re
 const VARS = [["rain","Lluvia"],["temp","Temperatura"],["hum","Humedad"],["wind","Viento"],["level","Nivel del río"]];
 const icon = (v, on=true, title="") => `<svg class="ic ${on ? v : "off"}" role="img" aria-label="${title}"><title>${title}</title><use href="#i-${v}"/></svg>`;
 const STATUS = {off:["off","Sin transmisión"], incomplete:["warn","Datos incompletos"], odd:["warn","Valores dudosos"]};
-let hours = 24, latest = null, cut = null, stations = [], sel = null, map, layer, alertLayer, sortK = "rain", sortDir = -1;
+let hours = 24, latest = null, cut = null, stations = [], sel = new URLSearchParams(location.search).get("estacion"), map, layer, alertLayer, sortK = "rain", sortDir = -1;
 const charts = {};
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 

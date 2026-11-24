@@ -35,3 +35,24 @@ cuenta del equipo no permite leer ni escribir nada.
 
 La acción **Mantener activo Supabase** lee una fila dos veces por semana para que Supabase no pause
 el proyecto por inactividad.
+
+# Alertas de lluvia al celular
+
+El botón **🔔 Activar alertas** del tablero suscribe el celular. Cada 15 minutos la acción
+**Alertas de lluvia** suma la lluvia de cada estación del IDEAM (24 h y 72 h) y, cuando una supera el
+umbral de [`data/umbrales-lluvia.json`](../data/umbrales-lluvia.json), envía una notificación a todos
+los celulares suscritos. Avisa una vez; vuelve a avisar solo si la lluvia baja del 90 % del umbral y
+lo supera otra vez.
+
+Para activarlo (una sola vez):
+
+1. **Supabase** > **SQL Editor** > **New query**: pegue [`alertas.sql`](alertas.sql) y pulse **Run**.
+2. **Supabase** > **Project Settings** > **API Keys**: copie la clave secreta **service_role**
+   (o una **Secret key** `sb_secret_…`). Nunca la ponga en la página.
+3. **GitHub** > repositorio > **Settings** > **Secrets and variables** > **Actions** > **New repository secret**,
+   tres veces: `SUPABASE_SERVICE_ROLE_KEY` (la clave del paso 2), `VAPID_PUBLIC_KEY` y `VAPID_PRIVATE_KEY`.
+   La llave pública VAPID es la misma que está en `alertas.js`; si cambia el par de llaves, cambie
+   también esa línea y todos los celulares deberán activar las alertas de nuevo.
+
+Para cambiar los umbrales, edite `data/umbrales-lluvia.json` en GitHub (por municipio o por estación).
+Para probar la entrega: **Actions** > **Alertas de lluvia** > **Run workflow**, marque *prueba*.
