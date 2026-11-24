@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Copy the SGC alert level and latest bulletins of the volcanoes that matter for Tolima into data/volcanes-sgc.json.
 Source: https://archive.sgc.gov.co/volcanos/volcanos.json, the file behind www.sgc.gov.co/volcanes. SGC only lets its own
-pages read it from a browser, so the dashboard reads this copy. If SGC refuses the request the old file is kept.
+pages read it from a browser and answers 403 to GitHub Actions (checked 2026-11-24), so run this by hand from a
+Colombian connection, or save volcanos.json from sgc.gov.co/volcanes and pass it with --from. The old file is kept on errors.
 Usage: sgc_volcanes.py [out.json] [--from saved_volcanos.json]"""
 import json, sys, urllib.request, datetime as dt, pathlib
 SRC = "https://archive.sgc.gov.co/volcanos/volcanos.json"
