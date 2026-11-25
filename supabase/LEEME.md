@@ -61,3 +61,95 @@ Para activarlo (una sola vez):
 
 Para cambiar los umbrales, edite `data/umbrales-lluvia.json` en GitHub (por municipio o por estación).
 Para probar la entrega: **Actions** > **Alertas de lluvia** > **Run workflow**, marque *prueba*.
+
+# Ubicación en vivo del equipo y de los vehículos
+
+Solo el equipo con sesión iniciada ve en el mapa la capa **Equipo y vehículos en vivo**: una marca por persona y
+un carro con su número (Móvil 20, Móvil 42…) por vehículo, con la hora en que se vio por última vez ("hace 40 min").
+Las marcas se desvanecen pasados 10 minutos sin posición y quedan grises pasada una hora. Cada posición lleva la hora
+en que el GPS la tomó, así que lo que se envía después de estar sin señal queda en su sitio del recorrido.
+Solo se guardan las últimas 24 horas.
+
+## Activarlo (una sola vez)
+
+1. **Supabase** > **SQL Editor** > **New query**: pegue [`ubicaciones.sql`](ubicaciones.sql) y pulse **Run**.
+2. **Edge Functions** > **Deploy a new function** > **Via Editor**. Nombre: `ubicacion`. Borre el ejemplo, pegue todo
+   [`functions/ubicacion/index.ts`](functions/ubicacion/index.ts) y pulse **Deploy**.
+3. Abra la función `ubicacion` > **Details** (o **Settings**) y **desactive "Enforce JWT verification"**
+   (también llamado *Verify JWT*). Las aplicaciones de GPS no pueden enviar el token de Supabase; la función revisa
+   en su lugar la clave de cada dispositivo.
+
+## Personas: botón 📍 Compartir mi ubicación
+
+Aparece en el tablero al iniciar sesión. Envía la posición cada 15 segundos mientras el tablero esté abierto en el
+celular (puede mantener la pantalla encendida). Si se pierde la señal, guarda las posiciones y las envía al volver.
+**Detener** (o **Salir**) borra la posición y el recorrido de esa persona. Con la pantalla apagada el navegador deja de
+enviar: para turnos largos use OwnTracks como en los vehículos.
+
+## Vehículos: una clave por cada uno
+
+En **SQL Editor** cree el dispositivo; la clave se muestra **una sola vez** (cópiela):
+
+```sql
+select * from nuevo_dispositivo('Móvil 20');
+```
+
+El número del nombre (20) se ve sobre el ícono del carro. El nombre se puede cambiar después desde el mapa
+(**Cambiar nombre** en la ventana del vehículo). Para desactivar uno:
+`update dispositivos set activo = false where nombre = 'Móvil 20';`
+
+### Kilometraje
+
+La ventana de cada vehículo muestra los **km de hoy** y el **odómetro**. Se suman con cada posición y se guardan
+aunque las posiciones se borren a las 24 h. Se ignora el temblor del GPS (menos de 30 m) y los saltos imposibles
+(más de 180 km/h). Para que coincida con el vehículo, toque **Odómetro** y escriba la lectura del tablero del carro;
+desde ahí se le suma lo recorrido. Si el rastreador envía el odómetro del vehículo (OBD, por Traccar), se usa ese.
+Lo que el celular no registra (apagado, sin GPS) no se cuenta: corrija con **Odómetro** cuando haga falta.
+
+La dirección para todos los vehículos es:
+
+    https://hxwntvubhxahzsfhxgav.supabase.co/functions/v1/ubicacion?clave=LA_CLAVE
+
+### OwnTracks en iPhone (celular que va en el vehículo)
+
+1. Abra OwnTracks y acepte la ubicación **Siempre** (Ajustes del iPhone > OwnTracks > Ubicación > **Siempre**,
+   con **Ubicación exacta** activada).
+2. En OwnTracks toque **ⓘ** (arriba a la izquierda) > **Settings**.
+3. **Mode**: `HTTP`.
+4. **URL**: la dirección de arriba con la clave de ese vehículo.
+5. **Authentication**: apagado (la clave ya va en la dirección). **TrackerID**: el número del móvil, por ejemplo `20`.
+6. Vuelva al mapa y toque el botón de seguimiento (arriba a la derecha) hasta que quede en **Move**
+   (envía seguido, gasta más batería; para el vehículo, déjelo cargando) o **Significant** (ahorra batería,
+   envía cada ~500 m o 5 min).
+7. Toque la flecha **⇧** (publicar) para enviar la primera posición ya. En el tablero, con sesión iniciada, aparece el carro.
+
+Sin señal, OwnTracks guarda las posiciones y las envía al recuperarla, cada una con su hora.
+
+### OwnTracks en Android
+
+Preferencias > **Conexión**: Modo **HTTP**, **Host** = la dirección de arriba. Identificación: el número del móvil.
+En **Avanzado** desactive la optimización de batería para OwnTracks.
+
+### Traccar Client (Android o iPhone)
+
+**Server URL**: `https://hxwntvubhxahzsfhxgav.supabase.co/functions/v1/ubicacion`
+**Device identifier**: la clave del vehículo. **Frequency**: 30 segundos. Active **Offline buffering**.
+
+### Rastreadores GPS de hardware (SinoTrack, Concox, Teltonika…)
+
+Hablan protocolos propios por TCP, así que necesitan un servidor Traccar (gratis, en un servidor propio o
+traccar.org) que les reenvíe las posiciones. Cree una clave de tipo servidor:
+
+```sql
+select * from nuevo_dispositivo('Servidor Traccar', 'servidor');
+```
+
+y en `traccar.xml` del servidor agregue:
+
+```xml
+<entry key='forward.enable'>true</entry>
+<entry key='forward.json'>true</entry>
+<entry key='forward.url'>https://hxwntvubhxahzsfhxgav.supabase.co/functions/v1/ubicacion?clave=LA_CLAVE</entry>
+```
+
+Cada rastreador aparece con el nombre que tenga en Traccar (cámbielo desde el mapa si quiere otro).
