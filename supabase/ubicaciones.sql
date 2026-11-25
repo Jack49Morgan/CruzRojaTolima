@@ -47,6 +47,7 @@ create table if not exists public.ubicaciones_recorrido (
   lon    double precision not null,
   creado timestamptz not null default now()
 );
+alter table public.ubicaciones_recorrido add column if not exists velocidad real;   -- km/h, para exportar el recorrido
 create index if not exists ubicaciones_recorrido_clave on public.ubicaciones_recorrido(clave, creado);
 create index if not exists ubicaciones_recorrido_creado on public.ubicaciones_recorrido(creado);
 
@@ -65,7 +66,7 @@ create or replace function public.ubicaciones_al_recorrido() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
   if tg_op = 'UPDATE' and new.creado = old.creado and new.lat = old.lat and new.lon = old.lon then return new; end if;
-  insert into public.ubicaciones_recorrido (clave, lat, lon, creado) values (new.clave, new.lat, new.lon, new.creado);
+  insert into public.ubicaciones_recorrido (clave, lat, lon, velocidad, creado) values (new.clave, new.lat, new.lon, new.velocidad, new.creado);
   delete from public.ubicaciones_recorrido where creado < now() - interval '24 hours';
   delete from public.ubicaciones where creado < now() - interval '24 hours';
   return new;
@@ -184,7 +185,7 @@ begin
   if t < now() - interval '24 hours' then return; end if;
   k := 'u:' || uid;
   if exists (select 1 from public.ubicaciones where clave = k and creado > t) then
-    insert into public.ubicaciones_recorrido (clave, lat, lon, creado) values (k, compartir_ubicacion.lat, compartir_ubicacion.lon, t);
+    insert into public.ubicaciones_recorrido (clave, lat, lon, velocidad, creado) values (k, compartir_ubicacion.lat, compartir_ubicacion.lon, compartir_ubicacion.velocidad, t);
     return;
   end if;
   insert into public.ubicaciones (clave, tipo, nombre, lat, lon, precision_m, velocidad, rumbo, bateria, fuente, usuario, creado)

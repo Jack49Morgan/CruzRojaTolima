@@ -166,7 +166,7 @@ const popup = r => `<div class="locpop"><b>${esc(r.nombre)}</b><div class="sub">
   ${[r.velocidad != null ? `${Math.round(r.velocidad)} km/h` : "", r.rumbo != null && (r.velocidad == null || r.velocidad >= 3) ? "hacia el " + RUMBOS[Math.round(r.rumbo / 45) % 8] : "",
      r.bateria != null ? `🔋 ${Math.round(r.bateria)} %` : ""].filter(Boolean).join(" · ")}
   ${km(r)}
-  <div class="locbtns"><button type="button" class="btn" data-trail="${esc(r.clave)}">Ver recorrido (24 h)</button>
+  <div class="locbtns"><button type="button" class="btn" data-trail="${esc(r.clave)}">Recorrido 24 h · exportar</button>
   ${/^[dt]:/.test(r.clave) ? `<button type="button" class="btn" data-rename="${esc(r.clave)}">Cambiar nombre</button>
     <button type="button" class="btn" data-odo="${esc(r.clave)}">Odómetro</button>` : ""}
   ${/^d:\d+$/.test(r.clave) ? `<button type="button" class="btn" data-popqr="${esc(r.clave.slice(2))}">Código QR</button>` : ""}</div></div>`;
@@ -187,18 +187,68 @@ async function load(){
   for (const k of Object.keys(marks)) if (!keep.has(k)) drop(k);
   data.forEach(put);
 }
+// distance between two points, km
+const hav = (a, b) => { const R = 6371.0088, r = Math.PI / 180, dl = (b.lat - a.lat) * r, dn = (b.lon - a.lon) * r;
+  return 2 * R * Math.asin(Math.sqrt(Math.sin(dl / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dn / 2) ** 2)); };
+let trailInfo = null;   // {clave, nombre, pts:[{lat,lon,creado,velocidad,km}]}
+const trailBar = document.createElement("div"); trailBar.className = "trailbar"; trailBar.hidden = true;
 async function showTrail(clave){
   trail.clearLayers();
-  const {data, error} = await sb.from("ubicaciones_recorrido").select("lat,lon,creado").eq("clave", clave).order("creado").limit(5000);
-  if (error || !data?.length) return;
-  const r = rows[clave], color = COLORS[r?.tipo] || "#616161";
+  let {data, error} = await sb.from("ubicaciones_recorrido").select("lat,lon,velocidad,creado").eq("clave", clave).order("creado").limit(5000);
+  if (error) ({data, error} = await sb.from("ubicaciones_recorrido").select("lat,lon,creado").eq("clave", clave).order("creado").limit(5000));   // before the velocidad column
+  const r = rows[clave];
+  if (!map.getContainer().contains(trailBar)) { map.getContainer().append(trailBar); L.DomEvent.disableClickPropagation(trailBar); }
+  if (error || !data?.length) { trailInfo = null; trailBar.hidden = false;
+    trailBar.innerHTML = `<span>${esc(r?.nombre || "")}: sin recorrido en las últimas 24 h</span><button type="button" data-tb="x" aria-label="Cerrar">✕</button>`; return; }
+  // cumulative km along the route; moves under 30 m are GPS wobble and are not added
+  let km = 0, anchor = data[0];
+  for (const p of data) { const d = hav(anchor, p); if (d >= 0.03) { km += d; anchor = p; } p.km = Math.round(km * 100) / 100; }
+  trailInfo = {clave, nombre:r?.nombre || clave, pts:data};
+  const color = COLORS[r?.tipo] || "#616161";
   L.polyline(data.map(p => [p.lat, p.lon]), {pane:"loc", color, weight:3, opacity:0.8, dashArray:"1 6", lineCap:"round"}).addTo(trail);
   for (const p of data.filter((_, i) => i % Math.max(1, Math.ceil(data.length / 60)) === 0))
     L.circleMarker([p.lat, p.lon], {pane:"loc", radius:3, color, weight:1, fillOpacity:0.7})
       .bindTooltip(IncUtil.hora(p.creado)).addTo(trail);
   const b = L.latLngBounds(data.map(p => [p.lat, p.lon])); if (r) b.extend([r.lat, r.lon]);
   map.closePopup(); map.fitBounds(b, {padding:[30, 30], maxZoom:15});
+  trailBar.hidden = false;
+  trailBar.innerHTML = `<span><b>${esc(trailInfo.nombre)}</b> · ${IncUtil.hora(data[0].creado)} a ${IncUtil.hora(data.at(-1).creado)} · ${nf(km)} km</span>
+    <span class="tbx">Exportar: <button type="button" data-tb="gpx">GPX</button><button type="button" data-tb="kml">KML</button><button type="button" data-tb="csv">CSV</button></span>
+    <button type="button" data-tb="x" aria-label="Cerrar recorrido">✕</button>`;
 }
+// route export: GPX (GPS apps), KML (Google Earth / Maps), CSV (Excel). Only the last 24 h are kept.
+function exportTrail(fmt){
+  const t = trailInfo; if (!t) return;
+  const x = s => String(s).replace(/[<>&"]/g, c => ({"<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;"})[c]);
+  const co = iso => new Date(iso).toLocaleString("sv-SE", {timeZone:"America/Bogota"});   // "2026-11-25 14:05:09"
+  const day = co(t.pts[0].creado).slice(0, 10), base = `recorrido-${t.nombre.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "")}-${day}`;
+  let text, type;
+  if (fmt === "gpx") {
+    type = "application/gpx+xml";
+    text = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="SAT Tolima - Cruz Roja Colombiana Seccional Tolima" xmlns="http://www.topografix.com/GPX/1/1">\n`
+      + `<trk><name>${x(t.nombre)} ${day}</name><trkseg>\n`
+      + t.pts.map(p => `<trkpt lat="${p.lat}" lon="${p.lon}"><time>${new Date(p.creado).toISOString()}</time>${p.velocidad != null ? `<extensions><speed>${(p.velocidad / 3.6).toFixed(2)}</speed></extensions>` : ""}</trkpt>`).join("\n")
+      + `\n</trkseg></trk>\n</gpx>\n`;
+  } else if (fmt === "kml") {
+    type = "application/vnd.google-earth.kml+xml";
+    const end = t.pts.at(-1);
+    text = `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${x(t.nombre)} ${day}</name>\n`
+      + `<Style id="r"><LineStyle><color>ff2e10c8</color><width>4</width></LineStyle></Style>\n`
+      + `<Placemark><name>${x(t.nombre)}</name><description>${x(co(t.pts[0].creado))} a ${x(co(end.creado))} · ${end.km} km</description><styleUrl>#r</styleUrl>`
+      + `<LineString><tessellate>1</tessellate><coordinates>${t.pts.map(p => `${p.lon},${p.lat}`).join(" ")}</coordinates></LineString></Placemark>\n`
+      + `<Placemark><name>Inicio ${x(co(t.pts[0].creado).slice(11, 16))}</name><Point><coordinates>${t.pts[0].lon},${t.pts[0].lat}</coordinates></Point></Placemark>\n`
+      + `<Placemark><name>Fin ${x(co(end.creado).slice(11, 16))}</name><Point><coordinates>${end.lon},${end.lat}</coordinates></Point></Placemark>\n`
+      + `</Document></kml>\n`;
+  } else {
+    type = "text/csv;charset=utf-8";
+    text = "﻿hora_colombia;latitud;longitud;velocidad_kmh;km_acumulados\n"   // BOM + ";" so Excel in Spanish opens it in columns
+      + t.pts.map(p => [co(p.creado), p.lat, p.lon, p.velocidad ?? "", p.km].map(v => String(v).replace(".", ",")).join(";")).join("\n") + "\n";
+  }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], {type}));
+  a.download = `${base}.${fmt}`; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+trailBar.addEventListener("click", e => { const k = e.target.closest("[data-tb]")?.dataset.tb; if (!k) return;
+  if (k === "x") { trail.clearLayers(); trailBar.hidden = true; trailInfo = null; } else exportTrail(k); });
 // "Cambiar nombre" (vehicles): the name or unit number the team uses, e.g. "Móvil 20"
 async function rename(clave){
   const r = rows[clave]; if (!r) return;
@@ -233,7 +283,7 @@ function on(){
 function off(){
   if (!shown) return; shown = false;
   if (channel) { sb.removeChannel(channel); channel = null; }
-  clearInterval(tick); layer.clearLayers(); trail.clearLayers(); marks = {}; rows = {};
+  clearInterval(tick); layer.clearLayers(); trail.clearLayers(); trailBar.hidden = true; trailInfo = null; marks = {}; rows = {};
   ctrl.removeLayer(layer); map.removeLayer(layer);
 }
 // called by index.html once the map and its layer control exist
@@ -245,7 +295,7 @@ window.initUbicaciones = (m, c) => {
     const rn = e.target.closest("[data-rename]"); if (rn) rename(rn.dataset.rename);
     const od = e.target.closest("[data-odo]"); if (od) odometro(od.dataset.odo);
     const pq = e.target.closest("[data-popqr]"); if (pq && vbtn) { map.closePopup(); openVeh(+pq.dataset.popqr); } });
-  map.on("overlayremove", e => { if (e.layer === layer) trail.clearLayers(); });
+  map.on("overlayremove", e => { if (e.layer === layer) { trail.clearLayers(); trailBar.hidden = true; } });
   const sync = () => IncStore.user() ? on() : off();
   IncStore.ready().then(sync).catch(() => {}); IncStore.onAuth(sync);
 };

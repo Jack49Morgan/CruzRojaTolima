@@ -112,6 +112,12 @@ El número del nombre (20) se ve sobre el ícono del carro. El nombre se puede c
 (**Cambiar nombre** en la ventana del vehículo). Para desactivar uno:
 `update dispositivos set activo = false where nombre = 'Móvil 20';`
 
+### Exportar el recorrido
+
+En la ventana de un vehículo o persona, **Recorrido 24 h · exportar** dibuja el recorrido y muestra arriba del mapa
+**GPX** (aplicaciones de GPS), **KML** (Google Earth) y **CSV** (Excel: hora, latitud, longitud, velocidad, km acumulados).
+Solo se guardan las últimas 24 horas: exporte antes si necesita conservar un recorrido.
+
 ### Kilometraje
 
 La ventana de cada vehículo muestra los **km de hoy** y el **odómetro**. Se suman con cada posición y se guardan

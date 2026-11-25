@@ -120,7 +120,7 @@ async function handle(req: Request): Promise<Response> {
   // an older one goes only into the 24 h trail, so it never moves the marker back
   const {data: cur} = await admin.from("ubicaciones").select("creado").eq("clave", clave).maybeSingle();
   if (cur && +new Date(cur.creado) > t) {
-    const {error: e1} = await admin.from("ubicaciones_recorrido").insert({clave, lat: pos.lat, lon: pos.lon, creado: new Date(t).toISOString()});
+    const {error: e1} = await admin.from("ubicaciones_recorrido").insert({clave, lat: pos.lat, lon: pos.lon, velocidad: pos.kmh === null ? null : Math.round(pos.kmh * 10) / 10, creado: new Date(t).toISOString()});
     return e1 ? json({error: e1.message}, 500) : done();
   }
 
