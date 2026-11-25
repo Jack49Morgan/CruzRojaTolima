@@ -117,7 +117,7 @@ El número del nombre (20) se ve sobre el ícono del carro. El nombre se puede c
 
 ### Pausa, fin del día e informe semanal de km
 
-- **Tipo**: al agregar un vehículo elija 🚙 Camioneta o 🚲 Bicicleta (cambia el ícono del mapa; se puede cambiar después).
+- **Tipo**: al agregar un vehículo elija 🚙 Camioneta, 🛻 Pickup, 🚑 Ambulancia o 🚲 Bicicleta (cambia el ícono del mapa; se puede cambiar después).
 - **⏸ Pausar / ▶ Reanudar** (página del QR o ventana del vehículo en el mapa): el vehículo queda fijo donde está
   (por ejemplo, en el almuerzo) y no sigue al celular; el día no se cierra.
 - **🅿 Terminar recorrido** (página del QR): tóquelo al dejar el vehículo, por ejemplo en el garaje. El vehículo sale

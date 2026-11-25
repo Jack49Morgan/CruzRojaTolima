@@ -154,7 +154,30 @@ const BIKE = `<svg viewBox="0 0 48 30" width="44" height="27.5" aria-hidden="tru
   </g>
   <circle cx="23" cy="20.5" r="2" fill="#1d2430"/><circle cx="10.5" cy="20" r="1.3" fill="#1d2430"/><circle cx="37.5" cy="20" r="1.3" fill="#1d2430"/>
 </svg>`;
-const ICONS = {camioneta:CAR, bicicleta:BIKE};
+// white double-cab pickup with a red cross on the doors (generic shape, no brand), nose to the right
+const PICKUP = `<svg viewBox="0 0 48 30" width="44" height="27.5" aria-hidden="true">
+  <path d="M3 12.6H15.6V8.2Q15.6 6 17.8 6H31L36.2 12.6H42.5Q45.5 13 45.5 16V21.5Q45.5 23 44 23H4.5Q3 23 3 21.5Z" fill="#fff" stroke="#0b2a5b" stroke-width="1.4" stroke-linejoin="round"/>
+  <path d="M17.6 7.8H24.6V12.4H17.6ZM26.2 7.8H30.4L34 12.4H26.2Z" fill="#5b7fa6"/>
+  <path d="M4 14.6H14.8" stroke="#0b2a5b" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M15.6 12.6V21M25.4 12.6V20.6" stroke="#0b2a5b" stroke-width="1" stroke-linecap="round"/>
+  <rect x="43" y="19.2" width="3.4" height="2.4" rx=".6" fill="#8a97a8"/><rect x="43.4" y="14.4" width="2" height="2" rx=".5" fill="#f2b13a"/>
+  <path d="M16.8 16H19.3V13.5H21.9V16H24.4V18.6H21.9V21.1H19.3V18.6H16.8Z" fill="#c8102e"/>
+  <circle cx="11.5" cy="23" r="4.6" fill="#1d2430"/><circle cx="11.5" cy="23" r="1.9" fill="#c9cfd8"/>
+  <circle cx="37.5" cy="23" r="4.6" fill="#1d2430"/><circle cx="37.5" cy="23" r="1.9" fill="#c9cfd8"/></svg>`;
+// white ambulance van: tall box with a big red cross, red stripe and roof light bar, nose to the right
+const AMBU = `<svg viewBox="0 0 48 30" width="44" height="27.5" aria-hidden="true">
+  <rect x="25.5" y=".6" width="6.4" height="2.6" rx="1" fill="#c8102e" stroke="#0b2a5b" stroke-width=".8"/><rect x="27.2" y="1.2" width="1.4" height="1.4" rx=".4" fill="#ffb3bd"/>
+  <path d="M3 5.2Q3 3 5.2 3H31.4Q33 3 33.8 4.6L38.8 12.4H42.5Q45.5 12.8 45.5 16V21.5Q45.5 23 44 23H4.5Q3 23 3 21.5Z" fill="#fff" stroke="#0b2a5b" stroke-width="1.4" stroke-linejoin="round"/>
+  <path d="M33.6 6.8L37.2 12.4H33.6Z" fill="#5b7fa6"/>
+  <path d="M3.7 16.4H44.8V18.2H3.7Z" fill="#c8102e"/>
+  <path d="M12.6 8H16V4.6H19.4V8H22.8V11.4H19.4V14.8H16V11.4H12.6Z" fill="#c8102e"/>
+  <path d="M32.6 5V20.6" stroke="#0b2a5b" stroke-width="1" stroke-linecap="round"/>
+  <rect x="43" y="19.4" width="3.4" height="2.2" rx=".6" fill="#8a97a8"/><rect x="43.4" y="13.8" width="2" height="2" rx=".5" fill="#f2b13a"/>
+  <circle cx="11.5" cy="23" r="4.6" fill="#1d2430"/><circle cx="11.5" cy="23" r="1.9" fill="#c9cfd8"/>
+  <circle cx="37.5" cy="23" r="4.6" fill="#1d2430"/><circle cx="37.5" cy="23" r="1.9" fill="#c9cfd8"/></svg>`;
+const ICONS = {camioneta:CAR, pickup:PICKUP, ambulancia:AMBU, bicicleta:BIKE};
+// vehicle types offered in the panel: [clase, emoji, name]
+const CLASES = [["camioneta", "🚙", "Camioneta"], ["pickup", "🛻", "Pickup"], ["ambulancia", "🚑", "Ambulancia"], ["bicicleta", "🚲", "Bicicleta"]];
 const shape = r => ICONS[r?.clase] || CAR;
 // unit number shown on the marker: "Móvil 20" -> "20", "MOVIL 007" -> "007"
 const unidad = n => (String(n || "").match(/(\d+)(?!.*\d)/) || [])[1] || "";
@@ -176,7 +199,7 @@ const km = r => r.km_hoy == null && r.km_total == null ? "" : `<div class="lockm
   ${r.km_hoy != null ? `<span><b>${nf(r.km_hoy)} km</b> hoy</span>` : ""}
   ${r.tipo === "vehiculo" && r.km_total != null ? `<span>Odómetro <b>${nf(r.km_total, 0)} km</b></span>` : ""}</div>`;
 const RUMBOS = ["norte", "noreste", "este", "sureste", "sur", "suroeste", "oeste", "noroeste"];
-const popup = r => `<div class="locpop"><b>${esc(r.nombre)}</b>${r.estado === "fin" ? `<div class="fin">🅿 Estacionado desde ${esc(IncUtil.hora(r.fin_en || r.creado))}</div>` : r.estado === "pausa" ? `<div class="fin pa">⏸ En pausa desde ${esc(IncUtil.hora(r.fin_en || r.creado))}</div>` : ""}<div class="sub">${r.tipo === "vehiculo" ? (r.clase === "bicicleta" ? "Bicicleta" : "Vehículo") : "Persona"} · <b>${esc(visto(r.creado))}</b><br>
+const popup = r => `<div class="locpop"><b>${esc(r.nombre)}</b>${r.estado === "fin" ? `<div class="fin">🅿 Estacionado desde ${esc(IncUtil.hora(r.fin_en || r.creado))}</div>` : r.estado === "pausa" ? `<div class="fin pa">⏸ En pausa desde ${esc(IncUtil.hora(r.fin_en || r.creado))}</div>` : ""}<div class="sub">${r.tipo === "vehiculo" ? ((CLASES.find(c => c[0] === r.clase) || CLASES[0])[2]) : "Persona"} · <b>${esc(visto(r.creado))}</b><br>
   ${IncUtil.when(r.creado)}${r.precision_m != null ? ` · ±${Math.round(r.precision_m)} m` : ""}</div>
   ${r.estado ? "" : [r.velocidad != null ? `${Math.round(r.velocidad)} km/h` : "", r.rumbo != null && (r.velocidad == null || r.velocidad >= 3) ? "hacia el " + RUMBOS[Math.round(r.rumbo / 45) % 8] : ""].filter(Boolean).join(" · ")}
   ${km(r)}
@@ -369,12 +392,12 @@ async function renderVeh(){
   vehs = data;
   vbody().innerHTML = `<p>Cada vehículo tiene su código QR. Imprímalo y péguelo en el vehículo: el conductor lo escanea con su celular y desde ese momento el celular envía la ubicación como ese vehículo.</p>
     <form class="vehadd"><input name="n" maxlength="40" placeholder="Móvil 20 - Ibagué" aria-label="Nombre del vehículo" required>
-      <select name="c" aria-label="Tipo"><option value="camioneta">🚙 Camioneta</option><option value="bicicleta">🚲 Bicicleta</option></select>
+      <select name="c" aria-label="Tipo">${CLASES.map(([k, e, n]) => `<option value="${k}">${e} ${n}</option>`).join("")}</select>
       <button class="btn new">＋ Agregar</button></form>
     ${vmsg ? `<p>${vmsg}</p>` : ""}
     <ul class="vehlist">${vehs.map(v => `<li class="${v.activo ? "" : "off"}"><span class="vn"><span class="vi">${shape(v)}</span><b>${esc(v.nombre)}</b>${v.activo ? servicio(v) : " · desactivado"}</span>
       <span class="vb">${v.activo ? `<button type="button" class="btn" data-vqr="${v.id}">Código QR</button>` : ""}
-      <select data-vclase="${v.id}" aria-label="Tipo de ${esc(v.nombre)}">${[["camioneta", "🚙"], ["bicicleta", "🚲"]].map(([k, e]) => `<option value="${k}"${v.clase === k ? " selected" : ""}>${e}</option>`).join("")}</select>
+      <select data-vclase="${v.id}" aria-label="Tipo de ${esc(v.nombre)}">${CLASES.map(([k, e]) => `<option value="${k}"${v.clase === k ? " selected" : ""}>${e}</option>`).join("")}</select>
       ${rows["d:" + v.id]?.estado === "fin" ? `<button type="button" class="btn" data-est="d:${v.id}" data-v="">▶ Reanudar</button>` : ""}
       <button type="button" class="btn" data-von="${v.id}" data-a="${v.activo ? 0 : 1}">${v.activo ? "Desactivar" : "Activar"}</button></span></li>`).join("") || "<li>Aún no hay vehículos.</li>"}</ul>
     ${informeHtml()}`;
