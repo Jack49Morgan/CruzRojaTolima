@@ -18,7 +18,11 @@ import { createClient } from "npm:@supabase/supabase-js@2.49.4";
 
 const CORS = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS"};
-const json = (o: unknown, status = 200) => new Response(JSON.stringify(o), {status, headers: {...CORS, "Content-Type": "application/json"}});
+const json = (o: unknown, status = 200) => {
+  // errors go to Edge Functions > ubicacion > Logs too, since OwnTracks only shows the status code
+  if (status >= 400) console.error("ubicacion", status, JSON.stringify(o));
+  return new Response(JSON.stringify(o), {status, headers: {...CORS, "Content-Type": "application/json"}});
+};
 const env = (k: string) => Deno.env.get(k) ?? "";
 const num = (v: unknown) => { if (v === null || v === undefined || v === "") return null; const n = Number(v); return Number.isFinite(n) ? n : null; };
 const KNOTS = 1.852, MS = 3.6;   // to km/h
@@ -78,6 +82,11 @@ function parse(url: URL, body: Record<string, any> | null, auth: string): {key: 
 }
 
 Deno.serve(async req => {
+  try { return await handle(req); }
+  catch (e) { return json({error: "Error inesperado: " + ((e as Error)?.message ?? String(e))}, 500); }
+});
+
+async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return new Response("ok", {headers: CORS});
   if (req.method !== "POST" && req.method !== "GET") return json({error: "Use POST"}, 405);
   const url = new URL(req.url);
@@ -89,9 +98,10 @@ Deno.serve(async req => {
   const done = () => owntracks ? json([]) : json({ok: true});
   if (!key) return json({error: "Falta la clave del dispositivo"}, 401);
 
+  if (!env("SUPABASE_URL") || !env("SUPABASE_SERVICE_ROLE_KEY")) return json({error: "La función no recibe SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY"}, 500);
   const admin = createClient(env("SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"), {auth: {persistSession: false}});
   const {data: dev, error} = await admin.from("dispositivos").select("id,nombre,tipo,activo").eq("clave_hash", await sha256(key)).maybeSingle();
-  if (error) return json({error: error.message}, 500);
+  if (error) return json({error: "No se pudo leer la tabla dispositivos (¿se corrió ubicaciones.sql?): " + error.message}, 500);
   if (!dev || !dev.activo) return json({error: "Clave de dispositivo no válida o desactivada"}, 403);
   if (!pos) return done();   // OwnTracks also sends other messages (status, waypoints…): accept and ignore them
   if (!(pos.lat >= -90 && pos.lat <= 90 && pos.lon >= -180 && pos.lon <= 180) || (pos.lat === 0 && pos.lon === 0))
@@ -123,6 +133,6 @@ Deno.serve(async req => {
     bateria: pos.batt === null ? null : r(Math.max(0, Math.min(100, pos.batt)), 0), fuente: pos.fuente, usuario: null,
     odometro_km: pos.odo ?? null,   // the kilometraje (km_hoy, km_total) is worked out by the ubicaciones_km trigger
     creado: new Date(t).toISOString()});
-  if (e2) return json({error: e2.message}, 500);
+  if (e2) return json({error: "No se pudo guardar la posición (¿se corrió la última versión de ubicaciones.sql?): " + e2.message}, 500);
   return done();
-});
+}
