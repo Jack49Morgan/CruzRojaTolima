@@ -142,15 +142,30 @@ const CAR = `<svg viewBox="0 0 48 30" width="44" height="27.5" aria-hidden="true
   <path d="M18.4 15.2H21V12.6H23.6V15.2H26.2V17.8H23.6V20.4H21V17.8H18.4Z" fill="#c8102e"/>
   <circle cx="11.5" cy="23" r="4.6" fill="#1d2430"/><circle cx="11.5" cy="23" r="1.9" fill="#c9cfd8"/>
   <circle cx="36.5" cy="23" r="4.6" fill="#1d2430"/><circle cx="36.5" cy="23" r="1.9" fill="#c9cfd8"/></svg>`;
+// red classic road bike (Móvil 6000), same size and direction as the truck
+const BIKE = `<svg viewBox="0 0 48 30" width="44" height="27.5" aria-hidden="true">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="10.5" cy="20" r="8" stroke="#fff" stroke-width="4"/><circle cx="37.5" cy="20" r="8" stroke="#fff" stroke-width="4"/>
+    <circle cx="10.5" cy="20" r="8" stroke="#1d2430" stroke-width="2.2"/><circle cx="37.5" cy="20" r="8" stroke="#1d2430" stroke-width="2.2"/>
+    <path d="M10.5 20L23 20.5L19.5 8.5M10.5 20L19.8 9.5M19.5 9H33M23 20.5L33.6 11M33 8.3L37.5 20" stroke="#fff" stroke-width="4.2"/>
+    <path d="M10.5 20L23 20.5L19.5 8.5M10.5 20L19.8 9.5M19.5 9H33M23 20.5L33.6 11M33 8.3L37.5 20" stroke="#c8102e" stroke-width="2.4"/>
+    <path d="M32.6 8.2L33.6 5.6H37.2Q39.4 5.6 39.4 7.8V9.2Q39.4 10.8 37.8 10.8" stroke="#1d2430" stroke-width="1.6"/>
+    <path d="M16.6 6.6H22.4" stroke="#1d2430" stroke-width="2.2"/><path d="M19.5 6.8V8.6" stroke="#1d2430" stroke-width="1.4"/>
+  </g>
+  <circle cx="23" cy="20.5" r="2" fill="#1d2430"/><circle cx="10.5" cy="20" r="1.3" fill="#1d2430"/><circle cx="37.5" cy="20" r="1.3" fill="#1d2430"/>
+</svg>`;
+const ICONS = {camioneta:CAR, bicicleta:BIKE};
+const shape = r => ICONS[r?.clase] || CAR;
 // unit number shown on the marker: "Móvil 20" -> "20", "MOVIL 007" -> "007"
 const unidad = n => (String(n || "").match(/(\d+)(?!.*\d)/) || [])[1] || "";
-const icon = r => { const a = ageMin(r.creado), cls = a > OLD_MIN ? " old" : a > STALE_MIN ? " stale" : "";
+const icon = r => { const a = ageMin(r.creado), cls = r.estado === "fin" ? " parked" : r.estado === "pausa" ? " paused" : a > OLD_MIN ? " old" : a > STALE_MIN ? " stale" : "";
   if (r.tipo === "vehiculo") {
     // the truck faces the way it is going (left or right); the small arrow gives the exact heading
     const west = r.rumbo != null && r.rumbo > 180 && r.rumbo < 360, num = unidad(r.nombre);
-    const moving = r.rumbo != null && (r.velocidad == null || r.velocidad >= 3);
+    const moving = !r.estado && r.rumbo != null && (r.velocidad == null || r.velocidad >= 3);
     return L.divIcon({className:"locpin car" + cls, iconSize:[48, 34], iconAnchor:[24, 30], popupAnchor:[0, -26],
-      html:`<span class="body${west ? " west" : ""}">${CAR}</span>${num ? `<b class="num">${esc(num)}</b>` : ""}`
+      html:`<span class="body${west ? " west" : ""}">${shape(r)}</span>${num ? `<b class="num">${esc(num)}</b>` : ""}`
+        + (r.estado === "fin" ? `<i class="pk" title="Estacionado">P</i>` : r.estado === "pausa" ? `<i class="pk pa" title="En pausa">❚❚</i>` : "")
         + (moving ? `<i class="hd" title="Rumbo ${Math.round(r.rumbo)}°"><svg viewBox="0 0 16 16" width="16" height="16" style="transform:rotate(${Math.round(r.rumbo)}deg)"><circle cx="8" cy="8" r="7.2" fill="#0b2a5b" stroke="#fff" stroke-width="1.5"/><path d="M8 3.2L11.6 12 8 10 4.4 12Z" fill="#fff"/></svg></i>` : "")});
   }
   return L.divIcon({className:"locpin" + cls, iconSize:[30, 30], iconAnchor:[15, 15], popupAnchor:[0, -14],
@@ -161,16 +176,17 @@ const km = r => r.km_hoy == null && r.km_total == null ? "" : `<div class="lockm
   ${r.km_hoy != null ? `<span><b>${nf(r.km_hoy)} km</b> hoy</span>` : ""}
   ${r.tipo === "vehiculo" && r.km_total != null ? `<span>Odómetro <b>${nf(r.km_total, 0)} km</b></span>` : ""}</div>`;
 const RUMBOS = ["norte", "noreste", "este", "sureste", "sur", "suroeste", "oeste", "noroeste"];
-const popup = r => `<div class="locpop"><b>${esc(r.nombre)}</b><div class="sub">${r.tipo === "vehiculo" ? "Vehículo" : "Persona"} · <b>${esc(visto(r.creado))}</b><br>
+const popup = r => `<div class="locpop"><b>${esc(r.nombre)}</b>${r.estado === "fin" ? `<div class="fin">🅿 Estacionado desde ${esc(IncUtil.hora(r.fin_en || r.creado))}</div>` : r.estado === "pausa" ? `<div class="fin pa">⏸ En pausa desde ${esc(IncUtil.hora(r.fin_en || r.creado))}</div>` : ""}<div class="sub">${r.tipo === "vehiculo" ? (r.clase === "bicicleta" ? "Bicicleta" : "Vehículo") : "Persona"} · <b>${esc(visto(r.creado))}</b><br>
   ${IncUtil.when(r.creado)}${r.precision_m != null ? ` · ±${Math.round(r.precision_m)} m` : ""}</div>
-  ${[r.velocidad != null ? `${Math.round(r.velocidad)} km/h` : "", r.rumbo != null && (r.velocidad == null || r.velocidad >= 3) ? "hacia el " + RUMBOS[Math.round(r.rumbo / 45) % 8] : "",
-     r.bateria != null ? `🔋 ${Math.round(r.bateria)} %` : ""].filter(Boolean).join(" · ")}
+  ${r.estado ? "" : [r.velocidad != null ? `${Math.round(r.velocidad)} km/h` : "", r.rumbo != null && (r.velocidad == null || r.velocidad >= 3) ? "hacia el " + RUMBOS[Math.round(r.rumbo / 45) % 8] : ""].filter(Boolean).join(" · ")}
   ${km(r)}
   <div class="locbtns"><button type="button" class="btn" data-trail="${esc(r.clave)}">Recorrido 24 h · exportar</button>
   ${/^[dt]:/.test(r.clave) ? `<button type="button" class="btn" data-rename="${esc(r.clave)}">Cambiar nombre</button>
-    <button type="button" class="btn" data-odo="${esc(r.clave)}">Odómetro</button>` : ""}
+    <button type="button" class="btn" data-odo="${esc(r.clave)}">Odómetro</button>
+    ${r.estado ? `<button type="button" class="btn" data-est="${esc(r.clave)}" data-v="">▶ Reanudar</button>`
+      : `<button type="button" class="btn" data-est="${esc(r.clave)}" data-v="pausa">⏸ Pausar</button><button type="button" class="btn" data-est="${esc(r.clave)}" data-v="fin">🅿 Terminar recorrido</button>`}` : ""}
   ${/^d:\d+$/.test(r.clave) ? `<button type="button" class="btn" data-popqr="${esc(r.clave.slice(2))}">Código QR</button>` : ""}</div></div>`;
-const tip = r => `${esc(r.nombre)} <span>${esc(visto(r.creado).replace("visto ", ""))}</span>`;
+const tip = r => `${esc(r.nombre)} <span>${r.estado === "fin" ? "estacionado" : r.estado === "pausa" ? "en pausa" : esc(visto(r.creado).replace("visto ", ""))}</span>`;
 function put(r){
   rows[r.clave] = r;
   let m = marks[r.clave];
@@ -258,6 +274,15 @@ async function rename(clave){
   if (error) return alert("No se pudo cambiar el nombre: " + error.message);
   put({...r, nombre:n.trim().slice(0, 40)});
 }
+// Pausar / Terminar recorrido / Reanudar from the map: the vehicle stays where it is and its positions are ignored
+// until it is resumed (the driver can do the same from the QR page; ending there also silences OwnTracks)
+async function estado(clave, v){
+  const r = rows[clave]; if (!r) return;
+  if (v === "fin" && !confirm(`¿Terminar el recorrido de ${r.nombre}? Queda estacionado donde está y no sigue al celular hasta reanudar.`)) return;
+  const {error} = await sb.rpc("estado_vehiculo", {clave, estado:v});
+  if (error) return alert("No se pudo cambiar: " + (/estado_vehiculo|function|schema cache/i.test(error.message) ? "falta correr la última versión de supabase/ubicaciones.sql." : error.message));
+  put({...r, estado:v, fin_en:v ? new Date().toISOString() : null});
+}
 // "Odómetro": the team types the vehicle's real odometer reading; from then on the GPS kilometres add to it
 async function odometro(clave){
   const r = rows[clave]; if (!r) return;
@@ -294,6 +319,7 @@ window.initUbicaciones = (m, c) => {
   document.addEventListener("click", e => { const b = e.target.closest("[data-trail]"); if (b) showTrail(b.dataset.trail);
     const rn = e.target.closest("[data-rename]"); if (rn) rename(rn.dataset.rename);
     const od = e.target.closest("[data-odo]"); if (od) odometro(od.dataset.odo);
+    const es = e.target.closest("[data-est]"); if (es) estado(es.dataset.est, es.dataset.v || null);
     const pq = e.target.closest("[data-popqr]"); if (pq && vbtn) { map.closePopup(); openVeh(+pq.dataset.popqr); } });
   map.on("overlayremove", e => { if (e.layer === layer) { trail.clearLayers(); trailBar.hidden = true; } });
   const sync = () => IncStore.user() ? on() : off();
@@ -316,20 +342,25 @@ async function qrSvg(text, px = 260){
   let d = ""; for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c + m} ${r + m}h1v1h-1z`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n + 2 * m} ${n + 2 * m}" width="${px}" height="${px}" shape-rendering="crispEdges" role="img" aria-label="Código QR"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
 }
-const card = (v, svg) => `<div class="vehcard"><div class="vhd">${CAR}<div><b>${esc(v.nombre)}</b><span>Cruz Roja Colombiana · Seccional Tolima</span></div></div>
+const card = (v, svg) => `<div class="vehcard"><div class="vhd">${shape(v)}<div><b>${esc(v.nombre)}</b><span>Cruz Roja Colombiana · Seccional Tolima</span></div></div>
   ${svg}<p><b>Conductor:</b> escanee este código con la cámara del celular para enviar la ubicación como <b>${esc(v.nombre)}</b>
-  (necesita la aplicación OwnTracks). Al cambiar de vehículo, escanee el código del otro.</p></div>`;
+  (necesita la aplicación OwnTracks). Al cambiar de vehículo, escanee el código del otro.
+  Al terminar el día, vuelva a escanearlo y toque <b>Terminar recorrido</b>.</p></div>`;
 let vehs = [], vmsg = "";
 async function renderVeh(){
   const {data, error} = await sb.rpc("vehiculos");
   if (error) { vbody().innerHTML = `<p class="err">${/vehiculos|function|schema cache/i.test(error.message) ? "Falta correr la última versión de supabase/ubicaciones.sql." : esc(error.message)}</p>`; return; }
   vehs = data;
   vbody().innerHTML = `<p>Cada vehículo tiene su código QR. Imprímalo y péguelo en el vehículo: el conductor lo escanea con su celular y desde ese momento el celular envía la ubicación como ese vehículo.</p>
-    <form class="vehadd"><input name="n" maxlength="40" placeholder="Móvil 20 - Ibagué" aria-label="Nombre del vehículo" required><button class="btn new">＋ Agregar</button></form>
+    <form class="vehadd"><input name="n" maxlength="40" placeholder="Móvil 20 - Ibagué" aria-label="Nombre del vehículo" required>
+      <select name="c" aria-label="Tipo"><option value="camioneta">🚙 Camioneta</option><option value="bicicleta">🚲 Bicicleta</option></select>
+      <button class="btn new">＋ Agregar</button></form>
     ${vmsg ? `<p>${vmsg}</p>` : ""}
-    <ul class="vehlist">${vehs.map(v => `<li class="${v.activo ? "" : "off"}"><span class="vn"><b>${esc(v.nombre)}</b>${v.activo ? "" : " · desactivado"}</span>
+    <ul class="vehlist">${vehs.map(v => `<li class="${v.activo ? "" : "off"}"><span class="vn"><span class="vi">${shape(v)}</span><b>${esc(v.nombre)}</b>${v.activo ? "" : " · desactivado"}</span>
       <span class="vb">${v.activo ? `<button type="button" class="btn" data-vqr="${v.id}">Código QR</button>` : ""}
-      <button type="button" class="btn" data-von="${v.id}" data-a="${v.activo ? 0 : 1}">${v.activo ? "Desactivar" : "Activar"}</button></span></li>`).join("") || "<li>Aún no hay vehículos.</li>"}</ul>`;
+      <select data-vclase="${v.id}" aria-label="Tipo de ${esc(v.nombre)}">${[["camioneta", "🚙"], ["bicicleta", "🚲"]].map(([k, e]) => `<option value="${k}"${v.clase === k ? " selected" : ""}>${e}</option>`).join("")}</select>
+      <button type="button" class="btn" data-von="${v.id}" data-a="${v.activo ? 0 : 1}">${v.activo ? "Desactivar" : "Activar"}</button></span></li>`).join("") || "<li>Aún no hay vehículos.</li>"}</ul>
+    ${informeHtml()}`;
 }
 async function showQr(id, nueva = false){
   const v = vehs.find(x => x.id === id); if (!v) return;
@@ -350,7 +381,7 @@ async function showQr(id, nueva = false){
 }
 async function openVeh(qrId){
   vmsg = ""; vbody().innerHTML = "<p>Cargando…</p>"; if (!vdlg().open) vdlg().showModal();
-  await renderVeh(); if (qrId) await showQr(qrId);
+  if (qrId) { await renderVeh(); await showQr(qrId); } else await cargarInforme();
 }
 function printQr(){
   const w = open("", "_blank"); if (!w) return alert("Permita las ventanas emergentes para imprimir.");
@@ -362,15 +393,73 @@ function printQr(){
     @page{margin:10mm}</style>${vbody().dataset.print}<script>onload=()=>{print()}<\/script>`);
   w.document.close();
 }
+/* ---------------- "Kilómetros por semana": km of each vehicle per day, for Excel ---------------- */
+const bogota = d => d.toLocaleDateString("en-CA", {timeZone:"America/Bogota"});   // "2026-11-25"
+const addDays = (iso, n) => { const d = new Date(iso + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const monday = iso => { const wd = (new Date(iso + "T12:00:00Z").getUTCDay() + 6) % 7; return addDays(iso, -wd); };
+let inf = (() => { const m = monday(bogota(new Date())); return {desde:m, hasta:addDays(m, 6), filas:null, msg:""}; })();
+const DIAS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"];
+const diaCorto = iso => { const d = new Date(iso + "T12:00:00Z"); return `${DIAS[(d.getUTCDay() + 6) % 7]} ${d.getUTCDate()}`; };
+// columns: one per day for up to 14 days, else one per week (from Monday)
+function tablaKm(filas, desde, hasta){
+  const days = []; for (let d = desde; d <= hasta; d = addDays(d, 1)) days.push(d);
+  const porSemana = days.length > 14;
+  const cols = porSemana ? [...new Set(days.map(monday))] : days;
+  const colOf = d => porSemana ? monday(d) : d;
+  const veh = new Map();
+  for (const f of filas) { const v = veh.get(f.clave) || {nombre:f.nombre, km:{}}; veh.set(f.clave, v);
+    v.km[colOf(f.dia)] = (v.km[colOf(f.dia)] || 0) + f.km; }
+  const list = [...veh.values()].sort((a, b) => a.nombre.localeCompare(b.nombre, "es", {numeric:true}));
+  for (const v of list) v.total = Object.values(v.km).reduce((a, b) => a + b, 0);
+  return {cols, porSemana, list};
+}
+function informeHtml(){
+  const t = inf.filas ? tablaKm(inf.filas, inf.desde, inf.hasta) : null;
+  const head = t ? t.cols.map(c => `<th>${t.porSemana ? "sem. " + diaCorto(c) : diaCorto(c)}</th>`).join("") : "";
+  return `<h4 class="infh">📊 Kilómetros por semana</h4>
+    <div class="infq"><label>Desde <input type="date" id="infd" value="${inf.desde}"></label><label>Hasta <input type="date" id="infh" value="${inf.hasta}"></label></div>
+    <div class="infq"><button type="button" class="btn" data-inf="esta">Esta semana</button><button type="button" class="btn" data-inf="pasada">Semana pasada</button>
+      <button type="button" class="btn" data-inf="ver">Ver</button><button type="button" class="btn new" data-inf="xls"${t?.list.length ? "" : " disabled"}>⬇ Descargar para Excel</button></div>
+    ${inf.msg ? `<p>${inf.msg}</p>` : ""}
+    ${t ? t.list.length ? `<div class="inft"><table><thead><tr><th>Vehículo</th>${head}<th>Total</th></tr></thead><tbody>
+      ${t.list.map(v => `<tr><th>${esc(v.nombre)}</th>${t.cols.map(c => `<td>${v.km[c] ? nf(v.km[c]) : "–"}</td>`).join("")}<td><b>${nf(v.total)}</b></td></tr>`).join("")}
+      </tbody></table></div><p class="sub">Km medidos por el GPS del celular de cada vehículo (hora Colombia).</p>`
+      : `<p class="sub">No hay kilómetros registrados en esas fechas.</p>` : ""}`;
+}
+async function cargarInforme(){
+  inf.msg = "Cargando…"; await renderVeh();
+  const {data, error} = await sb.rpc("km_por_dia", {desde:inf.desde, hasta:inf.hasta});
+  inf.filas = error ? null : data; inf.msg = error ? `<span class="err">${/km_por_dia|function|schema cache/i.test(error.message) ? "Falta correr la última versión de supabase/ubicaciones.sql." : esc(error.message)}</span>` : "";
+  await renderVeh();
+}
+function descargarInforme(){
+  const t = tablaKm(inf.filas || [], inf.desde, inf.hasta), n = v => String(Math.round(v * 10) / 10).replace(".", ",");
+  const lines = [`Kilómetros por vehículo;${inf.desde} a ${inf.hasta}`, "",
+    ["Vehículo", ...t.cols.map(c => (t.porSemana ? "Semana del " : "") + c), "Total km"].join(";"),
+    ...t.list.map(v => [`"${v.nombre.replace(/"/g, '""')}"`, ...t.cols.map(c => v.km[c] ? n(v.km[c]) : "0"), n(v.total)].join(";")),
+    ["Total", ...t.cols.map(c => n(t.list.reduce((a, v) => a + (v.km[c] || 0), 0))), n(t.list.reduce((a, v) => a + v.total, 0))].join(";")];
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["﻿" + lines.join("\r\n") + "\r\n"], {type:"text/csv;charset=utf-8"}));   // BOM + ";" = columns in Excel in Spanish
+  a.download = `km-vehiculos-${inf.desde}-a-${inf.hasta}.csv`; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
 if (vbtn) {
   vbtn.addEventListener("click", () => openVeh());
   document.addEventListener("submit", async e => { const f = e.target.closest?.(".vehadd"); if (!f) return; e.preventDefault();
-    const {data:id, error} = await sb.rpc("crear_vehiculo", {nombre:f.n.value.trim()});
+    const {data:id, error} = await sb.rpc("crear_vehiculo", {nombre:f.n.value.trim(), clase:f.c.value});
     vmsg = error ? `<span class="err">${esc(error.message)}</span>` : "";
     await renderVeh(); if (!error) showQr(id); });
+  document.addEventListener("change", async e => { const sel = e.target.closest?.("[data-vclase]"); if (!sel) return;
+    const {error} = await sb.rpc("clase_vehiculo", {id:+sel.dataset.vclase, clase:sel.value});
+    vmsg = error ? `<span class="err">${esc(error.message)}</span>` : ""; renderVeh(); });
   document.addEventListener("click", async e => {
     if (!e.target.closest?.("#vehb")) return;
     const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.inf) { const k = b.dataset.inf;
+      if (k === "esta" || k === "pasada") { const m = monday(bogota(new Date())), d = k === "esta" ? m : addDays(m, -7); inf.desde = d; inf.hasta = addDays(d, 6); }
+      else { inf.desde = vbody().querySelector("#infd").value || inf.desde; inf.hasta = vbody().querySelector("#infh").value || inf.hasta; }
+      if (inf.hasta < inf.desde) [inf.desde, inf.hasta] = [inf.hasta, inf.desde];
+      if (k === "xls") return descargarInforme();
+      return cargarInforme(); }
     if (b.dataset.vqr) showQr(+b.dataset.vqr);
     else if (b.dataset.vnew) showQr(+b.dataset.vnew, true);
     else if (b.dataset.vprint) printQr();

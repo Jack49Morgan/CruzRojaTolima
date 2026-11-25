@@ -12,6 +12,8 @@
 //     The key must belong to a dispositivo of tipo "servidor"; each tracker shows under its Traccar name.
 //     If the tracker reports the vehicle's odometer (attributes.odometer, metres) it becomes the kilometraje.
 //
+// ?clave=KEY&fin=1 (no position) = end of the day's trip: the map shows the vehicle parked until it moves again.
+//
 // Deploy with JWT verification OFF (these apps cannot send a Supabase token): see supabase/LEEME.md.
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
@@ -100,9 +102,26 @@ async function handle(req: Request): Promise<Response> {
 
   if (!env("SUPABASE_URL") || !env("SUPABASE_SERVICE_ROLE_KEY")) return json({error: "La función no recibe SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY"}, 500);
   const admin = createClient(env("SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"), {auth: {persistSession: false}});
-  const {data: dev, error} = await admin.from("dispositivos").select("id,nombre,tipo,activo").eq("clave_hash", await sha256(key)).maybeSingle();
+  const {data: dev, error} = await admin.from("dispositivos").select("id,nombre,tipo,activo,clase").eq("clave_hash", await sha256(key)).maybeSingle();
   if (error) return json({error: "No se pudo leer la tabla dispositivos (¿se corrió ubicaciones.sql?): " + error.message}, 500);
   if (!dev || !dev.activo) return json({error: "Clave de dispositivo no válida o desactivada"}, 403);
+  // "Terminar recorrido" (owntracks.html): the vehicle is parked where the driver is standing (the garage) and
+  // stays there: later positions from this key are ignored until the driver connects again (?inicio=1).
+  // "Pausar" works the same way (pinned where it is, positions ignored) but does not end the day; "Reanudar" = ?inicio=1
+  const parar = url.searchParams.has("fin") ? "fin" : url.searchParams.has("pausa") ? "pausa" : null;
+  if (parar && dev.tipo !== "servidor") {
+    const now = new Date().toISOString(), aqui = pos && pos.lat >= -90 && pos.lat <= 90 && pos.lon >= -180 && pos.lon <= 180 && !(pos.lat === 0 && pos.lon === 0);
+    const {error: ef} = aqui
+      ? await admin.from("ubicaciones").upsert({clave: `d:${dev.id}`, tipo: dev.tipo, nombre: dev.nombre, clase: dev.clase || "camioneta",
+          lat: pos!.lat, lon: pos!.lon, precision_m: pos!.acc === null ? null : Math.round(pos!.acc), velocidad: 0, rumbo: null,
+          fuente: "estacionado", usuario: null, odometro_km: null, creado: now, estado: parar, fin_en: now})
+      : await admin.from("ubicaciones").update({estado: parar, fin_en: now}).eq("clave", `d:${dev.id}`);
+    return ef ? json({error: ef.message}, 500) : json({ok: true, estado: parar});
+  }
+  if ((url.searchParams.has("inicio") || url.searchParams.has("reanudar")) && dev.tipo !== "servidor") {
+    const {error: ei} = await admin.from("ubicaciones").update({estado: null, fin_en: null}).eq("clave", `d:${dev.id}`);
+    return ei ? json({error: ei.message}, 500) : json({ok: true, inicio: true});
+  }
   if (!pos) return done();   // OwnTracks also sends other messages (status, waypoints…): accept and ignore them
   if (!(pos.lat >= -90 && pos.lat <= 90 && pos.lon >= -180 && pos.lon <= 180) || (pos.lat === 0 && pos.lon === 0))
     return json({error: "Coordenadas inválidas"}, 400);
@@ -118,7 +137,8 @@ async function handle(req: Request): Promise<Response> {
   const clave = servidor ? `t:${dev.id}:${pos.sub!.id}`.slice(0, 120) : `d:${dev.id}`;
   // apps queue positions while there is no signal and send them later with the time the GPS took them:
   // an older one goes only into the 24 h trail, so it never moves the marker back
-  const {data: cur} = await admin.from("ubicaciones").select("creado").eq("clave", clave).maybeSingle();
+  const {data: cur} = await admin.from("ubicaciones").select("creado,estado").eq("clave", clave).maybeSingle();
+  if (cur?.estado === "fin" || cur?.estado === "pausa") return done();   // parked or paused: the phone may keep sending, the vehicle stays put
   if (cur && +new Date(cur.creado) > t) {
     const {error: e1} = await admin.from("ubicaciones_recorrido").insert({clave, lat: pos.lat, lon: pos.lon, velocidad: pos.kmh === null ? null : Math.round(pos.kmh * 10) / 10, creado: new Date(t).toISOString()});
     return e1 ? json({error: e1.message}, 500) : done();
@@ -131,7 +151,9 @@ async function handle(req: Request): Promise<Response> {
     clave, tipo: servidor ? "vehiculo" : dev.tipo, nombre: (alias?.nombre || (servidor ? pos.sub!.nombre : dev.nombre)).slice(0, 60),
     lat: pos.lat, lon: pos.lon, precision_m: r(pos.acc, 0), velocidad: r(pos.kmh), rumbo: r(pos.rumbo, 0),
     bateria: pos.batt === null ? null : r(Math.max(0, Math.min(100, pos.batt)), 0), fuente: pos.fuente, usuario: null,
-    odometro_km: pos.odo ?? null,   // the kilometraje (km_hoy, km_total) is worked out by the ubicaciones_km trigger
+    odometro_km: pos.odo ?? null,
+    clase: servidor ? "camioneta" : (dev.clase || "camioneta"),   // icon on the map
+    estado: null, fin_en: null,   // a new position means the vehicle is out again   // the kilometraje (km_hoy, km_total) is worked out by the ubicaciones_km trigger
     creado: new Date(t).toISOString()});
   if (e2) return json({error: "No se pudo guardar la posición (¿se corrió la última versión de ubicaciones.sql?): " + e2.message}, 500);
   return done();

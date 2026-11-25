@@ -23,6 +23,12 @@ li{margin:6px 0}
 .stores a{flex:1;text-align:center;border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--fg);text-decoration:none;font-size:14px}
 .err{color:var(--red);font-weight:600}
 code{font-size:13px;word-break:break-all}
+h2{font-size:17px;margin:22px 0 4px;padding-top:14px;border-top:1px solid var(--line)}
+button.big{width:100%;border:0;font:inherit;font-weight:700;font-size:17px;cursor:pointer}
+.big.end{background:var(--navy)}
+.row{display:flex;gap:8px}.row .big{flex:1;margin:8px 0}
+.big.pause{background:#e68a00}
+@media (prefers-color-scheme:dark){.big.end{background:#2f4f86}}
 </style>
 </head>
 <body>
@@ -43,21 +49,65 @@ code{font-size:13px;word-break:break-all}
   const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(cfg))));
   const link = "owntracks:///config?inline=" + encodeURIComponent(b64);
   const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  // OwnTracks "Quiet" mode (monitoring -1): it stops sending until the driver connects again
+  const quiet = "owntracks:///config?inline=" + encodeURIComponent(btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify({...cfg, monitoring:-1})))));
   document.title = "Conectar " + nombre;
   c.innerHTML = `<h1>🚑 ${esc(nombre)}</h1>
     <p class="sub">Cruz Roja Colombiana, Seccional Tolima · ubicación en vivo</p>
     <p>Este celular va a enviar su ubicación como <b>${esc(nombre)}</b>. Si estaba conectado a otro vehículo, cambia a este.</p>
-    <a class="big" href="${link}">Conectar a ${esc(nombre)} en OwnTracks</a>
+    <a class="big" id="go" href="${link}">Conectar a ${esc(nombre)} en OwnTracks</a>
     <ol>
       <li>Toque el botón rojo y elija <b>Abrir</b> en OwnTracks. Si pregunta, acepte la configuración (<b>Import</b> o <b>Importar</b>).</li>
       <li>Dé permiso de ubicación <b>${ios ? "Siempre" : "Permitir todo el tiempo"}</b>${ios ? " con Ubicación exacta" : " y desactive el ahorro de batería para OwnTracks"}.</li>
       <li>En OwnTracks toque la flecha de publicar (⇧) una vez. En el tablero aparece ${esc(nombre)}.</li>
     </ol>
+    <h2>Pausa</h2>
+    <p>Para una parada (almuerzo, atención): el vehículo queda fijo en el mapa donde está y no sigue al celular. El día no se cierra.</p>
+    <div class="row"><button type="button" class="big pause" id="pausa">⏸ Pausar</button><button type="button" class="big" id="reanudar">▶ Reanudar</button></div>
+    <p class="sub" id="pm">Deje esta página abierta (o guárdela) para reanudar sin escanear de nuevo.</p>
+    <h2>Al terminar el día</h2>
+    <p>Vuelva a escanear el código del vehículo y toque:</p>
+    <button type="button" class="big end" id="fin">🅿 Terminar recorrido de ${esc(nombre)}</button>
+    <p class="sub" id="finm">Tóquelo <b>donde deja el vehículo</b> (por ejemplo en el garaje): queda estacionado en ese punto del mapa
+      aunque usted se vaya con el celular. El celular deja de enviar y los km del día quedan guardados. Para salir otra vez, toque el botón rojo de arriba.</p>
     <p>¿No tiene OwnTracks? Instálelo primero y vuelva a escanear el código:</p>
     <div class="stores"><a href="https://apps.apple.com/app/owntracks/id692424691">iPhone (App Store)</a>
       <a href="https://play.google.com/store/apps/details?id=org.owntracks.android">Android (Google Play)</a></div>
     <details style="margin-top:14px"><summary>Configurar a mano</summary>
       <p>Modo <b>HTTP</b>, URL:<br><code>${esc(url)}</code><br>TrackerID: <b>${esc(cfg.tid)}</b>, seguimiento en <b>Move</b>.</p></details>`;
+  // "Conectar": tell the server the vehicle is out again (so its positions count), then hand over to OwnTracks
+  document.getElementById("go").addEventListener("click", async e => {
+    e.preventDefault();
+    await Promise.race([fetch(url + "&inicio=1", {method:"POST"}).catch(() => {}), new Promise(r => setTimeout(r, 3000))]);
+    location.href = link;
+  });
+  const post = async q => { const r = await fetch(url + q, {method:"POST"});
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || "error " + r.status); };
+  document.getElementById("pausa").addEventListener("click", async e => {
+    const m = document.getElementById("pm"); e.target.disabled = true; m.textContent = "Pausando…";
+    try { const c = await aqui(); await post("&pausa=1" + (c ? `&lat=${c.latitude.toFixed(6)}&lon=${c.longitude.toFixed(6)}&accuracy=${Math.round(c.accuracy)}` : ""));
+      m.innerHTML = "<b>⏸ En pausa.</b> El vehículo queda fijo en el mapa. Toque <b>Reanudar</b> al seguir."; }
+    catch (err) { m.innerHTML = `<span class="err">No se pudo pausar: ${esc(err.message)}</span>`; }
+    e.target.disabled = false; });
+  document.getElementById("reanudar").addEventListener("click", async e => {
+    const m = document.getElementById("pm"); e.target.disabled = true; m.textContent = "Reanudando…";
+    try { await post("&reanudar=1"); m.innerHTML = "<b>▶ En marcha.</b> El mapa vuelve a seguir al vehículo."; }
+    catch (err) { m.innerHTML = `<span class="err">No se pudo reanudar: ${esc(err.message)}</span>`; }
+    e.target.disabled = false; });
+  // where the phone is right now = where the vehicle stays parked (up to 10 s to get a fix)
+  const aqui = () => new Promise(ok => { if (!navigator.geolocation) return ok(null);
+    navigator.geolocation.getCurrentPosition(p => ok(p.coords), () => ok(null), {enableHighAccuracy:true, timeout:10000, maximumAge:30000}); });
+  document.getElementById("fin").addEventListener("click", async e => {
+    const m = document.getElementById("finm"); e.target.disabled = true; m.textContent = "Tomando la ubicación del vehículo…";
+    try { const c = await aqui();
+      const q = c ? `&lat=${c.latitude.toFixed(6)}&lon=${c.longitude.toFixed(6)}&accuracy=${Math.round(c.accuracy)}` : "";
+      m.textContent = "Terminando…";
+      const r = await fetch(url + "&fin=1" + q, {method:"POST"}); if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || "error " + r.status);
+      if (!c) m.textContent = "Sin GPS en este momento: el vehículo queda en su última posición."; }
+    catch (err) { m.innerHTML = `<span class="err">No se pudo avisar al tablero (${esc(err.message)}). Igual se detiene el envío.</span>`; }
+    location.href = quiet;   // OwnTracks opens and switches to Quiet
+    setTimeout(() => { e.target.disabled = false; if (!m.querySelector(".err")) m.innerHTML = `<b>Listo, vehículo estacionado.</b> Si OwnTracks pregunta, acepte la configuración. Para salir otra vez toque <b>Conectar</b>.`; }, 1500);
+  });
 })();
 </script>
 </body>

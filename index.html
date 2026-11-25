@@ -252,6 +252,25 @@ h2 button.info{vertical-align:2px}
 .locpin.car .num{position:absolute;left:-2px;top:-6px;min-width:12px;padding:0 4px;border-radius:8px;background:#c8102e;color:#fff;border:1.5px solid #fff;font:700 11px/14px var(--sans);text-align:center;box-shadow:0 1px 2px #0006}
 .locpin.car .hd{position:absolute;right:-4px;top:-6px;width:16px;height:16px;filter:drop-shadow(0 1px 1px #0006)}
 .locpin.car .hd svg{display:block}
+.locpin.car .pk{position:absolute;right:-4px;top:-6px;width:16px;height:16px;border-radius:4px;background:#1f6fb2;color:#fff;border:1.5px solid #fff;box-sizing:border-box;font:700 10px/13px var(--sans);text-align:center;font-style:normal}
+.locpin.car .pk.pa{background:#e68a00;font-size:7px;letter-spacing:-1px}
+.locpin.paused .body{opacity:.85;filter:saturate(.6) drop-shadow(0 1px 1.5px #0008)}
+.locpop .fin.pa{color:#b86e00}
+.locpin.parked .body{opacity:.75;filter:grayscale(.6) drop-shadow(0 1px 1.5px #0008)}
+.locpop .fin{margin:2px 0;color:#1f6fb2;font-weight:600}
+#vehdlg .vehadd select,#vehdlg .vehlist select{font:inherit;padding:5px 4px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg)}
+#vehdlg .vn{display:flex;gap:8px;align-items:center}
+#vehdlg .vi svg{width:36px;height:22.5px;display:block}
+#vehdlg .infh{margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--line);font-size:15px}
+#vehdlg .infq{display:flex;gap:6px 10px;flex-wrap:wrap;align-items:center;margin:6px 0}
+#vehdlg .infq input{font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg)}
+#vehdlg{overflow-x:hidden}
+#vehdlg .inft{overflow-x:auto;max-width:100%;margin:8px 0}
+#vehdlg .inft table{border-collapse:collapse;font-size:13px;white-space:nowrap}
+#vehdlg .inft th,#vehdlg .inft td{display:table-cell!important;padding:4px 8px;border-bottom:1px solid var(--line);text-align:right!important}
+#vehdlg .inft tbody th{text-align:left!important}
+#vehdlg .inft tbody th{text-align:left;font-weight:600}
+#vehdlg .sub{color:var(--muted);font-size:12px}
 .locpin.stale>*{opacity:.6;filter:saturate(.4)}
 .locpin.old>*{opacity:.4;filter:grayscale(1)}
 .locpop .locbtns{display:flex;gap:6px;flex-wrap:wrap}
@@ -488,7 +507,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
 <script src="vendor/supabase-2.118.0.min.js"></script>
 <script src="incstore.js?v=26"></script>
 <script src="alertas.js?v=2" defer></script>
-<script src="ubicaciones.js?v=5"></script>
+<script src="ubicaciones.js?v=7"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
