@@ -155,13 +155,20 @@ const icon = r => { const a = ageMin(r.creado), cls = a > OLD_MIN ? " old" : a >
   }
   return L.divIcon({className:"locpin" + cls, iconSize:[30, 30], iconAnchor:[15, 15], popupAnchor:[0, -14],
     html:`<span class="dotp" style="--c:${COLORS[r.tipo] || "#616161"}">🧍</span>`}); };
+// kilometraje (summed in the database, kept after the 24 h): today and, for vehicles, the odometer
+const nf = (v, d = 1) => Number(v).toLocaleString("es-CO", {maximumFractionDigits:d, minimumFractionDigits:d});
+const km = r => r.km_hoy == null && r.km_total == null ? "" : `<div class="lockm">
+  ${r.km_hoy != null ? `<span><b>${nf(r.km_hoy)} km</b> hoy</span>` : ""}
+  ${r.tipo === "vehiculo" && r.km_total != null ? `<span>Odómetro <b>${nf(r.km_total, 0)} km</b></span>` : ""}</div>`;
 const RUMBOS = ["norte", "noreste", "este", "sureste", "sur", "suroeste", "oeste", "noroeste"];
 const popup = r => `<div class="locpop"><b>${esc(r.nombre)}</b><div class="sub">${r.tipo === "vehiculo" ? "Vehículo" : "Persona"} · <b>${esc(visto(r.creado))}</b><br>
   ${IncUtil.when(r.creado)}${r.precision_m != null ? ` · ±${Math.round(r.precision_m)} m` : ""}</div>
   ${[r.velocidad != null ? `${Math.round(r.velocidad)} km/h` : "", r.rumbo != null && (r.velocidad == null || r.velocidad >= 3) ? "hacia el " + RUMBOS[Math.round(r.rumbo / 45) % 8] : "",
      r.bateria != null ? `🔋 ${Math.round(r.bateria)} %` : ""].filter(Boolean).join(" · ")}
+  ${km(r)}
   <div class="locbtns"><button type="button" class="btn" data-trail="${esc(r.clave)}">Ver recorrido (24 h)</button>
-  ${/^[dt]:/.test(r.clave) ? `<button type="button" class="btn" data-rename="${esc(r.clave)}">Cambiar nombre</button>` : ""}</div></div>`;
+  ${/^[dt]:/.test(r.clave) ? `<button type="button" class="btn" data-rename="${esc(r.clave)}">Cambiar nombre</button>
+    <button type="button" class="btn" data-odo="${esc(r.clave)}">Odómetro</button>` : ""}</div></div>`;
 const tip = r => `${esc(r.nombre)} <span>${esc(visto(r.creado).replace("visto ", ""))}</span>`;
 function put(r){
   rows[r.clave] = r;
@@ -200,6 +207,18 @@ async function rename(clave){
   if (error) return alert("No se pudo cambiar el nombre: " + error.message);
   put({...r, nombre:n.trim().slice(0, 40)});
 }
+// "Odómetro": the team types the vehicle's real odometer reading; from then on the GPS kilometres add to it
+async function odometro(clave){
+  const r = rows[clave]; if (!r) return;
+  const v = prompt(`Lectura actual del odómetro de ${r.nombre}, en km (la que marca el tablero del vehículo):`,
+    r.km_total != null ? Math.round(r.km_total) : "");
+  if (v === null || !v.trim()) return;
+  const n = Number(v.replace(/[.\s]/g, "").replace(",", "."));
+  if (!isFinite(n) || n < 0) return alert("Escriba solo el número de kilómetros, por ejemplo 152300.");
+  const {error} = await sb.rpc("fijar_odometro", {clave, km:n});
+  if (error) return alert("No se pudo guardar: " + error.message);
+  put({...r, km_total:n});
+}
 function on(){
   if (shown) return; shown = true;
   ctrl.addOverlay(layer, "Equipo y vehículos en vivo"); layer.addTo(map);
@@ -222,7 +241,8 @@ window.initUbicaciones = (m, c) => {
   map.createPane("loc").style.zIndex = 640;   // above the station markers (600), below tooltips and popups
   layer = L.layerGroup(); trail = L.layerGroup().addTo(layer);
   document.addEventListener("click", e => { const b = e.target.closest("[data-trail]"); if (b) showTrail(b.dataset.trail);
-    const rn = e.target.closest("[data-rename]"); if (rn) rename(rn.dataset.rename); });
+    const rn = e.target.closest("[data-rename]"); if (rn) rename(rn.dataset.rename);
+    const od = e.target.closest("[data-odo]"); if (od) odometro(od.dataset.odo); });
   map.on("overlayremove", e => { if (e.layer === layer) trail.clearLayers(); });
   const sync = () => IncStore.user() ? on() : off();
   IncStore.ready().then(sync).catch(() => {}); IncStore.onAuth(sync);

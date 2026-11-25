@@ -10,6 +10,7 @@
 //   * A Traccar server forwarding its hardware GPS trackers (forward.url = .../ubicacion?clave=KEY, forward.json = true):
 //     JSON {"position":{latitude,longitude,speed(knots),course,accuracy,fixTime,attributes:{batteryLevel}},"device":{id,name,uniqueId}}.
 //     The key must belong to a dispositivo of tipo "servidor"; each tracker shows under its Traccar name.
+//     If the tracker reports the vehicle's odometer (attributes.odometer, metres) it becomes the kilometraje.
 //
 // Deploy with JWT verification OFF (these apps cannot send a Supabase token): see supabase/LEEME.md.
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
@@ -23,7 +24,7 @@ const num = (v: unknown) => { if (v === null || v === undefined || v === "") ret
 const KNOTS = 1.852, MS = 3.6;   // to km/h
 
 type Pos = {lat: number, lon: number, t: Date | null, acc: number | null, kmh: number | null, rumbo: number | null, batt: number | null,
-  fuente: string, sub?: {id: string, nombre: string}};
+  fuente: string, sub?: {id: string, nombre: string}, odo?: number | null};
 
 async function sha256(s: string){
   const d = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)));
@@ -53,7 +54,10 @@ function parse(url: URL, body: Record<string, any> | null, auth: string): {key: 
     const kn = num(p.speed);
     return {key, owntracks: false, pos: {lat: num(p.latitude)!, lon: num(p.longitude)!, t: fromEpoch(p.fixTime || p.deviceTime),
       acc: num(p.accuracy) || null, kmh: kn === null ? null : kn * KNOTS, rumbo: num(p.course), batt: num(a.batteryLevel),
-      fuente: "traccar-servidor", sub: {id: String(d.uniqueId ?? d.id ?? ""), nombre: String(d.name || d.uniqueId || "GPS")}}};
+      fuente: "traccar-servidor", sub: {id: String(d.uniqueId ?? d.id ?? ""), nombre: String(d.name || d.uniqueId || "GPS")},
+      // the vehicle's own odometer (OBD / CAN), in metres; Traccar's GPS-computed totalDistance is not used:
+      // the kilometraje is summed in the database instead, from the team's odometer reading
+      odo: num(a.odometer) && num(a.odometer)! > 0 ? num(a.odometer)! / 1000 : null}};
   }
   // Traccar Client 9+
   if (body?.location?.coords) {
@@ -117,6 +121,7 @@ Deno.serve(async req => {
     clave, tipo: servidor ? "vehiculo" : dev.tipo, nombre: (alias?.nombre || (servidor ? pos.sub!.nombre : dev.nombre)).slice(0, 60),
     lat: pos.lat, lon: pos.lon, precision_m: r(pos.acc, 0), velocidad: r(pos.kmh), rumbo: r(pos.rumbo, 0),
     bateria: pos.batt === null ? null : r(Math.max(0, Math.min(100, pos.batt)), 0), fuente: pos.fuente, usuario: null,
+    odometro_km: pos.odo ?? null,   // the kilometraje (km_hoy, km_total) is worked out by the ubicaciones_km trigger
     creado: new Date(t).toISOString()});
   if (e2) return json({error: e2.message}, 500);
   return done();

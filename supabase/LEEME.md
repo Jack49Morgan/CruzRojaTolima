@@ -98,6 +98,14 @@ El número del nombre (20) se ve sobre el ícono del carro. El nombre se puede c
 (**Cambiar nombre** en la ventana del vehículo). Para desactivar uno:
 `update dispositivos set activo = false where nombre = 'Móvil 20';`
 
+### Kilometraje
+
+La ventana de cada vehículo muestra los **km de hoy** y el **odómetro**. Se suman con cada posición y se guardan
+aunque las posiciones se borren a las 24 h. Se ignora el temblor del GPS (menos de 30 m) y los saltos imposibles
+(más de 180 km/h). Para que coincida con el vehículo, toque **Odómetro** y escriba la lectura del tablero del carro;
+desde ahí se le suma lo recorrido. Si el rastreador envía el odómetro del vehículo (OBD, por Traccar), se usa ese.
+Lo que el celular no registra (apagado, sin GPS) no se cuenta: corrija con **Odómetro** cuando haga falta.
+
 La dirección para todos los vehículos es:
 
     https://hxwntvubhxahzsfhxgav.supabase.co/functions/v1/ubicacion?clave=LA_CLAVE

@@ -62,6 +62,7 @@ revoke all on public.ubicaciones, public.ubicaciones_recorrido, public.dispositi
 create or replace function public.ubicaciones_al_recorrido() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
+  if tg_op = 'UPDATE' and new.creado = old.creado and new.lat = old.lat and new.lon = old.lon then return new; end if;
   insert into public.ubicaciones_recorrido (clave, lat, lon, creado) values (new.clave, new.lat, new.lon, new.creado);
   delete from public.ubicaciones_recorrido where creado < now() - interval '24 hours';
   delete from public.ubicaciones where creado < now() - interval '24 hours';
@@ -70,6 +71,101 @@ end $$;
 drop trigger if exists ubicaciones_al_recorrido on public.ubicaciones;
 create trigger ubicaciones_al_recorrido after insert or update on public.ubicaciones
   for each row execute function public.ubicaciones_al_recorrido();
+
+-- Kilometraje: se suma con cada posición nueva y NO se borra a las 24 h.
+-- Filtra el temblor del GPS (movimientos más cortos que 30 m o que la precisión) y los saltos imposibles
+-- (más de 180 km/h entre dos posiciones). Si el rastreador envía su propio odómetro (OBD, por Traccar), se usa ese.
+alter table public.ubicaciones add column if not exists odometro_km double precision;   -- odómetro que envía el rastreador
+alter table public.ubicaciones add column if not exists km_hoy real;                     -- calculado aquí
+alter table public.ubicaciones add column if not exists km_total double precision;       -- calculado aquí
+
+create table if not exists public.kilometraje (
+  clave        text primary key,
+  km_gps       double precision not null default 0,   -- km sumados con el GPS desde que se empezó a seguir
+  base_km      double precision,                      -- lectura del odómetro del vehículo que puso el equipo…
+  base_km_gps  double precision,                      -- …y cuánto llevaba km_gps en ese momento
+  base_en      timestamptz,
+  dia          date,                                  -- día (hora Colombia) de km_hoy
+  km_hoy       double precision not null default 0,
+  odo_km       double precision,                      -- último odómetro enviado por el rastreador
+  odo_dia_km   double precision,                      -- odómetro del rastreador al empezar el día
+  lat          double precision,                      -- último punto aceptado (ancla)
+  lon          double precision,
+  t            timestamptz,
+  saltos       int not null default 0,
+  actualizado  timestamptz not null default now()
+);
+alter table public.kilometraje enable row level security;
+drop policy if exists "equipo lee" on public.kilometraje;
+create policy "equipo lee" on public.kilometraje for select to authenticated using (true);
+grant select on public.kilometraje to authenticated;
+revoke all on public.kilometraje from anon;
+
+create or replace function public.km_mostrar(k public.kilometraje) returns double precision language sql immutable as $$
+  select case when k.odo_km is not null then k.odo_km
+              when k.base_km is not null then k.base_km + (k.km_gps - coalesce(k.base_km_gps, 0))
+              else k.km_gps end;
+$$;
+
+create or replace function public.ubicaciones_km() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare k public.kilometraje; d double precision; h double precision; hoy date := (new.creado at time zone 'America/Bogota')::date;
+begin
+  if tg_op = 'UPDATE' and new.creado = old.creado and new.lat = old.lat and new.lon = old.lon then
+    return new;   -- not a new position (a rename, a new odometer reading): nothing to add
+  end if;
+  insert into public.kilometraje (clave) values (new.clave) on conflict (clave) do nothing;
+  select * into k from public.kilometraje where clave = new.clave for update;
+  if k.dia is distinct from hoy then k.dia := hoy; k.km_hoy := 0; k.odo_dia_km := new.odometro_km; end if;
+  if new.odometro_km is not null and new.odometro_km > 0 then
+    k.odo_km := new.odometro_km;
+    k.odo_dia_km := coalesce(k.odo_dia_km, new.odometro_km);
+  end if;
+  if new.precision_m is null or new.precision_m <= 100 then
+    if k.lat is null or k.t is null or new.creado <= k.t then
+      if k.lat is null then k.lat := new.lat; k.lon := new.lon; k.t := new.creado; end if;
+    else
+      d := 2 * 6371.0088 * asin(sqrt(power(sin(radians(new.lat - k.lat) / 2), 2)
+             + cos(radians(k.lat)) * cos(radians(new.lat)) * power(sin(radians(new.lon - k.lon) / 2), 2)));   -- km
+      h := extract(epoch from new.creado - k.t) / 3600;
+      if d * 1000 < greatest(30, coalesce(new.precision_m, 0)) then
+        null;                                              -- temblor: no se mueve el ancla
+      elsif h > 0 and d / h > 180 and k.saltos < 3 then
+        k.saltos := k.saltos + 1;                          -- salto imposible: se ignora (tres seguidos = el ancla estaba mal)
+      else
+        if k.saltos < 3 then k.km_gps := k.km_gps + d; k.km_hoy := k.km_hoy + d; end if;
+        k.lat := new.lat; k.lon := new.lon; k.t := new.creado; k.saltos := 0;
+      end if;
+    end if;
+  end if;
+  update public.kilometraje set km_gps = k.km_gps, dia = k.dia, km_hoy = k.km_hoy, odo_km = k.odo_km, odo_dia_km = k.odo_dia_km,
+    lat = k.lat, lon = k.lon, t = k.t, saltos = k.saltos, actualizado = now() where clave = new.clave;
+  new.km_hoy := round((case when k.odo_km is not null and k.odo_dia_km is not null then k.odo_km - k.odo_dia_km else k.km_hoy end)::numeric, 1);
+  new.km_total := round(km_mostrar(k)::numeric, 1);
+  return new;
+end $$;
+drop trigger if exists ubicaciones_km on public.ubicaciones;
+create trigger ubicaciones_km before insert or update on public.ubicaciones
+  for each row execute function public.ubicaciones_km();
+revoke all on function public.ubicaciones_km() from public, anon, authenticated;
+
+-- "Odómetro" en el mapa: el equipo pone la lectura real del vehículo; desde ahí se suma lo que recorra.
+create or replace function public.fijar_odometro(clave text, km double precision) returns void
+language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+declare k public.kilometraje;
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión para cambiar el kilometraje'; end if;
+  if fijar_odometro.clave not like 'd:%' and fijar_odometro.clave not like 't:%' then
+    raise exception 'Solo se puede poner el odómetro de un vehículo'; end if;
+  if km is null or km < 0 or km > 5000000 then raise exception 'Kilometraje inválido'; end if;
+  insert into public.kilometraje (clave) values (fijar_odometro.clave) on conflict (clave) do nothing;
+  update public.kilometraje set base_km = km, base_km_gps = km_gps, base_en = now(), odo_km = null, odo_dia_km = null, actualizado = now()
+    where clave = fijar_odometro.clave returning * into k;
+  update public.ubicaciones set km_total = round(km_mostrar(k)::numeric, 1) where clave = fijar_odometro.clave;
+end $$;
+revoke all on function public.fijar_odometro(text, double precision) from public, anon;
+grant execute on function public.fijar_odometro(text, double precision) to authenticated;
 
 -- Una persona del equipo comparte su posición (solo la suya: la clave sale de su sesión).
 -- "momento" es la hora en que el celular tomó la posición: si estuvo sin señal, el tablero envía después
