@@ -19,6 +19,10 @@ create table if not exists public.dispositivos (
   creado     timestamptz not null default now()
 );
 alter table public.dispositivos enable row level security;
+-- clave del vehículo guardada para su código QR (solo se lee con vehiculo_qr(), con sesión del equipo)
+alter table public.dispositivos add column if not exists clave_qr text;
+-- clase de vehículo para su ícono en el mapa: camioneta | bicicleta
+alter table public.dispositivos add column if not exists clase text not null default 'camioneta';
 -- sin políticas: la página no puede leer las claves
 
 -- Última posición de cada persona o vehículo (una fila por cada uno). El mapa escucha esta tabla en vivo.
@@ -45,6 +49,10 @@ create table if not exists public.ubicaciones_recorrido (
   lon    double precision not null,
   creado timestamptz not null default now()
 );
+alter table public.ubicaciones add column if not exists clase text;
+alter table public.ubicaciones add column if not exists estado text;          -- 'fin' = recorrido del día terminado, 'pausa' = en pausa (en ambos se ignoran las posiciones)
+alter table public.ubicaciones add column if not exists fin_en timestamptz;   -- camioneta | bicicleta (ícono del mapa)
+alter table public.ubicaciones_recorrido add column if not exists velocidad real;   -- km/h, para exportar el recorrido
 create index if not exists ubicaciones_recorrido_clave on public.ubicaciones_recorrido(clave, creado);
 create index if not exists ubicaciones_recorrido_creado on public.ubicaciones_recorrido(creado);
 
@@ -63,7 +71,7 @@ create or replace function public.ubicaciones_al_recorrido() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
   if tg_op = 'UPDATE' and new.creado = old.creado and new.lat = old.lat and new.lon = old.lon then return new; end if;
-  insert into public.ubicaciones_recorrido (clave, lat, lon, creado) values (new.clave, new.lat, new.lon, new.creado);
+  insert into public.ubicaciones_recorrido (clave, lat, lon, velocidad, creado) values (new.clave, new.lat, new.lon, new.velocidad, new.creado);
   delete from public.ubicaciones_recorrido where creado < now() - interval '24 hours';
   delete from public.ubicaciones where creado < now() - interval '24 hours';
   return new;
@@ -107,6 +115,21 @@ create or replace function public.km_mostrar(k public.kilometraje) returns doubl
               else k.km_gps end;
 $$;
 
+-- Km de cada día por vehículo (hora Colombia), para el informe semanal en Excel. No se borra.
+create table if not exists public.km_diario (
+  clave       text not null,
+  dia         date not null,
+  km          double precision not null default 0,
+  nombre      text,
+  actualizado timestamptz not null default now(),
+  primary key (clave, dia)
+);
+alter table public.km_diario enable row level security;
+drop policy if exists "equipo lee" on public.km_diario;
+create policy "equipo lee" on public.km_diario for select to authenticated using (true);
+grant select on public.km_diario to authenticated;
+revoke all on public.km_diario from anon;
+
 create or replace function public.ubicaciones_km() returns trigger
 language plpgsql security definer set search_path = public as $$
 declare k public.kilometraje; d double precision; h double precision; hoy date := (new.creado at time zone 'America/Bogota')::date;
@@ -142,6 +165,8 @@ begin
     lat = k.lat, lon = k.lon, t = k.t, saltos = k.saltos, actualizado = now() where clave = new.clave;
   new.km_hoy := round((case when k.odo_km is not null and k.odo_dia_km is not null then k.odo_km - k.odo_dia_km else k.km_hoy end)::numeric, 1);
   new.km_total := round(km_mostrar(k)::numeric, 1);
+  insert into public.km_diario as kd (clave, dia, km, nombre) values (new.clave, k.dia, coalesce(new.km_hoy, 0), new.nombre)
+  on conflict (clave, dia) do update set km = excluded.km, nombre = excluded.nombre, actualizado = now();
   return new;
 end $$;
 drop trigger if exists ubicaciones_km on public.ubicaciones;
@@ -182,7 +207,7 @@ begin
   if t < now() - interval '24 hours' then return; end if;
   k := 'u:' || uid;
   if exists (select 1 from public.ubicaciones where clave = k and creado > t) then
-    insert into public.ubicaciones_recorrido (clave, lat, lon, creado) values (k, compartir_ubicacion.lat, compartir_ubicacion.lon, t);
+    insert into public.ubicaciones_recorrido (clave, lat, lon, velocidad, creado) values (k, compartir_ubicacion.lat, compartir_ubicacion.lon, compartir_ubicacion.velocidad, t);
     return;
   end if;
   insert into public.ubicaciones (clave, tipo, nombre, lat, lon, precision_m, velocidad, rumbo, bateria, fuente, usuario, creado)
@@ -221,8 +246,9 @@ returns table (dispositivo text, clave text) language plpgsql security definer s
 declare k text := encode(extensions.gen_random_bytes(18), 'hex');
 begin
   if tipo not in ('vehiculo', 'persona', 'servidor') then raise exception 'tipo debe ser vehiculo, persona o servidor'; end if;
-  insert into public.dispositivos (nombre, tipo, clave_hash)
-  values (nuevo_dispositivo.nombre, nuevo_dispositivo.tipo, encode(extensions.digest(k, 'sha256'), 'hex'));
+  insert into public.dispositivos (nombre, tipo, clave_hash, clave_qr)
+  values (nuevo_dispositivo.nombre, nuevo_dispositivo.tipo, encode(extensions.digest(k, 'sha256'), 'hex'),
+    case when nuevo_dispositivo.tipo = 'servidor' then null else k end);
   return query select nuevo_dispositivo.nombre, k;
 end $$;
 revoke all on function public.nuevo_dispositivo(text, text) from public, anon, authenticated;
@@ -257,6 +283,121 @@ begin
 end $$;
 revoke all on function public.renombrar_ubicacion(text, text) from public, anon;
 grant execute on function public.renombrar_ubicacion(text, text) to authenticated;
+
+-- Panel "🚑 Vehículos" del tablero (con sesión del equipo): lista, crear, código QR, activar/desactivar.
+-- El QR lleva la clave del vehículo, así que cualquiera del equipo puede verla: con ella solo se envían posiciones.
+drop function if exists public.vehiculos();
+create or replace function public.vehiculos() returns table (id bigint, nombre text, clase text, activo boolean, con_qr boolean, creado timestamptz)
+language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  return query select d.id, coalesce(n.nombre, d.nombre), d.clase, d.activo, d.clave_qr is not null, d.creado
+    from public.dispositivos d left join public.ubicaciones_nombres n on n.clave = 'd:' || d.id
+    where d.tipo <> 'servidor' order by d.activo desc, coalesce(n.nombre, d.nombre);
+end $$;
+
+drop function if exists public.crear_vehiculo(text);
+create or replace function public.crear_vehiculo(nombre text, clase text default 'camioneta') returns bigint
+language plpgsql security definer set search_path = public, extensions as $$
+#variable_conflict use_column
+declare k text := encode(extensions.gen_random_bytes(18), 'hex'); n text := left(trim(crear_vehiculo.nombre), 40); i bigint;
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  if coalesce(n, '') = '' then raise exception 'Escriba el nombre del vehículo, por ejemplo Móvil 20'; end if;
+  if crear_vehiculo.clase not in ('camioneta', 'bicicleta') then raise exception 'Clase de vehículo no válida'; end if;
+  insert into public.dispositivos (nombre, tipo, clave_hash, clave_qr, clase)
+  values (n, 'vehiculo', encode(extensions.digest(k, 'sha256'), 'hex'), k, crear_vehiculo.clase) returning id into i;
+  return i;
+end $$;
+
+-- La clave para el QR. Los vehículos creados antes de existir el QR no la tienen guardada: con nueva = true se
+-- les da una clave nueva (el celular que usaba la anterior deja de enviar hasta escanear el QR nuevo).
+create or replace function public.vehiculo_qr(id bigint, nueva boolean default false) returns text
+language plpgsql security definer set search_path = public, extensions as $$
+#variable_conflict use_column
+declare d public.dispositivos; k text;
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  select * into d from public.dispositivos where dispositivos.id = vehiculo_qr.id and tipo <> 'servidor';
+  if d.id is null then raise exception 'No existe ese vehículo'; end if;
+  if d.clave_qr is not null and not nueva then return d.clave_qr; end if;
+  if not nueva then return null; end if;
+  k := encode(extensions.gen_random_bytes(18), 'hex');
+  update public.dispositivos set clave_hash = encode(extensions.digest(k, 'sha256'), 'hex'), clave_qr = k
+    where dispositivos.id = d.id;
+  return k;
+end $$;
+
+create or replace function public.activar_vehiculo(id bigint, activo boolean) returns void
+language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  update public.dispositivos set activo = activar_vehiculo.activo where dispositivos.id = activar_vehiculo.id and tipo <> 'servidor';
+  if not activar_vehiculo.activo then delete from public.ubicaciones where clave = 'd:' || activar_vehiculo.id; end if;
+end $$;
+
+create or replace function public.clase_vehiculo(id bigint, clase text) returns void
+language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  if clase_vehiculo.clase not in ('camioneta', 'bicicleta') then raise exception 'Clase de vehículo no válida'; end if;
+  update public.dispositivos set clase = clase_vehiculo.clase where dispositivos.id = clase_vehiculo.id;
+  update public.ubicaciones set clase = clase_vehiculo.clase where clave = 'd:' || clase_vehiculo.id;
+end $$;
+
+-- Informe de kilómetros: km de cada vehículo por día entre dos fechas (hora Colombia). Solo vehículos, no personas.
+create or replace function public.km_por_dia(desde date, hasta date)
+returns table (clave text, nombre text, dia date, km double precision)
+language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  if hasta < desde or hasta - desde > 400 then raise exception 'Elija un rango de fechas de hasta 400 días'; end if;
+  return query
+    select k.clave, coalesce(n.nombre, d.nombre, (select kd.nombre from public.km_diario kd where kd.clave = k.clave and kd.nombre is not null order by kd.dia desc limit 1), k.clave),
+      k.dia, round(k.km::numeric, 1)::double precision
+    from public.km_diario k
+    left join public.ubicaciones_nombres n on n.clave = k.clave
+    left join public.dispositivos d on k.clave = 'd:' || d.id
+    where k.dia between desde and hasta and k.clave !~ '^u:'
+    order by 2, 3;
+end $$;
+-- Pausar / terminar / reanudar desde el mapa (el conductor lo hace desde la página del QR).
+create or replace function public.estado_vehiculo(clave text, estado text) returns void
+language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  if estado_vehiculo.clave not like 'd:%' and estado_vehiculo.clave not like 't:%' then raise exception 'Solo vehículos'; end if;
+  if estado_vehiculo.estado is not null and estado_vehiculo.estado not in ('pausa', 'fin') then raise exception 'Estado no válido'; end if;
+  update public.ubicaciones set estado = estado_vehiculo.estado,
+    fin_en = case when estado_vehiculo.estado is null then null else now() end
+  where clave = estado_vehiculo.clave;
+end $$;
+revoke all on function public.estado_vehiculo(text, text) from public, anon;
+grant execute on function public.estado_vehiculo(text, text) to authenticated;
+revoke all on function public.clase_vehiculo(bigint, text) from public, anon;
+revoke all on function public.km_por_dia(date, date) from public, anon;
+grant execute on function public.clase_vehiculo(bigint, text) to authenticated;
+grant execute on function public.km_por_dia(date, date) to authenticated;
+
+revoke all on function public.vehiculos() from public, anon;
+revoke all on function public.crear_vehiculo(text, text) from public, anon;
+revoke all on function public.vehiculo_qr(bigint, boolean) from public, anon;
+revoke all on function public.activar_vehiculo(bigint, boolean) from public, anon;
+grant execute on function public.vehiculos() to authenticated;
+grant execute on function public.crear_vehiculo(text, text) to authenticated;
+grant execute on function public.vehiculo_qr(bigint, boolean) to authenticated;
+grant execute on function public.activar_vehiculo(bigint, boolean) to authenticated;
+
+-- La función "ubicacion" entra con la clave secreta (rol service_role). Los proyectos nuevos de Supabase no le dan
+-- permisos de tabla solos, así que se dan aquí, solo los que la función usa.
+grant usage on schema public to service_role;
+grant select on public.dispositivos to service_role;
+grant select, insert, update on public.ubicaciones to service_role;
+grant insert on public.ubicaciones_recorrido to service_role;
+grant select on public.ubicaciones_nombres to service_role;
 
 -- Avisos en vivo al mapa.
 do $$ begin

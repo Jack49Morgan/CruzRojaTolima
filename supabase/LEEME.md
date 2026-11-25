@@ -86,7 +86,21 @@ celular (puede mantener la pantalla encendida). Si se pierde la señal, guarda l
 **Detener** (o **Salir**) borra la posición y el recorrido de esa persona. Con la pantalla apagada el navegador deja de
 enviar: para turnos largos use OwnTracks como en los vehículos.
 
-## Vehículos: una clave por cada uno
+## Vehículos con código QR (lo más fácil)
+
+Con sesión iniciada, el botón **🚑 Vehículos** del tablero:
+
+- **＋ Agregar**: crea el vehículo (por ejemplo `Móvil 20 - Ibagué`) y muestra su **código QR**. Use **🖨 Imprimir** y péguelo en el vehículo.
+- El conductor escanea el QR con la cámara del celular (iPhone o Android, con OwnTracks instalado), toca
+  **Conectar** y acepta. El celular queda enviando como ese vehículo, en modo Move.
+- **Cambiar de vehículo**: el conductor escanea el QR del otro vehículo. El celular pasa a enviar como ese.
+- **Desactivar**: el celular de ese vehículo deja de aparecer (sirve si se pierde un QR).
+- Vehículos creados antes con `nuevo_dispositivo()` no tienen la clave guardada: el panel ofrece darles una clave
+  nueva para hacer su QR (el celular que usaba la clave anterior debe escanear el QR nuevo).
+
+Cualquiera del equipo con sesión puede ver los QR; con la clave solo se pueden enviar posiciones de ese vehículo.
+
+## Vehículos: una clave por cada uno (a mano)
 
 En **SQL Editor** cree el dispositivo; la clave se muestra **una sola vez** (cópiela):
 
@@ -97,6 +111,23 @@ select * from nuevo_dispositivo('Móvil 20');
 El número del nombre (20) se ve sobre el ícono del carro. El nombre se puede cambiar después desde el mapa
 (**Cambiar nombre** en la ventana del vehículo). Para desactivar uno:
 `update dispositivos set activo = false where nombre = 'Móvil 20';`
+
+### Pausa, fin del día e informe semanal de km
+
+- **Tipo**: al agregar un vehículo elija 🚙 Camioneta o 🚲 Bicicleta (cambia el ícono del mapa; se puede cambiar después).
+- **⏸ Pausar / ▶ Reanudar** (página del QR o ventana del vehículo en el mapa): el vehículo queda fijo donde está
+  (por ejemplo, en el almuerzo) y no sigue al celular; el día no se cierra.
+- **🅿 Terminar recorrido** (página del QR): tóquelo donde deja el vehículo, por ejemplo en el garaje. Queda estacionado
+  en ese punto aunque el conductor se vaya con el celular, OwnTracks pasa a modo silencioso y los km del día quedan
+  guardados. Al día siguiente, escanee el QR y toque **Conectar**.
+- **📊 Kilómetros por semana** (panel 🚑 Vehículos): elija la semana o las fechas y toque **⬇ Descargar para Excel**.
+  Los km de cada día se guardan sin límite de tiempo (las posiciones, solo 24 h).
+
+### Exportar el recorrido
+
+En la ventana de un vehículo o persona, **Recorrido 24 h · exportar** dibuja el recorrido y muestra arriba del mapa
+**GPX** (aplicaciones de GPS), **KML** (Google Earth) y **CSV** (Excel: hora, latitud, longitud, velocidad, km acumulados).
+Solo se guardan las últimas 24 horas: exporte antes si necesita conservar un recorrido.
 
 ### Kilometraje
 

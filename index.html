@@ -181,10 +181,10 @@ button.info{display:inline-flex;align-items:center;justify-content:center;width:
 button.info:hover{background:var(--rain);color:#fff;border-color:var(--rain)}
 .leaflet-control-layers button.info{color:#1f6fb2}
 h2 button.info{vertical-align:2px}
-#infodlg,#alertdlg,#locdlg{max-width:min(520px,calc(100vw - 32px));border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--fg);padding:16px 18px;font:14px/1.5 var(--sans)}
-#infodlg::backdrop,#alertdlg::backdrop,#locdlg::backdrop{background:#0008}
-#infodlg h3,#alertdlg h3,#locdlg h3{margin:0 0 6px;font-size:16px}
-#infodlg p,#alertdlg p,#locdlg p{margin:6px 0}
+#infodlg,#alertdlg,#locdlg,#vehdlg{max-width:min(520px,calc(100vw - 32px));border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--fg);padding:16px 18px;font:14px/1.5 var(--sans)}
+#infodlg::backdrop,#alertdlg::backdrop,#locdlg::backdrop,#vehdlg::backdrop{background:#0008}
+#infodlg h3,#alertdlg h3,#locdlg h3,#vehdlg h3{margin:0 0 6px;font-size:16px}
+#infodlg p,#alertdlg p,#locdlg p,#vehdlg p{margin:6px 0}
 #alertdlg ol{margin:6px 0;padding-left:22px}
 #alertdlg label{display:grid;gap:4px;margin:8px 0}
 #alertdlg input,#alertdlg textarea{font:inherit;width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg)}
@@ -252,16 +252,52 @@ h2 button.info{vertical-align:2px}
 .locpin.car .num{position:absolute;left:-2px;top:-6px;min-width:12px;padding:0 4px;border-radius:8px;background:#c8102e;color:#fff;border:1.5px solid #fff;font:700 11px/14px var(--sans);text-align:center;box-shadow:0 1px 2px #0006}
 .locpin.car .hd{position:absolute;right:-4px;top:-6px;width:16px;height:16px;filter:drop-shadow(0 1px 1px #0006)}
 .locpin.car .hd svg{display:block}
+.locpin.car .pk{position:absolute;right:-4px;top:-6px;width:16px;height:16px;border-radius:4px;background:#1f6fb2;color:#fff;border:1.5px solid #fff;box-sizing:border-box;font:700 10px/13px var(--sans);text-align:center;font-style:normal}
+.locpin.car .pk.pa{background:#e68a00;font-size:7px;letter-spacing:-1px}
+.locpin.paused .body{opacity:.85;filter:saturate(.6) drop-shadow(0 1px 1.5px #0008)}
+.locpop .fin.pa{color:#b86e00}
+.locpin.parked .body{opacity:.75;filter:grayscale(.6) drop-shadow(0 1px 1.5px #0008)}
+.locpop .fin{margin:2px 0;color:#1f6fb2;font-weight:600}
+#vehdlg .vehadd select,#vehdlg .vehlist select{font:inherit;padding:5px 4px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg)}
+#vehdlg .vn{display:flex;gap:8px;align-items:center}
+#vehdlg .vi svg{width:36px;height:22.5px;display:block}
+#vehdlg .infh{margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--line);font-size:15px}
+#vehdlg .infq{display:flex;gap:6px 10px;flex-wrap:wrap;align-items:center;margin:6px 0}
+#vehdlg .infq input{font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg)}
+#vehdlg{overflow-x:hidden}
+#vehdlg .inft{overflow-x:auto;max-width:100%;margin:8px 0}
+#vehdlg .inft table{border-collapse:collapse;font-size:13px;white-space:nowrap}
+#vehdlg .inft th,#vehdlg .inft td{display:table-cell!important;padding:4px 8px;border-bottom:1px solid var(--line);text-align:right!important}
+#vehdlg .inft tbody th{text-align:left!important}
+#vehdlg .inft tbody th{text-align:left;font-weight:600}
+#vehdlg .sub{color:var(--muted);font-size:12px}
 .locpin.stale>*{opacity:.6;filter:saturate(.4)}
 .locpin.old>*{opacity:.4;filter:grayscale(1)}
 .locpop .locbtns{display:flex;gap:6px;flex-wrap:wrap}
 .locpop .lockm{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.trailbar{position:absolute;z-index:1000;top:10px;left:56px;right:56px;display:flex;gap:6px 10px;align-items:center;flex-wrap:wrap;padding:6px 8px 6px 12px;border-radius:10px;background:var(--panel,#fff);color:var(--fg);border:1px solid var(--line);box-shadow:0 2px 8px #0003;font:13px/1.35 var(--sans)}
+.trailbar[hidden]{display:none}
+.trailbar{padding-right:32px}
+.trailbar>span:first-child{flex:1 1 180px}
+.trailbar .tbx{display:flex;gap:4px;align-items:center}
+.trailbar button{font:inherit;border:1px solid var(--line);background:var(--bg,#fff);color:var(--fg);border-radius:6px;padding:3px 8px;cursor:pointer}
+.trailbar [data-tb=x]{position:absolute;top:4px;right:4px;border:0;background:none;font-size:15px;padding:2px 6px}
 .loctip{font:600 11px/1.2 var(--sans);padding:2px 6px;border-radius:6px}
 .loctip span{font-weight:400;color:#666}
 .locpop .sub{margin:2px 0 6px}
 .locpop .btn{margin-top:6px;padding:4px 8px}
 #locdlg .chk{display:flex;gap:8px;align-items:center;margin:8px 0}
-#locdlg .err{color:var(--bad,#b83a3a)}
+#locdlg .err,#vehdlg .err{color:var(--bad,#b83a3a)}
+#vehdlg .vehadd{display:flex;gap:8px;margin:10px 0}
+#vehdlg .vehadd input{flex:1;min-width:0;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg)}
+#vehdlg .vehlist{list-style:none;margin:8px 0;padding:0}
+#vehdlg .vehlist li{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line)}
+#vehdlg .vehlist li.off .vn{opacity:.6}
+#vehdlg .vehlist .vb{display:flex;gap:6px}
+#vehdlg .vehcard{text-align:center;border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff;color:#1d2430}
+#vehdlg .vehcard>svg{width:min(260px,100%);height:auto}
+#vehdlg .vhd{display:flex;gap:10px;align-items:center;justify-content:center;text-align:left;margin-bottom:6px}
+#vehdlg .vhd b{display:block;font-size:17px}#vehdlg .vhd span{font-size:12px;color:#5b6472}
 .locbar{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:2000;display:flex;gap:8px;align-items:center;max-width:calc(100vw - 32px);box-sizing:border-box;padding:8px 10px 8px 12px;border-radius:12px;background:#0b2a5b;color:#fff;font:13px/1.35 var(--sans);box-shadow:0 2px 10px #0005}
 .locbar[hidden]{display:none}
 .locbar .t{flex:1}
@@ -320,6 +356,7 @@ h2 button.info{vertical-align:2px}
       <button class="btn" id="alertbtn" type="button" aria-haspopup="dialog">🔔 Recibir alertas</button>
       <button class="btn new" id="sendalertbtn" type="button" aria-haspopup="dialog" hidden>📣 Enviar alerta</button>
       <button class="btn" id="locbtn" type="button" aria-haspopup="dialog" hidden>📍 Compartir mi ubicación</button>
+      <button class="btn" id="vehbtn" type="button" aria-haspopup="dialog" hidden>🚑 Vehículos</button>
       <button class="btn new" type="button" data-newinc hidden>＋ Evento</button>
     </div>
   </header>
@@ -470,7 +507,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
 <script src="vendor/supabase-2.118.0.min.js"></script>
 <script src="incstore.js?v=26"></script>
 <script src="alertas.js?v=2" defer></script>
-<script src="ubicaciones.js?v=3"></script>
+<script src="ubicaciones.js?v=8"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -636,6 +673,11 @@ function initIncidents(map, ctrl){
 }
 
 </script>
+<dialog id="vehdlg" aria-labelledby="veht">
+  <h3 id="veht">🚑 Vehículos</h3>
+  <div id="vehb"></div>
+  <form method="dialog" style="text-align:right;margin-top:8px"><button class="btn">Cerrar</button></form>
+</dialog>
 <dialog id="locdlg" aria-labelledby="loct">
   <h3 id="loct">📍 Compartir mi ubicación</h3>
   <div id="locb"></div>
