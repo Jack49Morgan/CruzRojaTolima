@@ -337,6 +337,27 @@ begin
   if not activar_vehiculo.activo then delete from public.ubicaciones where clave = 'd:' || activar_vehiculo.id; end if;
 end $$;
 
+-- Eliminar un vehículo: borra el vehículo, su clave (el QR deja de servir), su posición, su recorrido, su nombre y su
+-- odómetro. Los km de días pasados se conservan en el informe semanal con el nombre que tenía.
+create or replace function public.eliminar_vehiculo(id bigint) returns void
+language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+declare k text := 'd:' || eliminar_vehiculo.id; n text;
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  select coalesce(un.nombre, d.nombre) into n from public.dispositivos d left join public.ubicaciones_nombres un on un.clave = k
+    where d.id = eliminar_vehiculo.id and d.tipo <> 'servidor';
+  if n is null then raise exception 'Vehículo no encontrado'; end if;
+  update public.km_diario set nombre = n where clave = k;
+  delete from public.ubicaciones where clave = k;
+  delete from public.ubicaciones_recorrido where clave = k;
+  delete from public.ubicaciones_nombres where clave = k;
+  delete from public.kilometraje where clave = k;
+  delete from public.dispositivos where dispositivos.id = eliminar_vehiculo.id;
+end $$;
+revoke all on function public.eliminar_vehiculo(bigint) from public, anon;
+grant execute on function public.eliminar_vehiculo(bigint) to authenticated;
+
 create or replace function public.clase_vehiculo(id bigint, clase text) returns void
 language plpgsql security definer set search_path = public as $$
 #variable_conflict use_column

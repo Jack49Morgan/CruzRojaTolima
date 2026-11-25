@@ -399,7 +399,8 @@ async function renderVeh(){
       <span class="vb">${v.activo ? `<button type="button" class="btn" data-vqr="${v.id}">Código QR</button>` : ""}
       <select data-vclase="${v.id}" aria-label="Tipo de ${esc(v.nombre)}">${CLASES.map(([k, e]) => `<option value="${k}"${v.clase === k ? " selected" : ""}>${e}</option>`).join("")}</select>
       ${rows["d:" + v.id]?.estado === "fin" ? `<button type="button" class="btn" data-est="d:${v.id}" data-v="">▶ Reanudar</button>` : ""}
-      <button type="button" class="btn" data-von="${v.id}" data-a="${v.activo ? 0 : 1}">${v.activo ? "Desactivar" : "Activar"}</button></span></li>`).join("") || "<li>Aún no hay vehículos.</li>"}</ul>
+      ${v.activo ? "" : `<button type="button" class="btn" data-von="${v.id}" data-a="1">Activar</button>`}
+      <button type="button" class="btn del" data-vdel="${v.id}">🗑 Eliminar</button></span></li>`).join("") || "<li>Aún no hay vehículos.</li>"}</ul>
     ${informeHtml()}`;
 }
 async function showQr(id, nueva = false){
@@ -504,6 +505,11 @@ if (vbtn) {
     else if (b.dataset.vnew) showQr(+b.dataset.vnew, true);
     else if (b.dataset.vprint) printQr();
     else if ("vback" in b.dataset) renderVeh();
+    else if (b.dataset.vdel) { const v = vehs.find(x => x.id === +b.dataset.vdel);
+      if (!confirm(`¿Eliminar ${v?.nombre}?\n\nSe borra el vehículo y su código QR deja de servir. No se puede deshacer.\nSus km de días pasados se conservan en el informe semanal.`)) return;
+      const {error} = await sb.rpc("eliminar_vehiculo", {id:+b.dataset.vdel});
+      vmsg = error ? `<span class="err">${/eliminar_vehiculo|function|schema cache/i.test(error.message) ? "Falta correr la última versión de supabase/ubicaciones.sql." : esc(error.message)}</span>` : `${esc(v?.nombre)} se eliminó.`;
+      if (!error) drop("d:" + v.id); renderVeh(); }
     else if (b.dataset.von) { const on = b.dataset.a === "1", v = vehs.find(x => x.id === +b.dataset.von);
       if (!on && !confirm(`¿Desactivar ${v?.nombre}? Su celular dejará de aparecer en el mapa.`)) return;
       const {error} = await sb.rpc("activar_vehiculo", {id:+b.dataset.von, activo:on});
