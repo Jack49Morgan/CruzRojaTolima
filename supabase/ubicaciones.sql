@@ -258,6 +258,14 @@ end $$;
 revoke all on function public.renombrar_ubicacion(text, text) from public, anon;
 grant execute on function public.renombrar_ubicacion(text, text) to authenticated;
 
+-- La función "ubicacion" entra con la clave secreta (rol service_role). Los proyectos nuevos de Supabase no le dan
+-- permisos de tabla solos, así que se dan aquí, solo los que la función usa.
+grant usage on schema public to service_role;
+grant select on public.dispositivos to service_role;
+grant select, insert, update on public.ubicaciones to service_role;
+grant insert on public.ubicaciones_recorrido to service_role;
+grant select on public.ubicaciones_nombres to service_role;
+
 -- Avisos en vivo al mapa.
 do $$ begin
   alter publication supabase_realtime add table public.ubicaciones;
