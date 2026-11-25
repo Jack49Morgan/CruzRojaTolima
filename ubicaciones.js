@@ -216,12 +216,21 @@ async function showTrail(clave){
   if (!map.getContainer().contains(trailBar)) { map.getContainer().append(trailBar); L.DomEvent.disableClickPropagation(trailBar); }
   if (error || !data?.length) { trailInfo = null; trailBar.hidden = false;
     trailBar.innerHTML = `<span>${esc(r?.nombre || "")}: sin recorrido en las últimas 24 h</span><button type="button" data-tb="x" aria-label="Cerrar">✕</button>`; return; }
-  // cumulative km along the route; moves under 30 m are GPS wobble and are not added
-  let km = 0, anchor = data[0];
-  for (const p of data) { const d = hav(anchor, p); if (d >= 0.03) { km += d; anchor = p; } p.km = Math.round(km * 100) / 100; }
-  trailInfo = {clave, nombre:r?.nombre || clave, pts:data};
+  // the route is split where the GPS was silent for a while and the vehicle reappears elsewhere, or where the jump is
+  // impossible (a test point, a bad fix): no straight line is drawn across, and those km are not added.
+  // Moves under 30 m are GPS wobble and are not added either.
+  const segs = [[data[0]]];
+  let km = 0, anchor = data[0]; data[0].km = 0;
+  for (let i = 1; i < data.length; i++) {
+    const p = data[i], prev = data[i - 1], d = hav(prev, p), h = (new Date(p.creado) - new Date(prev.creado)) / 3600e3;
+    if ((h > 5 / 60 && d > 1) || (h > 0 ? d / h : d > 0.5 ? Infinity : 0) > 150) { segs.push([p]); anchor = p; }
+    else { segs.at(-1).push(p); const da = hav(anchor, p); if (da >= 0.03) { km += da; anchor = p; } }
+    p.km = Math.round(km * 100) / 100;
+  }
+  trailInfo = {clave, nombre:r?.nombre || clave, pts:data, segs};
   const color = COLORS[r?.tipo] || "#616161";
-  L.polyline(data.map(p => [p.lat, p.lon]), {pane:"loc", color, weight:3, opacity:0.8, dashArray:"1 6", lineCap:"round"}).addTo(trail);
+  for (const sg of segs) if (sg.length > 1)
+    L.polyline(sg.map(p => [p.lat, p.lon]), {pane:"loc", color, weight:3, opacity:0.8, dashArray:"1 6", lineCap:"round"}).addTo(trail);
   for (const p of data.filter((_, i) => i % Math.max(1, Math.ceil(data.length / 60)) === 0))
     L.circleMarker([p.lat, p.lon], {pane:"loc", radius:3, color, weight:1, fillOpacity:0.7})
       .bindTooltip(IncUtil.hora(p.creado)).addTo(trail);
@@ -242,16 +251,16 @@ function exportTrail(fmt){
   if (fmt === "gpx") {
     type = "application/gpx+xml";
     text = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="SAT Tolima - Cruz Roja Colombiana Seccional Tolima" xmlns="http://www.topografix.com/GPX/1/1">\n`
-      + `<trk><name>${x(t.nombre)} ${day}</name><trkseg>\n`
-      + t.pts.map(p => `<trkpt lat="${p.lat}" lon="${p.lon}"><time>${new Date(p.creado).toISOString()}</time>${p.velocidad != null ? `<extensions><speed>${(p.velocidad / 3.6).toFixed(2)}</speed></extensions>` : ""}</trkpt>`).join("\n")
-      + `\n</trkseg></trk>\n</gpx>\n`;
+      + `<trk><name>${x(t.nombre)} ${day}</name>\n`
+      + t.segs.map(sg => `<trkseg>\n` + sg.map(p => `<trkpt lat="${p.lat}" lon="${p.lon}"><time>${new Date(p.creado).toISOString()}</time>${p.velocidad != null ? `<extensions><speed>${(p.velocidad / 3.6).toFixed(2)}</speed></extensions>` : ""}</trkpt>`).join("\n") + `\n</trkseg>`).join("\n")
+      + `\n</trk>\n</gpx>\n`;
   } else if (fmt === "kml") {
     type = "application/vnd.google-earth.kml+xml";
     const end = t.pts.at(-1);
     text = `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${x(t.nombre)} ${day}</name>\n`
       + `<Style id="r"><LineStyle><color>ff2e10c8</color><width>4</width></LineStyle></Style>\n`
       + `<Placemark><name>${x(t.nombre)}</name><description>${x(co(t.pts[0].creado))} a ${x(co(end.creado))} · ${end.km} km</description><styleUrl>#r</styleUrl>`
-      + `<LineString><tessellate>1</tessellate><coordinates>${t.pts.map(p => `${p.lon},${p.lat}`).join(" ")}</coordinates></LineString></Placemark>\n`
+      + `<MultiGeometry>${t.segs.filter(sg => sg.length > 1).map(sg => `<LineString><tessellate>1</tessellate><coordinates>${sg.map(p => `${p.lon},${p.lat}`).join(" ")}</coordinates></LineString>`).join("")}</MultiGeometry></Placemark>\n`
       + `<Placemark><name>Inicio ${x(co(t.pts[0].creado).slice(11, 16))}</name><Point><coordinates>${t.pts[0].lon},${t.pts[0].lat}</coordinates></Point></Placemark>\n`
       + `<Placemark><name>Fin ${x(co(end.creado).slice(11, 16))}</name><Point><coordinates>${end.lon},${end.lat}</coordinates></Point></Placemark>\n`
       + `</Document></kml>\n`;
