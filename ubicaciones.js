@@ -189,18 +189,20 @@ const popup = r => `<div class="locpop"><b>${esc(r.nombre)}</b>${r.estado === "f
 const tip = r => `${esc(r.nombre)} <span>${r.estado === "fin" ? "estacionado" : r.estado === "pausa" ? "en pausa" : esc(visto(r.creado).replace("visto ", ""))}</span>`;
 function put(r){
   rows[r.clave] = r;
+  // "Terminar recorrido": the vehicle leaves the map (it stays in the Vehículos panel as "Fuera de servicio")
+  if (r.estado === "fin") { if (marks[r.clave]) { layer.removeLayer(marks[r.clave]); delete marks[r.clave]; } if (trailInfo?.clave === r.clave) { trail.clearLayers(); trailBar.hidden = true; trailInfo = null; } return; }
   let m = marks[r.clave];
   if (!m) { m = marks[r.clave] = L.marker([r.lat, r.lon], {icon:icon(r), pane:"loc", title:r.nombre}).addTo(layer);
     m.bindTooltip(tip(r), {permanent:true, direction:"right", offset:[14, 0], className:"loctip"});
     m.bindPopup(() => popup(rows[r.clave]), {maxWidth:Math.min(260, innerWidth - 90)}); }
   else { m.setLatLng([r.lat, r.lon]); m.setIcon(icon(r)); m.setTooltipContent(tip(r)); if (m.isPopupOpen()) m.setPopupContent(popup(r)); }
 }
-function drop(clave){ if (marks[clave]) { layer.removeLayer(marks[clave]); delete marks[clave]; delete rows[clave]; } }
+function drop(clave){ if (marks[clave]) { layer.removeLayer(marks[clave]); delete marks[clave]; } delete rows[clave]; }
 async function load(){
   const {data, error} = await sb.from("ubicaciones").select("*");
   if (error) { console.warn("ubicaciones:", error.message); return; }
   const keep = new Set(data.map(r => r.clave));
-  for (const k of Object.keys(marks)) if (!keep.has(k)) drop(k);
+  for (const k of Object.keys(rows)) if (!keep.has(k)) drop(k);
   data.forEach(put);
 }
 // distance between two points, km
@@ -287,10 +289,11 @@ async function rename(clave){
 // until it is resumed (the driver can do the same from the QR page; ending there also silences OwnTracks)
 async function estado(clave, v){
   const r = rows[clave]; if (!r) return;
-  if (v === "fin" && !confirm(`¿Terminar el recorrido de ${r.nombre}? Queda estacionado donde está y no sigue al celular hasta reanudar.`)) return;
+  if (v === "fin" && !confirm(`¿Terminar el recorrido de ${r.nombre}? Sale del mapa (queda "Fuera de servicio" en 🚑 Vehículos) y no sigue al celular hasta que el conductor toque Conectar.`)) return;
   const {error} = await sb.rpc("estado_vehiculo", {clave, estado:v});
   if (error) return alert("No se pudo cambiar: " + (/estado_vehiculo|function|schema cache/i.test(error.message) ? "falta correr la última versión de supabase/ubicaciones.sql." : error.message));
   put({...r, estado:v, fin_en:v ? new Date().toISOString() : null});
+  if (vdlg()?.open && vehs.length) renderVeh();
 }
 // "Odómetro": the team types the vehicle's real odometer reading; from then on the GPS kilometres add to it
 async function odometro(clave){
@@ -356,6 +359,10 @@ const card = (v, svg) => `<div class="vehcard"><div class="vhd">${shape(v)}<div>
   (necesita la aplicación OwnTracks). Al cambiar de vehículo, escanee el código del otro.
   Al terminar el día, vuelva a escanearlo y toque <b>Terminar recorrido</b>.</p></div>`;
 let vehs = [], vmsg = "";
+// status in the panel, from the live table: fuera de servicio (after Terminar recorrido), en pausa, or en servicio
+const servicio = v => { const r = rows["d:" + v.id]; if (!r) return ` · <span class="vs">sin datos hoy</span>`;
+  return r.estado === "fin" ? ` · <span class="vs off">Fuera de servicio desde ${esc(IncUtil.hora(r.fin_en || r.creado))}</span>`
+    : r.estado === "pausa" ? ` · <span class="vs pa">En pausa</span>` : ` · <span class="vs on">En servicio</span>`; };
 async function renderVeh(){
   const {data, error} = await sb.rpc("vehiculos");
   if (error) { vbody().innerHTML = `<p class="err">${/vehiculos|function|schema cache/i.test(error.message) ? "Falta correr la última versión de supabase/ubicaciones.sql." : esc(error.message)}</p>`; return; }
@@ -365,9 +372,10 @@ async function renderVeh(){
       <select name="c" aria-label="Tipo"><option value="camioneta">🚙 Camioneta</option><option value="bicicleta">🚲 Bicicleta</option></select>
       <button class="btn new">＋ Agregar</button></form>
     ${vmsg ? `<p>${vmsg}</p>` : ""}
-    <ul class="vehlist">${vehs.map(v => `<li class="${v.activo ? "" : "off"}"><span class="vn"><span class="vi">${shape(v)}</span><b>${esc(v.nombre)}</b>${v.activo ? "" : " · desactivado"}</span>
+    <ul class="vehlist">${vehs.map(v => `<li class="${v.activo ? "" : "off"}"><span class="vn"><span class="vi">${shape(v)}</span><b>${esc(v.nombre)}</b>${v.activo ? servicio(v) : " · desactivado"}</span>
       <span class="vb">${v.activo ? `<button type="button" class="btn" data-vqr="${v.id}">Código QR</button>` : ""}
       <select data-vclase="${v.id}" aria-label="Tipo de ${esc(v.nombre)}">${[["camioneta", "🚙"], ["bicicleta", "🚲"]].map(([k, e]) => `<option value="${k}"${v.clase === k ? " selected" : ""}>${e}</option>`).join("")}</select>
+      ${rows["d:" + v.id]?.estado === "fin" ? `<button type="button" class="btn" data-est="d:${v.id}" data-v="">▶ Reanudar</button>` : ""}
       <button type="button" class="btn" data-von="${v.id}" data-a="${v.activo ? 0 : 1}">${v.activo ? "Desactivar" : "Activar"}</button></span></li>`).join("") || "<li>Aún no hay vehículos.</li>"}</ul>
     ${informeHtml()}`;
 }

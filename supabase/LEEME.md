@@ -120,8 +120,8 @@ El número del nombre (20) se ve sobre el ícono del carro. El nombre se puede c
 - **Tipo**: al agregar un vehículo elija 🚙 Camioneta o 🚲 Bicicleta (cambia el ícono del mapa; se puede cambiar después).
 - **⏸ Pausar / ▶ Reanudar** (página del QR o ventana del vehículo en el mapa): el vehículo queda fijo donde está
   (por ejemplo, en el almuerzo) y no sigue al celular; el día no se cierra.
-- **🅿 Terminar recorrido** (página del QR): tóquelo donde deja el vehículo, por ejemplo en el garaje. Queda estacionado
-  en ese punto aunque el conductor se vaya con el celular, OwnTracks pasa a modo silencioso y los km del día quedan
+- **🅿 Terminar recorrido** (página del QR): tóquelo al dejar el vehículo, por ejemplo en el garaje. El vehículo sale
+  del mapa y aparece como **Fuera de servicio** en 🚑 Vehículos (con **▶ Reanudar**), aunque el conductor se vaya con el celular; OwnTracks pasa a modo silencioso y los km del día quedan
   guardados. Al día siguiente, escanee el QR y toque **Conectar**.
 - **📊 Kilómetros por semana** (panel 🚑 Vehículos): elija la semana o las fechas y toque **⬇ Descargar para Excel**.
   Los km de cada día se guardan sin límite de tiempo (las posiciones, solo 24 h).
