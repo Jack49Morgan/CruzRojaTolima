@@ -19,6 +19,8 @@ create table if not exists public.dispositivos (
   creado     timestamptz not null default now()
 );
 alter table public.dispositivos enable row level security;
+-- clave del vehículo guardada para su código QR (solo se lee con vehiculo_qr(), con sesión del equipo)
+alter table public.dispositivos add column if not exists clave_qr text;
 -- sin políticas: la página no puede leer las claves
 
 -- Última posición de cada persona o vehículo (una fila por cada uno). El mapa escucha esta tabla en vivo.
@@ -221,8 +223,9 @@ returns table (dispositivo text, clave text) language plpgsql security definer s
 declare k text := encode(extensions.gen_random_bytes(18), 'hex');
 begin
   if tipo not in ('vehiculo', 'persona', 'servidor') then raise exception 'tipo debe ser vehiculo, persona o servidor'; end if;
-  insert into public.dispositivos (nombre, tipo, clave_hash)
-  values (nuevo_dispositivo.nombre, nuevo_dispositivo.tipo, encode(extensions.digest(k, 'sha256'), 'hex'));
+  insert into public.dispositivos (nombre, tipo, clave_hash, clave_qr)
+  values (nuevo_dispositivo.nombre, nuevo_dispositivo.tipo, encode(extensions.digest(k, 'sha256'), 'hex'),
+    case when nuevo_dispositivo.tipo = 'servidor' then null else k end);
   return query select nuevo_dispositivo.nombre, k;
 end $$;
 revoke all on function public.nuevo_dispositivo(text, text) from public, anon, authenticated;
@@ -257,6 +260,65 @@ begin
 end $$;
 revoke all on function public.renombrar_ubicacion(text, text) from public, anon;
 grant execute on function public.renombrar_ubicacion(text, text) to authenticated;
+
+-- Panel "🚑 Vehículos" del tablero (con sesión del equipo): lista, crear, código QR, activar/desactivar.
+-- El QR lleva la clave del vehículo, así que cualquiera del equipo puede verla: con ella solo se envían posiciones.
+create or replace function public.vehiculos() returns table (id bigint, nombre text, activo boolean, con_qr boolean, creado timestamptz)
+language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  return query select d.id, coalesce(n.nombre, d.nombre), d.activo, d.clave_qr is not null, d.creado
+    from public.dispositivos d left join public.ubicaciones_nombres n on n.clave = 'd:' || d.id
+    where d.tipo <> 'servidor' order by d.activo desc, coalesce(n.nombre, d.nombre);
+end $$;
+
+create or replace function public.crear_vehiculo(nombre text) returns bigint
+language plpgsql security definer set search_path = public, extensions as $$
+#variable_conflict use_column
+declare k text := encode(extensions.gen_random_bytes(18), 'hex'); n text := left(trim(crear_vehiculo.nombre), 40); i bigint;
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  if coalesce(n, '') = '' then raise exception 'Escriba el nombre del vehículo, por ejemplo Móvil 20'; end if;
+  insert into public.dispositivos (nombre, tipo, clave_hash, clave_qr)
+  values (n, 'vehiculo', encode(extensions.digest(k, 'sha256'), 'hex'), k) returning id into i;
+  return i;
+end $$;
+
+-- La clave para el QR. Los vehículos creados antes de existir el QR no la tienen guardada: con nueva = true se
+-- les da una clave nueva (el celular que usaba la anterior deja de enviar hasta escanear el QR nuevo).
+create or replace function public.vehiculo_qr(id bigint, nueva boolean default false) returns text
+language plpgsql security definer set search_path = public, extensions as $$
+#variable_conflict use_column
+declare d public.dispositivos; k text;
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  select * into d from public.dispositivos where dispositivos.id = vehiculo_qr.id and tipo <> 'servidor';
+  if d.id is null then raise exception 'No existe ese vehículo'; end if;
+  if d.clave_qr is not null and not nueva then return d.clave_qr; end if;
+  if not nueva then return null; end if;
+  k := encode(extensions.gen_random_bytes(18), 'hex');
+  update public.dispositivos set clave_hash = encode(extensions.digest(k, 'sha256'), 'hex'), clave_qr = k
+    where dispositivos.id = d.id;
+  return k;
+end $$;
+
+create or replace function public.activar_vehiculo(id bigint, activo boolean) returns void
+language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  update public.dispositivos set activo = activar_vehiculo.activo where dispositivos.id = activar_vehiculo.id and tipo <> 'servidor';
+  if not activar_vehiculo.activo then delete from public.ubicaciones where clave = 'd:' || activar_vehiculo.id; end if;
+end $$;
+
+revoke all on function public.vehiculos() from public, anon;
+revoke all on function public.crear_vehiculo(text) from public, anon;
+revoke all on function public.vehiculo_qr(bigint, boolean) from public, anon;
+revoke all on function public.activar_vehiculo(bigint, boolean) from public, anon;
+grant execute on function public.vehiculos() to authenticated;
+grant execute on function public.crear_vehiculo(text) to authenticated;
+grant execute on function public.vehiculo_qr(bigint, boolean) to authenticated;
+grant execute on function public.activar_vehiculo(bigint, boolean) to authenticated;
 
 -- La función "ubicacion" entra con la clave secreta (rol service_role). Los proyectos nuevos de Supabase no le dan
 -- permisos de tabla solos, así que se dan aquí, solo los que la función usa.

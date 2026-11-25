@@ -86,7 +86,21 @@ celular (puede mantener la pantalla encendida). Si se pierde la señal, guarda l
 **Detener** (o **Salir**) borra la posición y el recorrido de esa persona. Con la pantalla apagada el navegador deja de
 enviar: para turnos largos use OwnTracks como en los vehículos.
 
-## Vehículos: una clave por cada uno
+## Vehículos con código QR (lo más fácil)
+
+Con sesión iniciada, el botón **🚑 Vehículos** del tablero:
+
+- **＋ Agregar**: crea el vehículo (por ejemplo `Móvil 20 - Ibagué`) y muestra su **código QR**. Use **🖨 Imprimir** y péguelo en el vehículo.
+- El conductor escanea el QR con la cámara del celular (iPhone o Android, con OwnTracks instalado), toca
+  **Conectar** y acepta. El celular queda enviando como ese vehículo, en modo Move.
+- **Cambiar de vehículo**: el conductor escanea el QR del otro vehículo. El celular pasa a enviar como ese.
+- **Desactivar**: el celular de ese vehículo deja de aparecer (sirve si se pierde un QR).
+- Vehículos creados antes con `nuevo_dispositivo()` no tienen la clave guardada: el panel ofrece darles una clave
+  nueva para hacer su QR (el celular que usaba la clave anterior debe escanear el QR nuevo).
+
+Cualquiera del equipo con sesión puede ver los QR; con la clave solo se pueden enviar posiciones de ese vehículo.
+
+## Vehículos: una clave por cada uno (a mano)
 
 En **SQL Editor** cree el dispositivo; la clave se muestra **una sola vez** (cópiela):
 

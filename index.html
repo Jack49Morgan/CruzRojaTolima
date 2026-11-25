@@ -181,10 +181,10 @@ button.info{display:inline-flex;align-items:center;justify-content:center;width:
 button.info:hover{background:var(--rain);color:#fff;border-color:var(--rain)}
 .leaflet-control-layers button.info{color:#1f6fb2}
 h2 button.info{vertical-align:2px}
-#infodlg,#alertdlg,#locdlg{max-width:min(520px,calc(100vw - 32px));border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--fg);padding:16px 18px;font:14px/1.5 var(--sans)}
-#infodlg::backdrop,#alertdlg::backdrop,#locdlg::backdrop{background:#0008}
-#infodlg h3,#alertdlg h3,#locdlg h3{margin:0 0 6px;font-size:16px}
-#infodlg p,#alertdlg p,#locdlg p{margin:6px 0}
+#infodlg,#alertdlg,#locdlg,#vehdlg{max-width:min(520px,calc(100vw - 32px));border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--fg);padding:16px 18px;font:14px/1.5 var(--sans)}
+#infodlg::backdrop,#alertdlg::backdrop,#locdlg::backdrop,#vehdlg::backdrop{background:#0008}
+#infodlg h3,#alertdlg h3,#locdlg h3,#vehdlg h3{margin:0 0 6px;font-size:16px}
+#infodlg p,#alertdlg p,#locdlg p,#vehdlg p{margin:6px 0}
 #alertdlg ol{margin:6px 0;padding-left:22px}
 #alertdlg label{display:grid;gap:4px;margin:8px 0}
 #alertdlg input,#alertdlg textarea{font:inherit;width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg)}
@@ -261,7 +261,17 @@ h2 button.info{vertical-align:2px}
 .locpop .sub{margin:2px 0 6px}
 .locpop .btn{margin-top:6px;padding:4px 8px}
 #locdlg .chk{display:flex;gap:8px;align-items:center;margin:8px 0}
-#locdlg .err{color:var(--bad,#b83a3a)}
+#locdlg .err,#vehdlg .err{color:var(--bad,#b83a3a)}
+#vehdlg .vehadd{display:flex;gap:8px;margin:10px 0}
+#vehdlg .vehadd input{flex:1;min-width:0;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg)}
+#vehdlg .vehlist{list-style:none;margin:8px 0;padding:0}
+#vehdlg .vehlist li{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line)}
+#vehdlg .vehlist li.off .vn{opacity:.6}
+#vehdlg .vehlist .vb{display:flex;gap:6px}
+#vehdlg .vehcard{text-align:center;border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff;color:#1d2430}
+#vehdlg .vehcard>svg{width:min(260px,100%);height:auto}
+#vehdlg .vhd{display:flex;gap:10px;align-items:center;justify-content:center;text-align:left;margin-bottom:6px}
+#vehdlg .vhd b{display:block;font-size:17px}#vehdlg .vhd span{font-size:12px;color:#5b6472}
 .locbar{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:2000;display:flex;gap:8px;align-items:center;max-width:calc(100vw - 32px);box-sizing:border-box;padding:8px 10px 8px 12px;border-radius:12px;background:#0b2a5b;color:#fff;font:13px/1.35 var(--sans);box-shadow:0 2px 10px #0005}
 .locbar[hidden]{display:none}
 .locbar .t{flex:1}
@@ -320,6 +330,7 @@ h2 button.info{vertical-align:2px}
       <button class="btn" id="alertbtn" type="button" aria-haspopup="dialog">🔔 Recibir alertas</button>
       <button class="btn new" id="sendalertbtn" type="button" aria-haspopup="dialog" hidden>📣 Enviar alerta</button>
       <button class="btn" id="locbtn" type="button" aria-haspopup="dialog" hidden>📍 Compartir mi ubicación</button>
+      <button class="btn" id="vehbtn" type="button" aria-haspopup="dialog" hidden>🚑 Vehículos</button>
       <button class="btn new" type="button" data-newinc hidden>＋ Evento</button>
     </div>
   </header>
@@ -470,7 +481,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
 <script src="vendor/supabase-2.118.0.min.js"></script>
 <script src="incstore.js?v=26"></script>
 <script src="alertas.js?v=2" defer></script>
-<script src="ubicaciones.js?v=3"></script>
+<script src="ubicaciones.js?v=4"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -636,6 +647,11 @@ function initIncidents(map, ctrl){
 }
 
 </script>
+<dialog id="vehdlg" aria-labelledby="veht">
+  <h3 id="veht">🚑 Vehículos</h3>
+  <div id="vehb"></div>
+  <form method="dialog" style="text-align:right;margin-top:8px"><button class="btn">Cerrar</button></form>
+</dialog>
 <dialog id="locdlg" aria-labelledby="loct">
   <h3 id="loct">📍 Compartir mi ubicación</h3>
   <div id="locb"></div>

@@ -168,7 +168,8 @@ const popup = r => `<div class="locpop"><b>${esc(r.nombre)}</b><div class="sub">
   ${km(r)}
   <div class="locbtns"><button type="button" class="btn" data-trail="${esc(r.clave)}">Ver recorrido (24 h)</button>
   ${/^[dt]:/.test(r.clave) ? `<button type="button" class="btn" data-rename="${esc(r.clave)}">Cambiar nombre</button>
-    <button type="button" class="btn" data-odo="${esc(r.clave)}">Odómetro</button>` : ""}</div></div>`;
+    <button type="button" class="btn" data-odo="${esc(r.clave)}">Odómetro</button>` : ""}
+  ${/^d:\d+$/.test(r.clave) ? `<button type="button" class="btn" data-popqr="${esc(r.clave.slice(2))}">Código QR</button>` : ""}</div></div>`;
 const tip = r => `${esc(r.nombre)} <span>${esc(visto(r.creado).replace("visto ", ""))}</span>`;
 function put(r){
   rows[r.clave] = r;
@@ -242,16 +243,100 @@ window.initUbicaciones = (m, c) => {
   layer = L.layerGroup(); trail = L.layerGroup().addTo(layer);
   document.addEventListener("click", e => { const b = e.target.closest("[data-trail]"); if (b) showTrail(b.dataset.trail);
     const rn = e.target.closest("[data-rename]"); if (rn) rename(rn.dataset.rename);
-    const od = e.target.closest("[data-odo]"); if (od) odometro(od.dataset.odo); });
+    const od = e.target.closest("[data-odo]"); if (od) odometro(od.dataset.odo);
+    const pq = e.target.closest("[data-popqr]"); if (pq && vbtn) { map.closePopup(); openVeh(+pq.dataset.popqr); } });
   map.on("overlayremove", e => { if (e.layer === layer) trail.clearLayers(); });
   const sync = () => IncStore.user() ? on() : off();
   IncStore.ready().then(sync).catch(() => {}); IncStore.onAuth(sync);
 };
 
+/* ---------------- "🚑 Vehículos": add vehicles and print the QR that connects a phone to each ---------------- */
+// Scanning a vehicle's QR opens owntracks.html, which loads that vehicle into OwnTracks (iPhone and Android).
+// A driver who changes trucks scans the QR stuck in the new truck; the phone then reports as that one.
+const vbtn = document.getElementById("vehbtn"), vdlg = () => document.getElementById("vehdlg"), vbody = () => document.getElementById("vehb");
+let qrLib = null;
+const loadQr = () => qrLib ??= new Promise((ok, bad) => { if (self.qrcode) return ok(self.qrcode);
+  const sc = document.createElement("script"); sc.src = "vendor/qrcode-generator-1.4.4.min.js";
+  sc.onload = () => ok(self.qrcode); sc.onerror = () => { qrLib = null; bad(new Error("no se pudo cargar el generador de QR")); }; document.head.append(sc); });
+const qrLink = (v, clave) => new URL("owntracks.html", location.href).href.split("#")[0]
+  + "#" + new URLSearchParams({n:v.nombre, k:clave, t:unidad(v.nombre)}).toString();
+async function qrSvg(text, px = 260){
+  const qrcode = await loadQr(), q = qrcode(0, "M"); q.addData(text); q.make();
+  const n = q.getModuleCount(), m = 4, cell = px / (n + 2 * m);
+  let d = ""; for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c + m} ${r + m}h1v1h-1z`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n + 2 * m} ${n + 2 * m}" width="${px}" height="${px}" shape-rendering="crispEdges" role="img" aria-label="Código QR"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+}
+const card = (v, svg) => `<div class="vehcard"><div class="vhd">${CAR}<div><b>${esc(v.nombre)}</b><span>Cruz Roja Colombiana · Seccional Tolima</span></div></div>
+  ${svg}<p><b>Conductor:</b> escanee este código con la cámara del celular para enviar la ubicación como <b>${esc(v.nombre)}</b>
+  (necesita la aplicación OwnTracks). Al cambiar de vehículo, escanee el código del otro.</p></div>`;
+let vehs = [], vmsg = "";
+async function renderVeh(){
+  const {data, error} = await sb.rpc("vehiculos");
+  if (error) { vbody().innerHTML = `<p class="err">${/vehiculos|function|schema cache/i.test(error.message) ? "Falta correr la última versión de supabase/ubicaciones.sql." : esc(error.message)}</p>`; return; }
+  vehs = data;
+  vbody().innerHTML = `<p>Cada vehículo tiene su código QR. Imprímalo y péguelo en el vehículo: el conductor lo escanea con su celular y desde ese momento el celular envía la ubicación como ese vehículo.</p>
+    <form class="vehadd"><input name="n" maxlength="40" placeholder="Móvil 20 - Ibagué" aria-label="Nombre del vehículo" required><button class="btn new">＋ Agregar</button></form>
+    ${vmsg ? `<p>${vmsg}</p>` : ""}
+    <ul class="vehlist">${vehs.map(v => `<li class="${v.activo ? "" : "off"}"><span class="vn"><b>${esc(v.nombre)}</b>${v.activo ? "" : " · desactivado"}</span>
+      <span class="vb">${v.activo ? `<button type="button" class="btn" data-vqr="${v.id}">Código QR</button>` : ""}
+      <button type="button" class="btn" data-von="${v.id}" data-a="${v.activo ? 0 : 1}">${v.activo ? "Desactivar" : "Activar"}</button></span></li>`).join("") || "<li>Aún no hay vehículos.</li>"}</ul>`;
+}
+async function showQr(id, nueva = false){
+  const v = vehs.find(x => x.id === id); if (!v) return;
+  const {data:clave, error} = await sb.rpc("vehiculo_qr", {id, nueva});
+  if (error) { vmsg = `<span class="err">${esc(error.message)}</span>`; return renderVeh(); }
+  if (!clave) {
+    vbody().innerHTML = `<p><b>${esc(v.nombre)}</b> se creó antes de los códigos QR y su clave no quedó guardada.</p>
+      <p>Para hacer su QR se le da una clave nueva. El celular que hoy envía como ${esc(v.nombre)} con la clave anterior dejará de aparecer hasta escanear el QR nuevo.</p>
+      <p><button type="button" class="btn new" data-vnew="${id}">Darle una clave nueva y hacer el QR</button> <button type="button" class="btn" data-vback>Volver</button></p>`;
+    return;
+  }
+  const link = qrLink(v, clave), svg = await qrSvg(link);
+  vbody().innerHTML = `${card(v, svg)}
+    <p><button type="button" class="btn new" data-vprint="${id}">🖨 Imprimir</button> <button type="button" class="btn" data-vback>Volver</button></p>
+    <p class="sub">Quien tenga este código puede enviar posiciones como ${esc(v.nombre)}. Si se pierde, desactive el vehículo o pídale clave nueva.</p>
+    <details><summary>Enlace del código</summary><p><a href="${esc(link)}" target="_blank" rel="noopener">Abrir en este celular</a></p></details>`;
+  vbody().dataset.print = card(v, await qrSvg(link, 420));
+}
+async function openVeh(qrId){
+  vmsg = ""; vbody().innerHTML = "<p>Cargando…</p>"; if (!vdlg().open) vdlg().showModal();
+  await renderVeh(); if (qrId) await showQr(qrId);
+}
+function printQr(){
+  const w = open("", "_blank"); if (!w) return alert("Permita las ventanas emergentes para imprimir.");
+  w.document.write(`<!doctype html><meta charset="utf-8"><title>Código QR</title><style>
+    body{margin:0;font:15px/1.45 system-ui,sans-serif;color:#000;display:grid;place-items:center;min-height:100vh}
+    .vehcard{width:120mm;border:2px solid #000;border-radius:6mm;padding:8mm;text-align:center}
+    .vhd{display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:6mm}.vhd svg{width:64px;height:40px}
+    .vhd b{display:block;font-size:24px}.vhd span{font-size:12px}.vehcard>svg{width:90mm;height:90mm}
+    @page{margin:10mm}</style>${vbody().dataset.print}<script>onload=()=>{print()}<\/script>`);
+  w.document.close();
+}
+if (vbtn) {
+  vbtn.addEventListener("click", () => openVeh());
+  document.addEventListener("submit", async e => { const f = e.target.closest?.(".vehadd"); if (!f) return; e.preventDefault();
+    const {data:id, error} = await sb.rpc("crear_vehiculo", {nombre:f.n.value.trim()});
+    vmsg = error ? `<span class="err">${esc(error.message)}</span>` : "";
+    await renderVeh(); if (!error) showQr(id); });
+  document.addEventListener("click", async e => {
+    if (!e.target.closest?.("#vehb")) return;
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.vqr) showQr(+b.dataset.vqr);
+    else if (b.dataset.vnew) showQr(+b.dataset.vnew, true);
+    else if (b.dataset.vprint) printQr();
+    else if ("vback" in b.dataset) renderVeh();
+    else if (b.dataset.von) { const on = b.dataset.a === "1", v = vehs.find(x => x.id === +b.dataset.von);
+      if (!on && !confirm(`¿Desactivar ${v?.nombre}? Su celular dejará de aparecer en el mapa.`)) return;
+      const {error} = await sb.rpc("activar_vehiculo", {id:+b.dataset.von, activo:on});
+      vmsg = error ? `<span class="err">${esc(error.message)}</span>` : ""; renderVeh(); }
+  });
+}
+
 // button only for the signed-in team; resume sharing after a reload if it was on and the permission stands
 const auth = async () => {
   const u = IncStore.user();
   if (btn) btn.hidden = !u;
+  if (vbtn) vbtn.hidden = !u;
   if (!u) { if (sharing()) stop(false); return; }
   if (ls.get(ON_KEY) && !sharing()) {
     let ok = false; try { ok = (await navigator.permissions?.query({name:"geolocation"}))?.state === "granted"; } catch {}
