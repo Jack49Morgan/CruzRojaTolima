@@ -93,6 +93,9 @@ Con sesión iniciada, el botón **🚑 Vehículos** del tablero:
 - **＋ Agregar**: crea el vehículo (por ejemplo `Móvil 20 - Ibagué`) y muestra su **código QR**. Use **🖨 Imprimir** y péguelo en el vehículo.
 - El conductor escanea el QR con la cámara del celular (iPhone o Android, con OwnTracks instalado), toca
   **Conectar** y acepta. El celular queda enviando como ese vehículo, en modo Move.
+- **Solo la primera vez en cada celular**: en OwnTracks abra Settings (iPhone) o Preferences (Android) > **Remote Control**
+  y active **Allow external configuration**. Sin eso OwnTracks responde *"URI or file configuration not allowed"*.
+  La página del QR también muestra la URL (**Configurar a mano** > **Copiar URL**) para pegarla en modo HTTP.
 - **Cambiar de vehículo**: el conductor escanea el QR del otro vehículo. El celular pasa a enviar como ese.
 - **Desactivar**: el celular de ese vehículo deja de aparecer (sirve si se pierde un QR).
 - Vehículos creados antes con `nuevo_dispositivo()` no tienen la clave guardada: el panel ofrece darles una clave

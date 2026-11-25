@@ -28,6 +28,8 @@ button.big{width:100%;border:0;font:inherit;font-weight:700;font-size:17px;curso
 .big.end{background:var(--navy)}
 .row{display:flex;gap:8px}.row .big{flex:1;margin:8px 0}
 .big.pause{background:#e68a00}
+.note{background:rgba(230,138,0,.12);border:1px solid rgba(230,138,0,.45);border-radius:10px;padding:10px 12px;font-size:14px}
+.copy{margin:6px 0;padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;font-size:14px;cursor:pointer}
 @media (prefers-color-scheme:dark){.big.end{background:#2f4f86}}
 </style>
 </head>
@@ -55,6 +57,8 @@ button.big{width:100%;border:0;font:inherit;font-weight:700;font-size:17px;curso
   c.innerHTML = `<h1>🚑 ${esc(nombre)}</h1>
     <p class="sub">Cruz Roja Colombiana, Seccional Tolima · ubicación en vivo</p>
     <p>Este celular va a enviar su ubicación como <b>${esc(nombre)}</b>. Si estaba conectado a otro vehículo, cambia a este.</p>
+    <p class="note"><b>Solo la primera vez:</b> en OwnTracks abra ${ios ? "⚙️ <b>Settings</b>" : "☰ <b>Preferences</b>"} → <b>Remote Control</b> y active
+      <b>Allow external configuration</b> (confirme el aviso). Si no, OwnTracks dice <i>"configuration not allowed"</i>.</p>
     <a class="big" id="go" href="${link}">Conectar a ${esc(nombre)} en OwnTracks</a>
     <ol>
       <li>Toque el botón rojo y elija <b>Abrir</b> en OwnTracks. Si pregunta, acepte la configuración (<b>Import</b> o <b>Importar</b>).</li>
@@ -74,7 +78,10 @@ button.big{width:100%;border:0;font:inherit;font-weight:700;font-size:17px;curso
     <div class="stores"><a href="https://apps.apple.com/app/owntracks/id692424691">iPhone (App Store)</a>
       <a href="https://play.google.com/store/apps/details?id=org.owntracks.android">Android (Google Play)</a></div>
     <details style="margin-top:14px"><summary>Configurar a mano</summary>
-      <p>Modo <b>HTTP</b>, URL:<br><code>${esc(url)}</code><br>TrackerID: <b>${esc(cfg.tid)}</b>, seguimiento en <b>Move</b>.</p></details>`;
+      <p>Modo <b>HTTP</b>, URL:<br><code>${esc(url)}</code><br><button type="button" id="copy" class="copy">Copiar URL</button><br>TrackerID: <b>${esc(cfg.tid)}</b>, seguimiento en <b>Move</b>.</p></details>`;
+  document.getElementById("copy").addEventListener("click", async e => {
+    try { await navigator.clipboard.writeText(url); e.target.textContent = "✓ Copiada"; }
+    catch { const r = document.createRange(); r.selectNodeContents(e.target.previousElementSibling.previousElementSibling); getSelection().removeAllRanges(); getSelection().addRange(r); e.target.textContent = "Seleccionada: copie con el menú"; } });
   // "Conectar": tell the server the vehicle is out again (so its positions count), then hand over to OwnTracks
   document.getElementById("go").addEventListener("click", async e => {
     e.preventDefault();
