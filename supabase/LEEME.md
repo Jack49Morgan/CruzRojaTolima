@@ -79,12 +79,10 @@ Solo se guardan las últimas 24 horas.
    (también llamado *Verify JWT*). Las aplicaciones de GPS no pueden enviar el token de Supabase; la función revisa
    en su lugar la clave de cada dispositivo.
 
-## Personas: botón 📍 Compartir mi ubicación
+## Personas
 
-Aparece en el tablero al iniciar sesión. Envía la posición cada 15 segundos mientras el tablero esté abierto en el
-celular (puede mantener la pantalla encendida). Si se pierde la señal, guarda las posiciones y las envía al volver.
-**Detener** (o **Salir**) borra la posición y el recorrido de esa persona. Con la pantalla apagada el navegador deja de
-enviar: para turnos largos use OwnTracks como en los vehículos.
+El botón **📍 Compartir mi ubicación** se quitó del tablero (2026-11-26). Para seguir a alguien, use OwnTracks con un
+QR de vehículo o con una clave de `nuevo_dispositivo(..., 'persona')`.
 
 ## Vehículos con código QR (lo más fácil)
 

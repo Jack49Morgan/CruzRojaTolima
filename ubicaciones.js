@@ -605,6 +605,9 @@ const auth = async () => {
   if (btn) btn.hidden = !u;
   if (vbtn) vbtn.hidden = !u;
   if (!u) { if (sharing()) stop(false); return; }
+  // "Compartir mi ubicación" was removed from the dashboard (vehicles report through OwnTracks): a phone that was still
+  // sharing from an older version stops and its point is taken off the map
+  if (!btn) { if (sharing() || ls.get(ON_KEY)) await stop(true).catch(() => {}); else flush(); return; }
   if (ls.get(ON_KEY) && !sharing()) {
     let ok = false; try { ok = (await navigator.permissions?.query({name:"geolocation"}))?.state === "granted"; } catch {}
     if (ok) start(); else { ls.set(ON_KEY, null); flush(); }
