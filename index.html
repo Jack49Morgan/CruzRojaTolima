@@ -205,6 +205,15 @@ h2 button.info{vertical-align:2px}
 .tri.sel{filter:drop-shadow(0 0 2px #0b2540) drop-shadow(0 0 2px #0b2540)}
 /* Rain legend: one horizontal strip of drops that grow and darken with the amount */
 .maplegend{background:#fffffff2;color:#0b2a5b;border-radius:10px;box-shadow:0 1px 6px #0004;font:12px/1.2 var(--sans);padding:7px 10px 8px;border-left:4px solid var(--red)}
+.seglg{border-left-color:#6a1b9a}
+.seglg>div:not(.hd){display:flex;align-items:center;gap:6px;margin:2px 0;white-space:nowrap}
+.seglg .sw{display:inline-block;width:14px;height:11px;border:1.5px solid;border-radius:2px}
+.seglg .sw.dot{width:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #4a148c}
+.seglg .sw.ln{height:0;border-width:0;border-top:2.5px dashed}
+.segpop{font:13px/1.35 var(--sans)}
+.segpop .segact{display:flex;flex-wrap:wrap;gap:4px 10px;margin:4px 0}
+.segpop .segact span{display:inline-flex;align-items:center;gap:3px;font-size:12px}
+.segactm{display:flex;gap:2px;filter:drop-shadow(0 1px 1px #0006)}
 .maplegend .hd{font-weight:600;font-size:12.5px;margin-bottom:5px;white-space:nowrap}
 .maplegend .hd span{font-weight:400;color:#5c6b80;font-size:11px;margin-left:4px}
 .maplegend .scale{display:grid;grid-template-columns:repeat(5,auto);gap:0 10px;align-items:end}
@@ -366,7 +375,6 @@ h2 button.info{vertical-align:2px}
       <button class="btn" id="refresh">Actualizar</button>
       <button class="btn" id="alertbtn" type="button" aria-haspopup="dialog">🔔 Recibir alertas</button>
       <button class="btn new" id="sendalertbtn" type="button" aria-haspopup="dialog" hidden>📣 Enviar alerta</button>
-      <button class="btn" id="locbtn" type="button" aria-haspopup="dialog" hidden>📍 Compartir mi ubicación</button>
       <button class="btn" id="vehbtn" type="button" aria-haspopup="dialog" hidden>🚑 Vehículos</button>
       <a class="btn" id="mivehbtn" href="owntracks.html" hidden>🚑 Mi vehículo</a>
       <button class="btn new" type="button" data-newinc hidden>＋ Evento</button>
@@ -517,9 +525,10 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=27"></script>
-<script src="alertas.js?v=3" defer></script>
-<script src="ubicaciones.js?v=19"></script>
+<script src="incstore.js?v=29"></script>
+<script src="alertas.js?v=4" defer></script>
+<script src="enviar-alerta.js?v=1" defer></script>
+<script src="ubicaciones.js?v=20"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -697,11 +706,6 @@ function initIncidents(map, ctrl){
 <dialog id="vehdlg" aria-labelledby="veht">
   <div class="dlghd"><h3 id="veht">🚑 Vehículos</h3><span class="dlgb"><button type="button" class="dlgx" id="vehedit" hidden>✏ Editar</button><form method="dialog"><button class="dlgx" aria-label="Cerrar">✕ Cerrar</button></form></span></div>
   <div id="vehb"></div>
-  <form method="dialog" style="text-align:right;margin-top:8px"><button class="btn">Cerrar</button></form>
-</dialog>
-<dialog id="locdlg" aria-labelledby="loct">
-  <h3 id="loct">📍 Compartir mi ubicación</h3>
-  <div id="locb"></div>
   <form method="dialog" style="text-align:right;margin-top:8px"><button class="btn">Cerrar</button></form>
 </dialog>
 <dialog id="alertdlg" aria-labelledby="alertt">
@@ -1599,6 +1603,140 @@ function buildVolcLayer(){
   g.on("remove", () => clearInterval(timer));
   return g;
 }
+// ---- Seguridad: Alertas Tempranas of the Defensoría del Pueblo (SAT) for Tolima, drawn as in the alert's own maps: the
+// municipios in a faint fill, and the corregimientos, veredas and centros poblados it names in a darker shade of the same colour.
+// Places were matched by name to the DANE 2020 veredas; centros poblados and sectors that are not veredas use OpenStreetMap points.
+// Actor symbols and corridors are approximate (the alert gives places by name, not coordinates). Add new alerts to SEG_AT.
+const SEG_COL = {mun:"#8e24aa", ver:"#6a1b9a", cas:"#4a148c"};
+const SEG_ACT = { // armed groups named in the alerts, with the symbol the Defensoría uses on its map
+  EMC:{n:"Estado Mayor Central (EMC)", d:"Disidencia de las extintas FARC-EP (facción de alias «Iván Mordisco»). Bloque Central Isaías Pardo: Frentes Ismael Ruiz y Gerónimo Galeano.", s:"star", c:"#7b3f7f"},
+  SM:{n:"Segunda Marquetalia", d:"Redes de extorsión asociadas a la extracción ilícita de oro. Sin control territorial ni accionar armado identificado.", s:"dot", c:"#f9a825"},
+  EGC:{n:"Ejército Gaitanista de Colombia (EGC)", d:"Cobros extorsivos alrededor de entables mineros y la comercialización del oro. Sin presencia armada permanente identificada.", s:"dot", c:"#2e7d32"},
+};
+const SEG_AT = [{
+  id:"AT 031-26", n:"Alerta Temprana 031 de 2026", f:"2026-11-18", nivel:"Alto", pdf:"data/alertas/AT-031-2026.pdf",
+  res:"Riesgo de violaciones a los DD. HH. e infracciones al DIH por la reconfiguración del conflicto armado en el sur del Tolima: la consolidación del EMC y la extracción ilícita de oro, con grupos armados que buscan controlar sus rentas.",
+  cierra:"Cierra el seguimiento de la AT 016 de 2022 para estos cuatro municipios. Relacionada con la AT 029 de 2026 (Roncesvalles, Rovira, San Antonio) y la AT 016 de 2026 (Huila).",
+  pob:"Niños, niñas, adolescentes y jóvenes; mujeres rurales y lideresas; población campesina; pueblos Pijao y Nasa; víctimas; firmantes del Acuerdo de Paz; personas OSIEGD; personas mayores y con discapacidad. Por su actividad: dignatarios de JAC y liderazgos, autoridades y guardias indígenas, docentes, comerciantes, transportadores, caficultores, propietarios de maquinaria, trabajadores y compradores de la cadena del oro, servidores públicos.",
+  mun:{
+    "Ataco":{esc:"Coexistencia", act:["EMC","SM","EGC"],
+      txt:"Coexisten el Frente Gerónimo Galeano del EMC y redes de la Segunda Marquetalia y del EGC, sobre todo por extorsiones ligadas a la extracción ilícita de oro en los ríos Atá y Saldaña y la quebrada Pole. Es el principal foco minero del sur del Tolima. Homicidios: 6 (2024), 12 (2025), 27 (2026, a 16 de sep.).",
+      corr:["Santiago Pérez"], ver:["Mesa de Pole (incl. sector La Hamaca)","Polecito","Pueblo Nuevo","Aponte","La Ensillada","Potrerito","El Cóndor","sectores de Puente Amarillo y las cuencas de los ríos Atá y Saldaña"],
+      res:"Comunidad indígena Mesa de Pole y cabildos Ico Valle de Anape y Brisas de Atá (pueblo Pijao), por su ubicación en el corredor advertido; no implica vínculo con actividades ilegales."},
+    "Chaparral":{esc:"Consolidación", act:["EMC"],
+      txt:"Consolidación del EMC (Frente Gerónimo Galeano): acciones armadas contra la fuerza pública, redes de apoyo, extorsiones, rentas de la extracción ilícita de oro, reclutamiento y utilización de adolescentes. Desde 2025 se expande la minería mecanizada (Tuluní, Amoyá, Santa Rosa, El Totumo, Mesa de Aguayo). Homicidios: 11 (2024), 7 (2025), 12 (2026).",
+      corr:["El Limón","La Marina","Las Hermosas","Amoyá"], ver:["Tuluní","Guanábano","Hato Viejo","El Escobal","áreas rurales del Cañón de Las Hermosas","corredores El Mesón y Palmichala"],
+      res:"Parcialidades y comunidades Pijao Rionegro Hermosas, El Escobal, Amoyá La Virginia y Cañón de Amoyá."},
+    "Rioblanco":{esc:"Consolidación", act:["EMC"],
+      txt:"Consolidación del EMC (Frente Ismael Ruiz): restricciones a la movilidad en el eje Herrera – Puerto Saldaña y hacia Gaitán, amenazas y coacción contra autoridades y líderes comunales, reclutamiento de NNA. Extracción de oro en Herrera, Palmichara, cuenca del río Mendarco y Las Mercedes; zona de posible expansión minera. Homicidios: 6 (2024), 3 (2025), 0 (2026).",
+      corr:["Herrera","Puerto Saldaña"], ver:["Herrera","Puerto Saldaña","Núcleo de Gaitán"],
+      res:"Resguardo Páez Las Mercedes; Cabildo Nasa de Barbacoas; comunidad Anamichú (Pijao)."},
+    "Planadas":{esc:"Consolidación", act:["EMC"],
+      txt:"Consolidación del EMC (Frente Ismael Ruiz): ataques contra instalaciones militares, comisiones móviles y redes de apoyo, presiones sobre campesinos, autoridades Nasa y firmantes de paz. Sin minería mecanizada identificada, pero con papel en el transporte de suministros y la venta del oro. Homicidios: 9 (2024), 8 (2025), 5 (2026).",
+      corr:["Gaitania","Bilbao"], ver:["El Oso","Esmeralda Alta o La Esmeralda","La Palmera","áreas rurales del corredor de Gaitania"],
+      res:"Resguardo Nasa We'sx de Gaitania (pueblo Nasa)."},
+  },
+  // DANE 2020 veredas (names as in that layer) drawn in the darker shade, per municipio
+  dv:{"Ataco":["Santiago Perez","Mesa de Pole","Polecito","Pueblo Nuevo","La Ensillada","Potrerito","El Condor","Z U Ataco"],
+      "Chaparral":["Tuluni","Guanabano","Hato Viejo","El Escobal","Amoya","La Marina","Santa Rosa","Mesa de Aguayo","Violetas Totumo","Brisas Totumo",
+        "San José de las Hermosas","La Holanda Hermosas","San Pablo Hermosas","La Aurora Hermosas","Argentina Hermosas","Rio Negro","La Virginia","La Virginia Alta"],
+      "Rioblanco":["Puerto Saldaña","Gaitan","Las Mercedes","La Mesa Palmichal","Alto Palmichal"],
+      "Planadas":["Bilbao","Esmeralda Alta","Esmeralda Baja","La Palemera"]},
+  // cascos urbanos and centros poblados (OpenStreetMap points); c = cabecera municipal
+  cp:[["Ataco",3.5912,-75.3819,"Ataco",1],["Chaparral",3.7246,-75.4852,"Chaparral",1],["Rioblanco",3.5311,-75.6452,"Rioblanco",1],["Planadas",3.1973,-75.6446,"Planadas",1],
+      ["Santiago Pérez",3.3972,-75.6059,"Ataco"],["Gaitania",3.0906,-75.6723,"Planadas"],["Bilbao",3.2745,-75.7471,"Planadas"],["Herrera",3.2869,-75.8185,"Rioblanco"],
+      ["Puerto Saldaña",3.3833,-75.7107,"Rioblanco"],["Gaitán",3.5770,-75.7427,"Rioblanco"],["El Limón",3.6495,-75.5848,"Chaparral"],["La Marina",3.7279,-75.6404,"Chaparral"],
+      ["San José de Las Hermosas",3.9048,-75.6959,"Chaparral"]],
+  // illegal gold extraction sectors named in the alert: [name, municipio, vereda to take the centre from | [lat, lon], note]
+  min:[["Mesa de Pole","Ataco","Mesa de Pole","Quebrada Pole"],["Polecito","Ataco","Polecito","Operación de agosto de 2025: unos 6.000 g de oro al mes"],
+       ["Santiago Pérez","Ataco","Santiago Perez","Ríos Atá y Saldaña"],["La Ensillada – Puente Amarillo","Ataco",[3.4381,-75.6158],"Capturas de la comisión Gerónimo Galeano (29 may 2026)"],
+       ["Tuluní","Chaparral","Tuluni","Jul 2026: 15 excavadoras inutilizadas"],["Amoyá","Chaparral","Amoya","Operación Saldaña (24 ene 2026)"],["Santa Rosa","Chaparral","Santa Rosa","Operación Saldaña (24 ene 2026)"],
+       ["El Totumo","Chaparral",[3.6097,-75.4936],""],["Mesa de Aguayo","Chaparral","Mesa de Aguayo",""],["Guanábano","Chaparral","Guanabano",""],["El Limón","Chaparral",[3.6495,-75.5848],""],
+       ["Herrera","Rioblanco",[3.2869,-75.8185],"Cerca del Páramo del Meridiano We'pe Wala"],["Palmichara","Rioblanco",[3.4877,-75.5882],""],["Las Mercedes (sector rural)","Rioblanco","Las Mercedes","No es el Resguardo Páez Las Mercedes"]],
+  // corridors described in the text, drawn as straight lines between the places they join (not the real road)
+  cor:[["Coyaima – Ataco – Santiago Pérez – Planadas",[[3.7994,-75.1946],[3.5912,-75.3819],[3.3972,-75.6059],[3.1973,-75.6446]]],
+       ["Carrusel – Rioblanco – Puerto Saldaña – Herrera",[[3.4563,-75.6691],[3.5311,-75.6452],[3.3833,-75.7107],[3.2869,-75.8185]]],
+       ["Chaparral – El Limón – Rioblanco",[[3.7246,-75.4852],[3.6495,-75.5848],[3.5311,-75.6452]]],
+       ["Chaparral – puente de Las Señoritas – Ataco y Planadas",[[3.7246,-75.4852],[3.4660,-75.5697],[3.3972,-75.6059]]],
+       ["Planadas – Gaitania",[[3.1973,-75.6446],[3.0906,-75.6723]]],["Planadas – Bilbao",[[3.1973,-75.6446],[3.2745,-75.7471]]]],
+  // where the actor symbols go (inside each municipio, roughly as on the alert's Mapa 1)
+  ap:{"Ataco":[3.48,-75.45],"Chaparral":[3.86,-75.58],"Rioblanco":[3.55,-75.88],"Planadas":[3.13,-75.78]},
+}];
+const segNorm = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+const segActIcon = (k, sz = 18) => { const a = SEG_ACT[k];
+  return a.s === "star" ? `<svg viewBox="0 0 24 24" width="${sz}" height="${sz}" aria-hidden="true"><path d="M12 1.8l3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.6l-6.3 3.6 1.5-7.1L1.8 9.2 9 8.4z" fill="${a.c}" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`
+    : `<svg viewBox="0 0 24 24" width="${sz}" height="${sz}" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="${a.c}" stroke="#222" stroke-width="1.6"/></svg>`; };
+const segMinIcon = (sz = 16) => `<svg viewBox="0 0 24 22" width="${sz}" height="${sz * 22 / 24}" aria-hidden="true"><path d="M12 2 22.5 20.5h-21z" fill="#c62828" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M12 2 22.5 20.5h-21z" fill="none" stroke="#3e0000" stroke-width=".8" stroke-linejoin="round"/></svg>`;
+function segMunHtml(a, mn, head = ""){
+  const m = a.mun[mn], li = (t, arr) => arr?.length ? `<div style="margin-top:4px"><b>${t}:</b> ${arr.map(esc).join("; ")}</div>` : "";
+  return `<div class="segpop">${head}<b>${esc(a.n)}</b> <span class="sub">Defensoría del Pueblo · ${esc(fmtFecha(a.f))}</span><br>
+    <span class="vlvl" style="background:#ef6c00;color:#fff">Riesgo ${esc(a.nivel.toLowerCase())}</span> <span class="vlvl" style="background:${SEG_COL.ver};color:#fff">${esc(mn)} · ${esc(m.esc)}</span>
+    <div class="segact">${m.act.map(k => `<span title="${esc(SEG_ACT[k].d)}">${segActIcon(k, 14)} ${esc(SEG_ACT[k].n)}</span>`).join("")}</div>
+    <div>${esc(m.txt)}</div>${li("Corregimientos", m.corr)}${li("Veredas y sectores", m.ver)}${li("Comunidades indígenas", m.res ? [m.res] : [])}
+    <details style="margin-top:5px"><summary>Población en riesgo y contexto</summary><div class="sub" style="margin-top:3px">${esc(a.res)}</div><div class="sub" style="margin-top:3px">${esc(a.pob)}</div><div class="sub" style="margin-top:3px">${esc(a.cierra)}</div></details>
+    <div class="sub" style="margin-top:6px">📄 <a href="${esc(a.pdf)}" target="_blank" rel="noopener">Leer la alerta completa (PDF)</a> · Fuente: Defensoría del Pueblo, Sistema de Alertas Tempranas. Ubicaciones aproximadas.</div></div>`;
+}
+function buildSegLayer(){
+  const g = L.featureGroup(); let built = false, legend = null;
+  const popO = {maxWidth:Math.min(340, innerWidth - 70), autoPanPadding:[10,10]};
+  const vCentre = vi => { const rings = VEREDAS.f[vi][2].map(rs => decPoly(rs[0])); let best = rings[0], bA = 0;
+    for (const r of rings) { const b = L.latLngBounds(r), A = (b.getNorth() - b.getSouth()) * (b.getEast() - b.getWest()); if (A > bA) { bA = A; best = r; } }
+    let la = 0, lo = 0; best.forEach(p => { la += p[0]; lo += p[1]; }); return [la / best.length, lo / best.length]; };
+  const findV = (mn, name) => { const mi = VEREDAS.m.indexOf(mn), k = segNorm(name); return VEREDAS.f.findIndex(f => f[0] === mi && segNorm(f[1]) === k); };
+  function build(){
+    for (const a of SEG_AT) {
+      // 1) municipios, faint
+      for (const mn of Object.keys(a.mun)) {
+        const f = TOLIMA_GEO.mun.features.find(x => x.properties.n === mn); if (!f) continue;
+        L.geoJSON(f, {style:{color:SEG_COL.ver, weight:2, opacity:0.9, fillColor:SEG_COL.mun, fillOpacity:0.13}})
+          .bindTooltip(`🛡️ ${esc(mn)} · ${esc(a.n)} (${esc(a.mun[mn].esc.toLowerCase())})`, {sticky:true, direction:"top", className:"muntip"})
+          .bindPopup(() => segMunHtml(a, mn), popO).addTo(g);
+      }
+      // 2) veredas named in the alert, darker
+      for (const [mn, names] of Object.entries(a.dv)) for (const name of names) {
+        const vi = findV(mn, name); if (vi < 0) continue;
+        const vn = VEREDAS.f[vi][1], urb = /^Z U /.test(vn);
+        L.polygon(VEREDAS.f[vi][2].map(rs => rs.map(decPoly)), {color:SEG_COL.cas, weight:1, opacity:0.9, fillColor:SEG_COL.ver, fillOpacity:urb ? 0.75 : 0.5})
+          .bindTooltip(`<b>${esc(urb ? "Casco urbano de " + mn : vn)}</b><br>${esc(mn)} · nombrada en la ${esc(a.n)}`, {sticky:true, direction:"top", className:"muntip"})
+          .bindPopup(() => segMunHtml(a, mn, `<div class="sub" style="margin-bottom:3px">${urb ? "Casco urbano" : "Vereda"} <b>${esc(urb ? mn : vn)}</b></div>`), popO).addTo(g);
+      }
+      // 3) corridors (approximate)
+      for (const [n, pts] of a.cor) L.polyline(pts, {color:SEG_COL.cas, weight:2.5, opacity:0.85, dashArray:"6 5"})
+        .bindTooltip(`Corredor ${esc(n)}<br><span class="sub">Trazado aproximado (une los lugares, no sigue la vía)</span>`, {sticky:true}).addTo(g);
+      // 4) cascos urbanos and centros poblados
+      for (const [n, la, lo, mn, cab] of a.cp) L.circleMarker([la, lo], {radius:cab ? 8 : 6, color:"#fff", weight:2, fillColor:SEG_COL.cas, fillOpacity:0.95})
+        .bindTooltip(`<b>${esc(n)}</b> · ${cab ? "cabecera municipal" : "centro poblado, " + esc(mn)}`, {direction:"top"})
+        .bindPopup(() => segMunHtml(a, mn, `<div class="sub" style="margin-bottom:3px">${cab ? "Casco urbano" : "Centro poblado"} <b>${esc(n)}</b></div>`), popO).addTo(g);
+      // 5) illegal mining
+      for (const [n, mn, where, note] of a.min) {
+        let ll = where; if (typeof where === "string") { const vi = findV(mn, where); if (vi < 0) continue; ll = vCentre(vi); }
+        L.marker(ll, {icon:L.divIcon({className:"", html:segMinIcon(16), iconSize:[16,15], iconAnchor:[8,10]}), zIndexOffset:300})
+          .bindTooltip(`⛏️ <b>Extracción ilícita de oro</b><br>${esc(n)} (${esc(mn)})${note ? "<br>" + esc(note) : ""}`, {direction:"top", offset:[0,-6]})
+          .bindPopup(() => segMunHtml(a, mn, `<div class="sub" style="margin-bottom:3px">⛏️ Extracción ilícita de oro: <b>${esc(n)}</b>${note ? " · " + esc(note) : ""}</div>`), popO).addTo(g);
+      }
+      // 6) armed groups present in each municipio (symbols placed inside the municipio, not at an exact spot)
+      for (const [mn, ll] of Object.entries(a.ap)) { const ks = a.mun[mn].act;
+        L.marker(ll, {icon:L.divIcon({className:"", html:`<span class="segactm">${ks.map(k => segActIcon(k, 20)).join("")}</span>`, iconSize:[22 * ks.length, 22], iconAnchor:[11 * ks.length, 11]}), zIndexOffset:400})
+          .bindTooltip(`${ks.map(k => esc(SEG_ACT[k].n)).join("<br>")}<br><span class="sub">Presencia en ${esc(mn)} (símbolo en el municipio, no un punto exacto)</span>`, {direction:"top", offset:[0,-10]})
+          .bindPopup(() => segMunHtml(a, mn), popO).addTo(g);
+      }
+    }
+  }
+  g.on("add", () => { if (!built) { built = true; build(); }
+    legend = L.control({position:"bottomright"});
+    legend.onAdd = () => { const d = L.DomUtil.create("div", "maplegend seglg");
+      d.innerHTML = `<div class="hd">Seguridad <span>Alertas Tempranas</span></div>
+        <div><span class="sw" style="background:${SEG_COL.mun}22;border-color:${SEG_COL.ver}"></span>Municipio en alerta</div>
+        <div><span class="sw" style="background:${SEG_COL.ver}99;border-color:${SEG_COL.cas}"></span>Vereda / corregimiento nombrado</div>
+        <div><span class="sw dot" style="background:${SEG_COL.cas}"></span>Casco urbano o centro poblado</div>
+        <div>${segMinIcon(14)} Extracción ilícita de oro</div>
+        ${Object.keys(SEG_ACT).map(k => `<div>${segActIcon(k, 14)} ${esc(SEG_ACT[k].n.replace(/ \(.*\)$/, ""))}</div>`).join("")}
+        <div><span class="sw ln" style="border-color:${SEG_COL.cas}"></span>Corredor (aprox.)</div>`;
+      L.DomEvent.disableClickPropagation(d); return d; };
+    legend.addTo(g._map); });
+  g.on("remove", () => { legend?.remove(); legend = null; });
+  return g;
+}
 // Explanations shown by the "i" buttons (Spanish, plain language)
 const GL = "https://gibs.earthdata.nasa.gov/legends/";
 // ---- Fire weather (GWIS / Copernicus): ECMWF Fire Weather Index forecast as danger classes, and active fire hotspots.
@@ -1969,6 +2107,10 @@ const INFO = {
      <p>Cada punto es un evento inventariado, coloreado por tipo:
      <span style="color:#8d5524">●</span> deslizamiento · <span style="color:#e0a100">●</span> caída (de roca, detritos o tierra) · <span style="color:#00897b">●</span> flujo (de lodo, detritos o tierra, avalanchas) · <span style="color:#7cb342">●</span> reptación · <span style="color:#616161">●</span> otros (volcamiento, deformaciones).</p>
      <p>Es un inventario histórico: muestra dónde ya ha habido movimientos, que suelen repetirse con lluvias fuertes, no alertas actuales. Toque un punto para ver tipo, subtipo, municipio y código SIMMA. El archivo del inventario no trae la fecha de cada evento; la fecha se puede consultar con el código en el SIMMA. Más información en <a href="https://simma.sgc.gov.co" target="_blank" rel="noopener">simma.sgc.gov.co</a>.</p>`],
+  seguridad: ["Seguridad: Alertas Tempranas (Defensoría del Pueblo)",
+    `<p>Zonas advertidas por el <b>Sistema de Alertas Tempranas</b> de la Defensoría del Pueblo por riesgo de violaciones a los derechos humanos y al DIH relacionadas con el conflicto armado. Ahora muestra la <b>Alerta Temprana 031 de 2026</b> (18 nov 2026, riesgo <b>alto</b>) para Ataco, Chaparral, Rioblanco y Planadas.</p>
+     <p>Los municipios de la alerta van en color tenue; los corregimientos, veredas y cascos urbanos que nombra la alerta, en un tono más oscuro del mismo color. Los triángulos rojos son sectores con extracción ilícita de oro, y los símbolos de estrella y círculo indican los grupos armados presentes en cada municipio (EMC, Segunda Marquetalia, EGC), como en el mapa de la Defensoría.</p>
+     <p><b>Ubicaciones aproximadas:</b> la alerta da los lugares por nombre. Se buscaron en la capa de veredas del DANE (2020) y, si no es una vereda, en OpenStreetMap. Algunos sectores (Aponte, La Hamaca, Apa, El Oso, río Mendarco) no se encontraron y solo aparecen en el texto. Los símbolos de grupos armados no marcan un punto exacto y los corredores son líneas rectas entre los lugares que unen. Toque cualquier zona para ver el resumen y el PDF de la alerta.</p>`],
   volcanes: ["Alerta volcánica (SGC)",
     `<p>Nivel de actividad que el <b>Servicio Geológico Colombiano</b> asigna a los volcanes que pueden afectar al Tolima: <b>Cerro Machín</b> (Cajamarca), <b>Nevado del Ruiz</b> (límite Caldas–Tolima) y <b>Nevado del Tolima</b>. El triángulo lleva el color y el número del nivel:</p>
      <p><span class="vlvl" style="background:#43a047;color:#fff">Verde · IV</span> volcán activo en reposo · <span class="vlvl" style="background:#fdd835;color:#222">Amarilla · III</span> cambios en el nivel base de lo que se vigila · <span class="vlvl" style="background:#f57c00;color:#fff">Naranja · II</span> erupción probable en días o semanas · <span class="vlvl" style="background:#d32f2f;color:#fff">Roja · I</span> erupción inminente o en curso.</p>
@@ -2129,6 +2271,8 @@ function renderMap(){
         [`Peligro de incendio, pronóstico (GWIS) ${infoBtn("fwi", "índice de incendio")}`, buildFwiLayer()]]],
       ["Salud", [
         [`Hospitales y prestadores de salud (REPS) ${infoBtn("salud", "prestadores de salud")}`, buildSaludLayer()]]],
+      ["Seguridad", [
+        [`Alertas Tempranas (Defensoría) ${infoBtn("seguridad", "alertas tempranas")}`, buildSegLayer()]]],
     ];
     const inGroup = new Set(LAYER_GROUPS.flatMap(([, ls]) => ls.map(([, l]) => l)));
     for (const o of Object.values(SAT)) if (!inGroup.has(o.layer)) LAYER_GROUPS[2][1].push(satL(Object.keys(SAT).find(k => SAT[k] === o)));
