@@ -267,6 +267,7 @@ h2 button.info{vertical-align:2px}
 #vehdlg .vi svg{width:36px;height:22.5px;display:block}
 #vehdlg .infh{margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--line);font-size:15px}
 #vehdlg .infq{display:flex;gap:6px 10px;flex-wrap:wrap;align-items:center;margin:6px 0}
+#vehdlg .infq select{font:inherit;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg);max-width:100%}
 #vehdlg .infq input{font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg)}
 #vehdlg{overflow-x:hidden}
 #vehdlg .inft{overflow-x:auto;max-width:100%;margin:8px 0}
@@ -514,7 +515,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
 <script src="vendor/supabase-2.118.0.min.js"></script>
 <script src="incstore.js?v=26"></script>
 <script src="alertas.js?v=2" defer></script>
-<script src="ubicaciones.js?v=15"></script>
+<script src="ubicaciones.js?v=16"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.

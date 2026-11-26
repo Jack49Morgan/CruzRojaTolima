@@ -233,14 +233,28 @@ const hav = (a, b) => { const R = 6371.0088, r = Math.PI / 180, dl = (b.lat - a.
   return 2 * R * Math.asin(Math.sqrt(Math.sin(dl / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dn / 2) ** 2)); };
 let trailInfo = null;   // {clave, nombre, pts:[{lat,lon,creado,velocidad,km}]}
 const trailBar = document.createElement("div"); trailBar.className = "trailbar"; trailBar.hidden = true;
-async function showTrail(clave){
+// route points, 1000 per request (the server's page size), up to 60 000 points
+async function puntos(clave, desde, hasta){
+  const out = [];
+  for (let i = 0; i < 60000; i += 1000) {
+    let q = sb.from("ubicaciones_recorrido").select("lat,lon,velocidad,creado").eq("clave", clave);
+    if (desde) q = q.gte("creado", desde); if (hasta) q = q.lt("creado", hasta);
+    const {data, error} = await q.order("creado").range(i, i + 999);
+    if (error) return {error};
+    out.push(...data); if (data.length < 1000) break;
+  }
+  return {data:out};
+}
+const fechaHora = iso => new Date(iso).toLocaleString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit", hour12:false});
+// showTrail(clave): last 24 h from the map. showTrail(clave, "2026-11-20", "2026-11-25", nombre): Historial, whole days in Colombia time
+async function showTrail(clave, dDesde, dHasta, nombre){
   trail.clearLayers();
-  let {data, error} = await sb.from("ubicaciones_recorrido").select("lat,lon,velocidad,creado").eq("clave", clave).order("creado").limit(5000);
-  if (error) ({data, error} = await sb.from("ubicaciones_recorrido").select("lat,lon,creado").eq("clave", clave).order("creado").limit(5000));   // before the velocidad column
-  const r = rows[clave];
+  const hist = !!dDesde, sig = d => new Date(Date.parse(d + "T00:00:00Z") + 864e5).toISOString().slice(0, 10);
+  const {data, error} = await puntos(clave, hist ? dDesde + "T00:00:00-05:00" : null, hist ? sig(dHasta) + "T00:00:00-05:00" : null);
+  const r = rows[clave], quien = nombre || r?.nombre || "";
   if (!map.getContainer().contains(trailBar)) { map.getContainer().append(trailBar); L.DomEvent.disableClickPropagation(trailBar); }
   if (error || !data?.length) { trailInfo = null; trailBar.hidden = false;
-    trailBar.innerHTML = `<span>${esc(r?.nombre || "")}: sin recorrido en las últimas 24 h</span><button type="button" data-tb="x" aria-label="Cerrar">✕</button>`; return; }
+    trailBar.innerHTML = `<span>${esc(quien)}: ${error ? "no se pudo leer el recorrido" : hist ? "sin recorrido en esas fechas" : "sin recorrido en las últimas 24 h"}</span><button type="button" data-tb="x" aria-label="Cerrar">✕</button>`; return; }
   // the route is split where the GPS was silent for a while and the vehicle reappears elsewhere, or where the jump is
   // impossible (a test point, a bad fix): no straight line is drawn across, and those km are not added.
   // Moves under 30 m are GPS wobble and are not added either.
@@ -252,21 +266,22 @@ async function showTrail(clave){
     else { segs.at(-1).push(p); const da = hav(anchor, p); if (da >= 0.03) { km += da; anchor = p; } }
     p.km = Math.round(km * 100) / 100;
   }
-  trailInfo = {clave, nombre:r?.nombre || clave, pts:data, segs};
+  trailInfo = {clave, nombre:quien || clave, pts:data, segs};
   const color = COLORS[r?.tipo] || "#616161";
   for (const sg of segs) if (sg.length > 1)
     L.polyline(sg.map(p => [p.lat, p.lon]), {pane:"loc", color, weight:3, opacity:0.8, dashArray:"1 6", lineCap:"round"}).addTo(trail);
   for (const p of data.filter((_, i) => i % Math.max(1, Math.ceil(data.length / 60)) === 0))
     L.circleMarker([p.lat, p.lon], {pane:"loc", radius:3, color, weight:1, fillOpacity:0.7})
       .bindTooltip(IncUtil.hora(p.creado)).addTo(trail);
-  const b = L.latLngBounds(data.map(p => [p.lat, p.lon])); if (r) b.extend([r.lat, r.lon]);
+  const b = L.latLngBounds(data.map(p => [p.lat, p.lon])); if (r && !hist) b.extend([r.lat, r.lon]);
   map.closePopup(); map.fitBounds(b, {padding:[30, 30], maxZoom:15});
   trailBar.hidden = false;
-  trailBar.innerHTML = `<span><b>${esc(trailInfo.nombre)}</b> · ${IncUtil.hora(data[0].creado)} a ${IncUtil.hora(data.at(-1).creado)} · ${nf(km)} km</span>
+  const dur = (new Date(data.at(-1).creado) - new Date(data[0].creado)) / 60e3;
+  trailBar.innerHTML = `<span><b>${esc(trailInfo.nombre)}</b> · ${hist ? `${esc(fechaHora(data[0].creado))} a ${esc(fechaHora(data.at(-1).creado))} (${Math.floor(dur / 60)} h ${String(Math.round(dur % 60)).padStart(2, "0")} min)` : `${IncUtil.hora(data[0].creado)} a ${IncUtil.hora(data.at(-1).creado)}`} · ${nf(km)} km</span>
     <span class="tbx">Exportar: <button type="button" data-tb="gpx">GPX</button><button type="button" data-tb="kml">KML</button><button type="button" data-tb="csv">CSV</button></span>
     <button type="button" data-tb="x" aria-label="Cerrar recorrido">✕</button>`;
 }
-// route export: GPX (GPS apps), KML (Google Earth / Maps), CSV (Excel). Only the last 24 h are kept.
+// route export: GPX (GPS apps), KML (Google Earth / Maps), CSV (Excel)
 function exportTrail(fmt){
   const t = trailInfo; if (!t) return;
   const x = s => String(s).replace(/[<>&"]/g, c => ({"<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;"})[c]);
@@ -406,6 +421,7 @@ async function renderVeh(){
       <select data-vclase="${v.id}" aria-label="Tipo de ${esc(v.nombre)}">${CLASES.map(([k, e]) => `<option value="${k}"${v.clase === k ? " selected" : ""}>${e}</option>`).join("")}</select>
       ${v.activo ? "" : `<button type="button" class="btn" data-von="${v.id}" data-a="1">Activar</button>`}
       <button type="button" class="btn del" data-vdel="${v.id}">🗑 Eliminar</button></span></li>`).join("") || "<li>Aún no hay vehículos.</li>"}</ul>
+    ${historialHtml()}
     ${informeHtml()}`;
 }
 async function showQr(id, nueva = false){
@@ -463,6 +479,19 @@ function tablaKm(filas, desde, hasta){
   for (const v of list) v.total = Object.values(v.km).reduce((a, b) => a + b, 0);
   return {cols, porSemana, list};
 }
+// "Historial de recorridos": a vehicle's route over past days, drawn on the map (kept 90 days, see recorrido_dias())
+const hoyCO = () => new Date().toLocaleDateString("sv-SE", {timeZone:"America/Bogota"});
+const hist = {v:"", desde:"", hasta:""};
+function historialHtml(){
+  const lst = vehs.filter(v => v.activo);
+  if (!hist.desde) hist.desde = hist.hasta = hoyCO();
+  return `<h4 class="infh">🗺 Historial de recorridos</h4>
+    <div class="infq"><select id="hisv" aria-label="Vehículo">${lst.map(v => `<option value="${v.id}"${String(v.id) === hist.v ? " selected" : ""}>${esc(v.nombre)}</option>`).join("")}</select></div>
+    <div class="infq"><label>Desde <input type="date" id="hisd" value="${hist.desde}" max="${hoyCO()}"></label><label>Hasta <input type="date" id="hish" value="${hist.hasta}" max="${hoyCO()}"></label></div>
+    <div class="infq"><button type="button" class="btn" data-his="hoy">Hoy</button><button type="button" class="btn" data-his="ayer">Ayer</button>
+      <button type="button" class="btn new" data-his="ver"${lst.length ? "" : " disabled"}>Ver en el mapa</button></div>
+    <p class="sub">Se guardan los últimos 90 días. En el mapa puede exportar el recorrido (GPX, KML o CSV).</p>`;
+}
 function informeHtml(){
   const t = inf.filas ? tablaKm(inf.filas, inf.desde, inf.hasta) : null;
   const head = t ? t.cols.map(c => `<th>${t.porSemana ? "sem. " + diaCorto(c) : diaCorto(c)}</th>`).join("") : "";
@@ -512,6 +541,15 @@ if (vbtn) {
       if (inf.hasta < inf.desde) [inf.desde, inf.hasta] = [inf.hasta, inf.desde];
       if (k === "xls") return descargarInforme();
       return cargarInforme(); }
+    if (b.dataset.his) { const g = id => vbody().querySelector(id);
+      hist.v = g("#hisv")?.value || ""; hist.desde = g("#hisd").value || hoyCO(); hist.hasta = g("#hish").value || hist.desde;
+      if (b.dataset.his === "hoy") hist.desde = hist.hasta = hoyCO();
+      if (b.dataset.his === "ayer") hist.desde = hist.hasta = new Date(Date.parse(hoyCO() + "T12:00:00Z") - 864e5).toISOString().slice(0, 10);
+      if (hist.hasta < hist.desde) [hist.desde, hist.hasta] = [hist.hasta, hist.desde];
+      if (b.dataset.his !== "ver") { g("#hisd").value = hist.desde; g("#hish").value = hist.hasta; return; }
+      const v = vehs.find(x => String(x.id) === hist.v); if (!v) return;
+      vdlg().close(); document.getElementById("map")?.scrollIntoView({behavior:"smooth", block:"center"});
+      showTrail("d:" + v.id, hist.desde, hist.hasta, v.nombre); return; }
     if (b.dataset.vqr) showQr(+b.dataset.vqr);
     else if (b.dataset.vnew) showQr(+b.dataset.vnew, true);
     else if (b.dataset.vprint) printQr();

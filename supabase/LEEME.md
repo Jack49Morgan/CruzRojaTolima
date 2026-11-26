@@ -125,6 +125,10 @@ El número del nombre (20) se ve sobre el ícono del carro. El nombre se puede c
 - **🅿 Terminar recorrido** (página del QR): tóquelo al dejar el vehículo, por ejemplo en el garaje. El vehículo sale
   del mapa y aparece como **Fuera de servicio** en 🚑 Vehículos, aunque el conductor se vaya con el celular; OwnTracks pasa a modo silencioso y los km del día quedan
   guardados. Al día siguiente, escanee el QR y toque **Conectar**.
+- **🗺 Historial de recorridos** (panel 🚑 Vehículos): elija el vehículo y las fechas y toque **Ver en el mapa**; desde ahí se
+  exporta en GPX, KML o CSV. Los recorridos de vehículos se guardan **90 días** (cámbielo en `recorrido_dias()` en
+  `ubicaciones.sql`); los de personas, 24 h. Unos 170 bytes por punto: 10 vehículos × 8 h diarias ≈ 150 MB en 90 días
+  (el plan gratis de Supabase da 500 MB de base de datos).
 - **📊 Kilómetros por semana** (panel 🚑 Vehículos): elija la semana o las fechas y toque **⬇ Descargar para Excel**.
   Los km de cada día se guardan sin límite de tiempo (las posiciones, solo 24 h).
 

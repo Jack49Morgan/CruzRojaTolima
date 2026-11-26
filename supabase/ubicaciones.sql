@@ -42,6 +42,10 @@ create table if not exists public.ubicaciones (
 );
 
 -- Recorrido de las últimas 24 h (se llena solo desde la tabla anterior).
+-- Cuántos días se guardan los recorridos de los vehículos (Historial). Cambie el número aquí y vuelva a correr el archivo.
+-- Las personas que comparten su ubicación solo guardan 24 h.
+create or replace function public.recorrido_dias() returns int language sql immutable as $$ select 90 $$;
+
 create table if not exists public.ubicaciones_recorrido (
   id     bigint generated always as identity primary key,
   clave  text not null,
@@ -72,7 +76,8 @@ language plpgsql security definer set search_path = public as $$
 begin
   if tg_op = 'UPDATE' and new.creado = old.creado and new.lat = old.lat and new.lon = old.lon then return new; end if;
   insert into public.ubicaciones_recorrido (clave, lat, lon, velocidad, creado) values (new.clave, new.lat, new.lon, new.velocidad, new.creado);
-  delete from public.ubicaciones_recorrido where creado < now() - interval '24 hours';
+  delete from public.ubicaciones_recorrido where creado < now() - interval '24 hours'
+    and (clave like 'u:%' or creado < now() - public.recorrido_dias() * interval '1 day');
   delete from public.ubicaciones where creado < now() - interval '24 hours';
   return new;
 end $$;
