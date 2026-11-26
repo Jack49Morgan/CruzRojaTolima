@@ -61,6 +61,7 @@ h1{font-size:22px;font-weight:600;margin:0;letter-spacing:-.01em}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
 .seg button{border:0;background:none;color:var(--fg);padding:6px 12px;font:inherit;cursor:pointer}
 .seg button[aria-pressed=true]{background:var(--navy);color:#fff}
+a.btn{text-decoration:none}
 .btn{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
 button:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
 header button:focus-visible{outline-color:#fff}
@@ -359,6 +360,7 @@ h2 button.info{vertical-align:2px}
       <button class="btn new" id="sendalertbtn" type="button" aria-haspopup="dialog" hidden>📣 Enviar alerta</button>
       <button class="btn" id="locbtn" type="button" aria-haspopup="dialog" hidden>📍 Compartir mi ubicación</button>
       <button class="btn" id="vehbtn" type="button" aria-haspopup="dialog" hidden>🚑 Vehículos</button>
+      <a class="btn" id="mivehbtn" href="owntracks.html" hidden>🚑 Mi vehículo</a>
       <button class="btn new" type="button" data-newinc hidden>＋ Evento</button>
     </div>
   </header>
@@ -509,7 +511,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
 <script src="vendor/supabase-2.118.0.min.js"></script>
 <script src="incstore.js?v=26"></script>
 <script src="alertas.js?v=2" defer></script>
-<script src="ubicaciones.js?v=11"></script>
+<script src="ubicaciones.js?v=12"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.

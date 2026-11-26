@@ -364,6 +364,12 @@ window.initUbicaciones = (m, c) => {
 /* ---------------- "🚑 Vehículos": add vehicles and print the QR that connects a phone to each ---------------- */
 // Scanning a vehicle's QR opens owntracks.html, which loads that vehicle into OwnTracks (iPhone and Android).
 // A driver who changes trucks scans the QR stuck in the new truck; the phone then reports as that one.
+// "Mi vehículo": this phone scanned a vehicle's QR (owntracks.html remembers it), so the dashboard offers a shortcut
+// back to that vehicle's Pausar / Reanudar / Terminar buttons, signed in or not
+(() => { const b = document.getElementById("mivehbtn"); if (!b) return;
+  let m = null; try { m = JSON.parse(localStorage.getItem("crt-mi-vehiculo")); } catch {}
+  if (!m?.k) return;
+  b.href = "owntracks.html#" + new URLSearchParams({n:m.n, k:m.k, t:m.t || ""}); b.textContent = "🚑 Mi vehículo: " + m.n; b.hidden = false; })();
 const vbtn = document.getElementById("vehbtn"), vdlg = () => document.getElementById("vehdlg"), vbody = () => document.getElementById("vehb");
 let qrLib = null;
 const loadQr = () => qrLib ??= new Promise((ok, bad) => { if (self.qrcode) return ok(self.qrcode);

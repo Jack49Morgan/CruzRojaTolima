@@ -97,6 +97,8 @@ Con sesión iniciada, el botón **🚑 Vehículos** del tablero:
   y active **Allow external configuration**. Sin eso OwnTracks responde *"URI or file configuration not allowed"*.
   La página del QR también muestra la URL (**Configurar a mano** > **Copiar URL**) para pegarla en modo HTTP.
 - **Cambiar de vehículo**: el conductor escanea el QR del otro vehículo. El celular pasa a enviar como ese.
+- **Mi vehículo**: el celular recuerda el último vehículo escaneado. En el tablero aparece **🚑 Mi vehículo: Móvil 20**, que abre
+  Pausar / Reanudar / Terminar sin escanear. También se puede **Agregar a inicio** (Safari) o **a la pantalla principal** (Chrome).
 - **🗑 Eliminar**: borra el vehículo (pide confirmación); su QR deja de servir. Sus km de días pasados siguen en el informe semanal.
 - Vehículos creados antes con `nuevo_dispositivo()` no tienen la clave guardada: el panel ofrece darles una clave
   nueva para hacer su QR (el celular que usaba la clave anterior debe escanear el QR nuevo).
