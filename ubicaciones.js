@@ -497,6 +497,7 @@ if (vbtn) {
   vbtn.addEventListener("click", () => openVeh());
 
   document.addEventListener("submit", async e => { const f = e.target.closest?.(".vehadd"); if (!f) return; e.preventDefault();
+    const bt = f.querySelector("button"); if (bt.disabled) return; bt.disabled = true;   // a double tap must not create it twice
     const {data:id, error} = await sb.rpc("crear_vehiculo", {nombre:f.n.value.trim(), clase:f.c.value});
     vmsg = error ? `<span class="err">${esc(error.message)}</span>` : "";
     await renderVeh(); if (!error) showQr(id); });

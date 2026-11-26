@@ -305,6 +305,10 @@ begin
   if auth.uid() is null then raise exception 'Inicie sesión'; end if;
   if coalesce(n, '') = '' then raise exception 'Escriba el nombre del vehículo, por ejemplo Móvil 20'; end if;
   if crear_vehiculo.clase not in ('camioneta', 'pickup', 'ambulancia', 'bicicleta') then raise exception 'Clase de vehículo no válida'; end if;
+  if exists (select 1 from public.dispositivos d left join public.ubicaciones_nombres un on un.clave = 'd:' || d.id
+             where d.tipo <> 'servidor' and lower(coalesce(un.nombre, d.nombre)) = lower(n)) then
+    raise exception 'Ya existe un vehículo llamado %. Use su Código QR o elija otro nombre.', n;
+  end if;
   insert into public.dispositivos (nombre, tipo, clave_hash, clave_qr, clase)
   values (n, 'vehiculo', encode(extensions.digest(k, 'sha256'), 'hex'), k, crear_vehiculo.clase) returning id into i;
   return i;
