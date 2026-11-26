@@ -375,7 +375,6 @@ h2 button.info{vertical-align:2px}
       <button class="btn" id="refresh">Actualizar</button>
       <button class="btn" id="alertbtn" type="button" aria-haspopup="dialog">🔔 Recibir alertas</button>
       <button class="btn new" id="sendalertbtn" type="button" aria-haspopup="dialog" hidden>📣 Enviar alerta</button>
-      <button class="btn" id="locbtn" type="button" aria-haspopup="dialog" hidden>📍 Compartir mi ubicación</button>
       <button class="btn" id="vehbtn" type="button" aria-haspopup="dialog" hidden>🚑 Vehículos</button>
       <a class="btn" id="mivehbtn" href="owntracks.html" hidden>🚑 Mi vehículo</a>
       <button class="btn new" type="button" data-newinc hidden>＋ Evento</button>
@@ -528,7 +527,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
 <script src="vendor/supabase-2.118.0.min.js"></script>
 <script src="incstore.js?v=27"></script>
 <script src="alertas.js?v=3" defer></script>
-<script src="ubicaciones.js?v=19"></script>
+<script src="ubicaciones.js?v=20"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -706,11 +705,6 @@ function initIncidents(map, ctrl){
 <dialog id="vehdlg" aria-labelledby="veht">
   <div class="dlghd"><h3 id="veht">🚑 Vehículos</h3><span class="dlgb"><button type="button" class="dlgx" id="vehedit" hidden>✏ Editar</button><form method="dialog"><button class="dlgx" aria-label="Cerrar">✕ Cerrar</button></form></span></div>
   <div id="vehb"></div>
-  <form method="dialog" style="text-align:right;margin-top:8px"><button class="btn">Cerrar</button></form>
-</dialog>
-<dialog id="locdlg" aria-labelledby="loct">
-  <h3 id="loct">📍 Compartir mi ubicación</h3>
-  <div id="locb"></div>
   <form method="dialog" style="text-align:right;margin-top:8px"><button class="btn">Cerrar</button></form>
 </dialog>
 <dialog id="alertdlg" aria-labelledby="alertt">
