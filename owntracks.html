@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mi vehículo"><meta name="theme-color" content="#c8102e">
 <title>Conectar vehículo</title>
 <!-- Opened by the QR code of a vehicle (panel "🚑 Vehículos" in the dashboard). The vehicle's name, key and number
      travel in the part after "#", which the browser never sends to any server. The button hands OwnTracks a
@@ -28,6 +30,11 @@ button.big{width:100%;border:0;font:inherit;font-weight:700;font-size:17px;curso
 .big.end{background:var(--navy)}
 .row{display:flex;gap:8px}.row .big{flex:1;margin:8px 0}
 .big.pause{background:#e68a00}
+.ctl .big{padding:20px 14px;font-size:20px}
+details.home,details.setup{margin-top:14px;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+details.home summary,details.setup summary{font-weight:600;cursor:pointer}
+.note{background:rgba(230,138,0,.12);border:1px solid rgba(230,138,0,.45);border-radius:10px;padding:10px 12px;font-size:14px}
+.copy{margin:6px 0;padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;font-size:14px;cursor:pointer}
 @media (prefers-color-scheme:dark){.big.end{background:#2f4f86}}
 </style>
 </head>
@@ -37,6 +44,12 @@ button.big{width:100%;border:0;font:inherit;font-weight:700;font-size:17px;curso
 (() => {
   const c = document.getElementById("c");
   const esc = s => String(s).replace(/[&<>"]/g, x => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[x]);
+  // this phone remembers its vehicle: opened without the QR part (home-screen icon, "Mi vehículo" on the dashboard),
+  // the page uses the last vehicle scanned here
+  const KEY = "crt-mi-vehiculo";
+  const st = { get(){ try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch { return null; } },
+    set(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch {} } };
+  if (!/[#&]k=/.test(location.hash)) { const m = st.get(); if (m?.k) history.replaceState(null, "", "#" + new URLSearchParams({n:m.n, k:m.k, t:m.t || ""})); }
   const p = new URLSearchParams(location.hash.slice(1));
   const nombre = p.get("n") || "Vehículo", clave = p.get("k") || "", tid = (p.get("t") || "").slice(-2);
   const base = "https://hxwntvubhxahzsfhxgav.supabase.co/functions/v1/ubicacion";   // same project as INC_CONFIG
@@ -51,33 +64,44 @@ button.big{width:100%;border:0;font:inherit;font-weight:700;font-size:17px;curso
   const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   // OwnTracks "Quiet" mode (monitoring -1): it stops sending until the driver connects again
   const quiet = "owntracks:///config?inline=" + encodeURIComponent(btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify({...cfg, monitoring:-1})))));
-  document.title = "Conectar " + nombre;
-  c.innerHTML = `<h1>🚑 ${esc(nombre)}</h1>
-    <p class="sub">Cruz Roja Colombiana, Seccional Tolima · ubicación en vivo</p>
-    <p>Este celular va a enviar su ubicación como <b>${esc(nombre)}</b>. Si estaba conectado a otro vehículo, cambia a este.</p>
+  const prev = st.get(), conectado = prev?.k === clave && prev.c;
+  st.set({n:nombre, k:clave, t:p.get("t") || "", c:conectado ? 1 : 0});
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  document.title = nombre;
+  const setup = `<p>Este celular va a enviar su ubicación como <b>${esc(nombre)}</b>. Si estaba conectado a otro vehículo, cambia a este.</p>
+    <p class="note"><b>Solo la primera vez:</b> en OwnTracks abra ${ios ? "⚙️ <b>Settings</b>" : "☰ <b>Preferences</b>"} → <b>Remote Control</b> y active
+      <b>Allow external configuration</b> (confirme el aviso). Si no, OwnTracks dice <i>"configuration not allowed"</i>.</p>
     <a class="big" id="go" href="${link}">Conectar a ${esc(nombre)} en OwnTracks</a>
     <ol>
       <li>Toque el botón rojo y elija <b>Abrir</b> en OwnTracks. Si pregunta, acepte la configuración (<b>Import</b> o <b>Importar</b>).</li>
       <li>Dé permiso de ubicación <b>${ios ? "Siempre" : "Permitir todo el tiempo"}</b>${ios ? " con Ubicación exacta" : " y desactive el ahorro de batería para OwnTracks"}.</li>
       <li>En OwnTracks toque la flecha de publicar (⇧) una vez. En el tablero aparece ${esc(nombre)}.</li>
     </ol>
-    <h2>Pausa</h2>
-    <p>Para una parada (almuerzo, atención): el vehículo queda fijo en el mapa donde está y no sigue al celular. El día no se cierra.</p>
-    <div class="row"><button type="button" class="big pause" id="pausa">⏸ Pausar</button><button type="button" class="big" id="reanudar">▶ Reanudar</button></div>
-    <p class="sub" id="pm">Deje esta página abierta (o guárdela) para reanudar sin escanear de nuevo.</p>
-    <h2>Al terminar el día</h2>
-    <p>Vuelva a escanear el código del vehículo y toque:</p>
-    <button type="button" class="big end" id="fin">🅿 Terminar recorrido de ${esc(nombre)}</button>
-    <p class="sub" id="finm">Tóquelo <b>donde deja el vehículo</b> (por ejemplo en el garaje): queda estacionado en ese punto del mapa
-      aunque usted se vaya con el celular. El celular deja de enviar y los km del día quedan guardados. Para salir otra vez, toque el botón rojo de arriba.</p>
     <p>¿No tiene OwnTracks? Instálelo primero y vuelva a escanear el código:</p>
     <div class="stores"><a href="https://apps.apple.com/app/owntracks/id692424691">iPhone (App Store)</a>
       <a href="https://play.google.com/store/apps/details?id=org.owntracks.android">Android (Google Play)</a></div>
     <details style="margin-top:14px"><summary>Configurar a mano</summary>
-      <p>Modo <b>HTTP</b>, URL:<br><code>${esc(url)}</code><br>TrackerID: <b>${esc(cfg.tid)}</b>, seguimiento en <b>Move</b>.</p></details>`;
+      <p>Modo <b>HTTP</b>, URL:<br><code>${esc(url)}</code><br><button type="button" id="copy" class="copy">Copiar URL</button><br>TrackerID: <b>${esc(cfg.tid)}</b>, seguimiento en <b>Move</b>.</p></details>`;
+  const controles = `<div class="ctl">
+    <div class="row"><button type="button" class="big pause" id="pausa">⏸ Pausar</button><button type="button" class="big" id="reanudar">▶ Reanudar</button></div>
+    <p class="sub" id="pm">Pausa: para una parada (almuerzo, atención). El vehículo queda fijo en el mapa y el día no se cierra.</p>
+    <button type="button" class="big end" id="fin">🅿 Terminar recorrido</button>
+    <p class="sub" id="finm">Al dejar el vehículo (por ejemplo en el garaje): sale del mapa y queda <b>Fuera de servicio</b>.
+      El celular deja de enviar y los km del día quedan guardados. Para salir otra vez, toque <b>Conectar</b>.</p></div>`;
+  const inicio = standalone ? "" : `<details class="home"${conectado ? "" : " open"}><summary>📲 Tener estos botones a mano</summary>
+    <p>${ios ? "En Safari toque <b>Compartir</b> (□↑) y elija <b>Agregar a inicio</b>." : "En Chrome toque <b>⋮</b> y elija <b>Agregar a la pantalla principal</b>."}
+      Queda un ícono <b>Mi vehículo</b> que abre esta página directo, sin escanear. También está en el tablero: botón <b>🚑 Mi vehículo</b>.</p></details>`;
+  c.innerHTML = `<h1>🚑 ${esc(nombre)}</h1>
+    <p class="sub">Cruz Roja Colombiana, Seccional Tolima · ubicación en vivo</p>
+    ${conectado ? `${controles}${inicio}<details class="setup"><summary>Conectar este celular a ${esc(nombre)} (primera vez o al cambiar de vehículo)</summary>${setup}</details>`
+      : `${setup}<h2>Controles del vehículo</h2>${controles}${inicio}`}`;
+  document.getElementById("copy").addEventListener("click", async e => {
+    try { await navigator.clipboard.writeText(url); e.target.textContent = "✓ Copiada"; }
+    catch { const r = document.createRange(); r.selectNodeContents(e.target.previousElementSibling.previousElementSibling); getSelection().removeAllRanges(); getSelection().addRange(r); e.target.textContent = "Seleccionada: copie con el menú"; } });
   // "Conectar": tell the server the vehicle is out again (so its positions count), then hand over to OwnTracks
   document.getElementById("go").addEventListener("click", async e => {
     e.preventDefault();
+    st.set({...st.get(), c:1});
     await Promise.race([fetch(url + "&inicio=1", {method:"POST"}).catch(() => {}), new Promise(r => setTimeout(r, 3000))]);
     location.href = link;
   });
@@ -103,10 +127,10 @@ button.big{width:100%;border:0;font:inherit;font-weight:700;font-size:17px;curso
       const q = c ? `&lat=${c.latitude.toFixed(6)}&lon=${c.longitude.toFixed(6)}&accuracy=${Math.round(c.accuracy)}` : "";
       m.textContent = "Terminando…";
       const r = await fetch(url + "&fin=1" + q, {method:"POST"}); if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || "error " + r.status);
-      if (!c) m.textContent = "Sin GPS en este momento: el vehículo queda en su última posición."; }
+    }
     catch (err) { m.innerHTML = `<span class="err">No se pudo avisar al tablero (${esc(err.message)}). Igual se detiene el envío.</span>`; }
     location.href = quiet;   // OwnTracks opens and switches to Quiet
-    setTimeout(() => { e.target.disabled = false; if (!m.querySelector(".err")) m.innerHTML = `<b>Listo, vehículo estacionado.</b> Si OwnTracks pregunta, acepte la configuración. Para salir otra vez toque <b>Conectar</b>.`; }, 1500);
+    setTimeout(() => { e.target.disabled = false; if (!m.querySelector(".err")) m.innerHTML = `<b>Listo, vehículo fuera de servicio.</b> Si OwnTracks pregunta, acepte la configuración. Para salir otra vez toque <b>Conectar</b>.`; }, 1500);
   });
 })();
 </script>

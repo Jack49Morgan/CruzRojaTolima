@@ -21,7 +21,7 @@ create table if not exists public.dispositivos (
 alter table public.dispositivos enable row level security;
 -- clave del vehículo guardada para su código QR (solo se lee con vehiculo_qr(), con sesión del equipo)
 alter table public.dispositivos add column if not exists clave_qr text;
--- clase de vehículo para su ícono en el mapa: camioneta | bicicleta
+-- clase de vehículo para su ícono en el mapa: camioneta | pickup | ambulancia | bicicleta
 alter table public.dispositivos add column if not exists clase text not null default 'camioneta';
 -- sin políticas: la página no puede leer las claves
 
@@ -304,7 +304,7 @@ declare k text := encode(extensions.gen_random_bytes(18), 'hex'); n text := left
 begin
   if auth.uid() is null then raise exception 'Inicie sesión'; end if;
   if coalesce(n, '') = '' then raise exception 'Escriba el nombre del vehículo, por ejemplo Móvil 20'; end if;
-  if crear_vehiculo.clase not in ('camioneta', 'bicicleta') then raise exception 'Clase de vehículo no válida'; end if;
+  if crear_vehiculo.clase not in ('camioneta', 'pickup', 'ambulancia', 'bicicleta') then raise exception 'Clase de vehículo no válida'; end if;
   insert into public.dispositivos (nombre, tipo, clave_hash, clave_qr, clase)
   values (n, 'vehiculo', encode(extensions.digest(k, 'sha256'), 'hex'), k, crear_vehiculo.clase) returning id into i;
   return i;
@@ -337,12 +337,33 @@ begin
   if not activar_vehiculo.activo then delete from public.ubicaciones where clave = 'd:' || activar_vehiculo.id; end if;
 end $$;
 
+-- Eliminar un vehículo: borra el vehículo, su clave (el QR deja de servir), su posición, su recorrido, su nombre y su
+-- odómetro. Los km de días pasados se conservan en el informe semanal con el nombre que tenía.
+create or replace function public.eliminar_vehiculo(id bigint) returns void
+language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
+declare k text := 'd:' || eliminar_vehiculo.id; n text;
+begin
+  if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  select coalesce(un.nombre, d.nombre) into n from public.dispositivos d left join public.ubicaciones_nombres un on un.clave = k
+    where d.id = eliminar_vehiculo.id and d.tipo <> 'servidor';
+  if n is null then raise exception 'Vehículo no encontrado'; end if;
+  update public.km_diario set nombre = n where clave = k;
+  delete from public.ubicaciones where clave = k;
+  delete from public.ubicaciones_recorrido where clave = k;
+  delete from public.ubicaciones_nombres where clave = k;
+  delete from public.kilometraje where clave = k;
+  delete from public.dispositivos where dispositivos.id = eliminar_vehiculo.id;
+end $$;
+revoke all on function public.eliminar_vehiculo(bigint) from public, anon;
+grant execute on function public.eliminar_vehiculo(bigint) to authenticated;
+
 create or replace function public.clase_vehiculo(id bigint, clase text) returns void
 language plpgsql security definer set search_path = public as $$
 #variable_conflict use_column
 begin
   if auth.uid() is null then raise exception 'Inicie sesión'; end if;
-  if clase_vehiculo.clase not in ('camioneta', 'bicicleta') then raise exception 'Clase de vehículo no válida'; end if;
+  if clase_vehiculo.clase not in ('camioneta', 'pickup', 'ambulancia', 'bicicleta') then raise exception 'Clase de vehículo no válida'; end if;
   update public.dispositivos set clase = clase_vehiculo.clase where dispositivos.id = clase_vehiculo.id;
   update public.ubicaciones set clase = clase_vehiculo.clase where clave = 'd:' || clase_vehiculo.id;
 end $$;
