@@ -186,6 +186,9 @@ h2 button.info{vertical-align:2px}
 #infodlg::backdrop,#alertdlg::backdrop,#locdlg::backdrop,#vehdlg::backdrop{background:#0008}
 #infodlg h3,#alertdlg h3,#locdlg h3,#vehdlg h3{margin:0 0 6px;font-size:16px}
 #infodlg p,#alertdlg p,#locdlg p,#vehdlg p{margin:6px 0}
+#vehdlg .dlghd{position:sticky;top:-16px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-16px -18px 6px;padding:12px 18px 8px;background:var(--panel);border-bottom:1px solid var(--line)}
+#vehdlg .dlghd h3{margin:0}
+#vehdlg .dlgx{font:inherit;font-weight:600;padding:8px 12px;min-height:40px;border:1px solid var(--line);border-radius:8px;background:var(--bg,#fff);color:var(--fg);cursor:pointer}
 #alertdlg ol{margin:6px 0;padding-left:22px}
 #alertdlg label{display:grid;gap:4px;margin:8px 0}
 #alertdlg input,#alertdlg textarea{font:inherit;width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg)}
@@ -264,6 +267,7 @@ h2 button.info{vertical-align:2px}
 #vehdlg .vi svg{width:36px;height:22.5px;display:block}
 #vehdlg .infh{margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--line);font-size:15px}
 #vehdlg .infq{display:flex;gap:6px 10px;flex-wrap:wrap;align-items:center;margin:6px 0}
+#vehdlg .infq select{font:inherit;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg);max-width:100%}
 #vehdlg .infq input{font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg,#fff);color:var(--fg)}
 #vehdlg{overflow-x:hidden}
 #vehdlg .inft{overflow-x:auto;max-width:100%;margin:8px 0}
@@ -511,7 +515,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
 <script src="vendor/supabase-2.118.0.min.js"></script>
 <script src="incstore.js?v=26"></script>
 <script src="alertas.js?v=2" defer></script>
-<script src="ubicaciones.js?v=12"></script>
+<script src="ubicaciones.js?v=16"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -678,7 +682,7 @@ function initIncidents(map, ctrl){
 
 </script>
 <dialog id="vehdlg" aria-labelledby="veht">
-  <h3 id="veht">🚑 Vehículos</h3>
+  <div class="dlghd"><h3 id="veht">🚑 Vehículos</h3><form method="dialog"><button class="dlgx" aria-label="Cerrar">✕ Cerrar</button></form></div>
   <div id="vehb"></div>
   <form method="dialog" style="text-align:right;margin-top:8px"><button class="btn">Cerrar</button></form>
 </dialog>
