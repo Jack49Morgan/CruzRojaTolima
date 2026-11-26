@@ -18,7 +18,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=27"></script>
+<script src="incstore.js?v=28"></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -93,6 +93,9 @@ details.edit.nosum>summary{display:none}
 .sumbtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
 #alertbox{display:grid;gap:8px;margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--red);border-radius:8px}
 #alertbox[hidden]{display:none}
+.alchk{display:inline-flex;align-items:center;gap:6px;font-weight:600;cursor:pointer}
+.alchk[hidden]{display:none}
+.alchk input{width:18px;height:18px;accent-color:var(--red)}
 #alertbox label{display:grid;gap:4px}
 #alertbox input,#alertbox textarea{font:inherit;width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg)}
 .printnote{display:none}
@@ -161,7 +164,7 @@ details.edit.nosum>summary{display:none}
         <span class="msg" id="ummsg"></span>
       </div>
       <div class="thumbs" id="uthumbs"></div>
-      <div class="sel" style="align-items:center"><button type="submit" class="btn red" id="upost">Publicar actualización</button><span class="msg" id="umsg" role="status"></span></div>
+      <div class="sel" style="align-items:center"><button type="submit" class="btn red" id="upost">Publicar actualización</button><label class="alchk" hidden><input type="checkbox" id="ualert"> 📣 Enviar también como alerta</label><span class="msg" id="umsg" role="status"></span></div>
     </form>
     <div class="card"><b>Seguimiento</b><ol class="tl" id="tl"></ol></div>
   </section>
@@ -235,6 +238,7 @@ details.edit.nosum>summary{display:none}
 
     <div class="bar">
       <button type="submit" class="btn red" id="save">Guardar evento</button>
+      <label class="alchk" hidden><input type="checkbox" id="salert"> 📣 Enviar como alerta a los celulares</label>
       <button type="button" class="btn danger" id="del" hidden>Eliminar</button>
       <button type="button" class="btn" id="closew" hidden>Cerrar ventana</button>
       <span class="msg" id="smsg" role="status"></span>
@@ -444,6 +448,16 @@ function drawSummary(){
   if ($("#sharebtn")) $("#sharebtn").onclick = () => navigator.share({title:cur.titulo, text:shareText(), url:pubLink()}).catch(() => {});
   if ($("#copybtn")) $("#copybtn").onclick = async () => { try { await navigator.clipboard.writeText(pubLink()); $("#copybtn").textContent = "Enlace copiado"; } catch { prompt("Copie el enlace:", pubLink()); } };
 }
+// "📣 Enviar como alerta" checkboxes on the event and update forms: after saving, the alert box opens
+// prefilled (title, place, status, the new update) so the message can be checked and sent
+const syncAlertChk = () => document.querySelectorAll(".alchk").forEach(l => l.hidden = !(IncStore.remote && IncStore.user()));
+IncStore.ready().then(syncAlertChk); IncStore.onAuth(syncAlertChk);
+function alertAfterSave(chk, on = chk.checked){
+  if (!on || !$("#alertbox")) return;
+  chk.checked = false; $("#alertbox").hidden = true; openAlertBox();
+  $("#alertbox").scrollIntoView({behavior:"smooth", block:"center"});
+  setMsg($("#almsg"), "Revise el mensaje y toque «Enviar».");
+}
 // "📣 Enviar alerta": push this event to every phone subscribed on the dashboard (signed-in team only).
 // Title and text are prefilled from the event and its latest update, and can be edited before sending.
 function openAlertBox(){
@@ -519,12 +533,13 @@ uf.addEventListener("submit", async e => {
   if (!texto && !estado && !Object.keys(af).length && !umedia.length)
     return setMsg($("#umsg"), "Escriba qué hay de nuevo, cambie el estado o agregue una foto.", "bad");
   $("#upost").disabled = true; setMsg($("#umsg"), umedia.length ? "Subiendo fotos y publicando…" : "Publicando…");
+  const wantAlert = $("#ualert").checked;   // uf.reset() below clears it
   try {
     await IncStore.addUpdate(cur.id, {texto, estado, afectados:Object.keys(af).length ? af : null},
       umedia.map(({id, name, type, blob}) => ({id, name, type, blob})));
     umedia.forEach(m => URL.revokeObjectURL(m.url)); umedia = []; drawUThumbs(); setMsg($("#ummsg"), "");
     uf.reset(); $("#ufaf").open = false; try { localStorage.removeItem(draftKey()); } catch {}
-    await refreshCur();
+    await refreshCur(); alertAfterSave($("#ualert"), wantAlert);
     f.estado.value = INC_ESTADO_OPT(cur.estado); for (const k of INC_AFECT_KEYS) f[k].value = cur.afectados?.[k] ?? "";
     setMsg($("#umsg"), `Publicada (${new Date().toLocaleTimeString("es-CO", {hour:"2-digit", minute:"2-digit"})}).`, "ok");
   } catch (err) { setMsg($("#umsg"), "No se pudo publicar: " + err.message + ". El texto sigue aquí; intente de nuevo cuando tenga señal.", "bad"); }
@@ -606,9 +621,9 @@ f.addEventListener("submit", async e => {
     const add = media.filter(m => m.isNew).map(({id, name, type, blob}) => ({id, name, type, blob}));
     const saved = await IncStore.save(inc, add, drop);
     if (isNew) { await load(saved.id, saved); window.scrollTo({top:0, behavior:"smooth"});
-      setMsg($("#umsg"), "Evento guardado. Agregue aquí las actualizaciones a medida que avance.", "ok"); }
+      setMsg($("#umsg"), "Evento guardado. Agregue aquí las actualizaciones a medida que avance.", "ok"); alertAfterSave($("#salert")); }
     else { cur = saved; media = (await IncStore.media(cur.id)).filter(m => !m.updId).map(m => ({...m, isNew:false})); drop = []; drawThumbs();
-      drawSummary(); drawTimeline(); await fillPick();
+      drawSummary(); await drawTimeline(); await fillPick(); alertAfterSave($("#salert"));
       setMsg($("#smsg"), `Guardado (${new Date().toLocaleTimeString("es-CO", {hour:"2-digit", minute:"2-digit"})}). El tablero ya lo muestra.`, "ok"); }
   } catch (err) { setMsg($("#smsg"), "No se pudo guardar: " + err.message + (err.name === "QuotaExceededError" ? " (no hay espacio; quite videos grandes)" : ""), "bad"); }
   $("#save").disabled = false;
