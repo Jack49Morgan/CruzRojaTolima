@@ -86,7 +86,7 @@ details.home summary,details.setup summary{font-weight:600;cursor:pointer}
     <div class="row"><button type="button" class="big pause" id="pausa">⏸ Pausar</button><button type="button" class="big" id="reanudar">▶ Reanudar</button></div>
     <p class="sub" id="pm">Pausa: para una parada (almuerzo, atención). El vehículo queda fijo en el mapa y el día no se cierra.</p>
     <button type="button" class="big end" id="fin">🅿 Terminar recorrido</button>
-    <p class="sub" id="finm">Al dejar el vehículo (por ejemplo en el garaje): sale del mapa y queda <b>Fuera de servicio</b>.
+    <p class="sub" id="finm">Al dejar el vehículo (por ejemplo en el garaje): sale del mapa y en el tablero queda <b>Recorrido terminado</b> con la hora y la dirección.
       El celular deja de enviar y los km del día quedan guardados. Para salir otra vez, toque <b>Conectar</b>.</p></div>`;
   const inicio = standalone ? "" : `<details class="home"${conectado ? "" : " open"}><summary>📲 Tener estos botones a mano</summary>
     <p>${ios ? "En Safari toque <b>Compartir</b> (□↑) y elija <b>Agregar a inicio</b>." : "En Chrome toque <b>⋮</b> y elija <b>Agregar a la pantalla principal</b>."}

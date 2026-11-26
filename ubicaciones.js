@@ -212,7 +212,7 @@ const popup = r => `<div class="locpop"><b>${esc(r.nombre)}</b>${r.estado === "f
 const tip = r => `${esc(r.nombre)} <span>${r.estado === "fin" ? "estacionado" : r.estado === "pausa" ? "en pausa" : esc(visto(r.creado).replace("visto ", ""))}</span>`;
 function put(r){
   rows[r.clave] = r;
-  // "Terminar recorrido": the vehicle leaves the map (it stays in the Vehículos panel as "Fuera de servicio")
+  // "Terminar recorrido": the vehicle leaves the map (the Vehículos panel shows "Recorrido terminado", time and address)
   if (r.estado === "fin") { if (marks[r.clave]) { layer.removeLayer(marks[r.clave]); delete marks[r.clave]; } if (trailInfo?.clave === r.clave) { trail.clearLayers(); trailBar.hidden = true; trailInfo = null; } return; }
   let m = marks[r.clave];
   if (!m) { m = marks[r.clave] = L.marker([r.lat, r.lon], {icon:icon(r), pane:"loc", title:r.nombre}).addTo(layer);
@@ -327,7 +327,7 @@ async function rename(clave){
 // until it is resumed (the driver can do the same from the QR page; ending there also silences OwnTracks)
 async function estado(clave, v){
   const r = rows[clave]; if (!r) return;
-  if (v === "fin" && !confirm(`¿Terminar el recorrido de ${r.nombre}? Sale del mapa (queda "Fuera de servicio" en 🚑 Vehículos) y no sigue al celular hasta que el conductor toque Conectar.`)) return;
+  if (v === "fin" && !confirm(`¿Terminar el recorrido de ${r.nombre}? Sale del mapa (en 🚑 Vehículos queda "Recorrido terminado" con la hora y la dirección) y no sigue al celular hasta que el conductor toque Conectar.`)) return;
   const {error} = await sb.rpc("estado_vehiculo", {clave, estado:v});
   if (error) return alert("No se pudo cambiar: " + (/estado_vehiculo|function|schema cache/i.test(error.message) ? "falta correr la última versión de supabase/ubicaciones.sql." : error.message));
   put({...r, estado:v, fin_en:v ? new Date().toISOString() : null});
@@ -405,8 +405,35 @@ const card = (v, svg) => `<div class="vehcard"><div class="vhd">${shape(v)}<div>
 let vehs = [], vmsg = "", admin = false, editando = false;
 // status in the panel, from the live table: fuera de servicio (after Terminar recorrido), en pausa, or en servicio
 const servicio = v => { const r = rows["d:" + v.id]; if (!r) return ` · <span class="vs">sin datos hoy</span>`;
-  return r.estado === "fin" ? ` · <span class="vs off">Fuera de servicio desde ${esc(IncUtil.hora(r.fin_en || r.creado))}</span>`
+  return r.estado === "fin" ? ` · <span class="vs off">Recorrido terminado ${esc(IncUtil.hora(r.fin_en || r.creado))}</span><span class="vdir" data-dir="${r.lat},${r.lon}">${esc(direccionGuardada(r.lat, r.lon) || "")}</span>`
     : r.estado === "pausa" ? ` · <span class="vs pa">En pausa</span>` : ` · <span class="vs on">En servicio</span>`; };
+// address where a trip ended: OpenStreetMap Nominatim reverse geocoding (free, no key). Its rules: at most one request a
+// second and keep the results, so each point is asked once and remembered in this browser.
+const DIR_KEY = "crt-direcciones";
+const dirCache = (() => { try { return JSON.parse(localStorage.getItem(DIR_KEY)) || {}; } catch { return {}; } })();
+const dirKey = (lat, lon) => `${(+lat).toFixed(4)},${(+lon).toFixed(4)}`;   // ~10 m
+const direccionGuardada = (lat, lon) => dirCache[dirKey(lat, lon)];
+let dirCola = Promise.resolve();
+const direccion = (lat, lon) => { const k = dirKey(lat, lon); if (k in dirCache) return Promise.resolve(dirCache[k]);
+  return dirCola = dirCola.then(async () => {
+    if (k in dirCache) return dirCache[k];
+    let txt = "";
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=es`);
+      const a = (await r.json()).address || {};
+      const calle = [a.road || a.pedestrian || a.footway, a.house_number && "#" + a.house_number].filter(Boolean).join(" ");
+      txt = [calle, a.neighbourhood || a.suburb || a.quarter, a.city || a.town || a.village || a.municipality].filter(Boolean).join(", ");
+    } catch {}
+    await new Promise(ok => setTimeout(ok, 1100));
+    if (txt) { dirCache[k] = txt; try { localStorage.setItem(DIR_KEY, JSON.stringify(dirCache)); } catch {} }
+    return txt;
+  }); };
+function llenarDirecciones(){
+  for (const el of vbody().querySelectorAll("[data-dir]")) { if (el.textContent) continue;
+    const [lat, lon] = el.dataset.dir.split(",").map(Number);
+    el.textContent = "buscando dirección…";
+    direccion(lat, lon).then(t => { el.textContent = t || `${lat.toFixed(5)}, ${lon.toFixed(5)}`; }); }
+}
 async function renderVeh(){
   const [{data, error}, ad] = await Promise.all([sb.rpc("vehiculos"), sb.rpc("es_admin")]);
   if (error) { vbody().innerHTML = `<p class="err">${/vehiculos|function|schema cache/i.test(error.message) ? "Falta correr la última versión de supabase/ubicaciones.sql." : esc(error.message)}</p>`; return; }
@@ -427,6 +454,7 @@ async function renderVeh(){
     ${ed ? "" : `<p class="sub">Cada vehículo tiene su código QR: el conductor lo escanea con su celular y desde ese momento el celular envía la ubicación como ese vehículo.</p>
     ${historialHtml()}
     ${informeHtml()}`}`;
+  llenarDirecciones();
 }
 async function showQr(id, nueva = false){
   const v = vehs.find(x => x.id === id); if (!v) return;
