@@ -292,6 +292,22 @@ grant execute on function public.renombrar_ubicacion(text, text) to authenticate
 -- Panel "🚑 Vehículos" del tablero (con sesión del equipo): lista, crear, código QR, activar/desactivar.
 -- El QR lleva la clave del vehículo, así que cualquiera del equipo puede verla: con ella solo se envían posiciones.
 drop function if exists public.vehiculos();
+-- Administradores: solo ellos agregan, cambian el tipo, eliminan o le dan clave nueva a un vehículo (✏ Editar en el panel).
+-- Agregarse (una vez, en el SQL Editor, con el correo con que inicia sesión en el tablero):
+--   insert into public.admins (user_id) select id from auth.users where email = 'su-correo@ejemplo.com' on conflict do nothing;
+create table if not exists public.admins (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  creado  timestamptz not null default now()
+);
+alter table public.admins enable row level security;
+revoke all on public.admins from anon, authenticated;
+create or replace function public.es_admin() returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.admins where user_id = auth.uid());
+$$;
+revoke all on function public.es_admin() from public, anon;
+grant execute on function public.es_admin() to authenticated;
+
 create or replace function public.vehiculos() returns table (id bigint, nombre text, clase text, activo boolean, con_qr boolean, creado timestamptz)
 language plpgsql security definer set search_path = public as $$
 begin
@@ -308,6 +324,7 @@ language plpgsql security definer set search_path = public, extensions as $$
 declare k text := encode(extensions.gen_random_bytes(18), 'hex'); n text := left(trim(crear_vehiculo.nombre), 40); i bigint;
 begin
   if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  if not public.es_admin() then raise exception 'Solo un administrador puede editar los vehículos'; end if;
   if coalesce(n, '') = '' then raise exception 'Escriba el nombre del vehículo, por ejemplo Móvil 20'; end if;
   if crear_vehiculo.clase not in ('camioneta', 'pickup', 'ambulancia', 'bicicleta') then raise exception 'Clase de vehículo no válida'; end if;
   if exists (select 1 from public.dispositivos d left join public.ubicaciones_nombres un on un.clave = 'd:' || d.id
@@ -331,6 +348,7 @@ begin
   if d.id is null then raise exception 'No existe ese vehículo'; end if;
   if d.clave_qr is not null and not nueva then return d.clave_qr; end if;
   if not nueva then return null; end if;
+  if not public.es_admin() then raise exception 'Solo un administrador puede darle una clave nueva'; end if;
   k := encode(extensions.gen_random_bytes(18), 'hex');
   update public.dispositivos set clave_hash = encode(extensions.digest(k, 'sha256'), 'hex'), clave_qr = k
     where dispositivos.id = d.id;
@@ -342,6 +360,7 @@ language plpgsql security definer set search_path = public as $$
 #variable_conflict use_column
 begin
   if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  if not public.es_admin() then raise exception 'Solo un administrador puede editar los vehículos'; end if;
   update public.dispositivos set activo = activar_vehiculo.activo where dispositivos.id = activar_vehiculo.id and tipo <> 'servidor';
   if not activar_vehiculo.activo then delete from public.ubicaciones where clave = 'd:' || activar_vehiculo.id; end if;
 end $$;
@@ -354,6 +373,7 @@ language plpgsql security definer set search_path = public as $$
 declare k text := 'd:' || eliminar_vehiculo.id; n text;
 begin
   if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  if not public.es_admin() then raise exception 'Solo un administrador puede editar los vehículos'; end if;
   select coalesce(un.nombre, d.nombre) into n from public.dispositivos d left join public.ubicaciones_nombres un on un.clave = k
     where d.id = eliminar_vehiculo.id and d.tipo <> 'servidor';
   if n is null then raise exception 'Vehículo no encontrado'; end if;
@@ -372,6 +392,7 @@ language plpgsql security definer set search_path = public as $$
 #variable_conflict use_column
 begin
   if auth.uid() is null then raise exception 'Inicie sesión'; end if;
+  if not public.es_admin() then raise exception 'Solo un administrador puede editar los vehículos'; end if;
   if clase_vehiculo.clase not in ('camioneta', 'pickup', 'ambulancia', 'bicicleta') then raise exception 'Clase de vehículo no válida'; end if;
   update public.dispositivos set clase = clase_vehiculo.clase where dispositivos.id = clase_vehiculo.id;
   update public.ubicaciones set clase = clase_vehiculo.clase where clave = 'd:' || clase_vehiculo.id;

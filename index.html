@@ -188,6 +188,8 @@ h2 button.info{vertical-align:2px}
 #infodlg p,#alertdlg p,#locdlg p,#vehdlg p{margin:6px 0}
 #vehdlg .dlghd{position:sticky;top:-16px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-16px -18px 6px;padding:12px 18px 8px;background:var(--panel);border-bottom:1px solid var(--line)}
 #vehdlg .dlghd h3{margin:0}
+#vehdlg .dlgb{display:flex;gap:6px;align-items:center}
+#vehdlg .dlgx[aria-pressed=true]{background:var(--red,#c8102e);color:#fff;border-color:transparent}
 #vehdlg .dlgx{font:inherit;font-weight:600;padding:8px 12px;min-height:40px;border:1px solid var(--line);border-radius:8px;background:var(--bg,#fff);color:var(--fg);cursor:pointer}
 #alertdlg ol{margin:6px 0;padding-left:22px}
 #alertdlg label{display:grid;gap:4px;margin:8px 0}
@@ -515,7 +517,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
 <script src="vendor/supabase-2.118.0.min.js"></script>
 <script src="incstore.js?v=26"></script>
 <script src="alertas.js?v=2" defer></script>
-<script src="ubicaciones.js?v=16"></script>
+<script src="ubicaciones.js?v=17"></script>
 <script>
 
 // Incidents on the dashboard: a pane with one card per incident and a map layer with markers and boundaries.
@@ -682,7 +684,7 @@ function initIncidents(map, ctrl){
 
 </script>
 <dialog id="vehdlg" aria-labelledby="veht">
-  <div class="dlghd"><h3 id="veht">🚑 Vehículos</h3><form method="dialog"><button class="dlgx" aria-label="Cerrar">✕ Cerrar</button></form></div>
+  <div class="dlghd"><h3 id="veht">🚑 Vehículos</h3><span class="dlgb"><button type="button" class="dlgx" id="vehedit" hidden>✏ Editar</button><form method="dialog"><button class="dlgx" aria-label="Cerrar">✕ Cerrar</button></form></span></div>
   <div id="vehb"></div>
   <form method="dialog" style="text-align:right;margin-top:8px"><button class="btn">Cerrar</button></form>
 </dialog>

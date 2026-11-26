@@ -402,27 +402,31 @@ const card = (v, svg) => `<div class="vehcard"><div class="vhd">${shape(v)}<div>
   ${svg}<p><b>Conductor:</b> escanee este código con la cámara del celular para enviar la ubicación como <b>${esc(v.nombre)}</b>
   (necesita la aplicación OwnTracks). Al cambiar de vehículo, escanee el código del otro.
   Al terminar el día, vuelva a escanearlo y toque <b>Terminar recorrido</b>.</p></div>`;
-let vehs = [], vmsg = "";
+let vehs = [], vmsg = "", admin = false, editando = false;
 // status in the panel, from the live table: fuera de servicio (after Terminar recorrido), en pausa, or en servicio
 const servicio = v => { const r = rows["d:" + v.id]; if (!r) return ` · <span class="vs">sin datos hoy</span>`;
   return r.estado === "fin" ? ` · <span class="vs off">Fuera de servicio desde ${esc(IncUtil.hora(r.fin_en || r.creado))}</span>`
     : r.estado === "pausa" ? ` · <span class="vs pa">En pausa</span>` : ` · <span class="vs on">En servicio</span>`; };
 async function renderVeh(){
-  const {data, error} = await sb.rpc("vehiculos");
+  const [{data, error}, ad] = await Promise.all([sb.rpc("vehiculos"), sb.rpc("es_admin")]);
   if (error) { vbody().innerHTML = `<p class="err">${/vehiculos|function|schema cache/i.test(error.message) ? "Falta correr la última versión de supabase/ubicaciones.sql." : esc(error.message)}</p>`; return; }
-  vehs = data;
-  vbody().innerHTML = `<p>Cada vehículo tiene su código QR. Imprímalo y péguelo en el vehículo: el conductor lo escanea con su celular y desde ese momento el celular envía la ubicación como ese vehículo.</p>
-    <form class="vehadd"><input name="n" maxlength="40" placeholder="Móvil 20 - Ibagué" aria-label="Nombre del vehículo" required>
+  vehs = data; admin = ad.data === true; if (!admin) editando = false;
+  // ✏ Editar (top right, administrators only): Agregar, type and Eliminar appear only while editing
+  const eb = document.getElementById("vehedit");
+  if (eb) { eb.hidden = !admin; eb.textContent = editando ? "✓ Listo" : "✏ Editar"; eb.setAttribute("aria-pressed", editando); }
+  const ed = editando;
+  vbody().innerHTML = `${ed ? `<form class="vehadd"><input name="n" maxlength="40" placeholder="Móvil 20 - Ibagué" aria-label="Nombre del vehículo" required>
       <select name="c" aria-label="Tipo">${CLASES.map(([k, e, n]) => `<option value="${k}">${e} ${n}</option>`).join("")}</select>
-      <button class="btn new">＋ Agregar</button></form>
+      <button class="btn new">＋ Agregar</button></form>` : ""}
     ${vmsg ? `<p>${vmsg}</p>` : ""}
-    <ul class="vehlist">${vehs.map(v => `<li class="${v.activo ? "" : "off"}"><span class="vn"><span class="vi">${shape(v)}</span><b>${esc(v.nombre)}</b>${v.activo ? servicio(v) : " · desactivado"}</span>
+    <ul class="vehlist">${vehs.filter(v => ed || v.activo).map(v => `<li class="${v.activo ? "" : "off"}"><span class="vn"><span class="vi">${shape(v)}</span><b>${esc(v.nombre)}</b>${v.activo ? servicio(v) : " · desactivado"}</span>
       <span class="vb">${v.activo ? `<button type="button" class="btn" data-vqr="${v.id}">Código QR</button>` : ""}
-      <select data-vclase="${v.id}" aria-label="Tipo de ${esc(v.nombre)}">${CLASES.map(([k, e]) => `<option value="${k}"${v.clase === k ? " selected" : ""}>${e}</option>`).join("")}</select>
+      ${ed ? `<select data-vclase="${v.id}" aria-label="Tipo de ${esc(v.nombre)}">${CLASES.map(([k, e]) => `<option value="${k}"${v.clase === k ? " selected" : ""}>${e}</option>`).join("")}</select>
       ${v.activo ? "" : `<button type="button" class="btn" data-von="${v.id}" data-a="1">Activar</button>`}
-      <button type="button" class="btn del" data-vdel="${v.id}">🗑 Eliminar</button></span></li>`).join("") || "<li>Aún no hay vehículos.</li>"}</ul>
+      <button type="button" class="btn del" data-vdel="${v.id}">🗑 Eliminar</button>` : ""}</span></li>`).join("") || "<li>Aún no hay vehículos.</li>"}</ul>
+    ${ed ? "" : `<p class="sub">Cada vehículo tiene su código QR: el conductor lo escanea con su celular y desde ese momento el celular envía la ubicación como ese vehículo.</p>
     ${historialHtml()}
-    ${informeHtml()}`;
+    ${informeHtml()}`}`;
 }
 async function showQr(id, nueva = false){
   const v = vehs.find(x => x.id === id); if (!v) return;
@@ -523,6 +527,7 @@ function descargarInforme(){
 }
 if (vbtn) {
   vbtn.addEventListener("click", () => openVeh());
+  document.addEventListener("click", e => { if (!e.target.closest?.("#vehedit")) return; editando = !editando; vmsg = ""; renderVeh(); });
 
   document.addEventListener("submit", async e => { const f = e.target.closest?.(".vehadd"); if (!f) return; e.preventDefault();
     const bt = f.querySelector("button"); if (bt.disabled) return; bt.disabled = true;   // a double tap must not create it twice
