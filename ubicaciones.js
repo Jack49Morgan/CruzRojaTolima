@@ -206,8 +206,8 @@ const popup = r => `<div class="locpop"><b>${esc(r.nombre)}</b>${r.estado === "f
   <div class="locbtns"><button type="button" class="btn" data-trail="${esc(r.clave)}">Recorrido 24 h · exportar</button>
   ${/^[dt]:/.test(r.clave) ? `<button type="button" class="btn" data-rename="${esc(r.clave)}">Cambiar nombre</button>
     <button type="button" class="btn" data-odo="${esc(r.clave)}">Odómetro</button>
-    ${r.estado ? `<button type="button" class="btn" data-est="${esc(r.clave)}" data-v="">▶ Reanudar</button>`
-      : `<button type="button" class="btn" data-est="${esc(r.clave)}" data-v="pausa">⏸ Pausar</button><button type="button" class="btn" data-est="${esc(r.clave)}" data-v="fin">🅿 Terminar recorrido</button>`}` : ""}
+    ${r.estado ? `<button type="button" class="btn" data-est="${esc(r.clave)}" data-v="">▶ Reiniciar</button>`
+      : `<button type="button" class="btn" data-est="${esc(r.clave)}" data-v="pausa">⏸ Pausar</button>`}<button type="button" class="btn" data-est="${esc(r.clave)}" data-v="fin">🅿 Terminar recorrido</button>` : ""}
   ${/^d:\d+$/.test(r.clave) ? `<button type="button" class="btn" data-popqr="${esc(r.clave.slice(2))}">Código QR</button>` : ""}</div></div>`;
 const tip = r => `${esc(r.nombre)} <span>${r.estado === "fin" ? "estacionado" : r.estado === "pausa" ? "en pausa" : esc(visto(r.creado).replace("visto ", ""))}</span>`;
 function put(r){
