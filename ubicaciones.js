@@ -404,7 +404,6 @@ async function renderVeh(){
     <ul class="vehlist">${vehs.map(v => `<li class="${v.activo ? "" : "off"}"><span class="vn"><span class="vi">${shape(v)}</span><b>${esc(v.nombre)}</b>${v.activo ? servicio(v) : " · desactivado"}</span>
       <span class="vb">${v.activo ? `<button type="button" class="btn" data-vqr="${v.id}">Código QR</button>` : ""}
       <select data-vclase="${v.id}" aria-label="Tipo de ${esc(v.nombre)}">${CLASES.map(([k, e]) => `<option value="${k}"${v.clase === k ? " selected" : ""}>${e}</option>`).join("")}</select>
-      ${rows["d:" + v.id]?.estado === "fin" ? `<button type="button" class="btn" data-est="d:${v.id}" data-v="">▶ Reanudar</button>` : ""}
       ${v.activo ? "" : `<button type="button" class="btn" data-von="${v.id}" data-a="1">Activar</button>`}
       <button type="button" class="btn del" data-vdel="${v.id}">🗑 Eliminar</button></span></li>`).join("") || "<li>Aún no hay vehículos.</li>"}</ul>
     ${informeHtml()}`;
