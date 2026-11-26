@@ -27,7 +27,7 @@ const INC_ESTADOS = {activo:"Activo", controlado:"Controlado", cerrado:"Cerrado"
 Object.defineProperty(INC_ESTADOS, "atencion", {value:"En atención", enumerable:false});
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "viviendas"];   // "familias" dropped 2026-11-23   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 26;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 27;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
 //   remote, ready(), user(), handle(), setHandle(name), signIn(email, pw), signOut(), onAuth(fn), sendAlert({title, body, url, tag})
