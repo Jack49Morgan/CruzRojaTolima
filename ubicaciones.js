@@ -427,7 +427,11 @@ async function showQr(id, nueva = false){
   vbody().dataset.print = card(v, await qrSvg(link, 420));
 }
 async function openVeh(qrId){
-  vmsg = ""; vbody().innerHTML = "<p>Cargando…</p>"; if (!vdlg().open) vdlg().showModal();
+  const d = vdlg();
+  // tap outside the panel (on the dark backdrop) closes it; Esc closes it natively
+  if (!d.dataset.fuera) { d.dataset.fuera = 1; d.addEventListener("click", e => { if (e.target !== d) return; const r = d.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) d.close(); }); }
+  vmsg = ""; vbody().innerHTML = "<p>Cargando…</p>"; if (!d.open) d.showModal();
   if (qrId) { await renderVeh(); await showQr(qrId); } else await cargarInforme();
 }
 function printQr(){
@@ -491,6 +495,7 @@ function descargarInforme(){
 }
 if (vbtn) {
   vbtn.addEventListener("click", () => openVeh());
+
   document.addEventListener("submit", async e => { const f = e.target.closest?.(".vehadd"); if (!f) return; e.preventDefault();
     const {data:id, error} = await sb.rpc("crear_vehiculo", {nombre:f.n.value.trim(), clase:f.c.value});
     vmsg = error ? `<span class="err">${esc(error.message)}</span>` : "";
