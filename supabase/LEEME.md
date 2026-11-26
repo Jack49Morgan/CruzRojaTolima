@@ -196,3 +196,19 @@ y en `traccar.xml` del servidor agregue:
 ```
 
 Cada rastreador aparece con el nombre que tenga en Traccar (cámbielo desde el mapa si quiere otro).
+
+# Alertas por SMS (Inalambria Express)
+
+Las personas se inscriben en **sms.html** (nombre, celular, municipio y autorización de datos, Ley 1581 de 2012)
+y se dan de baja en la misma página. En la ventana **📣 Enviar alerta** el equipo elige notificación, SMS o ambos.
+
+1. **Supabase** > **SQL Editor**: pegue [`sms.sql`](sms.sql) y pulse **Run**.
+2. **Inalambria** (https://app.inalambria.express): haga la primera recarga (la API se habilita después de ella),
+   luego menú **API** > cree una llave (puede ponerle un tope de gasto) y cópiela.
+3. **Supabase** > **Edge Functions** > **Deploy a new function** > **Via Editor**, nombre `enviar-sms`:
+   pegue [`functions/enviar-sms/index.ts`](functions/enviar-sms/index.ts) y pulse **Deploy**.
+4. **Edge Functions** > **Secrets**: agregue `INALAMBRIA_API_KEY` con la llave del paso 2.
+5. Pruebe en **📣 Enviar alerta** > marque **SMS** > escriba su número en "Probar con un número" > **Enviar prueba**.
+
+Inalambria no recibe respuestas (no hay palabra SALIR): la baja se hace en sms.html. El estado de cada envío
+se ve con "Ver estado de entrega" y, número por número, en Inalambria > Historial de envíos.

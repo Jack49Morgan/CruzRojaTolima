@@ -28,10 +28,10 @@ const INC_ESTADOS = {activo:"Activo", controlado:"Controlado", cerrado:"Cerrado"
 Object.defineProperty(INC_ESTADOS, "atencion", {value:"En atención", enumerable:false});
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "viviendas"];   // "familias" dropped 2026-11-23   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 28;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 29;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
-//   remote, ready(), user(), handle(), setHandle(name), signIn(email, pw), signOut(), onAuth(fn), sendAlert({title, body, url, tag})
+//   remote, ready(), user(), handle(), setHandle(name), signIn(email, pw), signOut(), onAuth(fn), sendAlert({title, body, url, tag}), smsInfo(), sendSms({texto, prueba}), smsStatus(jobId)
 //   list(), get(id), save(inc, add, drop), remove(id)
 //   media(incId) -> [{id,name,type,url,updId}]
 //   updates(incId) -> oldest first; allUpdates() -> every update, newest first
@@ -104,6 +104,7 @@ function incLocalStore(){
     remote:false,
     ready: async () => null, user: () => null, handle: () => null, setHandle: async () => {}, onAuth: () => {}, signIn: async () => {}, signOut: async () => {},
     sendAlert: async () => { throw new Error("Las alertas necesitan la conexión a Supabase"); },
+    smsInfo: async () => { throw new Error("Los SMS necesitan la conexión a Supabase"); }, sendSms: async () => {}, smsStatus: async () => {},
     list: () => tx(["inc"], "readonly", t => req(t.objectStore("inc").getAll()))
       .then(a => a.sort((x, y) => (y.fecha || "").localeCompare(x.fecha || ""))),
     get: id => tx(["inc"], "readonly", t => req(t.objectStore("inc").get(id))),
@@ -203,6 +204,11 @@ function incSupabaseStore(cfg){
     ok(await sb.storage.from(BUCKET).remove(rows.map(r => r.ruta)));
     ok(await sb.from("medios").delete().in("id", rows.map(r => r.id)));
   };
+  const fn = async (name, body) => {
+    const {data, error} = await sb.functions.invoke(name, {body});
+    if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} throw new Error(m); }
+    return data;
+  };
   const S = {
     remote:true, client:sb,   // client: used by ubicaciones.js (live positions)
     ready: () => ready, user: () => session?.user?.email || null, handle,
@@ -217,11 +223,11 @@ function incSupabaseStore(cfg){
     signIn: async (email, password) => { session = ok(await sb.auth.signInWithPassword({email, password})).session; listen(); authFns.forEach(f => f(session)); },
     signOut: async () => { await sb.auth.signOut(); },
     // push alert to every subscribed phone (Edge Function supabase/functions/enviar-alerta); signed-in only
-    sendAlert: async ({title, body, url, tag}) => {
-      const {data, error} = await sb.functions.invoke("enviar-alerta", {body:{title, body, url, tag}});
-      if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} throw new Error(m); }
-      return data;
-    },
+    sendAlert: async ({title, body, url, tag}) => fn("enviar-alerta", {title, body, url, tag}),
+    // SMS through Inalambria (Edge Function supabase/functions/enviar-sms): info -> {inscritos, saldo}; send to all or one test number
+    smsInfo: () => fn("enviar-sms", {accion:"info"}),
+    sendSms: ({texto, prueba}) => fn("enviar-sms", {accion:"enviar", texto, prueba}),
+    smsStatus: jobId => fn("enviar-sms", {accion:"estado", jobId}),
     list: async () => ok(await sb.from("incidentes").select(cols("incidentes")).order("fecha", {ascending:false})).map(fromRow),
     get: async id => { const r = ok(await sb.from("incidentes").select(cols("incidentes")).eq("id", id).maybeSingle()); return r ? fromRow(r) : null; },
     save: async (inc, add = [], drop = []) => {

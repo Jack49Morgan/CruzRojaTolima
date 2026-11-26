@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="copyright" content="© 2026 Cruz Roja Colombiana, Seccional Tolima. Todos los derechos reservados.">
+<meta name="author" content="Cruz Roja Colombiana, Seccional Tolima">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Alertas por SMS</title>
+<meta name="description" content="Inscríbase para recibir por mensaje de texto las alertas de emergencias de la Cruz Roja Colombiana, Seccional Tolima.">
+<meta name="theme-color" content="#c8102e">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
+  --red:#c8102e; --navy:#0b2a5b; --ok:#2f8f6b; --bad:#b83a3a;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#101615; --panel:#18201e; --fg:#e6ece9; --muted:#9aaaa4; --line:#2f3b38; --ok:#4fbf92; --bad:#ef7b7b; color-scheme:dark}
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 var(--sans)}
+.wrap{max-width:560px;margin:0 auto;padding:max(12px,env(safe-area-inset-top)) 16px max(40px,env(safe-area-inset-bottom));display:grid;gap:14px}
+header{background:var(--red);color:#fff;border-radius:12px;padding:14px 16px;border-bottom:5px solid var(--navy)}
+header h1{margin:0;font-size:21px;font-weight:600}
+header p{margin:4px 0 0;color:#ffe3e6;font-size:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:12px}
+.card h2{margin:0;font-size:17px}
+label.f{display:grid;gap:4px;font-weight:500}
+input[type=text],input[type=tel],select{font:inherit;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+.tel{display:flex;align-items:stretch}
+.tel span{display:flex;align-items:center;padding:0 10px;border:1px solid var(--line);border-right:0;border-radius:8px 0 0 8px;background:var(--panel);font-weight:600}
+.tel input{border-radius:0 8px 8px 0}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.consent input{width:22px;height:22px;flex:none;margin-top:2px;accent-color:var(--red)}
+.btn{font:inherit;font-weight:600;border:0;border-radius:8px;padding:11px 16px;cursor:pointer;background:var(--red);color:#fff}
+.btn.sec{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn:disabled{opacity:.6}
+.msg{font-weight:600} .msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)}
+.m{color:var(--muted);font-size:14px;margin:0}
+a{color:var(--navy)} @media (prefers-color-scheme: dark){a{color:#8fb0e8}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Alertas por SMS</h1>
+    <p>Cruz Roja Colombiana · Seccional Tolima</p>
+  </header>
+
+  <form class="card" id="alta" novalidate>
+    <h2>Inscribirme</h2>
+    <p class="m">Le enviaremos por mensaje de texto los avisos de emergencias en el Tolima: lluvias fuertes,
+      inundaciones, cierres de vías y otros eventos. No necesita internet ni smartphone para recibirlos. El servicio es gratis para usted.</p>
+    <label class="f">Nombre <input type="text" name="nombre" autocomplete="name" maxlength="80" required></label>
+    <label class="f">Celular
+      <div class="tel"><span>+57</span><input type="tel" name="tel" inputmode="numeric" autocomplete="tel-national" placeholder="300 123 4567" required></div></label>
+    <label class="f">Municipio donde vive o trabaja <select name="municipio" required><option value="">Elija su municipio…</option></select></label>
+    <label class="consent"><input type="checkbox" name="ok" required> <span id="ctext"></span></label>
+    <button class="btn" type="submit">Inscribirme</button>
+    <p class="msg" id="amsg" role="status"></p>
+  </form>
+
+  <form class="card" id="baja" novalidate>
+    <h2>Dejar de recibir SMS</h2>
+    <p class="m">Escriba el celular inscrito y no le enviaremos más mensajes.</p>
+    <div class="tel"><span>+57</span><input type="tel" name="tel" inputmode="numeric" placeholder="300 123 4567" aria-label="Celular" required></div>
+    <button class="btn sec" type="submit">Darme de baja</button>
+    <p class="msg" id="bmsg" role="status"></p>
+  </form>
+
+  <p class="m">También puede recibir las alertas como notificación en el celular desde el <a href="./">tablero de monitoreo</a> (botón 🔔 Recibir alertas).</p>
+  <p class="m">© 2026 Cruz Roja Colombiana, Seccional Tolima.</p>
+</div>
+<script src="incstore.js?v=29"></script>
+<script>
+(() => {
+// The exact consent text is stored with each sign-up (Ley 1581 de 2012, habeas data)
+const CONSENT = "Autorizo a la Cruz Roja Colombiana, Seccional Tolima, a guardar y usar mi nombre, número de celular y municipio "
+  + "con la única finalidad de enviarme por SMS alertas y avisos sobre emergencias, conforme a la Ley 1581 de 2012 y sus decretos. "
+  + "Mis datos no se venden ni se comparten con terceros, salvo el proveedor que entrega los mensajes. Sé que puedo conocer, actualizar "
+  + "o suprimir mis datos y darme de baja en cualquier momento en esta misma página.";
+const MUNICIPIOS = ["Ibagué","Alpujarra","Alvarado","Ambalema","Anzoátegui","Armero (Guayabal)","Ataco","Cajamarca","Carmen de Apicalá",
+  "Casabianca","Chaparral","Coello","Coyaima","Cunday","Dolores","Espinal","Falan","Flandes","Fresno","Guamo","Herveo","Honda",
+  "Icononzo","Lérida","Líbano","Mariquita","Melgar","Murillo","Natagaima","Ortega","Palocabildo","Piedras","Planadas","Prado",
+  "Purificación","Rioblanco","Roncesvalles","Rovira","Saldaña","San Antonio","San Luis","Santa Isabel","Suárez","Valle de San Juan",
+  "Venadillo","Villahermosa","Villarrica"];
+const $ = s => document.querySelector(s);
+$("#ctext").textContent = CONSENT;
+const sel = $("#alta").municipio;
+for (const m of MUNICIPIOS) sel.add(new Option(m, m));
+sel.add(new Option("Otro (fuera del Tolima)", "Otro"));
+// 300 123 4567, +57 300…, 57300… -> +573001234567 (Colombian mobiles: 10 digits starting with 3)
+const tel = s => { const d = String(s).replace(/\D/g, "").replace(/^57(?=3\d{9}$)/, ""); return /^3\d{9}$/.test(d) ? "+57" + d : null; };
+const say = (el, t, ok) => { el.textContent = t; el.className = "msg " + (ok ? "ok" : "bad"); };
+async function rpc(fn, args){
+  const r = await fetch(`${INC_CONFIG.url}/rest/v1/rpc/${fn}`, {method:"POST",
+    headers:{apikey:INC_CONFIG.key, Authorization:"Bearer " + INC_CONFIG.key, "Content-Type":"application/json"}, body:JSON.stringify(args)});
+  if (!r.ok) { let m = "el servidor respondió " + r.status; try { m = (await r.json()).message || m; } catch {} throw new Error(m); }
+}
+$("#alta").addEventListener("submit", async e => {
+  e.preventDefault(); const f = e.target, m = $("#amsg"), t = tel(f.tel.value);
+  if (f.nombre.value.trim().length < 2) return say(m, "Escriba su nombre.");
+  if (!t) return say(m, "Revise el celular: 10 dígitos que empiezan por 3, por ejemplo 300 123 4567.");
+  if (!f.municipio.value) return say(m, "Elija su municipio.");
+  if (!f.ok.checked) return say(m, "Para inscribirse debe aceptar la autorización de datos.");
+  const b = f.querySelector("button"); b.disabled = true; say(m, "Guardando…", true);
+  try {
+    await rpc("sms_alta", {nombre:f.nombre.value.trim(), telefono:t, municipio:f.municipio.value, consentimiento_texto:CONSENT, agente:navigator.userAgent});
+    f.reset(); say(m, `Listo. El ${t} quedó inscrito para recibir las alertas por SMS.`, true);
+  } catch (err) { say(m, "No se pudo inscribir: " + err.message + ". Intente de nuevo."); }
+  b.disabled = false;
+});
+$("#baja").addEventListener("submit", async e => {
+  e.preventDefault(); const f = e.target, m = $("#bmsg"), t = tel(f.tel.value);
+  if (!t) return say(m, "Revise el celular: 10 dígitos que empiezan por 3.");
+  const b = f.querySelector("button"); b.disabled = true;
+  try { await rpc("sms_baja", {telefono:t}); f.reset(); say(m, `Listo. No enviaremos más SMS al ${t}.`, true); }
+  catch (err) { say(m, "No se pudo completar: " + err.message); }
+  b.disabled = false;
+});
+})();
+</script>
+</body>
+</html>

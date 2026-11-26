@@ -18,7 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=28"></script>
+<script src="incstore.js?v=29"></script>
+<script src="enviar-alerta.js?v=1" defer></script>
 <style>
 :root{
   --bg:#f4f6f5; --panel:#fff; --fg:#17221f; --muted:#5c6b66; --line:#d6dcda;
@@ -91,13 +92,9 @@ details.edit.nosum>summary{display:none}
 .ro #uf,.ro #edit,.ro .sel,.ro #mig,.ro [data-delu],.ro .delrow{display:none!important}
 .backtop{justify-self:start;font-size:13px;padding:5px 10px}
 .sumbtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
-#alertbox{display:grid;gap:8px;margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--red);border-radius:8px}
-#alertbox[hidden]{display:none}
 .alchk{display:inline-flex;align-items:center;gap:6px;font-weight:600;cursor:pointer}
 .alchk[hidden]{display:none}
 .alchk input{width:18px;height:18px;accent-color:var(--red)}
-#alertbox label{display:grid;gap:4px}
-#alertbox input,#alertbox textarea{font:inherit;width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg)}
 .printnote{display:none}
 .btn.wa{background:#25d366;border-color:#25d366;color:#fff;font-weight:600;display:inline-flex;gap:6px;align-items:center}
 @media print{
@@ -439,9 +436,8 @@ function drawSummary(){
     <button type="button" class="btn" id="pdfbtn">Guardar en PDF</button>
     ${IncStore.remote && IncStore.user() ? `<button type="button" class="btn red" id="alertsum">📣 Enviar como alerta</button>` : ""}
     ${!IncStore.remote || IncStore.user() ? `<span class="delrow"><button type="button" class="btn danger" id="delsum">Eliminar evento</button> <span class="msg" id="dmsg" role="status"></span></span>` : ""}</div>
-    <div id="alertbox" hidden></div>
     <div class="printnote"></div>`;
-  if ($("#alertsum")) $("#alertsum").onclick = openAlertBox;
+  if ($("#alertsum")) $("#alertsum").onclick = () => openAlertBox();
   const b = $("#delsum"); if (b) b.onclick = () => delEvent(b, "Eliminar evento", $("#dmsg"), true);
   $("#pdfbtn").onclick = savePdf;
   $("#sum .backtop").addEventListener("click", toBoard);
@@ -453,36 +449,18 @@ function drawSummary(){
 const syncAlertChk = () => document.querySelectorAll(".alchk").forEach(l => l.hidden = !(IncStore.remote && IncStore.user()));
 IncStore.ready().then(syncAlertChk); IncStore.onAuth(syncAlertChk);
 function alertAfterSave(chk, on = chk.checked){
-  if (!on || !$("#alertbox")) return;
-  chk.checked = false; $("#alertbox").hidden = true; openAlertBox();
-  $("#alertbox").scrollIntoView({behavior:"smooth", block:"center"});
-  setMsg($("#almsg"), "Revise el mensaje y toque «Enviar».");
+  if (!on || !cur) return;
+  chk.checked = false; openAlertBox("Guardado. Revise el mensaje, elija notificación y/o SMS y toque «Enviar».");
 }
 // "📣 Enviar alerta": push this event to every phone subscribed on the dashboard (signed-in team only).
 // Title and text are prefilled from the event and its latest update, and can be edited before sending.
-function openAlertBox(){
-  const box = $("#alertbox"); if (!box.hidden) { box.hidden = true; return; }
+function openAlertBox(note = ""){
+  if (!window.SATAlert) return;
   const [tname] = INC_TIPOS[cur.tipo] || INC_TIPOS.otro, last = lastUps?.length ? lastUps[lastUps.length - 1] : null;
-  const title = `🚨 ${tname} – ${cur.titulo}`.slice(0, 120);
-  const body = [`${cur.municipio}${cur.lugar ? " · " + cur.lugar : ""} · ${INC_ESTADOS[cur.estado] || cur.estado}`,
-    IncUtil.afect(cur.afectados), last?.texto].filter(Boolean).join("\n").slice(0, 400);
-  box.innerHTML = `<label><span>Título de la alerta</span><input id="altitle" maxlength="120" value="${esc(title)}"></label>
-    <label><span>Mensaje</span><textarea id="albody" rows="3" maxlength="400">${esc(body)}</textarea></label>
-    <div><button type="button" class="btn red" id="alsend">Enviar a todos los celulares suscritos</button>
-    <button type="button" class="btn" id="alcancel">Cancelar</button> <span class="msg" id="almsg" role="status"></span></div>
-    <p class="sub">Al tocar la alerta se abre el seguimiento de este evento.</p>`;
-  box.hidden = false;
-  $("#alcancel").onclick = () => { box.hidden = true; };
-  $("#alsend").onclick = async () => {
-    const t = $("#altitle").value.trim(); if (!t) return setMsg($("#almsg"), "Escriba un título.", "bad");
-    $("#alsend").disabled = true; setMsg($("#almsg"), "Enviando…");
-    try {
-      const r = await IncStore.sendAlert({title:t, body:$("#albody").value.trim(), url:"incidente.html?id=" + encodeURIComponent(cur.id), tag:"evento-" + cur.id});
-      if (r.suscritos === 0) setMsg($("#almsg"), "No hay celulares suscritos todavía: primero toque «🔔 Recibir alertas» en el tablero de cada celular.", "bad");
-      else setMsg($("#almsg"), `Alerta enviada a ${r.enviadas} de ${r.suscritos} celular(es)${r.errores ? `, ${r.errores} con error` : ""}.`, r.errores ? "bad" : "ok");
-    } catch (err) { setMsg($("#almsg"), "No se pudo enviar: " + err.message, "bad"); }
-    $("#alsend").disabled = false;
-  };
+  SATAlert.compose({title:`🚨 ${tname} – ${cur.titulo}`.slice(0, 120),
+    body:[`${cur.municipio}${cur.lugar ? " · " + cur.lugar : ""} · ${INC_ESTADOS[cur.estado] || cur.estado}`,
+      IncUtil.afect(cur.afectados), last?.texto].filter(Boolean).join("\n").slice(0, 400),
+    url:"incidente.html?id=" + encodeURIComponent(cur.id), tag:"evento-" + cur.id}, note);
 }
 // sharing: the public follow-up link (readable without signing in) plus a one-line summary
 const pubLink = () => location.origin + location.pathname + "?id=" + encodeURIComponent(cur.id);
