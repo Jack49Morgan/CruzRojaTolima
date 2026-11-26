@@ -31,11 +31,17 @@ const title = s => clean(s).toLowerCase().replace(/(^|[\s(-])\p{L}/gu, m => m.to
 
 async function q(id, params){
   const u = API + id + ".json?" + Object.entries(params).map(([k, v]) => "$" + k + "=" + encodeURIComponent(v)).join("&");
+  // datos.gov.co sometimes hangs or drops the connection: 45 s limit per try, 3 tries
   for (let i = 0; ; i++) {
-    const r = await fetch(u);
-    if (r.ok) return r.json();
-    if (i >= 2) throw new Error(`${id} respondió ${r.status}`);
-    await new Promise(ok => setTimeout(ok, 5000 * (i + 1)));
+    let err;
+    try {
+      const r = await fetch(u, {signal:AbortSignal.timeout(45000)});
+      if (r.ok) return r.json();
+      err = new Error(`${id} respondió ${r.status}`);
+    } catch (e) { err = new Error(`${id}: ${e.cause?.code || e.name || e.message}`); }
+    if (i >= 2) throw err;
+    console.log(`Reintentando (${err.message})…`);
+    await new Promise(ok => setTimeout(ok, 10000 * (i + 1)));
   }
 }
 
@@ -44,6 +50,13 @@ async function sb(path, opts = {}){
     "Content-Type":"application/json", ...(opts.headers || {})}});
   if (!r.ok) throw new Error(`Supabase ${path} respondió ${r.status}: ${await r.text()}`);
   const t = await r.text(); return t ? JSON.parse(t) : null;
+}
+
+// PRUEBA=true (manual run with "prueba" checked): only send one test message to every phone, to check
+// delivery end to end without depending on the IDEAM data
+if (process.env.PRUEBA === "true") {
+  await push([{title:"Prueba de alertas Cruz Roja Tolima", body:"Si ve este mensaje, su celular recibe las alertas.", url:"./", tag:"prueba"}]);
+  process.exit();
 }
 
 // Where today's feed takes over from the historical dataset (same split as the dashboard)
@@ -99,15 +112,16 @@ const notes = msgs.length <= 3
       body: msgs.slice(0, 6).map(a => `${a.name} ${a.mm.toFixed(0)} mm/${a.h} h`).join(" · ") + (msgs.length > 6 ? " · …" : ""),
       url:"./", tag:"lluvia-varias"}];
 
-// PRUEBA=1 (manual run with "prueba" checked): send one test message to every phone, to check delivery end to end
-if (process.env.PRUEBA === "true") notes.splice(0, notes.length, {title:"Prueba de alertas Cruz Roja Tolima",
-  body:"Si ve este mensaje, su celular recibe las alertas de lluvia.", url:"./", tag:"prueba"});
-
 if (DRY) { console.log(JSON.stringify(notes, null, 1)); process.exit(0); }
 
-if (notes.length) {
+if (notes.length) await push(notes);
+if (changes.length) await sb("alertas_lluvia_estado", {method:"POST", body:JSON.stringify(changes.map(c => ({...c, actualizado:now.toISOString()}))),
+  headers:{Prefer:"resolution=merge-duplicates"}});
+
+async function push(notes){
   webpush.setVapidDetails(SITE, PUB, PRIV);
   const subs = await sb("push_suscripciones?select=endpoint,p256dh,auth");
+  if (!subs.length) console.log("No hay celulares suscritos: nadie ha tocado «Recibir alertas» todavía (o la suscripción no se guardó).");
   let ok = 0, gone = 0, fail = 0;
   for (const sub of subs) for (const n of notes) {
     try {
@@ -123,6 +137,5 @@ if (notes.length) {
     }
   }
   console.log(`${subs.length} celulares suscritos: ${ok} enviadas, ${gone} suscripciones vencidas borradas, ${fail} errores.`);
+  if (fail) process.exitCode = 1;
 }
-if (changes.length && process.env.PRUEBA !== "true") await sb("alertas_lluvia_estado", {method:"POST", body:JSON.stringify(changes.map(c => ({...c, actualizado:now.toISOString()}))),
-  headers:{Prefer:"resolution=merge-duplicates"}});

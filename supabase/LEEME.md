@@ -90,6 +90,9 @@ enviar: para turnos largos use OwnTracks como en los vehículos.
 
 Con sesión iniciada, el botón **🚑 Vehículos** del tablero:
 
+- **✏ Editar** (arriba a la derecha, solo administradores): muestra Agregar, el tipo y Eliminar. Para ser administrador, una vez
+  en el SQL Editor: `insert into public.admins (user_id) select id from auth.users where email = 'su-correo' on conflict do nothing;`
+  La lista inicial de vehículos se crea con `supabase/vehiculos-iniciales.sql` (se puede correr más de una vez).
 - **＋ Agregar**: crea el vehículo (por ejemplo `Móvil 20 - Ibagué`) y muestra su **código QR**. Use **🖨 Imprimir** y péguelo en el vehículo.
 - El conductor escanea el QR con la cámara del celular (iPhone o Android, con OwnTracks instalado), toca
   **Conectar** y acepta. El celular queda enviando como ese vehículo, en modo Move.
