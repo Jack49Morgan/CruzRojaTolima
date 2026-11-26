@@ -85,21 +85,28 @@ const send = document.getElementById("sendalertbtn");
 if (send && typeof IncStore !== "undefined" && IncStore.remote) {
   const show = () => { send.hidden = !IncStore.user(); };
   IncStore.ready().then(show); IncStore.onAuth(show);
-  send.addEventListener("click", () => {
-    dlg.querySelector("#alertt").textContent = "Enviar alerta a los celulares";
-    body.innerHTML = `<p>Llega a todos los celulares que activaron las alertas. Úsela para avisos importantes.</p>
-      <label><span>Título</span><input id="sat" maxlength="120" placeholder="🚨 Cierre de la vía Ibagué–Cajamarca"></label>
-      <label><span>Mensaje</span><textarea id="sab" rows="3" maxlength="400" placeholder="Qué pasa, dónde y qué hacer"></textarea></label>
+  // compose({title, body, url, tag}): free text from the header button, or prefilled from an event card
+  let target = {url:"./"};
+  const compose = (pre = {}) => {
+    target = {url:pre.url || "./", tag:pre.tag};
+    dlg.querySelector("#alertt").textContent = pre.title ? "Enviar evento como alerta" : "Enviar alerta a los celulares";
+    body.innerHTML = `<p>Llega a todos los celulares que activaron las alertas. Revise el texto antes de enviar.</p>
+      <label><span>Título</span><input id="sat" maxlength="120" placeholder="🚨 Cierre de la vía Ibagué–Cajamarca" value="${esc(pre.title || "")}"></label>
+      <label><span>Mensaje</span><textarea id="sab" rows="3" maxlength="400" placeholder="Qué pasa, dónde y qué hacer">${esc(pre.body || "")}</textarea></label>
+      ${pre.url ? `<p style="color:var(--muted)">Al tocar la alerta se abre el seguimiento del evento.</p>` : ""}
       <p><button type="button" class="btn new" data-s="go">Enviar a todos</button> <span id="sam" role="status"></span></p>`;
-    dlg.showModal();
-  });
+    if (!dlg.open) dlg.showModal();
+  };
+  window.SATAlert = {compose};
+  send.addEventListener("click", () => compose());
   body.addEventListener("click", async e => {
     if (!e.target.closest("[data-s=go]")) return;
     const t = body.querySelector("#sat").value.trim(), m = body.querySelector("#sam");
     if (!t) { m.innerHTML = `<span class="err">Escriba un título.</span>`; return; }
     e.target.disabled = true; m.textContent = "Enviando…";
-    try { const r = await IncStore.sendAlert({title:t, body:body.querySelector("#sab").value.trim(), url:"./"});
-      m.textContent = `Enviada a ${r.enviadas} celular(es)${r.errores ? `, ${r.errores} con error` : ""}.`; }
+    try { const r = await IncStore.sendAlert({title:t, body:body.querySelector("#sab").value.trim(), ...target});
+      m.innerHTML = r.suscritos === 0 ? `<span class="err">No hay celulares suscritos todavía: primero toque «🔔 Recibir alertas» en cada celular.</span>`
+        : esc(`Enviada a ${r.enviadas} de ${r.suscritos} celular(es)${r.errores ? `, ${r.errores} con error` : ""}${r.vencidas ? `, ${r.vencidas} suscripción(es) vencida(s) borrada(s)` : ""}.`); }
     catch (err) { m.innerHTML = `<span class="err">No se pudo enviar: ${esc(err.message)}</span>`; }
     e.target.disabled = false;
   });

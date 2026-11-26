@@ -515,8 +515,8 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=26"></script>
-<script src="alertas.js?v=2" defer></script>
+<script src="incstore.js?v=27"></script>
+<script src="alertas.js?v=3" defer></script>
 <script src="ubicaciones.js?v=18"></script>
 <script>
 
@@ -591,7 +591,7 @@ function initIncidents(map, ctrl){
       const upItem = u => `<li><time datetime="${escI(u.creado)}" title="${escI(IncUtil.when(u.creado))}">${escI(IncUtil.hora(u.creado))}</time>
         <span class="ut">${u.texto ? escI(u.texto) : u.estado ? "Estado: " + escI(INC_ESTADOS[u.estado] || u.estado) : u.afectados ? escI(IncUtil.afect(u.afectados)) : ""}</span>
         ${u.autor || (u.texto && (u.estado || u.afectados)) ? `<span class="um">${[u.autor ? escI(IncUtil.autor(u.autor)) : "", u.texto && u.estado ? escI(INC_ESTADOS[u.estado] || u.estado) : "", u.texto && u.afectados ? escI(IncUtil.afect(u.afectados)) : ""].filter(Boolean).join(" · ")}</span>` : ""}${upThumbs(u)}</li>`;
-      byId[inc.id] = {inc, items};
+      byId[inc.id] = {inc, items, ups:iu};
       // map: boundary, then a pin at the chosen point or the middle of the boundary
       let ll = inc.punto, gl = null;
       if (inc.geo) { gl = L.geoJSON(inc.geo, {pane:"inc", style:{color, weight:2.5, dashArray:"6 4", fillColor:color, fillOpacity:0.15}}).addTo(layer);
@@ -621,7 +621,8 @@ function initIncidents(map, ctrl){
             <span class="qm" role="status"></span></div>
         </form>` : ""}
         <div class="incbtns"><button type="button" class="btn redbtn" data-edit="${escI(inc.id)}" title="${canEdit ? "Seguimiento, actualizaciones y datos del evento" : "Seguimiento del evento (solo lectura)"}">Abrir evento</button>
-          ${ll ? `<button type="button" class="btn" data-zoom="${escI(inc.id)}">Ver en mapa</button>` : `<span class="sub">Sin ubicación</span>`}</div>
+          ${ll ? `<button type="button" class="btn" data-zoom="${escI(inc.id)}">Ver en mapa</button>` : `<span class="sub">Sin ubicación</span>`}
+          ${IncStore.remote && IncStore.user() && window.SATAlert ? `<button type="button" class="btn" data-alert="${escI(inc.id)}" title="Avisar a todos los celulares suscritos">📣 Enviar como alerta</button>` : ""}</div>
       </article>`);
       byId[inc.id].ll = ll; byId[inc.id].gl = gl;
     }
@@ -661,7 +662,15 @@ function initIncidents(map, ctrl){
   document.getElementById("mnext").onclick = () => { gi = (gi + 1) % gallery.length; showMedia(); };
   dlg.addEventListener("close", () => box.innerHTML = "");
   document.addEventListener("click", e => {
-    const b = e.target.closest("[data-g],[data-zoom],[data-edit],[data-card]"); if (!b) return;
+    const b = e.target.closest("[data-g],[data-zoom],[data-edit],[data-card],[data-alert]"); if (!b) return;
+    if (b.dataset.alert) { const inc = byId[b.dataset.alert]?.inc; if (!inc) return;
+      // event as a push alert: type, title, place, status, victims and the latest update, linked to its follow-up page
+      const [tname] = INC_TIPOS[inc.tipo] || INC_TIPOS.otro, last = (byId[b.dataset.alert].ups || [])[0];
+      window.SATAlert.compose({title:`🚨 ${tname} – ${inc.titulo}`.slice(0, 120),
+        body:[`${inc.municipio}${inc.lugar ? " · " + inc.lugar : ""} · ${INC_ESTADOS[inc.estado] || inc.estado}`, afect(inc.afectados), last?.texto]
+          .filter(Boolean).join("\n").slice(0, 400),
+        url:"incidente.html?id=" + encodeURIComponent(inc.id), tag:"evento-" + inc.id});
+      return; }
     if (b.dataset.g) { gallery = byId[b.dataset.g].items; gi = +b.dataset.i; showMedia(); dlg.showModal(); }
     else if (b.dataset.zoom) zoomTo(b.dataset.zoom);
     else if (b.dataset.edit) openForm(b.dataset.edit);
