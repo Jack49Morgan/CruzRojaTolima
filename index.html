@@ -230,6 +230,8 @@ h2 button.info{vertical-align:2px}
 .inchead{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
 .inccard h3{margin:0;font-size:15px;color:var(--fg)}
 .incst{flex:none;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;color:#fff;background:#616161}
+.incimp{display:flex;gap:6px;flex-wrap:wrap}
+.incst.st-imp{background:#e65100}
 .incst.st-activo{background:var(--red)} .incst.st-atencion{background:#e65100} .incst.st-controlado{background:#0b2a5b} .incst.st-cerrado{background:#757575}
 .incaf{font-size:13px;font-weight:500}
 .incdesc{margin:0;font-size:13px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
@@ -525,7 +527,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=29"></script>
+<script src="incstore.js?v=30"></script>
 <script src="alertas.js?v=4" defer></script>
 <script src="enviar-alerta.js?v=1" defer></script>
 <script src="ubicaciones.js?v=20"></script>
@@ -611,7 +613,7 @@ function initIncidents(map, ctrl){
       if (ll) { const first = items.find(x => !x.video);
         L.marker(ll, {icon:pin(color), pane:"inc", title:inc.titulo}).addTo(layer)
           .bindPopup(`<div class="incpop"><b>${escI(inc.titulo)}</b><div class="sub">${escI(tname)} · ${escI(inc.municipio)}<br>${escI(fmt(inc.fecha))} · ${escI(INC_ESTADOS[inc.estado] || "")}</div>
-            ${first ? `<img src="${first.u}" alt="">` : ""}${afect(inc.afectados) ? `<div>${escI(afect(inc.afectados))}</div>` : ""}
+            ${first ? `<img src="${first.u}" alt="">` : ""}${afect(inc.afectados) ? `<div>${escI(afect(inc.afectados))}</div>` : ""}${IncUtil.impacto(inc).length ? `<div><b>${escI(IncUtil.impacto(inc).join(" · "))}</b></div>` : ""}${IncUtil.respCR(inc) ? `<div>${escI(IncUtil.respCR(inc))}</div>` : ""}
             <button type="button" class="btn" data-card="${escI(inc.id)}">Ver detalles</button></div>`, {maxWidth:Math.min(280, innerWidth - 90)}); }
       // photos of the event itself (not of an update) go in the strip under the description
       const own = items.map((x, i) => [x, i]).filter(([x]) => !x.upd);
@@ -622,6 +624,7 @@ function initIncidents(map, ctrl){
         <div class="sub">${escI(tname)} · ${escI(inc.municipio)}${inc.lugar ? " · " + escI(inc.lugar) : ""}<br>${escI(fmt(inc.fecha))}</div>
         ${(() => { const a = inc.afectados || {}, vic = afect({fallecidos:a.fallecidos, heridos:a.heridos}), rest = afect({personas:a.personas, viviendas:a.viviendas});
           return vic || rest ? `<div class="incaf">${vic ? `<b style="color:var(--red)">${escI(vic)}</b>` : ""}${vic && rest ? " · " : ""}${rest ? escI(rest) : ""}</div>` : ""; })()}
+        ${IncUtil.impacto(inc).length || inc.respcr ? `<div class="incimp">${IncUtil.impacto(inc).map(t => `<span class="incst st-imp">${escI(t)}</span>`).join("")}${inc.respcr ? `<span class="incst ${inc.respcr === "si" ? "st-activo" : "st-cerrado"}">Respuesta Cruz Roja: ${inc.respcr === "si" ? "Sí" : "No"}</span>` : ""}</div>${inc.respcr === "si" && inc.respcrdesc ? `<div class="sub"><b>Respuesta Cruz Roja:</b> ${escI(inc.respcrdesc)}</div>` : ""}` : ""}
         ${inc.descripcion ? `<p class="incdesc">${escI(inc.descripcion)}</p>` : ""}
         ${iu.length ? `<ul class="incups" aria-label="Actualizaciones">${iu.slice(0, 3).map(upItem).join("")}</ul>` : ""}
         ${th ? `<div class="incmedia">${th}</div>` : ""}
