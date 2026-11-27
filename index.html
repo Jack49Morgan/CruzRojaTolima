@@ -94,6 +94,16 @@ tbody tr.offrow td{color:var(--muted)}
 .eqm span{display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid #1b1b1b;box-shadow:0 0 0 1.5px #fff;font:600 10px/1 var(--mono);color:#1b1b1b}
 .saludgrp{border-radius:50%;background:#1565c0d9;color:#fff;border:2px solid #fff;font:700 11px/1 var(--sans);text-align:center;box-shadow:0 1px 3px #0006}
 .saludlist{max-height:220px;overflow:auto;margin-top:6px;font-size:12px}.saludlist div{padding:3px 0;border-top:1px solid #0001}
+.medir .mbtn{width:30px;height:30px;border:0;background:#fff;color:#17221f;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:4px}
+.medir .mbtn.on{background:#0b2a5b;color:#fff}
+.medir .mpanel{background:#fff;padding:8px 10px;width:220px;font:12px/1.35 var(--sans);color:#17221f;border-top:1px solid #0002}
+.medir .mhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.medir .mx{border:0;background:none;font-size:14px;cursor:pointer;color:#5c6b80}
+.medir .mmode{display:flex;gap:4px;margin-bottom:6px}.medir .mmode button,.medir .mact button{flex:1;border:1px solid #0b2a5b55;background:#fff;color:#0b2a5b;border-radius:6px;padding:5px 4px;font:600 12px var(--sans);cursor:pointer}
+.medir .mmode button.on{background:#0b2a5b;color:#fff}.medir .mact{display:flex;gap:4px;margin-top:6px}
+.medir p{margin:3px 0}.medir .mkm{font-size:20px;font-weight:700;color:#1565c0}.medir .sub{font-size:11px}.medir .mwarn{color:#b45309}
+.measuring .leaflet-interactive,.measuring.leaflet-container{cursor:crosshair!important}
+@media (max-width:600px){.medir .mpanel{width:190px}}
+.leaflet-vias-pane canvas,.leaflet-viasLo-pane canvas{pointer-events:none!important}
 .leaflet-control-layers .lgrp{font:600 11px/1.2 var(--sans);text-transform:uppercase;letter-spacing:.04em;color:#c8102e;margin:8px 0 3px;padding-top:6px;border-top:1px solid #0002}
 .leaflet-control-layers .lgrp:first-child{border-top:0;padding-top:0;margin-top:2px}
 .eqctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-basis:100%}.eqctl input{font:inherit;font-size:12px;padding:1px 4px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg)}
@@ -360,6 +370,81 @@ h2 button.info{vertical-align:2px}
   .tablewrap{max-height:70vh}
   .chart{height:200px}
 }
+/* Mapa para compartir: the builder dialog, the shared view (#mapa=… links) and its printed page */
+#mapdlg{max-width:min(760px,calc(100vw - 24px));width:100%;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--fg);padding:16px 18px;font:14px/1.5 var(--sans)}
+#mapdlg::backdrop{background:#0008} #mapdlg h3{margin:0;font-size:17px} #mapdlg .m{color:var(--muted);font-size:13px;margin:6px 0}
+#mapdlg .dlghd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#mapdlg .dlgx{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;padding:4px 10px;font:inherit;cursor:pointer}
+#mapdlg label.f{display:grid;gap:4px;margin:8px 0;font-weight:600}
+#mapdlg input[type=text],#mapdlg input[type=search],#mapdlg input[type=date],#mapdlg textarea,#mapdlg select{font:inherit;font-weight:400;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);box-sizing:border-box}
+#mapdlg label.f input,#mapdlg textarea{width:100%}
+#mapdlg fieldset{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:10px 0;display:grid;gap:8px}
+#mapdlg legend{font-weight:600;padding:0 4px}
+#mapdlg .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center} #mapdlg .row select,#mapdlg .row input[type=search]{flex:1;min-width:160px}
+#mapdlg .ch2{display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:1.35} #mapdlg .ch2 input{margin-top:2px;accent-color:#c8102e;flex:none}
+#mapdlg .mvl{max-height:210px;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:3px 12px;border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+#mapdlg .mvl .mall{grid-column:1/-1;border-bottom:1px solid var(--line);padding-bottom:4px}
+#mapdlg .msel{font-size:13px;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+#mapdlg .mchip{display:inline-flex;align-items:center;gap:4px;background:var(--navy-soft);border-radius:999px;padding:1px 4px 1px 10px}
+#mapdlg .mchip button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 4px}
+#mapdlg .mcol{position:relative} #mapdlg .mcol input{position:absolute;opacity:0}
+#mapdlg .mcol span{display:inline-block;width:24px;height:24px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #0005;cursor:pointer}
+#mapdlg .mcol input:checked+span{box-shadow:0 0 0 3px var(--navy)} #mapdlg .mcol input:focus-visible+span{outline:2px solid var(--navy);outline-offset:3px}
+#mapdlg .mlayers{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px 14px}
+#mapdlg .mg{font:600 11px/1.2 var(--sans);text-transform:uppercase;letter-spacing:.04em;color:#c8102e;margin:4px 0 3px}
+#mapdlg .mfoot{justify-content:flex-end;margin-top:6px} #mapdlg .mfoot .m{flex:1}
+#mapdlg .go,#share .go{background:#c8102e;border-color:#c8102e;color:#fff;font-weight:600} #mapdlg .bad{color:#b83a3a;font-weight:600}
+#mdl_out{border-top:1px solid var(--line);margin-top:10px;padding-top:6px}
+#share{display:grid;gap:10px}
+body.smode .wrap>:not(#share),body.smode>footer.copyright{display:none!important}
+body.smode .wrap{max-width:1600px;gap:10px}
+.shead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--red);border-radius:10px;padding:10px 14px}
+.shemb{width:54px;height:54px;border-radius:8px;object-fit:contain;background:#fff;border:1px solid var(--line);flex:none}
+.shtit{flex:1;min-width:220px} .shtit h1{font-size:21px;color:var(--navy);margin:0 0 2px;line-height:1.2}
+.shmeta{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:12.5px;color:var(--muted)} .shmeta b{color:var(--fg)}
+.shprinted{display:none} .shbtns{display:flex;gap:8px;flex-wrap:wrap}
+@media (max-width:600px){.shead{padding:8px 10px;gap:8px}.shemb{width:40px;height:40px}.shtit{min-width:0}.shtit h1{font-size:17px}.shmeta{font-size:12px}.shbtns{width:100%}.shbtns .btn{flex:1;padding:6px 8px}}
+.shgrid{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:10px;align-items:start}
+@media (max-width:900px){.shgrid{grid-template-columns:1fr}}
+.shmap .panel{padding:6px;border-top-width:1px} .shmap .panel>h2,body.smode #legend{display:none}
+body.smode #map{height:max(420px,calc(100vh - 150px));border-radius:6px}
+@media (max-width:900px){body.smode #map{height:max(380px,66vh)}}
+.shside{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px 12px 10px;font-size:13px}
+.shsec{padding:8px 0;border-bottom:1px solid var(--line)} .shsec:last-child{border-bottom:0}
+.shsec h3{font:600 11.5px/1.2 var(--sans);text-transform:uppercase;letter-spacing:.05em;color:#c8102e;margin:0 0 6px}
+.shnotes{white-space:pre-wrap}
+.shgrp{margin-bottom:6px} .shgrp>div{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
+.shgrp button{font:12px var(--sans);border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:1px 8px;cursor:pointer}
+#shlg>div{display:flex;align-items:center;gap:7px;margin:3px 0;flex-wrap:wrap} #shlg>div.shlg-eq{display:block}
+.shsw{display:inline-block;width:22px;height:14px;border:1.5px solid;border-radius:3px;flex:none;box-sizing:border-box}
+.shlg-eq>span:not(.sub){display:inline-flex;align-items:center;gap:3px;margin-right:8px;font-size:12px}
+.shdot{display:inline-block;width:11px;height:11px;border-radius:50%;border:1px solid #1b1b1b}
+#shlgmore{display:none} body.sprint #shlgmore{display:block} #shlgmore .maplegend{float:none;clear:none;margin:6px 0 0}
+#shlgmore .maplegend{box-shadow:none;border:1px solid var(--line);border-left:4px solid var(--red);margin-top:6px;display:block}
+.shfoot{font-size:11.5px;color:var(--muted);text-align:center}
+.snorth{background:#ffffffe6;border-radius:6px;padding:3px 4px 1px;box-shadow:0 1px 4px #0004;line-height:0}
+.shlab{background:#ffffffd9;border:0;box-shadow:none;font:600 11px/1.15 var(--sans);color:#17221f;padding:1px 4px;border-radius:3px;white-space:nowrap}
+.shlab::before{display:none}
+/* printing (and the moment before it): A4 landscape, map on the left, legend and notes on the right */
+body.sprint .wrap{width:281mm;max-width:none;padding:0;margin:0}
+body.sprint .shgrid{grid-template-columns:minmax(0,1fr) 64mm}
+body.sprint #map{height:146mm!important}
+body.sprint .shprinted{display:inline} body.sprint .shbtns,body.sprint .shhelp{display:none!important}
+body.sprint .leaflet-control-zoom,body.sprint .leaflet-control-layers,body.sprint #map .maplegend,body.sprint .eqctl{display:none!important}
+@page{size:A4 landscape;margin:8mm}
+@media print{
+  :root{--bg:#fff;--panel:#fff;--fg:#17221f;--muted:#4a5753;--line:#c9d1ce;--navy:#0b2a5b;color-scheme:light}
+  body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact} body::before{display:none!important}
+  body.smode .wrap{width:auto;max-width:none;padding:0;margin:0;gap:4mm}
+  body.smode .shead{padding:2mm 3mm;border-radius:2mm} .shemb{width:14mm;height:14mm} .shtit h1{font-size:17pt}
+  .shprinted{display:inline!important} .shbtns,.shhelp,.leaflet-control-zoom,.leaflet-control-layers,#map .maplegend,.eqctl,.animbar,dialog{display:none!important}
+  .shgrid{grid-template-columns:minmax(0,1fr) 64mm!important;gap:3mm} body.smode #map{height:146mm!important} .shside .sub{font-size:inherit}
+  #shlgmore{display:block!important} .eqlist button{display:none!important} .shside .shsec{padding:1.5mm 0} .shsec h3{font-size:7.5pt;margin-bottom:1mm}
+  .shmap .panel{border:1px solid #999;padding:0} .shside{font-size:8pt;line-height:1.3;padding:0 3mm}
+  .shmap .panel .legend{font-size:8pt;margin-top:1mm} .shgrp button{font-size:8pt;padding:0 5px}
+  #shlgmore .maplegend{font-size:7pt;padding:3px 6px;line-height:1.15} #shlgmore .maplegend .hd{font-size:8pt;margin-bottom:2px}
+  .leaflet-control-attribution{font-size:7pt}
+}
 </style>
 </head>
 <body>
@@ -389,6 +474,7 @@ h2 button.info{vertical-align:2px}
       <button class="btn" id="vehbtn" type="button" aria-haspopup="dialog" hidden>🚑 Vehículos</button>
       <a class="btn" id="mivehbtn" href="owntracks.html" hidden>🚑 Mi vehículo</a>
       <button class="btn new" type="button" data-newinc hidden>＋ Evento</button>
+      <button class="btn" id="sharebtn" type="button" aria-haspopup="dialog" hidden>🗺️ Mapa para compartir</button>
     </div>
   </header>
 
@@ -785,6 +871,7 @@ const icon = (v, on=true, title="") => `<svg class="ic ${on ? v : "off"}" role="
 const STATUS = {off:["off","Sin transmisión"], incomplete:["warn","Datos incompletos"], odd:["warn","Valores dudosos"]};
 let hours = 24, latest = null, cut = null, stations = [], sel = new URLSearchParams(location.search).get("estacion"), map, layer, alertLayer, sortK = "rain", sortDir = -1;
 const charts = {};
+let SHARE = null, ctrlRef = null;   // SHARE: the decoded #mapa=… link (shared-map mode), see shareDecode()
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
 // IDEAM timestamps are Colombia local time (UTC-5, no DST)
@@ -889,6 +976,7 @@ async function load(){
     }
     stations = Object.values(byId);
     renderStatus(); renderKpis(); renderMap(); renderTable();
+    if (SHARE) return;
     loadDry().then(renderKpis);
     if (sel && byId[sel]) loadDetail(sel); else if (topRain()) loadDetail(topRain().id);
   } catch (e) {
@@ -1427,6 +1515,168 @@ function buildSaludLayer(){
   g.on("add", () => { if (!loaded) load(); });
   return g;
 }
+// Roads (Vías) from OpenStreetMap, pre-extracted for Tolima by tools/osm_vias.py into data/vias-tolima.json
+// (HOT export of OSM, ODbL). Classes: 0 primaria, 1 secundaria, 2 terciaria/veredal, 3 camino/trocha.
+// National-route number and sector come from INVÍAS' Red Vial Nacional where the road runs along it.
+// Drawn on one canvas that ignores taps (so municipios and veredas underneath keep working); a tap near a road opens its popup.
+const VIA_CLS = [
+  {n:"Vía primaria", d:"troncales y vías nacionales", c:"#d50000", w:[2.6, 3.4, 4.6], minz:0},
+  {n:"Vía secundaria", d:"vías departamentales", c:"#ff8f00", w:[1.8, 2.4, 3.4], minz:0},
+  {n:"Vía terciaria o veredal", d:"carreteables entre veredas", c:"#7b4a2a", cs:"#ffe082", w:[0.9, 1.3, 2], minz:9},
+  {n:"Camino o trocha", d:"carreteable sin clasificar", c:"#7b4a2a", cs:"#ffe082", w:[0.8, 1, 1.5], minz:11, dash:"4 3"},
+];
+const VIA_ATTR = 'Vías © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> (ODbL), INVÍAS';
+const VIA_SURF = {a:"pavimentada (asfalto)", c:"pavimentada (concreto)", d:"destapada (sin pavimento)"};
+const viaLeg = L.control({position:"topright"});
+viaLeg.onAdd = () => { const d = L.DomUtil.create("div", "irleg");
+  d.innerHTML = `<button type="button" class="irx" aria-label="Cerrar leyenda" title="Cerrar leyenda">✕</button>`
+    + `<button type="button" class="iropen" title="Mostrar leyenda de vías">Vías</button>`
+    + `<div class="hd">Vías (OpenStreetMap) ${infoBtn("vias", "vías")}</div>`
+    + VIA_CLS.map(k => `<div class="r"><svg class="sw" style="border:0" viewBox="0 0 30 12"><path d="M1 6H29" stroke="${k.c}" stroke-width="${k.w[2]}" stroke-linecap="round"${k.dash ? ` stroke-dasharray="${k.dash}"` : ""}/></svg><span><b>${k.n}</b>${k.minz ? ` <span class="sub">desde zoom ${k.minz}</span>` : ""}</span></div>`).join("")
+    + `<div class="ft">Toque una vía para ver su nombre. © colaboradores de OpenStreetMap.</div>`;
+  d.querySelector(".irx").onclick = () => d.classList.add("min");
+  d.querySelector(".iropen").onclick = () => d.classList.remove("min");
+  L.DomEvent.disableClickPropagation(d); return d; };
+function buildViasLayer(){
+  const g = L.layerGroup(); let D = null, loading = false, map = null;
+  // two canvases: local roads (switched on and off with the zoom) below, primarias and secundarias with their casings above
+  const rend = L.canvas({padding:0.3, tolerance:7, pane:"vias"}), rendLo = L.canvas({padding:0.3, tolerance:7, pane:"viasLo"});
+  const byCls = [[], [], [], []], cases = [];
+  const zk = z => z <= 9 ? 0 : z <= 12 ? 1 : 2;
+  const restyle = () => {
+    if (!map || !D) return;
+    const z = map.getZoom(), k = zk(z);
+    VIA_CLS.forEach((c, i) => {
+      const on = z >= c.minz, col = SATBASE && c.cs ? c.cs : c.c;
+      for (const l of byCls[i]) {
+        if (on !== g.hasLayer(l)) on ? g.addLayer(l) : g.removeLayer(l);
+        if (on) l.setStyle({color:col, weight:c.w[k]});
+      }
+    });
+    for (const [l, i] of cases) l.setStyle({color:SATBASE ? "#000" : "#fff", opacity:SATBASE ? 0.55 : 0.9, weight:VIA_CLS[i].w[k] + 2.4});
+  };
+  const dec = a => { const out = []; let x = 0, y = 0; for (let i = 0; i < a.length; i += 2) { x += a[i]; y += a[i + 1]; out.push([y / 1e5, x / 1e5]); } return out; };
+  function popup(r, ll){
+    const [c, name, surf, mun, ri, br] = r, cls = VIA_CLS[c], ru = ri >= 0 ? D.rutas[ri] : null;
+    return `<b>${name ? esc(name) : "Vía sin nombre en OpenStreetMap"}</b>${br ? " · puente" : ""}`
+      + `<br>${cls.n} <span class="sub">(${cls.d})</span>`
+      + (ru ? `<br>Ruta nacional <b>${esc(ru[0])}</b>${ru[1] ? ` · ${esc(ru[1])}` : ""}<br><span class="sub">Sector ${esc(ru[2])} · tramo ${esc(ru[3])} (INVÍAS)</span>` : "")
+      + `<br>Superficie: ${VIA_SURF[surf] || "sin dato"}`
+      + `<br>Municipio: ${esc(D.mun[mun])}`
+      + `<br><span class="sub">© colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> (ODbL) · `
+      + `<a href="https://www.openstreetmap.org/#map=17/${ll.lat.toFixed(5)}/${ll.lng.toFixed(5)}" target="_blank" rel="noopener">ver o corregir en OSM</a></span>`;
+  }
+  // listens in the capture phase on the map container, so a tap on a road is handled here before the municipio or vereda
+  // underneath sees it; markers, popups and controls keep their own taps
+  function onClick(ev){
+    if (!D || !map.hasLayer(g) || map.getContainer().classList.contains("measuring") || ev.target.closest(".leaflet-control, .leaflet-popup, .leaflet-marker-icon, .leaflet-marker-pane")) return;
+    if (map.dragging && map.dragging.moved()) return;
+    const ll = map.mouseEventToLatLng(ev), p = map.latLngToLayerPoint(ll);
+    for (let i = 0; i < 4; i++) for (const l of byCls[i]) {   // primarias first: they win where roads overlap
+      if (!g.hasLayer(l) || !l._pxBounds) continue;
+      const b = l._pxBounds; if (p.x < b.min.x - 8 || p.x > b.max.x + 8 || p.y < b.min.y - 8 || p.y > b.max.y + 8) continue;
+      if (l._containsPoint(p)) { ev.stopPropagation(); L.popup({maxWidth:290}).setLatLng(ll).setContent(popup(l._via, ll)).openOn(map); return; }
+    }
+  }
+  async function load(){
+    loading = true;
+    try { D = await (await fetch("data/vias-tolima.json")).json(); } catch (e) { loading = false; return; }
+    const o = {renderer:rend, pane:"vias", interactive:false, lineCap:"round", lineJoin:"round", opacity:1, smoothFactor:1.2};
+    for (const r of D.v) {
+      const lls = dec(r[6]), c = r[0], k = VIA_CLS[c];
+      if (c < 2) { const cl = L.polyline(lls, {...o}); cases.push([cl, c]); g.addLayer(cl); }
+      const l = L.polyline(lls, c < 2 ? o : {...o, renderer:rendLo, pane:"viasLo", dashArray:k.dash || null}); l._via = r; byCls[c].push(l);
+    }
+    // casings first, then lines (caminos to primarias, as stored), so each road sits on its halo
+    for (let i = 3; i >= 0; i--) for (const l of byCls[i]) g.addLayer(l);
+    restyle();
+  }
+  g.on("add", () => {
+    map = g._map;
+    viaLeg.addTo(map); map.attributionControl?.addAttribution(VIA_ATTR); map.on("zoomend baselayerchange", restyle); map.getContainer().addEventListener("click", onClick, true);
+    if (!D && !loading) load(); else restyle();
+  });
+  g.on("remove", () => { viaLeg.remove(); map.attributionControl?.removeAttribution(VIA_ATTR); map.off("zoomend baselayerchange", restyle); map.getContainer().removeEventListener("click", onClick, true); map.removeLayer(rend); map.removeLayer(rendLo); });
+  return g;
+}
+// Distance tool ("Medir"): tap points on the map; "Por la vía" asks the public OSRM router (OpenStreetMap roads,
+// car profile) for the driving route through them, "Línea recta" joins them with straight lines.
+// While it is on, taps go to the tool (capture phase on the map container) instead of opening popups.
+const OSRM = "https://router.project-osrm.org/route/v1/driving/";
+const fmtKm = m => m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toLocaleString("es-CO", {maximumFractionDigits: m < 1e4 ? 2 : 1})} km`;
+const fmtDur = s => { const m = Math.round(s / 60); return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")} min`; };
+function buildMeasureTool(map){
+  const M = {on:false, mode:"via", pts:[], req:0};
+  const g = L.layerGroup().addTo(map);
+  const ctl = L.control({position:"topleft"});
+  let box, btn, out;
+  ctl.onAdd = () => {
+    const d = L.DomUtil.create("div", "leaflet-bar medir");
+    d.innerHTML = `<button type="button" class="mbtn" title="Medir distancia" aria-label="Medir distancia"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 17 17 3l4 4L7 21z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2" stroke="currentColor" stroke-width="1.6"/></svg></button>`
+      + `<div class="mpanel" hidden><div class="mhd"><b>Medir distancia</b><button type="button" class="mx" aria-label="Cerrar">✕</button></div>`
+      + `<div class="mmode" role="group" aria-label="Tipo de medida"><button type="button" data-m="via" class="on">Por la vía</button><button type="button" data-m="recta">Línea recta</button></div>`
+      + `<div class="mout"></div><div class="mact"><button type="button" data-a="undo">Deshacer</button><button type="button" data-a="clear">Borrar</button></div></div>`;
+    btn = d.querySelector(".mbtn"); box = d.querySelector(".mpanel"); out = d.querySelector(".mout");
+    btn.onclick = () => toggle(!M.on);
+    d.querySelector(".mx").onclick = () => toggle(false);
+    d.querySelector(".mmode").onclick = e => { const b = e.target.closest("button[data-m]"); if (!b) return; M.mode = b.dataset.m;
+      d.querySelectorAll(".mmode button").forEach(x => x.classList.toggle("on", x === b)); draw(); };
+    d.querySelector(".mact").onclick = e => { const a = e.target.closest("button[data-a]")?.dataset.a; if (a === "undo") M.pts.pop(); if (a === "clear") M.pts = []; if (a) draw(); };
+    L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d);
+    return d;
+  };
+  ctl.addTo(map);
+  function toggle(on){
+    M.on = on; box.hidden = !on; btn.classList.toggle("on", on);
+    map.getContainer().classList.toggle("measuring", on);
+    if (!on) { M.pts = []; M.req++; g.clearLayers(); } else { map.closePopup(); draw();
+      // on a phone, fold the map legends so the panel and the map stay visible
+      if (map.getSize().x < 600) map.getContainer().querySelectorAll(".irleg").forEach(x => x.classList.add("min")); }
+  }
+  map.getContainer().addEventListener("click", ev => {
+    if (!M.on || ev.target.closest(".leaflet-control, .leaflet-popup")) return;
+    if (map.dragging && map.dragging.moved()) return;
+    ev.stopImmediatePropagation();
+    M.pts.push(map.mouseEventToLatLng(ev)); draw();
+  }, true);
+  const straight = () => M.pts.reduce((s, p, i) => i ? s + map.distance(M.pts[i - 1], p) : 0, 0);
+  const dots = () => M.pts.forEach((p, i) => L.circleMarker(p, {radius:i ? 5 : 6, color:"#fff", weight:2, fillColor:i ? "#0b2a5b" : "#2e7d32", fillOpacity:1, interactive:false}).addTo(g));
+  async function draw(){
+    const id = ++M.req; g.clearLayers();
+    const n = M.pts.length, rect = straight();
+    if (n < 2) { dots(); out.innerHTML = `<p>${n ? "Toque el punto de llegada." : "Toque el punto de inicio en el mapa."}</p>`; return; }
+    if (M.mode === "recta") {
+      L.polyline(M.pts, {color:"#0b2a5b", weight:3, dashArray:"6 5", interactive:false}).addTo(g); dots();
+      out.innerHTML = `<p class="mkm">${fmtKm(rect)}</p><p>En línea recta${n > 2 ? `, ${n - 1} tramos` : ""}. Toque para agregar más puntos.</p>`;
+      return;
+    }
+    dots(); out.innerHTML = `<p>Calculando la ruta…</p>`;
+    let r = null;
+    try {
+      const q = M.pts.map(p => `${p.lng.toFixed(5)},${p.lat.toFixed(5)}`).join(";");
+      const j = await (await fetch(`${OSRM}${q}?overview=full&geometries=geojson&steps=false`)).json();
+      if (j.code === "Ok" && j.routes?.length) r = j.routes[0];
+      if (id !== M.req) return;
+      if (r) {
+        const line = r.geometry.coordinates.map(([x, y]) => [y, x]);
+        g.clearLayers();
+        // dashed links from each tap to where the route meets the road
+        (j.waypoints || []).forEach((w, i) => { const s = [w.location[1], w.location[0]]; if (map.distance(s, M.pts[i]) > 15) L.polyline([M.pts[i], s], {color:"#0b2a5b", weight:1.5, dashArray:"3 4", interactive:false}).addTo(g); });
+        L.polyline(line, {color:"#fff", weight:8, opacity:0.9, interactive:false}).addTo(g);
+        L.polyline(line, {color:"#1565c0", weight:5, interactive:false}).addTo(g); dots();
+        const off = (j.waypoints || []).reduce((m, w) => Math.max(m, w.distance || 0), 0);
+        out.innerHTML = `<p class="mkm">${fmtKm(r.distance)}</p><p>Por la vía, en carro: unas <b>${fmtDur(r.duration)}</b> (estimado, sin tráfico ni cierres).`
+          + `<br><span class="sub">En línea recta: ${fmtKm(rect)}</span>`
+          + (off > 300 ? `<br><span class="mwarn">Un punto está a ${fmtKm(off)} de la vía más cercana; la ruta empieza o termina allí.</span>` : "")
+          + `</p><p class="sub">Ruta: OSRM con datos de OpenStreetMap. Toque para agregar paradas.</p>`;
+        return;
+      }
+    } catch (e) { if (id !== M.req) return; }
+    L.polyline(M.pts, {color:"#0b2a5b", weight:3, dashArray:"6 5", interactive:false}).addTo(g);
+    out.innerHTML = `<p class="mkm">${fmtKm(rect)}</p><p>No se pudo calcular la ruta por la vía (sin conexión con el servicio o sin vía entre los puntos). Se muestra la distancia en línea recta.</p>`;
+  }
+  return M;
+}
 // Earthquakes M4+ in and around Tolima over the last year, from the USGS FDSN service.
 // (The SGC feed at archive.sgc.gov.co only answers its own website, so a browser page elsewhere cannot read it.)
 // Date range chosen under the map (local dates, YYYY-MM-DD); defaults to the last 365 days
@@ -1441,6 +1691,7 @@ function buildEqLayer(){
   // plus a clickable list of the latest ones under the map
   const g = L.layerGroup(), box = document.getElementById("eqinfo"); let timer = null, marks = [];
   EQ_RANGE.to = eqYmd(new Date()); EQ_RANGE.from = eqYmd(new Date(Date.now() - 365*864e5));
+  if (SHARE?.eq) { EQ_RANGE.from = SHARE.eq.f; EQ_RANGE.to = SHARE.eq.t; }
   const PRE = [[30, "30 días"], [90, "3 meses"], [365, "1 año"], [365*5, "5 años"], [365*20, "20 años"]];
   box.innerHTML = `<div class="eqctl"><b>Sismos M4+ · fechas:</b>
     <label>desde <input type="date" id="eqfrom"></label><label>hasta <input type="date" id="eqto"></label>
@@ -1794,7 +2045,7 @@ function buildSegLayer(){
     let la = 0, lo = 0; best.forEach(p => { la += p[0]; lo += p[1]; }); return [la / best.length, lo / best.length]; };
   const findV = (mn, name) => { const mi = VEREDAS.m.indexOf(mn), k = segNorm(name); return VEREDAS.f.findIndex(f => f[0] === mi && segNorm(f[1]) === k); };
   function build(){
-    for (const a of SEG_AT) {
+    for (const a of SEG_AT.filter(a => !SHARE?.at?.length || SHARE.at.includes(a.id))) {
       // 1) municipios, faint
       for (const mn of Object.keys(a.mun)) {
         const f = TOLIMA_GEO.mun.features.find(x => x.properties.n === mn); if (!f) continue;
@@ -1846,6 +2097,288 @@ function buildSegLayer(){
     legend.addTo(g._map); });
   g.on("remove", () => { legend?.remove(); legend = null; });
   return g;
+}
+// ---- Mapa para compartir: a signed-in team member picks layers, highlights veredas or municipios and writes a title and notes;
+// everything is packed into the link itself (#mapa=…), so nothing is stored anywhere and the link keeps working on its own.
+// Whoever opens the link sees only that map (no dashboard), can switch the included layers on and off, inspect them and print
+// it or save it as PDF with title, legend, scale, north arrow and date. The data of each layer is read live when the map opens.
+const SH_COLORS = [["#ffd400", "Amarillo"], ["#e53935", "Rojo"], ["#1e88e5", "Azul"], ["#00c853", "Verde"], ["#ff6d00", "Naranja"]];
+let SHARE_LAYERS = [];            // [group, [[plain label, id], …]] of the full dashboard, for the builder
+const b64u = {
+  enc: bytes => { let s = ""; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); },
+  dec: s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0)),
+};
+const pipeBytes = async (bytes, stream) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
+// "1." = deflate-raw (shorter), "0." = plain UTF-8 JSON (browsers without CompressionStream)
+async function shareEncode(obj){
+  const raw = new TextEncoder().encode(JSON.stringify(obj));
+  if (typeof CompressionStream !== "undefined") try {
+    const z = await pipeBytes(raw, new CompressionStream("deflate-raw")); if (z.length < raw.length) return "1." + b64u.enc(z);
+  } catch {}
+  return "0." + b64u.enc(raw);
+}
+async function shareDecode(){
+  const m = /(?:^#|&)mapa=([^&]+)/.exec(location.hash); if (!m) return null;
+  try {
+    const [k, data] = decodeURIComponent(m[1]).split(".");
+    let bytes = b64u.dec(data);
+    if (k === "1") bytes = await pipeBytes(bytes, new DecompressionStream("deflate-raw"));
+    const o = JSON.parse(new TextDecoder().decode(bytes));
+    o.L = Array.isArray(o.L) ? o.L : []; o.h = o.h || {};
+    return o;
+  } catch (e) { console.warn("mapa compartido ilegible", e); return {bad:true, L:[], h:{}}; }
+}
+const plainLabel = html => { const d = document.createElement("div"); d.innerHTML = html; d.querySelectorAll("button").forEach(b => b.remove()); return d.textContent.trim(); };
+const shVer = mn => VEREDAS.f.map((f, vi) => [f, vi]).filter(([f]) => VEREDAS.m[f[0]] === mn);
+const shVName = n => /^Z U /.test(n) ? `Casco urbano (${n.slice(4)})` : n;
+// indices of VEREDAS.f for the names saved in a link (exact name first, then ignoring accents and case)
+const shFindV = (mn, names) => { const vs = shVer(mn); return names.flatMap(n => {
+  const ex = vs.filter(([f]) => f[1] === n); return (ex.length ? ex : vs.filter(([f]) => segNorm(f[1]) === segNorm(n))).map(([, vi]) => vi); }); };
+
+// the highlighted areas, as their own toggleable layer
+function shareHlLayer(s){
+  const g = L.featureGroup(), col = s.c || SH_COLORS[0][0]; g._items = new Map();   // "municipio|name" -> polygon, for the zoom list
+  map.createPane("shl").style.zIndex = 430;
+  const sty = {pane:"shl", color:col, weight:3.2, opacity:1, fillColor:col, fillOpacity:0.38};
+  const halo = {pane:"shl", color:"#1b1b1b", weight:5.5, opacity:0.55, fill:false, interactive:false};
+  const lab = (p, t) => { if (s.lb) p.bindTooltip(esc(t), {permanent:true, direction:"center", className:"shlab"}); };
+  for (const [mn, v] of Object.entries(s.h)) {
+    if (v === "*" || (Array.isArray(v) && v.includes("*"))) {
+      const f = TOLIMA_GEO.mun.features.find(x => x.properties.n === mn); if (!f) continue;
+      L.geoJSON(f, {style:halo, interactive:false}).addTo(g);
+      const p = L.geoJSON(f, {style:{...sty, fillOpacity:v === "*" ? 0.22 : 0.12}})
+        .bindPopup(() => popHtml(mn, "Municipio resaltado", MUNPOP[mn]?.[2]), {maxWidth:260});
+      lab(p, mn); p.addTo(g); g._items.set(mn + "|Todo el municipio", p);
+    }
+    if (!Array.isArray(v)) continue;
+    for (const vi of shFindV(mn, v.filter(x => x !== "*"))) {
+      const [, n, polys] = VEREDAS.f[vi], ll = polys.map(rs => rs.map(decPoly));
+      L.polygon(ll, halo).addTo(g);
+      const p = L.polygon(ll, sty).bindPopup(() => popHtml(shVName(n), `Vereda resaltada · ${mn}`, VPOP[vi]), {maxWidth:280});
+      if (HOVER && !s.lb) p.bindTooltip(`<b>${esc(shVName(n))}</b><br>${esc(mn)}`, {sticky:true, direction:"top", className:"muntip"});
+      lab(p, shVName(n)); p.addTo(g); g._items.set(mn + "|" + shVName(n), p);
+    }
+  }
+  return g;
+}
+
+// Called by renderMap() in shared mode, before the layer control is built: keep only the chosen layers (switched on)
+function shareFilterLayers(groups, hl){
+  const want = new Set(SHARE.L);
+  for (const [, ls] of groups) for (let i = ls.length - 1; i >= 0; i--) {
+    const [, l, id] = ls[i];
+    if (want.has(id)) { if (!map.hasLayer(l)) l.addTo(map); } else { if (map.hasLayer(l)) map.removeLayer(l); ls.splice(i, 1); }
+  }
+  for (let i = groups.length - 1; i >= 0; i--) if (!groups[i][1].length) groups.splice(i, 1);
+  if (hl.getLayers().length) { groups.unshift(["Selección", [["Áreas resaltadas", hl, "hl"]]]); hl.addTo(map); }
+}
+
+const SH_SRC = {dep:"Límites: shapefile del Tolima (MAGNA-SIRGAS), simplificado", mun:"Límites: shapefile del Tolima (MAGNA-SIRGAS), simplificado",
+  ver:"Veredas: DANE 2020", eq:"Sismos: USGS (catálogo FDSN, M4+)", movmasa:"Movimientos en masa: SGC (SIMMA)", machin:"Amenaza Cerro Machín: SGC / Cortolima 2026",
+  volc:"Alerta volcánica: SGC", seg:"Seguridad: Defensoría del Pueblo, Sistema de Alertas Tempranas", est:"Estaciones: IDEAM (datos.gov.co)", alert:"Umbrales de nivel: IDEAM (FEWS)",
+  davis:"Estaciones Davis: WeatherLink", emb:"Embalses: XM", focos:"Focos de calor: GWIS / NASA FIRMS", fwi:"Peligro de incendio: GWIS (Copernicus)",
+  fc:"Pronóstico: Open-Meteo", suelo:"Humedad del suelo: Open-Meteo", slide:"Riesgo orientativo: Open-Meteo (cálculo propio)", glofas:"Caudales: GloFAS (Copernicus)",
+  salud:"Prestadores de salud: REPS (MinSalud)", vias:"Vías: © colaboradores de OpenStreetMap (ODbL); rutas nacionales: INVÍAS", inc:"Eventos: registros de Cruz Roja Tolima", cam:"Cámaras: SGC"};
+const shDate = d => d.toLocaleString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"long", year:"numeric", hour:"numeric", minute:"2-digit"});
+const shDay = s => fmtFecha(s);
+
+// Called by renderMap() in shared mode once the map, the layer control and the default layers exist
+function shareAfterMap({ctrl, sat, topo, applyBorders, hl}){
+  const S = SHARE, box = document.getElementById("share");
+  if (S.b === "sat") { map.removeLayer(topo); sat.addTo(map); SATBASE = true; applyBorders(); }
+  L.control.scale({imperial:false, position:"bottomleft", maxWidth:160}).addTo(map);
+  const na = L.control({position:"topleft"});
+  na.onAdd = () => { const d = L.DomUtil.create("div", "snorth"); d.title = "Norte";
+    d.innerHTML = `<svg viewBox="0 0 40 58" width="30" height="44" aria-label="Norte"><text x="20" y="13" text-anchor="middle" font-family="IBM Plex Sans,system-ui,sans-serif" font-weight="700" font-size="14" fill="#17221f">N</text><path d="M20 17 31 54 20 46 9 54Z" fill="#17221f"/><path d="M20 17 20 46 9 54Z" fill="#fff" stroke="#17221f" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+    return d; };
+  na.addTo(map);
+  // where to look: the highlighted areas, else the view the builder had
+  const fit = () => { if (hl.getLayers().length) map.fitBounds(hl.getBounds(), {padding:[24, 24], maxZoom:13});
+    else if (Array.isArray(S.v)) map.setView([S.v[0], S.v[1]], S.v[2]); };
+  fit(); box._fit = fit;
+  // the list of highlighted places, each one zooms to its area
+  const hlList = box.querySelector("#shhl");
+  const groups = Object.entries(S.h).map(([mn, v]) => {
+    const names = v === "*" ? ["Todo el municipio"] : v.map(x => x === "*" ? "Todo el municipio" : shVName(x));
+    return `<div class="shgrp"><b>${esc(mn)}</b> <span class="sub">(${v === "*" ? "municipio" : names.length + (names.length === 1 ? " área" : " áreas")})</span><div>${names.map(n => `<button type="button" data-shz="${esc(mn)}|${esc(n)}">${esc(n)}</button>`).join("")}</div></div>`;
+  });
+  hlList.innerHTML = groups.length ? groups.join("") : `<span class="sub">Ninguna.</span>`;
+  hlList.closest(".shsec").hidden = !groups.length;
+  hlList.addEventListener("click", e => { const b = e.target.closest("[data-shz]"); if (!b) return;
+    const p = hl._items.get(b.dataset.shz); if (!p) return;
+    map.fitBounds(p.getBounds(), {padding:[30, 30], maxZoom:14});
+    const q = p instanceof L.GeoJSON ? p.getLayers()[0] : p; q?.openPopup(); });
+  // legend of what is on the map now (it follows the layer switches)
+  const lg = box.querySelector("#shlg");
+  const sw = (fill, line, extra = "") => `<span class="shsw" style="background:${fill};border-color:${line};${extra}"></span>`;
+  const items2 = {
+    hl:() => `<div>${sw((S.c || SH_COLORS[0][0]) + "61", S.c || SH_COLORS[0][0], "border-width:2.5px")}Áreas resaltadas</div>`,
+    dep:() => `<div>${sw("transparent", "#17221f", "border-width:0 0 3px;border-radius:0;height:8px")}Límite departamental</div>`,
+    mun:() => `<div>${sw("transparent", "#3d4a46", "border-width:0 0 1.5px;border-radius:0;height:8px")}Límite municipal</div>`,
+    ver:() => `<div>${sw("transparent", "#9a7b4f", "border-width:0 0 1px;border-radius:0;height:8px")}Veredas (DANE 2020)</div>`,
+    vias:() => VIA_CLS.map(k => `<div><svg width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><path d="M1 5H21" stroke="${k.c}" stroke-width="${Math.max(1.5, k.w[1])}"${k.dash ? ` stroke-dasharray="${k.dash}"` : ""}/></svg>${k.n}</div>`).join(""),
+    eq:() => `<div class="shlg-eq"><b>Sismos M4+</b> <span class="sub">(número = magnitud; ${S.eq ? `${shDay(S.eq.f)} a ${shDay(S.eq.t)}` : "último año"})</span><br>`
+      + [["#ffd21f", "24 h"], ["#ff8a3d", "semana"], ["#c77dff", "mes"], ["#b0b7c3", "más antiguo"]].map(([c, t]) => `<span><span class="shdot" style="background:${c}"></span>${t}</span>`).join("") + `</div>`,
+  };
+  const ids = new Map(); for (const o of ctrl._layers) if (o.overlay) { const id = o.layer._shId; if (id) ids.set(id, o.layer); }
+  function drawLegend(){
+    const on = [...ids].filter(([, l]) => map.hasLayer(l)).map(([id]) => id);
+    lg.innerHTML = on.filter(id => items2[id]).map(id => items2[id]()).join("") || "";
+    // the layers' own legends, copied from the map (on paper they go here, not over the map)
+    const more = box.querySelector("#shlgmore"); more.innerHTML = "";
+    document.querySelectorAll("#map .maplegend").forEach(m => { const c = m.cloneNode(true); c.removeAttribute("style"); c.classList.remove("leaflet-control"); more.appendChild(c); });
+    lg.closest(".shsec").hidden = !lg.innerHTML && !more.childElementCount;
+    const src = [...new Set(on.map(id => SH_SRC[id] || SH_SRC[id.replace(/^sat-/, "")]).filter(Boolean))];
+    box.querySelector("#shsrc").innerHTML = src.map(esc).join("<br>") + (src.length ? "<br>" : "") + "Mapa base: Esri";
+  }
+  map.on("overlayadd overlayremove", () => setTimeout(drawLegend, 50));
+  box._legend = drawLegend; setTimeout(drawLegend, 300);
+  document.title = (S.t || "Mapa") + " · Cruz Roja Tolima";
+}
+
+// Builds the page around the map in shared mode (before the map exists)
+function shareBuildPage(){
+  const S = SHARE, wrap = document.querySelector(".wrap");
+  document.body.classList.add("smode");
+  const emblem = document.querySelector("header .emblem")?.src || "icon-192.png";
+  const sec = document.createElement("section"); sec.id = "share";
+  const made = S.d ? new Date(S.d) : null;
+  sec.innerHTML = `<div class="shead">
+      <img src="${emblem}" alt="Cruz Roja Colombiana, Seccional Tolima" class="shemb">
+      <div class="shtit"><h1 id="shtitle"></h1>
+        <div class="shmeta">${S.p ? `<span>Para: <b>${esc(S.p)}</b></span>` : ""}<span>Cruz Roja Colombiana · Seccional Tolima${S.a ? ` · ${esc(S.a)}` : ""}</span>
+          ${made ? `<span>Elaborado: ${esc(shDate(made))}</span>` : ""}<span class="shprinted">Impreso: <span id="shnow"></span></span></div></div>
+      <div class="shbtns"><button type="button" class="btn go" id="shprint">🖨️ Imprimir o guardar PDF</button><button type="button" class="btn" id="shfit">⤢ Volver al encuadre</button></div>
+    </div>
+    <div class="shgrid"><div class="shmap"></div>
+      <aside class="shside">
+        ${S.n ? `<div class="shsec"><h3>Notas</h3><div class="shnotes" id="shnotes"></div></div>` : ""}
+        <div class="shsec"><h3>Áreas resaltadas</h3><div id="shhl"></div></div>
+        <div class="shsec"><h3>Convenciones</h3><div id="shlg"></div><div id="shlgmore"></div></div>
+        <div class="shsec shhelp"><h3>Cómo usar</h3><div class="sub">Con el botón de capas (arriba a la derecha del mapa) puede encender o apagar cada capa incluida. Toque un área o un símbolo para ver su información.</div></div>
+        <div class="shsec"><h3>Fuentes</h3><div class="sub" id="shsrc"></div>
+          <div class="sub" style="margin-top:6px">Los datos de cada capa se consultan en vivo al abrir el mapa; ubicaciones y límites aproximados.</div></div>
+      </aside></div>
+    <div class="shfoot">© ${new Date().getFullYear()} Cruz Roja Colombiana, Seccional Tolima · Sistema de Monitoreo (SAT Tolima)</div>`;
+  wrap.prepend(sec);
+  sec.querySelector("#shtitle").textContent = S.bad ? "Enlace de mapa dañado o incompleto" : (S.t || "Mapa compartido");
+  if (S.n) sec.querySelector("#shnotes").textContent = S.n;
+  const nowEl = sec.querySelector("#shnow"), tick = () => nowEl.textContent = shDate(new Date()); tick();
+  // the dashboard's map panel moves into the shared layout
+  const panel = document.getElementById("map").closest(".panel");
+  sec.querySelector(".shmap").appendChild(panel);
+  sec.querySelector("#shfit").onclick = () => sec._fit?.();
+  // printing: fix the map to the printed size first, so the tiles for that frame are loaded before the print dialog opens
+  const waitTiles = () => new Promise(res => { const ps = [];
+    map.eachLayer(l => { if (l instanceof L.TileLayer && l._loading) ps.push(new Promise(r => l.once("load", r))); });
+    Promise.race([Promise.all(ps), new Promise(r => setTimeout(r, 5000))]).then(res); });
+  const prep = () => { tick(); document.body.classList.add("sprint"); map.invalidateSize(); sec._legend?.(); };
+  const unprep = () => { document.body.classList.remove("sprint"); map.invalidateSize(); };
+  sec.querySelector("#shprint").onclick = async () => {
+    const b = sec.querySelector("#shprint"); b.disabled = true; b.textContent = "Preparando…";
+    map.closePopup(); prep(); sec._fit?.(); await new Promise(r => setTimeout(r, 700)); await waitTiles();
+    b.disabled = false; b.textContent = "🖨️ Imprimir o guardar PDF"; window.print(); };
+  addEventListener("beforeprint", () => { if (!document.body.classList.contains("sprint")) prep(); });
+  addEventListener("afterprint", unprep);
+}
+
+// ---- The builder (team members only)
+function shareBuilder(){
+  const btn = document.getElementById("sharebtn"); if (!btn || typeof IncStore === "undefined") return;
+  const show = () => { btn.hidden = !IncStore.user(); };
+  IncStore.ready().then(show, () => {}); IncStore.onAuth(show);
+  const dlg = document.createElement("dialog"); dlg.id = "mapdlg"; dlg.setAttribute("aria-labelledby", "mdl_t");
+  document.body.appendChild(dlg);
+  const hl = new Map();   // municipio -> Set of vereda names ("*" = the whole municipio)
+  let col = SH_COLORS[0][0];
+  btn.addEventListener("click", open);
+  function open(){
+    if (!map) { alert("Espere a que cargue el mapa."); return; }
+    // pre-ticked: the boundaries plus whatever the user switched on (not the layers the dashboard shows by default)
+    const active = new Set(["dep", "mun", ...SHARE_LAYERS.flatMap(([, ls]) => ls).filter(([, id, l]) => l && map.hasLayer(l) && !["est", "davis", "alert"].includes(id)).map(([, id]) => id)]);
+    const groups = [...SHARE_LAYERS, ["Eventos", [["Eventos registrados (públicos)", "inc"]]]];
+    const munOpts = [...VEREDAS.m].sort((a, b) => a.localeCompare(b, "es")).map(m => `<option>${esc(m)}</option>`).join("");
+    const today = eqYmd(new Date());
+    dlg.innerHTML = `<form method="dialog" id="mdl_f">
+      <div class="dlghd"><h3 id="mdl_t">🗺️ Mapa para compartir</h3><button class="dlgx" value="x" aria-label="Cerrar">✕ Cerrar</button></div>
+      <p class="m">Elija qué mostrar y cree un enlace. Quien lo abra verá solo este mapa, podrá encender y apagar las capas incluidas e imprimirlo o guardarlo como PDF. No se guarda nada en el sistema: todo va dentro del enlace.</p>
+      <label class="f">Título del mapa <input type="text" id="mdl_ti" maxlength="120" required placeholder="Ej.: Veredas priorizadas en Chaparral"></label>
+      <label class="f">Para (opcional) <input type="text" id="mdl_pa" maxlength="80" placeholder="Nombre o entidad que lo recibe"></label>
+      <label class="f">Notas (opcional) <textarea id="mdl_no" rows="3" maxlength="1500" placeholder="Contexto, instrucciones o fuentes"></textarea></label>
+      <fieldset><legend>Resaltar veredas o municipios</legend>
+        <div class="row"><select id="mdl_mu" aria-label="Municipio"><option value="">Elija un municipio…</option>${munOpts}</select>
+          <input type="search" id="mdl_fi" placeholder="Buscar vereda…" aria-label="Buscar vereda" disabled></div>
+        <div id="mdl_vl" class="mvl"><span class="m">Elija un municipio para ver sus veredas.</span></div>
+        <div id="mdl_sel" class="msel"></div>
+        <div class="row"><span>Color:</span>${SH_COLORS.map(([c, n], i) => `<label class="mcol" title="${n}"><input type="radio" name="mdl_c" value="${c}" ${i ? "" : "checked"}><span style="background:${c}"></span></label>`).join("")}
+          <label class="ch2"><input type="checkbox" id="mdl_lb" checked> Mostrar los nombres en el mapa</label></div>
+      </fieldset>
+      <fieldset><legend>Capas incluidas</legend><p class="m" style="margin:0">Vienen marcados los límites y las capas que usted encendió en el tablero.</p>
+        <div class="mlayers">${groups.map(([g, ls]) => `<div><div class="mg">${esc(g)}</div>${ls.map(([lab, id]) => `<label class="ch2"><input type="checkbox" value="${esc(id)}" ${active.has(id) ? "checked" : ""}> ${esc(lab)}</label>`).join("")}</div>`).join("")}</div>
+        <div id="mdl_eq" class="row" hidden><span>Sismos desde</span><input type="date" id="mdl_ef" max="${today}"><span>hasta</span><input type="date" id="mdl_et" max="${today}"></div>
+        <div id="mdl_at" hidden><span class="m">Alertas Tempranas a incluir:</span>${SEG_AT.map((a, i) => `<label class="ch2"><input type="checkbox" value="${esc(a.id)}" ${i === 0 ? "checked" : ""}> ${esc(a.n)} (${esc(fmtFecha(a.f))})</label>`).join("")}</div>
+      </fieldset>
+      <div class="row"><label>Mapa base <select id="mdl_b"><option value="topo">Topográfico</option><option value="sat" ${SATBASE ? "selected" : ""}>Imagen satelital</option></select></label></div>
+      <div class="row mfoot"><span class="m" id="mdl_msg"></span><button type="button" class="btn" id="mdl_pv">Vista previa</button><button type="button" class="btn go" id="mdl_go">Crear enlace</button></div>
+      <div id="mdl_out" hidden></div>
+    </form>`;
+    const $ = s => dlg.querySelector(s);
+    // SEG_AT is newest first; keep the one-per-row checkbox list short when there is only one alert
+    $("#mdl_ef").value = EQ_RANGE.from || eqYmd(new Date(Date.now() - 365 * 864e5)); $("#mdl_et").value = EQ_RANGE.to || today;
+    const syncLayers = () => { const ch = new Set([...dlg.querySelectorAll(".mlayers input:checked")].map(i => i.value));
+      $("#mdl_eq").hidden = !ch.has("eq"); $("#mdl_at").hidden = !ch.has("seg") || SEG_AT.length < 2; };
+    dlg.querySelector(".mlayers").addEventListener("change", syncLayers); syncLayers();
+    dlg.querySelectorAll("[name=mdl_c]").forEach(r => { r.checked = r.value === col; r.onchange = () => col = r.value; });
+    const listV = () => {
+      const mn = $("#mdl_mu").value, box = $("#mdl_vl"); $("#mdl_fi").disabled = !mn;
+      if (!mn) { box.innerHTML = `<span class="m">Elija un municipio para ver sus veredas.</span>`; return; }
+      const q = segNorm($("#mdl_fi").value), set = hl.get(mn) || new Set();
+      const vs = shVer(mn).map(([f]) => f[1]).filter((n, i, a) => a.indexOf(n) === i).sort((a, b) => a.localeCompare(b, "es"));
+      box.innerHTML = `<label class="ch2 mall"><input type="checkbox" value="*" ${set.has("*") ? "checked" : ""}> <b>Todo el municipio de ${esc(mn)}</b></label>`
+        + vs.filter(n => !q || segNorm(n).includes(q)).map(n => `<label class="ch2"><input type="checkbox" value="${esc(n)}" ${set.has(n) ? "checked" : ""}> ${esc(shVName(n))}</label>`).join("");
+    };
+    const drawSel = () => { const tot = [...hl.values()].reduce((a, s) => a + s.size, 0);
+      $("#mdl_sel").innerHTML = tot ? `<b>Resaltadas (${tot}):</b> ` + [...hl].map(([mn, s]) => [...s].map(n =>
+        `<span class="mchip">${esc(n === "*" ? "Municipio " + mn : shVName(n) + " · " + mn)}<button type="button" data-rm="${esc(mn)}|${esc(n)}" aria-label="Quitar">✕</button></span>`).join("")).join("") : ""; };
+    $("#mdl_mu").onchange = () => { $("#mdl_fi").value = ""; listV(); };
+    $("#mdl_fi").oninput = listV;
+    $("#mdl_vl").onchange = e => { const i = e.target; if (!i.matches("input")) return; const mn = $("#mdl_mu").value;
+      const s = hl.get(mn) || new Set(); i.checked ? s.add(i.value) : s.delete(i.value); s.size ? hl.set(mn, s) : hl.delete(mn); drawSel(); };
+    $("#mdl_sel").onclick = e => { const b = e.target.closest("[data-rm]"); if (!b) return; const [mn, n] = b.dataset.rm.split("|");
+      const s = hl.get(mn); s?.delete(n); if (s && !s.size) hl.delete(mn); drawSel(); if ($("#mdl_mu").value === mn) listV(); };
+    listV(); drawSel();
+    const build = async () => {
+      const t = $("#mdl_ti").value.trim(); if (!t) { $("#mdl_ti").focus(); throw new Error("Escriba un título para el mapa."); }
+      const L_ = [...dlg.querySelectorAll(".mlayers input:checked")].map(i => i.value);
+      const h = {}; for (const [mn, s] of hl) h[mn] = s.size === 1 && s.has("*") ? "*" : [...s];
+      if (!L_.length && !Object.keys(h).length) throw new Error("Elija al menos una capa o un área para resaltar.");
+      const c = map.getCenter();
+      const o = {t, p:$("#mdl_pa").value.trim() || undefined, n:$("#mdl_no").value.trim() || undefined, a:IncStore.handle?.() || undefined,
+        d:new Date().toISOString().slice(0, 16) + "Z", L:L_, h, c:col, lb:$("#mdl_lb").checked ? 1 : 0, b:$("#mdl_b").value,
+        v:[+c.lat.toFixed(4), +c.lng.toFixed(4), map.getZoom()]};
+      if (L_.includes("eq")) { const f = $("#mdl_ef").value, to = $("#mdl_et").value; if (f && to && f <= to) o.eq = {f, t:to}; }
+      if (L_.includes("seg")) o.at = [...dlg.querySelectorAll("#mdl_at input:checked")].map(i => i.value);
+      return location.origin + location.pathname + "#mapa=" + await shareEncode(o);
+    };
+    const msg = t => $("#mdl_msg").innerHTML = t;
+    $("#mdl_pv").onclick = async () => { try { msg(""); window.open(await build(), "_blank", "noopener"); } catch (e) { msg(`<span class="bad">${esc(e.message)}</span>`); } };
+    $("#mdl_go").onclick = async () => { try { msg("");
+      const url = await build(), t = $("#mdl_ti").value.trim(), pa = $("#mdl_pa").value.trim();
+      const wa = `🗺️ *${t}*\n${pa ? `Para: ${pa}\n` : ""}Mapa de Cruz Roja Tolima (se puede imprimir o guardar como PDF):\n${url}`;
+      const out = $("#mdl_out"); out.hidden = false;
+      out.innerHTML = `<label class="f">Enlace del mapa (${url.length} caracteres) <input type="text" readonly id="mdl_url"></label>
+        <div class="row"><button type="button" class="btn go" id="mdl_cp">Copiar enlace</button>
+          <a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(wa)}">WhatsApp</a>
+          <a class="btn" href="mailto:?subject=${encodeURIComponent(t)}&body=${encodeURIComponent(wa.replace(/\*/g, ""))}">Correo</a>
+          <a class="btn" target="_blank" rel="noopener" href="${esc(url)}">Abrir</a></div>
+        <p class="m">Cualquier persona con el enlace puede ver este mapa. Si cambia algo, cree un enlace nuevo.</p>`;
+      $("#mdl_url").value = url;
+      $("#mdl_cp").onclick = async () => { try { await navigator.clipboard.writeText(url); $("#mdl_cp").textContent = "✓ Copiado"; } catch { $("#mdl_url").select(); document.execCommand("copy"); $("#mdl_cp").textContent = "✓ Copiado"; } };
+      out.scrollIntoView({block:"nearest"});
+    } catch (e) { msg(`<span class="bad">${esc(e.message)}</span>`); } };
+    dlg.showModal();
+  }
 }
 // Explanations shown by the "i" buttons (Spanish, plain language)
 const GL = "https://gibs.earthdata.nasa.gov/legends/";
@@ -2330,6 +2863,11 @@ const INFO = {
      <p><b>Fechas:</b> bajo el mapa puede elegir el periodo (desde / hasta) o usar los atajos de 30 días a 20 años. Por defecto muestra el último año.</p>
      <p>Cada círculo lleva escrita su magnitud y crece con ella. Bajo el mapa aparece la lista de los sismos más recientes; tóquelos para ir a cada uno. El color indica cuándo ocurrió: <span style="color:#e0b000">●</span> últimas 24 horas · <span style="color:#ff8a3d">●</span> última semana · <span style="color:#c77dff">●</span> último mes · <span style="color:#8a93a3">●</span> último año.</p>
      <p>La red oficial de Colombia es la del <b>Servicio Geológico Colombiano</b>. Su visor no permite que otras páginas lean sus datos, así que aquí se usa el USGS; la magnitud puede diferir unas décimas de la del SGC. Cada sismo tiene un enlace al <a href="https://www.sgc.gov.co/sismos" target="_blank" rel="noopener">visor de sismos del SGC</a>.</p>`],
+  vias: ["Vías (OpenStreetMap)",
+    `<p>Red de carreteras del Tolima tomada de <b>OpenStreetMap</b> (OSM), el mapa libre que construyen voluntarios, instituciones y empresas. Se usó la exportación de OSM para Colombia del Humanitarian OpenStreetMap Team (HOT) del 2 de noviembre de 2026, recortada al Tolima y simplificada (unos 15 m) para que cargue rápido en el celular.</p>
+     <p><span style="color:#d50000">━</span> <b>Primaria</b>: troncales y vías nacionales · <span style="color:#ff8f00">━</span> <b>secundaria</b>: vías departamentales · <span style="color:#7b4a2a">━</span> <b>terciaria o veredal</b>: carreteables entre veredas y cabeceras (visible desde zoom 9) · <span style="color:#7b4a2a">┅</span> <b>camino o trocha</b> (desde zoom 11). Sobre la imagen satelital las terciarias se dibujan en amarillo claro. No se incluyen calles urbanas ni senderos peatonales.</p>
+     <p>Toque una vía para ver su nombre, clase, superficie y municipio. Donde la vía coincide con la <b>Red Vial Nacional del INVÍAS</b> (datos.gov.co, CC BY-SA 4.0) se muestran el número de ruta, el sector y el código del tramo.</p>
+     <p>OSM es colaborativo: en zonas rurales puede faltar alguna vía o tener una clase distinta a la oficial, y no informa cierres ni el estado actual. El enlace “ver o corregir en OSM” abre el punto en openstreetmap.org. Datos © colaboradores de OpenStreetMap, licencia ODbL. Las vías de Google Maps no se pueden usar: sus condiciones no permiten extraer sus datos como capa.</p>`],
   salud: ["Hospitales y prestadores de salud (REPS)",
     `<p>Sedes de prestadores de servicios de salud habilitados en el Tolima, del <b>Registro Especial de Prestadores (REPS)</b> del Ministerio de Salud, publicado en datos.gov.co. Se excluyen los profesionales independientes. La lista se consulta en línea al abrir la capa.</p>
      <p><span style="color:#c8102e">⊕</span> hospital, centro o puesto de salud público (las E.S.E. de cada municipio; el símbolo grande es un hospital) · <span style="color:#1565c0">●</span> IPS privada · <span style="color:#ef6c00">●</span> transporte especial de pacientes (ambulancias) · <span style="color:#6d7b8d">●</span> otro prestador. El círculo con número agrupa los prestadores privados de un municipio cuya sede no se pudo ubicar; tóquelo para ver la lista con dirección y teléfono.</p>
@@ -2430,7 +2968,7 @@ function openStationPop(s, extra){
 }
 function renderMap(){
   if (!map) {
-    map = L.map("map", {scrollWheelZoom:false}).setView([4.1,-75.1], 8);
+    map = L.map("map", {scrollWheelZoom:!!SHARE}).setView([4.1,-75.1], 8);
     // Esri World Topo basemap: works when the page is opened as a local file
     // (OSM and CARTO tile servers refuse requests that carry no Referer)
     const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/";
@@ -2459,6 +2997,7 @@ function renderMap(){
     map.createPane("sat").style.zIndex = 350;
     map.on("preclick", e => { ACLICK = e.latlng; });
     map.createPane("veredas").style.zIndex = 410;
+    for (const [k, z] of [["viasLo", 414], ["vias", 415]]) { const p = map.createPane(k); p.style.zIndex = z; p.style.pointerEvents = "none"; }
     const satOverlays = {};
     for (const [k, o] of Object.entries(SAT)) {
       o.layer = o.make ? o.make() : L.tileLayer(o.url(""), {pane:"sat", opacity:o.opacity, maxNativeZoom:o.maxNative, maxZoom:17, attribution:o.attribution});
@@ -2482,40 +3021,46 @@ function renderMap(){
     map.on("baselayerchange", e => { SATBASE = e.layer === sat; applyBorders(); });
     map.on("zoomend", applyBorders);
     map.on("overlayadd overlayremove", e => { if (e.layer === mun || e.layer === dep || e.layer === verL) applyBorders(); });
-    const satL = k => [`${esc(SAT[k].name)} ${infoBtn(SAT[k].info, SAT[k].name)}`, SAT[k].layer];
+    const satL = k => [`${esc(SAT[k].name)} ${infoBtn(SAT[k].info, SAT[k].name)}`, SAT[k].layer, "sat-" + k];
     const SOIL = buildSoilLayers(TOLIMA_GEO.mun);
     const davisL = buildDavisLayer().addTo(map);   // on by default, next to the IDEAM stations; hidden while there is no data
     const LAYER_GROUPS = [
-      ["Fronteras administrativas", [["Límite departamental", dep], ["Municipios", mun],
-        [`Veredas (DANE 2020) ${infoBtn("veredas", "veredas")}`, verL]]],
+      ["Fronteras administrativas", [["Límite departamental", dep, "dep"], ["Municipios", mun, "mun"],
+        [`Veredas (DANE 2020) ${infoBtn("veredas", "veredas")}`, verL, "ver"]]],
       ["Investigación", [
-        [`Sismos M4+ (elija las fechas) ${infoBtn("sismos", "sismos")}`, buildEqLayer()],
-        [`Movimientos en masa (SGC, ${MOVMASA.length}) ${infoBtn("movmasa", "movimientos en masa")}`, buildMovLayer()],
-        [`Amenaza volcánica Cerro Machín (SGC 2026) ${infoBtn("machin", "amenaza del Cerro Machín")}`, buildMachinLayer()],
-        [`Alerta volcánica (SGC) ${infoBtn("volcanes", "alerta volcánica")}`, buildVolcLayer()],
+        [`Sismos M4+ (elija las fechas) ${infoBtn("sismos", "sismos")}`, buildEqLayer(), "eq"],
+        [`Movimientos en masa (SGC, ${MOVMASA.length}) ${infoBtn("movmasa", "movimientos en masa")}`, buildMovLayer(), "movmasa"],
+        [`Amenaza volcánica Cerro Machín (SGC 2026) ${infoBtn("machin", "amenaza del Cerro Machín")}`, buildMachinLayer(), "machin"],
+        [`Alerta volcánica (SGC) ${infoBtn("volcanes", "alerta volcánica")}`, buildVolcLayer(), "volc"],
         satL("so2")]],
-      ["Clima actual", [["Estaciones (lluvia)", layer], [`Estaciones Davis (WeatherLink) ${infoBtn("davis", "estaciones Davis")}`, davisL], ["Alertas de nivel IDEAM", alertLayer],
+      ["Clima actual", [["Estaciones (lluvia)", layer, "est"], [`Estaciones Davis (WeatherLink) ${infoBtn("davis", "estaciones Davis")}`, davisL, "davis"], ["Alertas de nivel IDEAM", alertLayer, "alert"],
         ...["radar", "glm", "cmorph", "acum", "ir", "geo", "imerg"].filter(k => SAT[k]).map(satL),
-        [`Embalses: volumen útil (XM) ${infoBtn("embalses", "embalses")}`, buildEmbLayer()],
-        [`Focos de calor, 7 días (GWIS) ${infoBtn("focos", "focos de calor")}`, buildHotspotLayer()],
-        [`Cámaras web de volcanes (SGC) ${infoBtn("camaras", "cámaras web")}`, camLayer]]],
+        [`Embalses: volumen útil (XM) ${infoBtn("embalses", "embalses")}`, buildEmbLayer(), "emb"],
+        [`Focos de calor, 7 días (GWIS) ${infoBtn("focos", "focos de calor")}`, buildHotspotLayer(), "focos"],
+        [`Cámaras web de volcanes (SGC) ${infoBtn("camaras", "cámaras web")}`, camLayer, "cam"]]],
       ["Pronósticos", [
-        [`Lluvia pronosticada 24 h por municipio ${infoBtn("pronostico", "pronóstico")}`, buildFcLayer(TOLIMA_GEO.mun)],
-        [`Humedad del suelo por municipio ${infoBtn("suelo", "humedad del suelo")}`, SOIL.soilL],
-        [`Riesgo de deslizamiento, orientativo ${infoBtn("suelo", "riesgo de deslizamiento")}`, SOIL.slideL],
-        [`Caudal pronosticado del Magdalena (GloFAS) ${infoBtn("glofas", "caudales")}`, buildFloodLayer()],
-        [`Peligro de incendio, pronóstico (GWIS) ${infoBtn("fwi", "índice de incendio")}`, buildFwiLayer()]]],
+        [`Lluvia pronosticada 24 h por municipio ${infoBtn("pronostico", "pronóstico")}`, buildFcLayer(TOLIMA_GEO.mun), "fc"],
+        [`Humedad del suelo por municipio ${infoBtn("suelo", "humedad del suelo")}`, SOIL.soilL, "suelo"],
+        [`Riesgo de deslizamiento, orientativo ${infoBtn("suelo", "riesgo de deslizamiento")}`, SOIL.slideL, "slide"],
+        [`Caudal pronosticado del Magdalena (GloFAS) ${infoBtn("glofas", "caudales")}`, buildFloodLayer(), "glofas"],
+        [`Peligro de incendio, pronóstico (GWIS) ${infoBtn("fwi", "índice de incendio")}`, buildFwiLayer(), "fwi"]]],
       ["Salud", [
-        [`Hospitales y prestadores de salud (REPS) ${infoBtn("salud", "prestadores de salud")}`, buildSaludLayer()]]],
+        [`Hospitales y prestadores de salud (REPS) ${infoBtn("salud", "prestadores de salud")}`, buildSaludLayer(), "salud"]]],
       ["Seguridad", [
-        [`Alertas Tempranas (Defensoría) ${infoBtn("seguridad", "alertas tempranas")}`, buildSegLayer()]]],
+        [`Alertas Tempranas (Defensoría) ${infoBtn("seguridad", "alertas tempranas")}`, buildSegLayer(), "seg"]]],
+      ["Infraestructura", [
+        [`Vías (OpenStreetMap) ${infoBtn("vias", "vías")}`, buildViasLayer(), "vias"]]],
     ];
     const inGroup = new Set(LAYER_GROUPS.flatMap(([, ls]) => ls.map(([, l]) => l)));
     for (const o of Object.values(SAT)) if (!inGroup.has(o.layer)) LAYER_GROUPS[2][1].push(satL(Object.keys(SAT).find(k => SAT[k] === o)));
+    for (const [, ls] of LAYER_GROUPS) for (const [, l, id] of ls) l._shId = id;
+    SHARE_LAYERS = LAYER_GROUPS.map(([g, ls]) => [g, ls.map(([lab, l, id]) => [plainLabel(lab), id, l])]);
+    const shHl = SHARE ? shareHlLayer(SHARE) : null;
+    if (SHARE) shareFilterLayers(LAYER_GROUPS, shHl);
     const groupOf = new Map();
     const overlays = {};
     for (const [gname, ls] of LAYER_GROUPS) for (const [label, l] of ls) { overlays[label] = l; groupOf.set(L.stamp(l), gname); }
-    const ctrl = L.control.layers(BASES, overlays, {collapsed:true});
+    const ctrl = ctrlRef = L.control.layers(BASES, overlays, {collapsed:true});
     const baseUpdate = ctrl._update;
     ctrl._update = function(){
       const r = baseUpdate.apply(this, arguments);
@@ -2529,18 +3074,21 @@ function renderMap(){
       return r;
     };
     ctrl.addTo(map);
+    buildMeasureTool(map);
     { // close button at the top of the open layers panel
       const x = L.DomUtil.create("button", "lclose"); x.type = "button"; x.innerHTML = "✕"; x.title = "Cerrar"; x.setAttribute("aria-label", "Cerrar el panel de capas");
       ctrl._section.prepend(x); L.DomEvent.disableClickPropagation(x);
       L.DomEvent.on(x, "click", e => { L.DomEvent.stop(e); ctrl.collapse(); }); }
-    initIncidents(map, ctrl);
-    window.initUbicaciones?.(map, ctrl);
+    if (!SHARE || SHARE.L.includes("inc")) {   // in a shared map only when chosen; vehicle positions never
+      initIncidents(map, ctrl); const inc = ctrl._layers.find(o => o.name === "Eventos registrados"); if (inc) inc.layer._shId = "inc"; }
+    if (!SHARE) window.initUbicaciones?.(map, ctrl);
     const lg = L.control({position:"bottomleft"});
     lg.onAdd = () => { const d = L.DomUtil.create("div", "maplegend");
       d.innerHTML = `<div class="hd">Lluvia hoy <span>mm desde las 0:00</span></div><div class="scale">`
         + RBINS.map(b => `<div class="st"><span class="dr">${triSvg(b.color, b.size, b.max === 0 ? "#8a97a8" : "#0b2a5b", 1.2)}</span><b>${b.short}</b><span class="lg-l">${b.label}</span></div>`).join("") + `</div>`;
       L.DomEvent.disableClickPropagation(d); return d; };
-    lg.addTo(map);
+    if (!SHARE || SHARE.L.includes("est")) lg.addTo(map);
+    if (SHARE) shareAfterMap({ctrl, sat, topo, applyBorders, hl:shHl});
     document.getElementById("legend").innerHTML = `<span>${triSvg("#fff", 14, "#9e9e9e", 1.5, "2 2")}Sin dato de lluvia hoy</span>`
       + `<span><span class="xmark">✕</span>Sin transmisión${infoBtn("offline")}</span><span>${triSvg("#fff", 14, css("--warn"), 3)}Datos dudosos o incompletos (borde naranja)${infoBtn("dudosos")}</span>`
       + `<span style="flex-basis:100%;height:0"></span><span>Nivel del río vs. umbral IDEAM${infoBtn("umbrales")}:</span>`
@@ -2831,8 +3379,14 @@ document.getElementById("hcsv").addEventListener("click", () => {
 document.getElementById("refresh").addEventListener("click", load);
 document.getElementById("avail").innerHTML = "Datos: " + VARS.map(([v,l]) => `<span>${icon(v, true, l)}${l}</span>`).join("")
   + `<span>${icon("rain", false, "Sin datos")}gris = sin datos</span>`;
-setInterval(load, REFRESH_MIN*60e3);
-load();
+// a #mapa=… link opens the shared map alone; otherwise the full dashboard
+(async () => {
+  SHARE = await shareDecode();
+  if (!SHARE) { shareBuilder(); setInterval(load, REFRESH_MIN*60e3); load(); return; }
+  shareBuildPage(); renderMap();
+  if (SHARE.L.includes("est") || SHARE.L.includes("alert")) { load(); setInterval(load, REFRESH_MIN*60e3); }
+})();
+addEventListener("hashchange", () => { if (/mapa=/.test(location.hash)) location.reload(); });
 })();
 </script>
 <footer class="copyright" style="max-width:1400px;margin:8px auto 24px;padding:0 16px;font-size:12px;color:var(--muted);text-align:center">
