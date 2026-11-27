@@ -87,7 +87,16 @@ def main(prev_path, out_path):
     except Exception: prev = {}
     old = {str(s["id"]): s for s in prev.get("est") or []}
     now = int(time.time())
-    stations = get("stations", key, secret).get("stations") or []
+    resp = get("stations", key, secret)
+    stations = resp.get("stations") or []
+    if not stations:
+        # the key works (a bad key gets 401) but the account owns no stations and none are shared with it; exit 0 so the
+        # scheduled job does not fail (and email) every 15 minutes
+        print("WeatherLink aceptó la llave pero la cuenta no tiene estaciones propias ni compartidas con ella (respuesta: "
+              + ", ".join(f"{k}={'[]' if v == [] else type(v).__name__}" for k, v in resp.items()) + "). "
+              "Las estaciones que solo se ven en el mapa público de WeatherLink no se pueden leer con la API: "
+              "el dueño de cada estación debe compartirla con esta cuenta (WeatherLink > Manage Devices > Share).")
+        return
     out = []
     for st in stations:
         sid = str(st.get("station_id"))
@@ -108,7 +117,9 @@ def main(prev_path, out_path):
         if rec["lat"] is None or rec["lon"] is None: print("sin coordenadas:", rec["n"])
         out.append(rec)
         time.sleep(0.2)
-    if not out: sys.exit("WeatherLink no devolvió estaciones; se conserva el archivo anterior")
+    if not out:
+        print("Ninguna estación devolvió datos; se conserva el archivo anterior.")
+        return
     data = {"updated": time.strftime("%Y-%m-%dT%H:%MZ", time.gmtime(now)), "source": "Davis Instruments, WeatherLink API v2", "est": out}
     p = pathlib.Path(out_path); p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")))
