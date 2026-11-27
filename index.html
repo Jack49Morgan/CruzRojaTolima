@@ -94,6 +94,7 @@ tbody tr.offrow td{color:var(--muted)}
 .eqm span{display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid #1b1b1b;box-shadow:0 0 0 1.5px #fff;font:600 10px/1 var(--mono);color:#1b1b1b}
 .saludgrp{border-radius:50%;background:#1565c0d9;color:#fff;border:2px solid #fff;font:700 11px/1 var(--sans);text-align:center;box-shadow:0 1px 3px #0006}
 .saludlist{max-height:220px;overflow:auto;margin-top:6px;font-size:12px}.saludlist div{padding:3px 0;border-top:1px solid #0001}
+.leaflet-vias-pane canvas,.leaflet-viasLo-pane canvas{pointer-events:none!important}
 .leaflet-control-layers .lgrp{font:600 11px/1.2 var(--sans);text-transform:uppercase;letter-spacing:.04em;color:#c8102e;margin:8px 0 3px;padding-top:6px;border-top:1px solid #0002}
 .leaflet-control-layers .lgrp:first-child{border-top:0;padding-top:0;margin-top:2px}
 .eqctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-basis:100%}.eqctl input{font:inherit;font-size:12px;padding:1px 4px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg)}
@@ -1427,6 +1428,90 @@ function buildSaludLayer(){
   g.on("add", () => { if (!loaded) load(); });
   return g;
 }
+// Roads (Vías) from OpenStreetMap, pre-extracted for Tolima by tools/osm_vias.py into data/vias-tolima.json
+// (HOT export of OSM, ODbL). Classes: 0 primaria, 1 secundaria, 2 terciaria/veredal, 3 camino/trocha.
+// National-route number and sector come from INVÍAS' Red Vial Nacional where the road runs along it.
+// Drawn on one canvas that ignores taps (so municipios and veredas underneath keep working); a tap near a road opens its popup.
+const VIA_CLS = [
+  {n:"Vía primaria", d:"troncales y vías nacionales", c:"#d50000", w:[2.6, 3.4, 4.6], minz:0},
+  {n:"Vía secundaria", d:"vías departamentales", c:"#ff8f00", w:[1.8, 2.4, 3.4], minz:0},
+  {n:"Vía terciaria o veredal", d:"carreteables entre veredas", c:"#7b4a2a", cs:"#ffe082", w:[0.9, 1.3, 2], minz:9},
+  {n:"Camino o trocha", d:"carreteable sin clasificar", c:"#7b4a2a", cs:"#ffe082", w:[0.8, 1, 1.5], minz:11, dash:"4 3"},
+];
+const VIA_ATTR = 'Vías © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> (ODbL), INVÍAS';
+const VIA_SURF = {a:"pavimentada (asfalto)", c:"pavimentada (concreto)", d:"destapada (sin pavimento)"};
+const viaLeg = L.control({position:"topright"});
+viaLeg.onAdd = () => { const d = L.DomUtil.create("div", "irleg");
+  d.innerHTML = `<button type="button" class="irx" aria-label="Cerrar leyenda" title="Cerrar leyenda">✕</button>`
+    + `<button type="button" class="iropen" title="Mostrar leyenda de vías">Vías</button>`
+    + `<div class="hd">Vías (OpenStreetMap) ${infoBtn("vias", "vías")}</div>`
+    + VIA_CLS.map(k => `<div class="r"><svg class="sw" style="border:0" viewBox="0 0 30 12"><path d="M1 6H29" stroke="${k.c}" stroke-width="${k.w[2]}" stroke-linecap="round"${k.dash ? ` stroke-dasharray="${k.dash}"` : ""}/></svg><span><b>${k.n}</b>${k.minz ? ` <span class="sub">desde zoom ${k.minz}</span>` : ""}</span></div>`).join("")
+    + `<div class="ft">Toque una vía para ver su nombre. © colaboradores de OpenStreetMap.</div>`;
+  d.querySelector(".irx").onclick = () => d.classList.add("min");
+  d.querySelector(".iropen").onclick = () => d.classList.remove("min");
+  L.DomEvent.disableClickPropagation(d); return d; };
+function buildViasLayer(){
+  const g = L.layerGroup(); let D = null, loading = false, map = null;
+  // two canvases: local roads (switched on and off with the zoom) below, primarias and secundarias with their casings above
+  const rend = L.canvas({padding:0.3, tolerance:7, pane:"vias"}), rendLo = L.canvas({padding:0.3, tolerance:7, pane:"viasLo"});
+  const byCls = [[], [], [], []], cases = [];
+  const zk = z => z <= 9 ? 0 : z <= 12 ? 1 : 2;
+  const restyle = () => {
+    if (!map || !D) return;
+    const z = map.getZoom(), k = zk(z);
+    VIA_CLS.forEach((c, i) => {
+      const on = z >= c.minz, col = SATBASE && c.cs ? c.cs : c.c;
+      for (const l of byCls[i]) {
+        if (on !== g.hasLayer(l)) on ? g.addLayer(l) : g.removeLayer(l);
+        if (on) l.setStyle({color:col, weight:c.w[k]});
+      }
+    });
+    for (const [l, i] of cases) l.setStyle({color:SATBASE ? "#000" : "#fff", opacity:SATBASE ? 0.55 : 0.9, weight:VIA_CLS[i].w[k] + 2.4});
+  };
+  const dec = a => { const out = []; let x = 0, y = 0; for (let i = 0; i < a.length; i += 2) { x += a[i]; y += a[i + 1]; out.push([y / 1e5, x / 1e5]); } return out; };
+  function popup(r, ll){
+    const [c, name, surf, mun, ri, br] = r, cls = VIA_CLS[c], ru = ri >= 0 ? D.rutas[ri] : null;
+    return `<b>${name ? esc(name) : "Vía sin nombre en OpenStreetMap"}</b>${br ? " · puente" : ""}`
+      + `<br>${cls.n} <span class="sub">(${cls.d})</span>`
+      + (ru ? `<br>Ruta nacional <b>${esc(ru[0])}</b>${ru[1] ? ` · ${esc(ru[1])}` : ""}<br><span class="sub">Sector ${esc(ru[2])} · tramo ${esc(ru[3])} (INVÍAS)</span>` : "")
+      + `<br>Superficie: ${VIA_SURF[surf] || "sin dato"}`
+      + `<br>Municipio: ${esc(D.mun[mun])}`
+      + `<br><span class="sub">© colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> (ODbL) · `
+      + `<a href="https://www.openstreetmap.org/#map=17/${ll.lat.toFixed(5)}/${ll.lng.toFixed(5)}" target="_blank" rel="noopener">ver o corregir en OSM</a></span>`;
+  }
+  // listens in the capture phase on the map container, so a tap on a road is handled here before the municipio or vereda
+  // underneath sees it; markers, popups and controls keep their own taps
+  function onClick(ev){
+    if (!D || !map.hasLayer(g) || ev.target.closest(".leaflet-control, .leaflet-popup, .leaflet-marker-icon, .leaflet-marker-pane")) return;
+    if (map.dragging && map.dragging.moved()) return;
+    const ll = map.mouseEventToLatLng(ev), p = map.latLngToLayerPoint(ll);
+    for (let i = 0; i < 4; i++) for (const l of byCls[i]) {   // primarias first: they win where roads overlap
+      if (!g.hasLayer(l) || !l._pxBounds) continue;
+      const b = l._pxBounds; if (p.x < b.min.x - 8 || p.x > b.max.x + 8 || p.y < b.min.y - 8 || p.y > b.max.y + 8) continue;
+      if (l._containsPoint(p)) { ev.stopPropagation(); L.popup({maxWidth:290}).setLatLng(ll).setContent(popup(l._via, ll)).openOn(map); return; }
+    }
+  }
+  async function load(){
+    loading = true;
+    try { D = await (await fetch("data/vias-tolima.json")).json(); } catch (e) { loading = false; return; }
+    const o = {renderer:rend, pane:"vias", interactive:false, lineCap:"round", lineJoin:"round", opacity:1, smoothFactor:1.2};
+    for (const r of D.v) {
+      const lls = dec(r[6]), c = r[0], k = VIA_CLS[c];
+      if (c < 2) { const cl = L.polyline(lls, {...o}); cases.push([cl, c]); g.addLayer(cl); }
+      const l = L.polyline(lls, c < 2 ? o : {...o, renderer:rendLo, pane:"viasLo", dashArray:k.dash || null}); l._via = r; byCls[c].push(l);
+    }
+    // casings first, then lines (caminos to primarias, as stored), so each road sits on its halo
+    for (let i = 3; i >= 0; i--) for (const l of byCls[i]) g.addLayer(l);
+    restyle();
+  }
+  g.on("add", () => {
+    map = g._map;
+    viaLeg.addTo(map); map.attributionControl?.addAttribution(VIA_ATTR); map.on("zoomend baselayerchange", restyle); map.getContainer().addEventListener("click", onClick, true);
+    if (!D && !loading) load(); else restyle();
+  });
+  g.on("remove", () => { viaLeg.remove(); map.attributionControl?.removeAttribution(VIA_ATTR); map.off("zoomend baselayerchange", restyle); map.getContainer().removeEventListener("click", onClick, true); map.removeLayer(rend); map.removeLayer(rendLo); });
+  return g;
+}
 // Earthquakes M4+ in and around Tolima over the last year, from the USGS FDSN service.
 // (The SGC feed at archive.sgc.gov.co only answers its own website, so a browser page elsewhere cannot read it.)
 // Date range chosen under the map (local dates, YYYY-MM-DD); defaults to the last 365 days
@@ -2330,6 +2415,11 @@ const INFO = {
      <p><b>Fechas:</b> bajo el mapa puede elegir el periodo (desde / hasta) o usar los atajos de 30 días a 20 años. Por defecto muestra el último año.</p>
      <p>Cada círculo lleva escrita su magnitud y crece con ella. Bajo el mapa aparece la lista de los sismos más recientes; tóquelos para ir a cada uno. El color indica cuándo ocurrió: <span style="color:#e0b000">●</span> últimas 24 horas · <span style="color:#ff8a3d">●</span> última semana · <span style="color:#c77dff">●</span> último mes · <span style="color:#8a93a3">●</span> último año.</p>
      <p>La red oficial de Colombia es la del <b>Servicio Geológico Colombiano</b>. Su visor no permite que otras páginas lean sus datos, así que aquí se usa el USGS; la magnitud puede diferir unas décimas de la del SGC. Cada sismo tiene un enlace al <a href="https://www.sgc.gov.co/sismos" target="_blank" rel="noopener">visor de sismos del SGC</a>.</p>`],
+  vias: ["Vías (OpenStreetMap)",
+    `<p>Red de carreteras del Tolima tomada de <b>OpenStreetMap</b> (OSM), el mapa libre que construyen voluntarios, instituciones y empresas. Se usó la exportación de OSM para Colombia del Humanitarian OpenStreetMap Team (HOT) del 2 de noviembre de 2026, recortada al Tolima y simplificada (unos 15 m) para que cargue rápido en el celular.</p>
+     <p><span style="color:#d50000">━</span> <b>Primaria</b>: troncales y vías nacionales · <span style="color:#ff8f00">━</span> <b>secundaria</b>: vías departamentales · <span style="color:#7b4a2a">━</span> <b>terciaria o veredal</b>: carreteables entre veredas y cabeceras (visible desde zoom 9) · <span style="color:#7b4a2a">┅</span> <b>camino o trocha</b> (desde zoom 11). Sobre la imagen satelital las terciarias se dibujan en amarillo claro. No se incluyen calles urbanas ni senderos peatonales.</p>
+     <p>Toque una vía para ver su nombre, clase, superficie y municipio. Donde la vía coincide con la <b>Red Vial Nacional del INVÍAS</b> (datos.gov.co, CC BY-SA 4.0) se muestran el número de ruta, el sector y el código del tramo.</p>
+     <p>OSM es colaborativo: en zonas rurales puede faltar alguna vía o tener una clase distinta a la oficial, y no informa cierres ni el estado actual. El enlace “ver o corregir en OSM” abre el punto en openstreetmap.org. Datos © colaboradores de OpenStreetMap, licencia ODbL. Las vías de Google Maps no se pueden usar: sus condiciones no permiten extraer sus datos como capa.</p>`],
   salud: ["Hospitales y prestadores de salud (REPS)",
     `<p>Sedes de prestadores de servicios de salud habilitados en el Tolima, del <b>Registro Especial de Prestadores (REPS)</b> del Ministerio de Salud, publicado en datos.gov.co. Se excluyen los profesionales independientes. La lista se consulta en línea al abrir la capa.</p>
      <p><span style="color:#c8102e">⊕</span> hospital, centro o puesto de salud público (las E.S.E. de cada municipio; el símbolo grande es un hospital) · <span style="color:#1565c0">●</span> IPS privada · <span style="color:#ef6c00">●</span> transporte especial de pacientes (ambulancias) · <span style="color:#6d7b8d">●</span> otro prestador. El círculo con número agrupa los prestadores privados de un municipio cuya sede no se pudo ubicar; tóquelo para ver la lista con dirección y teléfono.</p>
@@ -2459,6 +2549,7 @@ function renderMap(){
     map.createPane("sat").style.zIndex = 350;
     map.on("preclick", e => { ACLICK = e.latlng; });
     map.createPane("veredas").style.zIndex = 410;
+    for (const [k, z] of [["viasLo", 414], ["vias", 415]]) { const p = map.createPane(k); p.style.zIndex = z; p.style.pointerEvents = "none"; }
     const satOverlays = {};
     for (const [k, o] of Object.entries(SAT)) {
       o.layer = o.make ? o.make() : L.tileLayer(o.url(""), {pane:"sat", opacity:o.opacity, maxNativeZoom:o.maxNative, maxZoom:17, attribution:o.attribution});
@@ -2509,6 +2600,8 @@ function renderMap(){
         [`Hospitales y prestadores de salud (REPS) ${infoBtn("salud", "prestadores de salud")}`, buildSaludLayer()]]],
       ["Seguridad", [
         [`Alertas Tempranas (Defensoría) ${infoBtn("seguridad", "alertas tempranas")}`, buildSegLayer()]]],
+      ["Infraestructura", [
+        [`Vías (OpenStreetMap) ${infoBtn("vias", "vías")}`, buildViasLayer()]]],
     ];
     const inGroup = new Set(LAYER_GROUPS.flatMap(([, ls]) => ls.map(([, l]) => l)));
     for (const o of Object.values(SAT)) if (!inGroup.has(o.layer)) LAYER_GROUPS[2][1].push(satL(Object.keys(SAT).find(k => SAT[k] === o)));
