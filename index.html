@@ -555,8 +555,7 @@ function initIncidents(map, ctrl){
   ctrl.addOverlay(layer, "Eventos registrados");
   let byId = {}, gallery = [];
   const fmt = f => f ? f.replace("T", " ") : "";
-  // pin fill = event type (grey once Cerrado); the "!" = estado: white Activo, light orange Controlado
-  const MARK = {controlado:"#ffb74d"};
+  const PIN = {activo:"#c8102e", controlado:"#f39c12", cerrado:"#8a8f8d"};   // pin colour = estado (the type colour stays on the card)
   const pinSvg = (color, mark = "#fff", w = 26, h = 32) => `<svg viewBox="0 0 26 32" width="${w}" height="${h}" aria-hidden="true"><path d="M13 31C13 31 2 19 2 12a11 11 0 0 1 22 0c0 7-11 19-11 19z" fill="${color}" stroke="#fff" stroke-width="2"/><path d="M11.5 6h3v8h-3zM11.5 16h3v3h-3z" fill="${mark}"/></svg>`;
   // afectaciones shown with an emoji and label in the map popup; add a row here to grow the scheme
   const BADGES = [
@@ -566,7 +565,7 @@ function initIncidents(map, ctrl){
   const pin = (color, mark) => L.divIcon({className:"incpin", iconSize:[26,32], iconAnchor:[13,31], popupAnchor:[0,-28],
     html:pinSvg(color, mark)});
   // legend of the estados, in the Eventos panel and under the map while the layer is on
-  const legHtml = `<span class="inclegend"><b>Eventos:</b> <span>${pinSvg("#c8102e", "#fff", 18, 22)} Activo</span><span>${pinSvg("#c8102e", MARK.controlado, 18, 22)} Controlado (! naranja)</span><span>${pinSvg("#8a8f8d", "#fff", 18, 22)} Cerrado (gris)</span><span class="sub">El color del marcador indica el tipo de evento.</span></span>`;
+  const legHtml = `<span class="inclegend"><b>Eventos:</b> ${Object.entries(PIN).map(([k, c]) => `<span>${pinSvg(c, "#fff", 18, 22)} ${INC_ESTADOS[k]}</span>`).join("")}</span>`;
   const leg1 = document.createElement("div"); leg1.className = "legend"; leg1.innerHTML = legHtml; list.before(leg1);
   const leg2 = document.getElementById("incinfo"); leg2.innerHTML = legHtml;
   layer.on("add", () => leg2.hidden = false); layer.on("remove", () => leg2.hidden = true); leg2.hidden = !map.hasLayer(layer);
@@ -630,7 +629,7 @@ function initIncidents(map, ctrl){
         gl.bindTooltip(escI(inc.titulo), {sticky:true}); gl.on("click", () => focusCard(inc.id));
         if (!ll) { const c = gl.getBounds().getCenter(); ll = [c.lat, c.lng]; } }
       if (ll) { const first = items.find(x => !x.video);
-        L.marker(ll, {icon:pin(color, MARK[inc.estado]), pane:"inc", title:inc.titulo}).addTo(layer)
+        L.marker(ll, {icon:pin(PIN[inc.estado] || PIN.activo), pane:"inc", title:inc.titulo}).addTo(layer)
           .bindPopup(`<div class="incpop"><b>${escI(inc.titulo)}</b><div class="sub">${escI(tname)} · ${escI(inc.municipio)}<br>${escI(fmt(inc.fecha))} · ${escI(INC_ESTADOS[inc.estado] || "")}${IncUtil.registra(inc) ? `<br>Registrado por ${escI(IncUtil.registra(inc))}` : ""}</div>
             ${first ? `<img src="${first.u}" alt="">` : ""}${afect(inc.afectados) ? `<div>${escI(afect(inc.afectados))}</div>` : ""}${BADGES.some(b => inc[b.k]) ? `<div class="incaffs">${BADGES.filter(b => inc[b.k]).map(b => `<span><i>${b.e}</i>${b.t}</span>`).join("")}</div>` : ""}${IncUtil.respCR(inc) ? `<div>${escI(IncUtil.respCR(inc))}</div>` : ""}
             <button type="button" class="btn" data-card="${escI(inc.id)}">Ver detalles</button></div>`, {maxWidth:Math.min(280, innerWidth - 90)}); }
