@@ -652,7 +652,7 @@ function initIncidents(map, ctrl){
         ${canEdit ? `<form class="incquick" data-q="${escI(inc.id)}">
           <textarea name="t" rows="2" maxlength="4000" placeholder="Escriba una actualización…" aria-label="Nueva actualización para ${escI(inc.titulo)}">${escI(drafts[inc.id] || "")}</textarea>
           <div class="incqrow"><button class="btn redbtn" type="submit">Publicar</button>
-            <label class="btn" title="Agregar fotos o videos">📷 Foto<input type="file" name="f" multiple hidden accept="image/*,video/*"></label>
+            <label class="btn" title="Agregar fotos o videos">📷 Foto/Video<input type="file" name="f" multiple hidden accept="image/*,video/*"></label>
             <span class="qm" role="status"></span></div>
         </form>` : ""}
         <div class="incbtns"><button type="button" class="btn redbtn" data-edit="${escI(inc.id)}" title="${canEdit ? "Seguimiento, actualizaciones y datos del evento" : "Seguimiento del evento (solo lectura)"}">Abrir evento</button>
