@@ -17,7 +17,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 # event (English or Spanish, lower case, start of text) -> (key, plain Spanish name)
 EVENTS = [
     ("landslide", "desl", "Deslizamientos"), ("deslizamiento", "desl", "Deslizamientos"), ("movimiento", "desl", "Deslizamientos"),
-    ("forest fire", "inc", "Incendios forestales"), ("incendio", "inc", "Incendios forestales"),
+    ("forest fire", "inc", "Incendios forestales"), ("incendio", "inc", "Incendios de la cobertura vegetal"),
     ("flash flood", "crec", "Crecientes súbitas"), ("creciente", "crec", "Crecientes súbitas"), ("avenida", "crec", "Crecientes súbitas"),
     ("flood", "inund", "Inundaciones"), ("inundaci", "inund", "Inundaciones"),
     ("severe weather", "tiempo", "Tiempo severo (lluvias fuertes, tormentas)"), ("tiempo", "tiempo", "Tiempo severo"),
@@ -25,9 +25,9 @@ EVENTS = [
     ("rain", "lluvia", "Lluvias fuertes"), ("lluvia", "lluvia", "Lluvias fuertes"),
 ]
 LEVELS = [  # words in the text that give the alert level
-    (r"\bhigh probability|probabilidad alta|\bred\b|\broja\b", "roja"),
-    (r"\bmoderate probability|probabilidad moderada|\borange\b|\bnaranja\b", "naranja"),
-    (r"\blow probability|probabilidad baja|\byellow\b|\bamarilla\b", "amarilla"),
+    (r"\bhigh probability|probabilidad alta|\balta probabilidad|\bred\b|\broja\b", "roja"),
+    (r"\bmoderate probability|probabilidad moderada|\bmoderada probabilidad|\borange\b|\bnaranja\b", "naranja"),
+    (r"\blow probability|probabilidad baja|\bbaja probabilidad|\byellow\b|\bamarilla\b", "amarilla"),
 ]
 
 
@@ -140,24 +140,27 @@ def parse_cap(xml, link, dep, mun):
     params = {txt(p, "c:valueName"): txt(p, "c:value") for p in info.findall("c:parameter", NS)}
     lv = level(desc, head, *[f"{k} {v}" for k, v in params.items()])
     if not lv: lv = {"Extreme": "roja", "Severe": "naranja"}.get(txt(info, "c:severity"), "amarilla")
-    m = re.search(r"\b(low|moderate|high)\s+probability|probabilidad\s+(baja|moderada|alta)", desc + " " + head, re.I)
-    prob = {"low": "baja", "moderate": "moderada", "high": "alta"}.get((m.group(1) or "").lower(), (m.group(2) or "").lower()) if m else ""
+    m = re.search(r"\b(low|moderate|high|baja|moderada|alta)\s+probabilidad|\b(low|moderate|high)\s+probability|probabilidad\s+(baja|moderada|alta)", desc + " " + head, re.I)
+    w = next((x for x in (m.groups() if m else ()) if x), "").lower()
+    prob = {"low": "baja", "moderate": "moderada", "high": "alta"}.get(w, w)
     area_desc = " ".join(txt(a, "c:areaDesc") for a in info.findall("c:area", NS))
     names = tolima_muns(" ".join([area_desc, desc, head]), mun.keys())
     listed = key in ("desl", "inc") or bool(names)  # municipio-style alert ("Tolima (mun, mun)"); others cover zones given as polygons
     poly, touch = [], []
     if not listed:  # zone alert: keep the polygons that overlap Tolima
-        for a in info.findall("c:area", NS):
+        areas = info.findall("c:area", NS); zn = []
+        for a in areas:
             for pg in a.findall("c:polygon", NS):
                 ring = [[float(v) for v in pt.split(",")[:2]] for pt in (pg.text or "").split() if "," in pt]
                 if len(ring) < 3 or not any(overlaps(ring, d) for d in dep): continue
                 poly.append(simplify(ring))
+                if len(areas) > 1 and txt(a, "c:areaDesc") not in zn: zn.append(txt(a, "c:areaDesc"))
                 for n, rs in mun.items():
                     if n not in touch and any(overlaps(r, ring) for r in rs): touch.append(n)
         if not poly: return None
     elif not names:
         return None
-    zonas = re.sub(r"^.*?\bfor\b\s*", "", head or "", flags=re.I) if not listed else ""
+    zonas = "; ".join(zn) if not listed else ""  # zone names only when IDEAM gives one area per zone
     return {
         "id": txt(root, "c:identifier"), "ev": ev_es, "ev_orig": ev, "tipo": key, "nivel": lv, "prob": prob,
         "sev": txt(info, "c:severity"), "urg": txt(info, "c:urgency"), "cert": txt(info, "c:certainty"),
