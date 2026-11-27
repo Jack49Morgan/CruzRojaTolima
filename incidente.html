@@ -5,7 +5,9 @@
 <meta name="copyright" content="© 2026 Cruz Roja Colombiana, Seccional Tolima. Todos los derechos reservados.">
 <meta name="author" content="Cruz Roja Colombiana, Seccional Tolima">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Registrar evento</title>
+<title>🚨 Alerta Nuevo Evento</title>
+<meta property="og:title" content="🚨 Alerta Nuevo Evento">
+<meta property="og:description" content="Cruz Roja Colombiana · Seccional Tolima · Seguimiento del evento">
 <meta name="theme-color" content="#c8102e">
 <link rel="icon" href="icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -523,7 +525,7 @@ function openAlertBox(note = ""){
 const pubLink = () => location.origin + location.pathname + "?id=" + encodeURIComponent(cur.id);
 function shareText(){
   const [tname] = INC_TIPOS[cur.tipo] || INC_TIPOS.otro, af = IncUtil.afect(cur.afectados);
-  return `🚨 *Alerta Nuevo Evento*\n${cur.titulo}\n${tname} · ${cur.municipio}${cur.lugar ? " · " + cur.lugar : ""}\nEstado: ${INC_ESTADOS[cur.estado] || cur.estado}${af ? "\n" + af : ""}\nSeguimiento en línea:`;
+  return `🚨 *Alerta Nuevo Evento*\n*${cur.titulo}*\n${tname} · ${cur.municipio}${cur.lugar ? " · " + cur.lugar : ""}\nEstado: ${INC_ESTADOS[cur.estado] || cur.estado}${af ? "\n" + af : ""}\nSeguimiento en línea:`;
 }
 const waLink = () => "https://wa.me/?text=" + encodeURIComponent(shareText() + " " + pubLink());
 // "Guardar en PDF": the browser's print dialog, where "Guardar como PDF" is a destination (on iPhone: Compartir > Imprimir > Compartir > Guardar en Archivos)
@@ -633,6 +635,7 @@ async function load(id, pre){
   $("#seg").hidden = !cur;
   $("#edit").open = !cur; $("#edit").classList.toggle("nosum", !cur);
   document.querySelector("h1").textContent = cur ? "Seguimiento del evento" : "Registrar evento";
+  document.title = cur ? "🚨 " + cur.titulo : "Registrar evento";
   if (!cur) setTimeout(fitCur, 0);
   drawThumbs();
   $("#del").hidden = !cur; $("#del").textContent = "Eliminar"; delarm = false;
