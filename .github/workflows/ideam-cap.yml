@@ -6,7 +6,7 @@ on:
     - cron: "7,37 * * * *"
   workflow_dispatch:
   push:
-    branches: [main, claude/project-thread-mqhd5b]
+    branches: [main]
     paths:
       - .github/workflows/ideam-cap.yml
       - tools/ideam_cap.py
