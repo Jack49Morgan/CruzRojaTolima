@@ -18,7 +18,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=30"></script>
+<script src="incstore.js?v=31"></script>
 <script src="enviar-alerta.js?v=1" defer></script>
 <style>
 :root{
@@ -97,6 +97,8 @@ details.edit.nosum>summary{display:none}
 .chip.imp{background:#e65100}
 .chip.cr{background:var(--red)}
 .chip.crno{background:#757575}
+.coords{display:grid;gap:6px;margin-top:8px}
+.coords label{min-width:120px;flex:1}
 .sumbtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
 .alchk{display:inline-flex;align-items:center;gap:6px;font-weight:600;cursor:pointer}
 .alchk[hidden]{display:none}
@@ -134,7 +136,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="namebtn" hidden>Mi nombre</button><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=30" id="back">← Ver tablero</a>
+    <a class="btn" href="index.html?v=31" id="back">← Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -223,6 +225,15 @@ details.edit.nosum>summary{display:none}
         <button type="button" class="btn" id="gps">Mi ubicación</button>
         <button type="button" class="btn" id="clrpt">Quitar punto</button>
         <span class="hint" id="ptxt">Sin punto</span>
+      </div>
+      <div class="coords">
+        <span class="hint">o escriba las coordenadas en grados decimales (ej.: 4,4389 y -75,4277):</span>
+        <div class="sel" style="align-items:end">
+          <label><span>Latitud</span><input id="clat" inputmode="decimal" autocomplete="off" placeholder="4,4389"></label>
+          <label><span>Longitud</span><input id="clng" inputmode="decimal" autocomplete="off" placeholder="-75,4277"></label>
+          <button type="button" class="btn navy" style="color:#fff" id="cgo">Ubicar punto</button>
+        </div>
+        <span class="msg" id="cmsg"></span>
       </div>
       <div class="drop" id="bdrop">
         <b>Límite del área afectada</b>
@@ -314,6 +325,7 @@ function setPoint(ll, pick = true){
   if (ll) { pmark = L.marker(ll, {draggable:true}).addTo(map); pmark.on("dragend", () => { const p = pmark.getLatLng(); setPoint([+p.lat.toFixed(6), +p.lng.toFixed(6)]); });
     const m = munAt(ll[0], ll[1]); if (pick && m) { if (f.municipio.value !== m) { f.municipio.value = m; fillLugar(""); } lugarFromPoint(ll[0], ll[1]); } }
   $("#ptxt").textContent = ll ? `Punto: ${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}` : "Sin punto";
+  $("#clat").value = ll ? String(ll[0]).replace(".", ",") : ""; $("#clng").value = ll ? String(ll[1]).replace(".", ",") : "";
 }
 map.on("click", e => { if (drawing) return addVertex(e.latlng); setPoint([+e.latlng.lat.toFixed(6), +e.latlng.lng.toFixed(6)]); });
 // ---- drawing the affected area by tapping its corners
@@ -333,6 +345,27 @@ $("#dend").onclick = () => { if (drawing.length < 3) return drawShow();
   stopDraw();
   setGeo({type:"FeatureCollection", features:[{type:"Feature", properties:{nombre:"Área dibujada"}, geometry:{type:"Polygon", coordinates:[ring]}}]}, "Área dibujada en el mapa"); };
 $("#clrpt").onclick = () => setPoint(null);
+// ---- coordinates typed by hand, in decimal degrees: "4,4389" or "4.4389"; a pair pasted in one box also works
+const TOLIMA_BOX = {s:2.7, n:5.4, w:-76.2, e:-74.3};   // generous box around the department
+const num = t => { t = String(t || "").trim().replace(/\s+/g, "").replace(/[°º]/g, "").replace(",", "."); return /^[-+]?\d+(\.\d+)?$/.test(t) ? +t : NaN; };
+function typedPoint(){
+  let a = $("#clat").value, b = $("#clng").value;
+  // "4.4389, -75.4277" or "4,4389 -75,4277" pasted into the first box
+  const pair = a.trim().match(/^([-+]?\d+(?:[.,]\d+)?)\s*[;\s]\s*([-+]?\d+(?:[.,]\d+)?)$/) || a.trim().match(/^([-+]?\d+\.\d+)\s*,\s*([-+]?\d+\.\d+)$/);
+  if (pair && !b.trim()) { a = pair[1]; b = pair[2]; }
+  let lat = num(a), lng = num(b);
+  if (isNaN(lat) || isNaN(lng)) return setMsg($("#cmsg"), "Escriba la latitud y la longitud como números, por ejemplo 4,4389 y -75,4277.", "bad");
+  if (Math.abs(lat) > 60 && Math.abs(lng) < 10) [lat, lng] = [lng, lat];   // typed in the other order
+  if (lng > 0) lng = -lng;   // Colombia is west of Greenwich: a missing minus sign is the usual slip
+  const {s, n, w, e} = TOLIMA_BOX;
+  if (lat < s || lat > n || lng < w || lng > e)
+    return setMsg($("#cmsg"), `${lat.toFixed(4)}, ${lng.toFixed(4)} queda fuera del Tolima. Revise los números (latitud cerca de 3 a 5, longitud cerca de -74 a -76).`, "bad");
+  const ll = [+lat.toFixed(6), +lng.toFixed(6)];
+  setPoint(ll); map.setView(ll, 14);
+  setMsg($("#cmsg"), munAt(ll[0], ll[1]) ? "" : "Ojo: el punto parece quedar fuera de los municipios del Tolima.", munAt(ll[0], ll[1]) ? "" : "bad");
+}
+$("#cgo").onclick = typedPoint;
+for (const el of ["#clat", "#clng"]) $(el).addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); typedPoint(); } });
 $("#gps").onclick = () => { if (!navigator.geolocation) return setMsg($("#smsg"), "Este navegador no da la ubicación.", "bad");
   navigator.geolocation.getCurrentPosition(p => { const ll = [+p.coords.latitude.toFixed(6), +p.coords.longitude.toFixed(6)]; setPoint(ll); map.setView(ll, 14); },
     e => setMsg($("#smsg"), "No se pudo obtener la ubicación: " + e.message, "bad"), {enableHighAccuracy:true, timeout:15000}); };
