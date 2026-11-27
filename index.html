@@ -181,6 +181,8 @@ button.info{display:inline-flex;align-items:center;justify-content:center;width:
   border:1px solid currentColor;background:none;color:var(--rain);font:italic 600 11px/1 Georgia,serif;cursor:pointer;vertical-align:1px;flex:none}
 button.info:hover{background:var(--rain);color:#fff;border-color:var(--rain)}
 .leaflet-control-layers button.info{color:#1f6fb2}
+.leaflet-control-layers .lclose{position:sticky;top:0;float:right;z-index:2;width:26px;height:26px;margin:-2px -4px 0 6px;border:1px solid #0002;border-radius:50%;background:#fff;color:#333;font:600 14px/1 var(--sans);cursor:pointer;box-shadow:0 1px 3px #0003}
+.leaflet-control-layers .lclose:hover{background:#c8102e;color:#fff}
 h2 button.info{vertical-align:2px}
 #infodlg,#alertdlg,#locdlg,#vehdlg{max-width:min(520px,calc(100vw - 32px));border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--fg);padding:16px 18px;font:14px/1.5 var(--sans)}
 #infodlg::backdrop,#alertdlg::backdrop,#locdlg::backdrop,#vehdlg::backdrop{background:#0008}
@@ -2406,6 +2408,10 @@ function renderMap(){
       return r;
     };
     ctrl.addTo(map);
+    { // close button at the top of the open layers panel
+      const x = L.DomUtil.create("button", "lclose"); x.type = "button"; x.innerHTML = "✕"; x.title = "Cerrar"; x.setAttribute("aria-label", "Cerrar el panel de capas");
+      ctrl._section.prepend(x); L.DomEvent.disableClickPropagation(x);
+      L.DomEvent.on(x, "click", e => { L.DomEvent.stop(e); ctrl.collapse(); }); }
     initIncidents(map, ctrl);
     window.initUbicaciones?.(map, ctrl);
     const lg = L.control({position:"bottomleft"});
