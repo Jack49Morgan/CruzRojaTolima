@@ -1,4 +1,4 @@
-// Rain alerts: sums each Tolima IDEAM station's rain over the windows in data/umbrales-lluvia.json and,
+// Rain alerts: sums each Tolima IDEAM station's rain (and each Davis/WeatherLink station's, see below) over the windows in data/umbrales-lluvia.json and,
 // when a station passes its threshold, sends a web push to every phone subscribed in Supabase.
 // It alerts once per crossing: the station must drop below 90 % of the threshold before it can alert again.
 // Notification links are relative to the site (sw.js resolves them). Run by .github/workflows/alertas-lluvia.yml. Needs secrets VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and
@@ -12,6 +12,7 @@ const HIST = "s54a-sgyg", TODAY = "57sv-p2fu", RAIN = "0240";
 const DEP = "departamento in('Tolima','TOLIMA')";
 const RESET = 0.9;
 const DRY = !!process.env.DRY_RUN;
+const DAVIS_URL = "https://raw.githubusercontent.com/jack49morgan/cruzrojatolima/davis-datos/davis.json";
 
 const cfg = JSON.parse(await fs.readFile("data/umbrales-lluvia.json", "utf8"));
 const inc = await fs.readFile("incstore.js", "utf8");
@@ -81,6 +82,26 @@ for (const h of cfg.ventanas) {
 }
 console.log(`Datos hasta ${t?.mx || "?"} (hora Colombia), ${Object.keys(st).length} estaciones con lluvia registrada.`);
 
+// Davis stations of the WeatherLink account (written every 15 min by .github/workflows/davis.yml on the branch davis-datos).
+// Only stations that reported in the last 2 hours count; a window is checked once the rain history covers it.
+// Their id in data/umbrales-lluvia.json "estaciones" is "davis-" + the WeatherLink station number.
+try {
+  const r = await fetch(DAVIS_URL + "?t=" + Date.now(), {signal:AbortSignal.timeout(30000)});
+  const est = r.ok ? (await r.json()).est || [] : [];
+  const nowS = now.getTime() / 1000; let n = 0;
+  for (const d of est) {
+    if (!d.ts || nowS - d.ts > 2*3600) continue;
+    const s = {id:"davis-" + d.id, name:`${d.n} (Davis)`, mun:d.ciudad || "", mm:{}, davis:true};
+    for (const h of cfg.ventanas) {
+      const covered = (d.h || []).some(([ts]) => ts <= nowS - (h - 1)*3600);
+      if (covered) s.mm[h] = (d.h || []).reduce((a, [ts, mm]) => ts > nowS - h*3600 ? a + mm : a, 0);
+      else if (h === 24 && d.r24 != null) s.mm[h] = d.r24;
+    }
+    if (Object.keys(s.mm).length) { st[s.id] = s; n++; }
+  }
+  console.log(`Estaciones Davis con datos recientes: ${n} de ${est.length}.`);
+} catch (e) { console.log(`Sin datos de estaciones Davis (${e.message}).`); }
+
 const munCfg = Object.fromEntries(Object.entries(cfg.municipios || {}).map(([k, v]) => [norm(k), v]));
 const stCfg = Object.fromEntries(Object.entries(cfg.estaciones || {}).map(([k, v]) => [k.replace(/^0+/, ""), v]));
 const umbral = (s, h) => {
@@ -93,6 +114,7 @@ const active = new Set(state.filter(x => x.activa).map(x => x.clave));
 const alerts = [], changes = [];
 for (const s of Object.values(st)) for (const h of cfg.ventanas) {
   const u = umbral(s, h); if (u == null) continue;
+  if (s.davis && s.mm[h] == null) continue;
   const mm = s.mm[h] || 0;
   const key = `${s.id}|${h}`, was = active.has(key);
   if (mm >= u && !was) { alerts.push({...s, h, mm, u}); changes.push({clave:key, activa:true, valor:+mm.toFixed(1), umbral:u}); }
@@ -106,8 +128,8 @@ for (const a of msgs) console.log(`ALERTA ${a.name} (${a.mun}): ${a.mm.toFixed(0
 
 const notes = msgs.length <= 3
   ? msgs.map(a => ({title:`⚠ Lluvia fuerte: ${a.name}`,
-      body:`Estación ${a.name} (${a.mun}): ${a.mm.toFixed(0)} mm en ${a.h} h (umbral ${a.u} mm)`,
-      url:`./?estacion=${encodeURIComponent(a.id)}`, tag:`lluvia-${a.id}`}))
+      body:`Estación ${a.name}${a.mun ? ` (${a.mun})` : ""}: ${a.mm.toFixed(0)} mm en ${a.h} h (umbral ${a.u} mm)`,
+      url:a.davis ? "./" : `./?estacion=${encodeURIComponent(a.id)}`, tag:`lluvia-${a.id}`}))
   : [{title:`⚠ Lluvia fuerte en ${msgs.length} estaciones`,
       body: msgs.slice(0, 6).map(a => `${a.name} ${a.mm.toFixed(0)} mm/${a.h} h`).join(" · ") + (msgs.length > 6 ? " · …" : ""),
       url:"./", tag:"lluvia-varias"}];

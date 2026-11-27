@@ -1,5 +1,5 @@
 {
-  "_ayuda": "Umbrales de lluvia acumulada (mm) que disparan una alerta al celular. 'ventanas' son horas hacia atrás. 'municipios' y 'estaciones' cambian el umbral solo para esos lugares (use el nombre del municipio como aparece en el tablero y el código IDEAM de la estación). Ejemplo: \"municipios\": {\"Chaparral\": {\"24\": 60}}, \"estaciones\": {\"0021230010\": {\"24\": 80, \"72\": 150}}. Ponga null para no alertar en esa ventana.",
+  "_ayuda": "Umbrales de lluvia acumulada (mm) que disparan una alerta al celular. 'ventanas' son horas hacia atrás. 'municipios' y 'estaciones' cambian el umbral solo para esos lugares (use el nombre del municipio como aparece en el tablero y el código IDEAM de la estación). Ejemplo: \"municipios\": {\"Chaparral\": {\"24\": 60}}, \"estaciones\": {\"0021230010\": {\"24\": 80, \"72\": 150}}. Las estaciones Davis (WeatherLink) usan el código \"davis-\" seguido del número de la estación, por ejemplo \"davis-123456\". Ponga null para no alertar en esa ventana.",
   "ventanas": [24, 72],
   "defecto": {"24": 50, "72": 100},
   "municipios": {},

@@ -153,6 +153,11 @@ th .ic{margin-right:3px}
 .acper button{flex:1;font:600 11px var(--sans);padding:3px 5px;border:1px solid #b9c6d6;border-radius:6px;background:#fff;color:#0b2a5b;cursor:pointer;white-space:nowrap}
 .acper button[aria-pressed="true"]{background:#0b2a5b;color:#fff;border-color:#0b2a5b}
 @media (max-width:600px){.irleg.acleg .t{display:inline}.irleg.acleg .ft{display:none}.irleg.acleg .sw{width:14px;height:9px}.irleg.acleg .r{margin:1px 0;gap:5px}.acper button{padding:2px 4px;font-size:10px}}
+.dvm{display:flex;align-items:center;justify-content:center;box-sizing:border-box;border-radius:50%;border:2.5px solid #6a3d9a;box-shadow:0 0 0 1px #fff,0 0 2px #0009}
+.dvm b{font:800 9px/1 var(--sans)}
+.dvm.old{background:#e3e7ec!important;border-style:dashed;border-color:#7d8796}.dvm.old b{color:#7d8796!important}
+.legend .dvm{display:inline-flex;vertical-align:-3px;margin-right:3px}
+.dvold{color:#9a4b00;font-weight:600;margin:3px 0}
 .emm{display:inline-block;min-width:40px;text-align:center;padding:3px 5px;border-radius:11px;border:2px solid #fff;box-shadow:0 0 0 1px #0007;color:#fff;font:700 11px/1 var(--sans);white-space:nowrap}
 .vlvl{display:inline-block;padding:2px 7px;border-radius:9px;font:700 12px/1.4 var(--sans);margin:3px 0;white-space:nowrap}
 .fwdays{display:flex;gap:4px;flex-wrap:wrap}
@@ -406,6 +411,7 @@ h2 button.info{vertical-align:2px}
       <div class="legend" id="slinfo" hidden></div>
       <div class="legend" id="flinfo" hidden></div>
       <div class="legend" id="eminfo" hidden></div>
+      <div class="legend" id="dvinfo" hidden></div>
       <div class="legend" id="fwinfo" hidden></div>
       <div class="legend" id="hsinfo" hidden></div>
       <div class="legend" id="vcminfo" hidden></div>
@@ -2139,7 +2145,76 @@ function buildEmbLayer(){
   g.on("remove", () => { clearInterval(timer); box.hidden = true; });
   return g;
 }
+// ---- Davis stations (WeatherLink account of the SAT). WeatherLink needs a secret key, so a scheduled job (.github/workflows/davis.yml)
+// reads them every 15 minutes and publishes davis.json on the branch davis-datos; the page reads that file, never the key.
+const DAVIS_URL = "https://raw.githubusercontent.com/jack49morgan/cruzrojatolima/davis-datos/davis.json";
+const DAVIS_OLD = 2 * 3600;   // seconds without a new reading before a station is shown as "sin datos recientes"
+const davisRain = (s, h, now) => (s.h || []).reduce((a, [t, mm]) => t > now - h * 3600 ? a + mm : a, 0);
+const davisHasHist = (s, h, now) => (s.h || []).some(([t]) => t <= now - (h - 1) * 3600);
+const cardinal = d => d == null ? "" : ["N","NE","E","SE","S","SO","O","NO"][Math.round(d / 45) % 8];
+const davisAgo = sec => sec < 3600 ? `hace ${Math.max(1, Math.round(sec / 60))} min` : sec < 172800 ? `hace ${Math.round(sec / 3600)} h` : `hace ${Math.round(sec / 86400)} días`;
+const davisPin = (fill, sz, old) => `<span class="dvm${old ? " old" : ""}" style="width:${sz}px;height:${sz}px;background:${fill}"><b style="color:${fill === "#ffffff" || fill === "#bcd7f0" ? "#4b2a7a" : "#fff"}">D</b></span>`;
+function davisBars(s, now){   // rain per hour over the last 24 h, from the 15-minute increments
+  const b = Array(24).fill(0); let any = false;
+  for (const [t, mm] of s.h || []) { const i = Math.floor((now - t) / 3600); if (i >= 0 && i < 24) { b[23 - i] += mm; any = true; } }
+  if (!any) return "";
+  const W = 230, H = 46, mx = Math.max(2, ...b), bw = W / 24;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="Lluvia por hora, últimas 24 horas">
+    ${b.map((v, i) => v > 0 ? `<rect x="${(i * bw + 1).toFixed(1)}" y="${(H - 12 - v / mx * (H - 16)).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${(v / mx * (H - 16)).toFixed(1)}" fill="#2a63b0"/>` : "").join("")}
+    <line x1="0" x2="${W}" y1="${H - 12}" y2="${H - 12}" stroke="#9aa7b8" stroke-width="1"/>
+    <text x="2" y="9" font-size="9" fill="#5c6b80">${fmtN(mx, 1)} mm/h</text><text x="2" y="${H - 2}" font-size="9" fill="#5c6b80">hace 24 h</text><text x="${W - 2}" y="${H - 2}" font-size="9" fill="#5c6b80" text-anchor="end">ahora</text></svg>`;
+}
+function davisPopup(s, now){
+  const age = s.ts ? now - s.ts : null, old = age == null || age > DAVIS_OLD;
+  const r24 = s.r24 ?? (davisHasHist(s, 24, now) ? davisRain(s, 24, now) : null), r72 = davisHasHist(s, 72, now) ? davisRain(s, 72, now) : null;
+  const row = (l, v) => v == null || v === "" ? "" : `${l}: <b>${v}</b><br>`;
+  return `<div class="flpop"><b>${esc(s.n)}</b> <span class="sub">${esc(s.ciudad || "")}</span><br>
+    <span class="sub">Estación Davis (WeatherLink)${s.alt != null ? ` · ${fmtN(s.alt * 0.3048, 0)} m s. n. m.` : ""}</span><br>
+    ${old ? `<div class="dvold">⚠ Sin datos recientes${s.ts ? ` (último dato ${davisAgo(age)})` : ""}. Los valores pueden no ser los actuales.</div>` : ""}
+    ${row("Lluvia hoy desde las 0:00", s.hoy != null ? `${fmtN(s.hoy)} mm` : null)}
+    ${row("Lluvia últimas 24 h", r24 != null ? `${fmtN(r24)} mm` : null)}
+    ${row("Lluvia últimas 72 h", r72 != null ? `${fmtN(r72)} mm` : null)}
+    ${row("Intensidad ahora", s.int != null ? `${fmtN(s.int)} mm/h` : null)}
+    ${row("Temperatura", s.t != null ? `${fmtN(s.t)} °C` : null)}
+    ${row("Humedad relativa", s.hr != null ? `${fmtN(s.hr, 0)} %` : null)}
+    ${row("Viento", s.v != null ? `${fmtN(s.v, 0)} km/h${s.dir != null && s.v > 0 ? ` del ${cardinal(s.dir)}` : ""}${s.raf != null ? ` (ráfaga ${fmtN(s.raf, 0)} km/h)` : ""}` : null)}
+    ${row("Presión", s.p != null ? `${fmtN(s.p, 0)} hPa` : null)}
+    ${davisBars(s, now)}
+    <div class="sub">Último dato: ${s.ts ? `${fmtLocal(new Date(s.ts * 1000))} (${davisAgo(age)})` : "sin dato"}. Se actualiza cada 15 minutos.</div></div>`;
+}
+function buildDavisLayer(){
+  const g = L.layerGroup(), box = document.getElementById("dvinfo"); let timer = null;
+  async function load(){
+    let D = null;
+    try { const r = await fetch(DAVIS_URL + "?t=" + Math.floor(Date.now() / 3e5), {cache:"no-store"}); if (r.ok) D = await r.json(); } catch (e) {}
+    g.clearLayers();
+    const est = (D?.est || []).filter(s => isFinite(s.lat) && isFinite(s.lon));
+    if (!est.length) { box.hidden = true; return; }
+    const now = Date.now() / 1000; let fresh = 0, wet = [];
+    for (const s of est) {
+      const old = !s.ts || now - s.ts > DAVIS_OLD; if (!old) fresh++;
+      const b = s.hoy != null && !old ? rbin(s.hoy) : null, sz = b ? b.size + 5 : 19;
+      const m = L.marker([s.lat, s.lon], {zIndexOffset:200, keyboard:true, title:`Estación Davis: ${s.n}`,
+        icon:L.divIcon({className:"", html:davisPin(b ? b.color : "#ffffff", sz, old), iconSize:[sz, sz], iconAnchor:[sz/2, sz/2]})});
+      if (HOVER) m.bindTooltip(`<b>${esc(s.n)}</b> (Davis)<br>Lluvia hoy: <b>${s.hoy != null ? fmtN(s.hoy) + " mm" : "sin dato"}</b>${s.t != null ? `<br>Temp: ${fmtN(s.t)} °C · HR: ${fmtN(s.hr, 0)} %` : ""}${old ? "<br><b>Sin datos recientes</b>" : ""}`, {direction:"top"});
+      m.bindPopup(() => davisPopup(s, Date.now() / 1000), {maxWidth:Math.min(260, innerWidth - 80)}).addTo(g);
+      if (!old && s.hoy > 0) wet.push(s);
+    }
+    wet.sort((a, b) => b.hoy - a.hoy);
+    box.innerHTML = `<span>${davisPin("#6fa8dc", 15)} <b>Estaciones Davis</b> (WeatherLink): ${fresh} de ${est.length} con datos recientes.`
+      + (wet.length ? ` Lluvia hoy: ${wet.slice(0, 5).map(s => `${esc(s.n)} <b>${fmtN(s.hoy)} mm</b>`).join(" · ")}.` : fresh ? " Sin lluvia hoy." : "")
+      + `</span>${infoBtn("davis", "estaciones Davis")}`;
+    box.hidden = false;
+  }
+  g.on("add", () => { load(); timer = setInterval(load, 5 * 60e3); });
+  g.on("remove", () => { clearInterval(timer); box.hidden = true; });
+  return g;
+}
 const INFO = {
+  davis: ["Estaciones Davis (WeatherLink)",
+    `<p>Estaciones meteorológicas <b>Davis</b> de la cuenta <b>WeatherLink</b> de la Cruz Roja Tolima, aparte de las del IDEAM. Se muestran con un círculo con la letra <b>D</b>, del mismo color que la gota del IDEAM según la lluvia caída hoy desde las 0:00 (blanco sin lluvia, azul oscuro más de 50 mm). Un círculo gris con borde punteado es una estación que no ha enviado datos en las últimas 2 horas.</p>
+     <p>Toque una estación para ver la lluvia de hoy, de las últimas 24 y 72 horas, la intensidad, la temperatura, la humedad, el viento, la presión y la hora del último dato, con un gráfico de la lluvia por hora del último día.</p>
+     <p>WeatherLink exige una llave secreta, así que el sitio la consulta cada 15 minutos desde GitHub y publica solo las lecturas; la llave nunca llega a la página. La lluvia de 72 horas se calcula con esas consultas, así que aparece cuando el sistema lleve 3 días recogiendo datos. Estas estaciones también cuentan para las alertas de lluvia al celular, con los mismos umbrales que las del IDEAM.</p>`],
   embalses: ["Embalses (XM)",
     `<p>Volumen útil diario de los embalses del Tolima y de los vecinos que afectan sus ríos, según los datos abiertos de <b>XM</b>, el operador del sistema eléctrico colombiano: <b>Prado</b> (Tolima), <b>Amaní / Miel I</b> (Caldas, río La Miel) y <b>Betania</b> y <b>El Quimbo</b> (Huila, aguas arriba del Magdalena que pasa por el Tolima).</p>
      <p>El porcentaje es la parte del volumen útil que está llena; la flecha compara con hace 7 días y la curva muestra los últimos 30 días. El marcador se pone naranja desde el 85 % y rojo desde el 95 %: un embalse casi lleno puede tener que verter agua y aumentar el caudal aguas abajo. También se muestra el caudal que entra a cada embalse y a las centrales sin embalse de Amoyá y Cucuana, comparado con la media histórica del mes.</p>
@@ -2387,6 +2462,7 @@ function renderMap(){
     map.on("overlayadd overlayremove", e => { if (e.layer === mun || e.layer === dep || e.layer === verL) applyBorders(); });
     const satL = k => [`${esc(SAT[k].name)} ${infoBtn(SAT[k].info, SAT[k].name)}`, SAT[k].layer];
     const SOIL = buildSoilLayers(TOLIMA_GEO.mun);
+    const davisL = buildDavisLayer().addTo(map);   // on by default, next to the IDEAM stations; hidden while there is no data
     const LAYER_GROUPS = [
       ["Fronteras administrativas", [["Límite departamental", dep], ["Municipios", mun],
         [`Veredas (DANE 2020) ${infoBtn("veredas", "veredas")}`, verL]]],
@@ -2396,7 +2472,7 @@ function renderMap(){
         [`Amenaza volcánica Cerro Machín (SGC 2026) ${infoBtn("machin", "amenaza del Cerro Machín")}`, buildMachinLayer()],
         [`Alerta volcánica (SGC) ${infoBtn("volcanes", "alerta volcánica")}`, buildVolcLayer()],
         satL("so2")]],
-      ["Clima actual", [["Estaciones (lluvia)", layer], ["Alertas de nivel IDEAM", alertLayer],
+      ["Clima actual", [["Estaciones (lluvia)", layer], [`Estaciones Davis (WeatherLink) ${infoBtn("davis", "estaciones Davis")}`, davisL], ["Alertas de nivel IDEAM", alertLayer],
         ...["radar", "glm", "cmorph", "acum", "ir", "geo", "imerg"].filter(k => SAT[k]).map(satL),
         [`Embalses: volumen útil (XM) ${infoBtn("embalses", "embalses")}`, buildEmbLayer()],
         [`Focos de calor, 7 días (GWIS) ${infoBtn("focos", "focos de calor")}`, buildHotspotLayer()],
