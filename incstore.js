@@ -28,7 +28,7 @@ const INC_ESTADOS = {activo:"Activo", controlado:"Controlado", cerrado:"Cerrado"
 Object.defineProperty(INC_ESTADOS, "atencion", {value:"En atención", enumerable:false});
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "viviendas"];   // "familias" dropped 2026-11-23   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 29;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 31;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
 //   remote, ready(), user(), handle(), setHandle(name), signIn(email, pw), signOut(), onAuth(fn), sendAlert({title, body, url, tag}), smsInfo(), sendSms({texto, prueba}), smsStatus(jobId)
@@ -42,6 +42,10 @@ const IncUtil = {
   uid: () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
   // how an author shows on updates: their handle, or for older entries the part of the e-mail before "@"
   autor: a => String(a || "").split("@")[0],
+  // road / bridge impact flags of an event, as labels
+  impacto: inc => [inc?.via && "Vía afectada", inc?.puente && "Puente afectado"].filter(Boolean),
+  // "Respuesta Cruz Roja: Sí — …" line, or "" when not answered
+  respCR: inc => inc?.respcr === "si" ? "Respuesta Cruz Roja: Sí" + (inc.respcrdesc ? " — " + inc.respcrdesc : "") : inc?.respcr === "no" ? "Respuesta Cruz Roja: No" : "",
   esc: s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])),
   // "hace 5 min", "hace 3 h", else a Colombian date and time
   ago: iso => { if (!iso) return ""; const d = new Date(iso), s = (Date.now() - d) / 1000;
