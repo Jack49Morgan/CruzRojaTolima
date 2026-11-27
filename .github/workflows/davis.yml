@@ -1,0 +1,47 @@
+name: Estaciones Davis (WeatherLink)
+# Every 15 minutes: reads the Davis stations of the WeatherLink account and publishes their readings as davis.json on the
+# branch "davis-datos" (one commit, replaced each run, so main's history and the Pages deploys are not touched).
+# The map and the rain alerts read https://raw.githubusercontent.com/<repo>/davis-datos/davis.json.
+# Secrets (Settings > Secrets and variables > Actions): WEATHERLINK_API_KEY, WEATHERLINK_API_SECRET.
+# Without them the job ends without changing anything. GitHub can run scheduled jobs a few minutes late.
+on:
+  schedule:
+    - cron: "4-59/15 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/davis.yml
+      - tools/weatherlink_davis.py
+permissions:
+  contents: write
+concurrency:
+  group: davis
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Leer la copia anterior (para el historial de lluvia)
+        run: |
+          git fetch --depth=1 origin davis-datos 2>/dev/null && git show FETCH_HEAD:davis.json > "$RUNNER_TEMP/anterior.json" || echo '{}' > "$RUNNER_TEMP/anterior.json"
+      - name: Consultar WeatherLink
+        run: python3 tools/weatherlink_davis.py "$RUNNER_TEMP/anterior.json" "$RUNNER_TEMP/salida/davis.json"
+        env:
+          WEATHERLINK_API_KEY: ${{ secrets.WEATHERLINK_API_KEY }}
+          WEATHERLINK_API_SECRET: ${{ secrets.WEATHERLINK_API_SECRET }}
+      - name: Publicar en la rama davis-datos
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          cd "$RUNNER_TEMP"
+          [ -f salida/davis.json ] || { echo "Nada que publicar."; exit 0; }
+          cd salida
+          git init -q -b davis-datos
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add davis.json
+          git commit -q -m "Datos de estaciones Davis (WeatherLink)"
+          git push -q -f "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" davis-datos
