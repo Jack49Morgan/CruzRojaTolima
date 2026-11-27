@@ -40,7 +40,7 @@ const INC_VERSION = 33;   // bump with each change to the incident pages, so pho
 // "add" items are {id,name,type,blob}; "drop" is a list of media ids.
 // one emoji per afectación (counts from "afectados", flags from the event); used in the WhatsApp alert, map popup, event page and legend
 const INC_AFECT_ICONOS = [
-  {k:"fallecidos", e:"🕯️", t:"Fallecidos"},
+  {k:"fallecidos", e:"⚫", t:"Fallecidos"},   // black = fallecido in triage colours
   {k:"heridos",    e:"🤕", t:"Heridos"},
   {k:"personas",   e:"👥", t:"Personas afectadas"},
   {k:"viviendas",  e:"🏠", t:"Viviendas afectadas"},
@@ -56,7 +56,7 @@ const IncUtil = {
   // the event's afectaciones with their emoji: [{e, t, n}] (n = count, null for yes/no flags)
   afectIconos: inc => INC_AFECT_ICONOS.flatMap(x => x.flag ? (inc?.[x.k] ? [{e:x.e, t:x.t, n:null}] : [])
     : (+inc?.afectados?.[x.k] > 0 ? [{e:x.e, t:x.t, n:+inc.afectados[x.k]}] : [])),
-  // as text lines: "🕯️ Fallecidos: 2", "🌉 Puente afectado"
+  // as text lines: "⚫ Fallecidos: 2", "🌉 Puente afectado"
   afectLineas: inc => IncUtil.afectIconos(inc).map(a => `${a.e} ${a.t}${a.n != null ? ": " + a.n : ""}`),
   // road / bridge impact flags of an event, as labels
   impacto: inc => [inc?.via && "Vía afectada", inc?.puente && "Puente afectado"].filter(Boolean),
