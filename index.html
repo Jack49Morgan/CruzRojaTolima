@@ -94,6 +94,15 @@ tbody tr.offrow td{color:var(--muted)}
 .eqm span{display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid #1b1b1b;box-shadow:0 0 0 1.5px #fff;font:600 10px/1 var(--mono);color:#1b1b1b}
 .saludgrp{border-radius:50%;background:#1565c0d9;color:#fff;border:2px solid #fff;font:700 11px/1 var(--sans);text-align:center;box-shadow:0 1px 3px #0006}
 .saludlist{max-height:220px;overflow:auto;margin-top:6px;font-size:12px}.saludlist div{padding:3px 0;border-top:1px solid #0001}
+.medir .mbtn{width:30px;height:30px;border:0;background:#fff;color:#17221f;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:4px}
+.medir .mbtn.on{background:#0b2a5b;color:#fff}
+.medir .mpanel{background:#fff;padding:8px 10px;width:220px;font:12px/1.35 var(--sans);color:#17221f;border-top:1px solid #0002}
+.medir .mhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.medir .mx{border:0;background:none;font-size:14px;cursor:pointer;color:#5c6b80}
+.medir .mmode{display:flex;gap:4px;margin-bottom:6px}.medir .mmode button,.medir .mact button{flex:1;border:1px solid #0b2a5b55;background:#fff;color:#0b2a5b;border-radius:6px;padding:5px 4px;font:600 12px var(--sans);cursor:pointer}
+.medir .mmode button.on{background:#0b2a5b;color:#fff}.medir .mact{display:flex;gap:4px;margin-top:6px}
+.medir p{margin:3px 0}.medir .mkm{font-size:20px;font-weight:700;color:#1565c0}.medir .sub{font-size:11px}.medir .mwarn{color:#b45309}
+.measuring .leaflet-interactive,.measuring.leaflet-container{cursor:crosshair!important}
+@media (max-width:600px){.medir .mpanel{width:190px}}
 .leaflet-vias-pane canvas,.leaflet-viasLo-pane canvas{pointer-events:none!important}
 .leaflet-control-layers .lgrp{font:600 11px/1.2 var(--sans);text-transform:uppercase;letter-spacing:.04em;color:#c8102e;margin:8px 0 3px;padding-top:6px;border-top:1px solid #0002}
 .leaflet-control-layers .lgrp:first-child{border-top:0;padding-top:0;margin-top:2px}
@@ -1482,7 +1491,7 @@ function buildViasLayer(){
   // listens in the capture phase on the map container, so a tap on a road is handled here before the municipio or vereda
   // underneath sees it; markers, popups and controls keep their own taps
   function onClick(ev){
-    if (!D || !map.hasLayer(g) || ev.target.closest(".leaflet-control, .leaflet-popup, .leaflet-marker-icon, .leaflet-marker-pane")) return;
+    if (!D || !map.hasLayer(g) || map.getContainer().classList.contains("measuring") || ev.target.closest(".leaflet-control, .leaflet-popup, .leaflet-marker-icon, .leaflet-marker-pane")) return;
     if (map.dragging && map.dragging.moved()) return;
     const ll = map.mouseEventToLatLng(ev), p = map.latLngToLayerPoint(ll);
     for (let i = 0; i < 4; i++) for (const l of byCls[i]) {   // primarias first: they win where roads overlap
@@ -1511,6 +1520,84 @@ function buildViasLayer(){
   });
   g.on("remove", () => { viaLeg.remove(); map.attributionControl?.removeAttribution(VIA_ATTR); map.off("zoomend baselayerchange", restyle); map.getContainer().removeEventListener("click", onClick, true); map.removeLayer(rend); map.removeLayer(rendLo); });
   return g;
+}
+// Distance tool ("Medir"): tap points on the map; "Por la vía" asks the public OSRM router (OpenStreetMap roads,
+// car profile) for the driving route through them, "Línea recta" joins them with straight lines.
+// While it is on, taps go to the tool (capture phase on the map container) instead of opening popups.
+const OSRM = "https://router.project-osrm.org/route/v1/driving/";
+const fmtKm = m => m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toLocaleString("es-CO", {maximumFractionDigits: m < 1e4 ? 2 : 1})} km`;
+const fmtDur = s => { const m = Math.round(s / 60); return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")} min`; };
+function buildMeasureTool(map){
+  const M = {on:false, mode:"via", pts:[], req:0};
+  const g = L.layerGroup().addTo(map);
+  const ctl = L.control({position:"topleft"});
+  let box, btn, out;
+  ctl.onAdd = () => {
+    const d = L.DomUtil.create("div", "leaflet-bar medir");
+    d.innerHTML = `<button type="button" class="mbtn" title="Medir distancia" aria-label="Medir distancia"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 17 17 3l4 4L7 21z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2" stroke="currentColor" stroke-width="1.6"/></svg></button>`
+      + `<div class="mpanel" hidden><div class="mhd"><b>Medir distancia</b><button type="button" class="mx" aria-label="Cerrar">✕</button></div>`
+      + `<div class="mmode" role="group" aria-label="Tipo de medida"><button type="button" data-m="via" class="on">Por la vía</button><button type="button" data-m="recta">Línea recta</button></div>`
+      + `<div class="mout"></div><div class="mact"><button type="button" data-a="undo">Deshacer</button><button type="button" data-a="clear">Borrar</button></div></div>`;
+    btn = d.querySelector(".mbtn"); box = d.querySelector(".mpanel"); out = d.querySelector(".mout");
+    btn.onclick = () => toggle(!M.on);
+    d.querySelector(".mx").onclick = () => toggle(false);
+    d.querySelector(".mmode").onclick = e => { const b = e.target.closest("button[data-m]"); if (!b) return; M.mode = b.dataset.m;
+      d.querySelectorAll(".mmode button").forEach(x => x.classList.toggle("on", x === b)); draw(); };
+    d.querySelector(".mact").onclick = e => { const a = e.target.closest("button[data-a]")?.dataset.a; if (a === "undo") M.pts.pop(); if (a === "clear") M.pts = []; if (a) draw(); };
+    L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d);
+    return d;
+  };
+  ctl.addTo(map);
+  function toggle(on){
+    M.on = on; box.hidden = !on; btn.classList.toggle("on", on);
+    map.getContainer().classList.toggle("measuring", on);
+    if (!on) { M.pts = []; M.req++; g.clearLayers(); } else { map.closePopup(); draw();
+      // on a phone, fold the map legends so the panel and the map stay visible
+      if (map.getSize().x < 600) map.getContainer().querySelectorAll(".irleg").forEach(x => x.classList.add("min")); }
+  }
+  map.getContainer().addEventListener("click", ev => {
+    if (!M.on || ev.target.closest(".leaflet-control, .leaflet-popup")) return;
+    if (map.dragging && map.dragging.moved()) return;
+    ev.stopImmediatePropagation();
+    M.pts.push(map.mouseEventToLatLng(ev)); draw();
+  }, true);
+  const straight = () => M.pts.reduce((s, p, i) => i ? s + map.distance(M.pts[i - 1], p) : 0, 0);
+  const dots = () => M.pts.forEach((p, i) => L.circleMarker(p, {radius:i ? 5 : 6, color:"#fff", weight:2, fillColor:i ? "#0b2a5b" : "#2e7d32", fillOpacity:1, interactive:false}).addTo(g));
+  async function draw(){
+    const id = ++M.req; g.clearLayers();
+    const n = M.pts.length, rect = straight();
+    if (n < 2) { dots(); out.innerHTML = `<p>${n ? "Toque el punto de llegada." : "Toque el punto de inicio en el mapa."}</p>`; return; }
+    if (M.mode === "recta") {
+      L.polyline(M.pts, {color:"#0b2a5b", weight:3, dashArray:"6 5", interactive:false}).addTo(g); dots();
+      out.innerHTML = `<p class="mkm">${fmtKm(rect)}</p><p>En línea recta${n > 2 ? `, ${n - 1} tramos` : ""}. Toque para agregar más puntos.</p>`;
+      return;
+    }
+    dots(); out.innerHTML = `<p>Calculando la ruta…</p>`;
+    let r = null;
+    try {
+      const q = M.pts.map(p => `${p.lng.toFixed(5)},${p.lat.toFixed(5)}`).join(";");
+      const j = await (await fetch(`${OSRM}${q}?overview=full&geometries=geojson&steps=false`)).json();
+      if (j.code === "Ok" && j.routes?.length) r = j.routes[0];
+      if (id !== M.req) return;
+      if (r) {
+        const line = r.geometry.coordinates.map(([x, y]) => [y, x]);
+        g.clearLayers();
+        // dashed links from each tap to where the route meets the road
+        (j.waypoints || []).forEach((w, i) => { const s = [w.location[1], w.location[0]]; if (map.distance(s, M.pts[i]) > 15) L.polyline([M.pts[i], s], {color:"#0b2a5b", weight:1.5, dashArray:"3 4", interactive:false}).addTo(g); });
+        L.polyline(line, {color:"#fff", weight:8, opacity:0.9, interactive:false}).addTo(g);
+        L.polyline(line, {color:"#1565c0", weight:5, interactive:false}).addTo(g); dots();
+        const off = (j.waypoints || []).reduce((m, w) => Math.max(m, w.distance || 0), 0);
+        out.innerHTML = `<p class="mkm">${fmtKm(r.distance)}</p><p>Por la vía, en carro: unas <b>${fmtDur(r.duration)}</b> (estimado, sin tráfico ni cierres).`
+          + `<br><span class="sub">En línea recta: ${fmtKm(rect)}</span>`
+          + (off > 300 ? `<br><span class="mwarn">Un punto está a ${fmtKm(off)} de la vía más cercana; la ruta empieza o termina allí.</span>` : "")
+          + `</p><p class="sub">Ruta: OSRM con datos de OpenStreetMap. Toque para agregar paradas.</p>`;
+        return;
+      }
+    } catch (e) { if (id !== M.req) return; }
+    L.polyline(M.pts, {color:"#0b2a5b", weight:3, dashArray:"6 5", interactive:false}).addTo(g);
+    out.innerHTML = `<p class="mkm">${fmtKm(rect)}</p><p>No se pudo calcular la ruta por la vía (sin conexión con el servicio o sin vía entre los puntos). Se muestra la distancia en línea recta.</p>`;
+  }
+  return M;
 }
 // Earthquakes M4+ in and around Tolima over the last year, from the USGS FDSN service.
 // (The SGC feed at archive.sgc.gov.co only answers its own website, so a browser page elsewhere cannot read it.)
@@ -2622,6 +2709,7 @@ function renderMap(){
       return r;
     };
     ctrl.addTo(map);
+    buildMeasureTool(map);
     { // close button at the top of the open layers panel
       const x = L.DomUtil.create("button", "lclose"); x.type = "button"; x.innerHTML = "✕"; x.title = "Cerrar"; x.setAttribute("aria-label", "Cerrar el panel de capas");
       ctrl._section.prepend(x); L.DomEvent.disableClickPropagation(x);
