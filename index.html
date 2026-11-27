@@ -394,6 +394,7 @@ h2 button.info{vertical-align:2px}
       <div class="legend" id="satinfo" hidden></div>
       <div class="legend" id="eqinfo" hidden></div>
       <div class="legend" id="fcinfo" hidden></div>
+      <div class="legend" id="slinfo" hidden></div>
       <div class="legend" id="flinfo" hidden></div>
       <div class="legend" id="eminfo" hidden></div>
       <div class="legend" id="fwinfo" hidden></div>
@@ -1473,7 +1474,7 @@ async function loadMunForecast(){
   return FC.data;
 }
 function buildFcLayer(munFeatures){
-  const g = L.geoJSON(munFeatures, {style:{color:"#0b2a5b", weight:0.6, opacity:0.5, fillOpacity:0}, interactive:true});
+  const g = L.geoJSON(munFeatures, {style:{color:"#0b2a5b", weight:0.6, opacity:0.5, fillOpacity:0}, interactive:true, attribution:OM_CREDIT});
   // until the forecast arrives (or if it fails), a tap still shows the municipio's population
   g.eachLayer(l => l.bindPopup(() => popHtml(l.feature.properties.n, "Municipio", MUNPOP[l.feature.properties.n]?.[2]), {maxWidth:260}));
   const box = document.getElementById("fcinfo"); let timer = null;
@@ -1494,6 +1495,87 @@ function buildFcLayer(munFeatures){
   g.on("add", () => { paint(); timer = setInterval(paint, 60*60e3); });
   g.on("remove", () => { clearInterval(timer); box.hidden = true; });
   return g;
+}
+// ---- Soil moisture (Open-Meteo, no key) per municipio, and an orientative landslide rule of thumb:
+// wet ground + more rain is the main trigger of landslides. Not an official model.
+const OM_CREDIT = 'Pronóstico y humedad del suelo: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0)';
+const SOILCL = [{n:"Seco", c:"#c9a46a"}, {n:"Húmedo", c:"#6fb3d9"}, {n:"Saturado", c:"#1f4e9c"}];
+const SLIDECL = [{n:"Bajo", c:"#43a047"}, {n:"Medio", c:"#f2b200"}, {n:"Alto", c:"#e3001b"}];
+// fraction of the wettest value of the last 3 months -> 0 seco, 1 húmedo, 2 saturado
+const soilClass = s => s >= 0.92 ? 2 : s >= 0.75 ? 1 : 0;
+// rain in the next 72 h (mm) needed for medio / alto, by soil class
+const SLIDE_MM = [[100, 1e9], [50, 100], [20, 50]];
+const slideClass = (soil, mm72) => mm72 >= SLIDE_MM[soil][1] ? 2 : mm72 >= SLIDE_MM[soil][0] ? 1 : 0;
+const SM = {data:null, at:0};
+async function loadMunSoil(){
+  if (SM.data && Date.now() - SM.at < 55*60e3) return SM.data;
+  const u = `${OM}?latitude=${MUNS_FC.map(m => m[1][0]).join(",")}&longitude=${MUNS_FC.map(m => m[1][1]).join(",")}`
+    + "&hourly=soil_moisture_3_to_9cm,soil_moisture_9_to_27cm,soil_moisture_27_to_81cm&past_days=92&forecast_days=4&temporal_resolution=hourly_6&timezone=UTC";
+  const [j, fc] = await Promise.all([(async () => [].concat(await (await fetch(u)).json()))(), loadMunForecast().catch(() => ({}))]);
+  const now = Date.now();
+  SM.data = {}; SM.at = now;
+  j.forEach((o, i) => { const h = o.hourly, t = h.time.map(s => Date.parse(s + "Z"));
+    // water in the top 81 cm, each layer weighted by its thickness (0-9, 9-27, 27-81 cm)
+    const W = t.map((x, k) => [h.soil_moisture_3_to_9cm[k], h.soil_moisture_9_to_27cm[k], h.soil_moisture_27_to_81cm[k]].some(v => v == null) ? null
+      : (9*h.soil_moisture_3_to_9cm[k] + 18*h.soil_moisture_9_to_27cm[k] + 54*h.soil_moisture_27_to_81cm[k]) / 81);
+    let k0 = -1, ref = 0;
+    t.forEach((x, k) => { if (x <= now && W[k] != null) { k0 = k; ref = Math.max(ref, W[k]); } });
+    if (k0 < 0 || !ref) return;
+    const s = W[k0] / ref, k3 = t.findIndex(x => x >= now + 72*3600e3);
+    const s3 = k3 >= 0 && W[k3] != null ? W[k3] / ref : null;
+    const n = MUNS_FC[i][0], f = fc[n], soil = soilClass(s);
+    SM.data[n] = {s, soil, s3, soil3: s3 == null ? null : soilClass(s3), w: W[k0], h72: f?.h72, slide: f ? slideClass(soil, f.h72) : null}; });
+  return SM.data;
+}
+const swatch = c => `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;background:${c};border:1px solid #0003"></span>`;
+function soilPopHtml(n, d){
+  if (!d) return `<div class="flpop"><b>${esc(n)}</b><br>Sin dato de humedad del suelo.</div>`;
+  const S = SOILCL[d.soil], trend = d.soil3 == null ? "" : d.soil3 === d.soil ? "se mantiene igual" : (d.soil3 > d.soil ? "sube a " : "baja a ") + SOILCL[d.soil3].n.toLowerCase();
+  return `<div class="flpop"><b>${esc(n)}</b>
+    <div style="margin-top:4px">Suelo hoy (primeros 80 cm): ${swatch(S.c)} <b>${S.n}</b></div>
+    <div class="sub">${Math.round(d.s * 100)} % de lo más húmedo que ha estado en los últimos 3 meses${trend ? `<br>En 3 días: ${trend}` : ""}</div>
+    <div style="margin-top:4px">Lluvia pronosticada 72 h: <b>${fmt(d.h72)} mm</b></div>
+    ${d.slide == null ? "" : `<div style="margin-top:4px">Riesgo de deslizamiento: ${swatch(SLIDECL[d.slide].c)} <b>${SLIDECL[d.slide].n}</b></div>`}
+    <div class="sub">Orientativo: suelo mojado + más lluvia = más riesgo. No es un modelo oficial. ${infoBtn("suelo", "humedad del suelo")}</div></div>`;
+}
+// Two map layers from the same data: soil state, and the landslide rule of thumb
+function buildSoilLayers(munFeatures){
+  const box = document.getElementById("slinfo"), on = new Set(); let timer = null;
+  const mk = kind => {
+    const g = L.geoJSON(munFeatures, {style:{color:"#0b2a5b", weight:0.6, opacity:0.5, fillOpacity:0}, interactive:true, attribution:OM_CREDIT});
+    g.eachLayer(l => l.bindPopup(() => soilPopHtml(l.feature.properties.n, SM.data?.[l.feature.properties.n]), {maxWidth:270}));
+    if (HOVER) g.eachLayer(l => l.bindTooltip(() => soilPopHtml(l.feature.properties.n, SM.data?.[l.feature.properties.n]), {sticky:true}));
+    g.kind = kind;
+    g.on("add", () => { on.add(g); paint(); if (!timer) timer = setInterval(paint, 60*60e3); });
+    g.on("remove", () => { on.delete(g); if (!on.size) { clearInterval(timer); timer = null; box.hidden = true; } else render(); });
+    return g;
+  };
+  const soilL = mk("soil"), slideL = mk("slide");
+  const chips = cls => cls.map(c => `<span>${swatch(c.c)} ${c.n}</span>`).join(" ");
+  function render(){
+    const d = SM.data; if (!on.size) return;
+    if (!d) { box.innerHTML = "Cargando humedad del suelo…"; box.hidden = false; return; }
+    const by = (key, v) => Object.entries(d).filter(([, x]) => x[key] === v).map(([n]) => n);
+    const parts = [];
+    if (on.has(soilL)) parts.push(`<div style="flex-basis:100%"><b>Humedad del suelo</b> (Open-Meteo, ${fmtLocal(new Date(SM.at)).slice(11)}): `
+      + `${by("soil", 2).length} municipio(s) con suelo saturado, ${by("soil", 1).length} húmedo(s) y ${by("soil", 0).length} seco(s). ${chips(SOILCL)} ${infoBtn("suelo", "humedad del suelo")}</div>`);
+    if (on.has(slideL)) { const hi = by("slide", 2), me = by("slide", 1);
+      parts.push(`<div style="flex-basis:100%"><b>Riesgo de deslizamiento, próximas 72 h</b> (orientativo, no oficial): `
+        + (hi.length ? `<b>alto</b> en ${hi.map(esc).join(", ")}. ` : "")
+        + (me.length ? `Medio en ${me.map(esc).join(", ")}. ` : "")
+        + (!hi.length && !me.length ? "bajo en todo el Tolima. " : "")
+        + `${chips(SLIDECL)} ${infoBtn("suelo", "riesgo de deslizamiento")}</div>`); }
+    box.innerHTML = parts.join(""); box.hidden = false;
+  }
+  async function paint(){
+    render();
+    try { await loadMunSoil(); } catch (e) { box.textContent = "No se pudo cargar la humedad del suelo de Open-Meteo."; box.hidden = false; return; }
+    for (const g of [soilL, slideL]) g.eachLayer(l => { const x = SM.data[l.feature.properties.n];
+      const c = x == null ? null : g.kind === "soil" ? SOILCL[x.soil].c : x.slide == null ? null : SLIDECL[x.slide].c;
+      l.setStyle({fillColor:c || "#ccc", fillOpacity:c ? 0.55 : 0.2}); });
+    render();
+  }
+  return {soilL, slideL};
 }
 async function loadStationForecast(s){
   const el = document.getElementById("fcsub");
@@ -2080,6 +2162,16 @@ const INFO = {
      <p><b>En el mapa</b> (capa “Lluvia pronosticada 24 h por municipio”), cada municipio se colorea con la lluvia esperada en las próximas 24 horas, con la misma escala de gotas que las estaciones. Pase el dedo o el ratón por encima para ver 24 h, 72 h, 7 días, la probabilidad máxima de lluvia y la población. Bajo el mapa se resumen los municipios con más de 30 mm y cuántas personas viven en ellos.</p>
      <p><b>En cada estación</b>, los dos últimos gráficos muestran la lluvia (barras) y la temperatura pronosticadas para las próximas 72 horas en ese punto.</p>
      <p>Es un pronóstico de modelo para un punto del municipio: en zonas de montaña la lluvia real puede variar mucho de un valle a otro. Úselo como aviso temprano, no como medición.</p>`],
+  suelo: ["Humedad del suelo y riesgo de deslizamiento (orientativo)",
+    `<p><b>Humedad del suelo:</b> cuánta agua tiene la tierra en los primeros 80 cm, según el modelo de <b>Open-Meteo</b> (gratuito, sin clave; se actualiza cada hora). Cada municipio se compara consigo mismo: el valor de hoy se divide por lo más húmedo que ese municipio ha estado en los últimos 3 meses.</p>
+     <p><span style="color:#9a7438">■</span> <b>Seco</b>: menos del 75 %. <span style="color:#6fb3d9">■</span> <b>Húmedo</b>: 75 a 92 %. <span style="color:#1f4e9c">■</span> <b>Saturado</b>: 92 % o más; la tierra casi no puede absorber más agua y la lluvia nueva corre por la superficie o empuja las laderas.</p>
+     <p><b>Riesgo de deslizamiento</b> (regla práctica): un suelo ya mojado que recibe más lluvia es la causa más común de deslizamientos. Se cruza el estado del suelo de hoy con la lluvia pronosticada en las próximas 72 horas:</p>
+     <table style="border-collapse:collapse;font-size:13px;margin:4px 0 8px"><tr><th style="text-align:left;padding:2px 8px">Suelo</th><th style="padding:2px 8px">Medio</th><th style="padding:2px 8px">Alto</th></tr>
+       <tr><td style="padding:2px 8px">Seco</td><td style="padding:2px 8px">100 mm o más</td><td style="padding:2px 8px">—</td></tr>
+       <tr><td style="padding:2px 8px">Húmedo</td><td style="padding:2px 8px">50 a 100 mm</td><td style="padding:2px 8px">100 mm o más</td></tr>
+       <tr><td style="padding:2px 8px">Saturado</td><td style="padding:2px 8px">20 a 50 mm</td><td style="padding:2px 8px">50 mm o más</td></tr></table>
+     <p><b>Importante:</b> es solo una orientación, no un modelo oficial ni una alerta del SGC, el IDEAM o la UNGRD. No tiene en cuenta la pendiente, el tipo de roca, los cortes de vía ni los deslizamientos ya activos, y el modelo usa una malla de unos 10 km, así que dentro de un municipio puede haber zonas mucho más húmedas o secas. Úsela para decidir dónde mirar con más atención, junto con las estaciones del IDEAM y la capa de movimientos en masa.</p>
+     <p>Fuente: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>, licencia CC BY 4.0.</p>`],
   glofas: ["Caudales pronosticados (GloFAS)",
     `<p>Pronóstico de caudal diario del <b>Sistema Mundial de Alerta de Inundaciones (GloFAS)</b> del programa Copernicus, servido por la API de inundaciones de Open-Meteo, para cuatro puntos del río Magdalena: Honda, Ambalema, Flandes y Natagaima.</p>
      <p>El color del marcador compara el pico del pronóstico de los próximos 10 días con el caudal que en el modelo se supera en promedio una vez cada 2 años (amarillo), 5 años (naranja) o 20 años (rojo); verde es por debajo del de 2 años. Esos umbrales se calcularon con los máximos anuales de GloFAS de 1984 a 2024 en cada punto.</p>
@@ -2251,6 +2343,7 @@ function renderMap(){
     map.on("zoomend", applyBorders);
     map.on("overlayadd overlayremove", e => { if (e.layer === mun || e.layer === dep || e.layer === verL) applyBorders(); });
     const satL = k => [`${esc(SAT[k].name)} ${infoBtn(SAT[k].info, SAT[k].name)}`, SAT[k].layer];
+    const SOIL = buildSoilLayers(TOLIMA_GEO.mun);
     const LAYER_GROUPS = [
       ["Fronteras administrativas", [["Límite departamental", dep], ["Municipios", mun],
         [`Veredas (DANE 2020) ${infoBtn("veredas", "veredas")}`, verL]]],
@@ -2267,6 +2360,8 @@ function renderMap(){
         [`Cámaras web de volcanes (SGC) ${infoBtn("camaras", "cámaras web")}`, camLayer]]],
       ["Pronósticos", [
         [`Lluvia pronosticada 24 h por municipio ${infoBtn("pronostico", "pronóstico")}`, buildFcLayer(TOLIMA_GEO.mun)],
+        [`Humedad del suelo por municipio ${infoBtn("suelo", "humedad del suelo")}`, SOIL.soilL],
+        [`Riesgo de deslizamiento, orientativo ${infoBtn("suelo", "riesgo de deslizamiento")}`, SOIL.slideL],
         [`Caudal pronosticado del Magdalena (GloFAS) ${infoBtn("glofas", "caudales")}`, buildFloodLayer()],
         [`Peligro de incendio, pronóstico (GWIS) ${infoBtn("fwi", "índice de incendio")}`, buildFwiLayer()]]],
       ["Salud", [
