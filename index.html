@@ -268,9 +268,8 @@ h2 button.info{vertical-align:2px}
 .incwho{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .incwho button{border:0;background:none;color:inherit;text-decoration:underline;cursor:pointer;font:inherit;padding:0}
 .incpin{background:none;border:0;position:relative}
-.incbadges{position:absolute;left:17px;top:-4px;display:flex;gap:1px;pointer-events:none}
-.incbadge{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px #0003,0 1px 2px #0003;font-size:9.5px;line-height:1}
-.inclegend .incbadge{width:17px;height:17px;font-size:11px}
+.incexport{gap:6px 8px;margin:0 0 8px}.incexport select,.incexport input{font:inherit;border:1px solid var(--line);border-radius:8px;padding:4px 6px;background:var(--panel);color:var(--fg)}.incexport .btn{padding:4px 10px}
+.incaffs{display:flex;flex-wrap:wrap;gap:4px 6px;margin:4px 0}.incaffs span{display:inline-flex;align-items:center;gap:5px;background:#fff3e0;color:#8a3b00;border:1px solid #ffcc80;border-radius:999px;padding:2px 9px 2px 4px;font-weight:600;font-size:12.5px}.incaffs i{font-style:normal;font-size:19px;line-height:1}
 .inclegend{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}.inclegend>span{display:inline-flex;align-items:center;gap:3px}.inclegend svg{flex:none}
 /* live positions (ubicaciones.js) */
 .locpin{background:none;border:0}
@@ -438,6 +437,7 @@ h2 button.info{vertical-align:2px}
         <button class="btn redbtn" type="button" data-newinc hidden>＋ Registrar evento</button>
       </div>
     </div>
+    <div class="incexport legend" id="incexport" hidden></div>
     <div class="inclist" id="inclist"><p class="sub">Cargando eventos…</p></div>
   </section>
 
@@ -540,7 +540,8 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
   </form>
 </dialog>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=32"></script>
+<script src="incstore.js?v=33"></script>
+<script src="incexport.js?v=33"></script>
 <script src="alertas.js?v=4" defer></script>
 <script src="enviar-alerta.js?v=1" defer></script>
 <script src="ubicaciones.js?v=20"></script>
@@ -562,20 +563,14 @@ function initIncidents(map, ctrl){
   ctrl.addOverlay(layer, "Eventos registrados");
   let byId = {}, gallery = [];
   const fmt = f => f ? f.replace("T", " ") : "";
-  // pin fill = event type (grey once Cerrado); the "!" = estado: white Activo, light orange Controlado
-  const MARK = {controlado:"#ffb74d"};
+  const PIN = {activo:"#c8102e", controlado:"#f39c12", cerrado:"#8a8f8d"};   // pin colour = estado (the type colour stays on the card)
   const pinSvg = (color, mark = "#fff", w = 26, h = 32) => `<svg viewBox="0 0 26 32" width="${w}" height="${h}" aria-hidden="true"><path d="M13 31C13 31 2 19 2 12a11 11 0 0 1 22 0c0 7-11 19-11 19z" fill="${color}" stroke="#fff" stroke-width="2"/><path d="M11.5 6h3v8h-3zM11.5 16h3v3h-3z" fill="${mark}"/></svg>`;
-  // afectaciones as tiny emoji badges stacked at the pin's top right; add a row here to grow the scheme
-  const BADGES = [
-    {k:"via", e:"🛣️", t:"Vía afectada"},
-    {k:"puente", e:"🌉", t:"Puente afectado"},
-  ];
-  const badge = b => `<span class="incbadge" title="${b.t}">${b.e}</span>`;
-  const badges = inc => { const on = BADGES.filter(b => inc[b.k]); return on.length ? `<span class="incbadges">${on.map(badge).join("")}</span>` : ""; };
-  const pin = (color, mark, inc = {}) => L.divIcon({className:"incpin", iconSize:[26,32], iconAnchor:[13,31], popupAnchor:[0,-28],
-    html:pinSvg(color, mark) + badges(inc)});
+  // afectaciones (emoji + count) in the popup and the legend key; the list is INC_AFECT_ICONOS in incstore.js
+  const affChips = inc => IncUtil.afectIconos(inc).length ? `<div class="incaffs">${IncUtil.afectIconos(inc).map(a => `<span><i>${a.e}</i>${a.n != null ? a.n + " " : ""}${escI(a.t)}</span>`).join("")}</div>` : "";
+  const pin = (color, mark) => L.divIcon({className:"incpin", iconSize:[26,32], iconAnchor:[13,31], popupAnchor:[0,-28],
+    html:pinSvg(color, mark)});
   // legend of the estados, in the Eventos panel and under the map while the layer is on
-  const legHtml = `<span class="inclegend"><b>Eventos:</b> <span>${pinSvg("#c8102e", "#fff", 18, 22)} Activo</span><span>${pinSvg("#c8102e", MARK.controlado, 18, 22)} Controlado (! naranja)</span><span>${pinSvg("#8a8f8d", "#fff", 18, 22)} Cerrado (gris)</span>${BADGES.map(b => `<span>${badge(b)} ${b.t}</span>`).join("")}<span class="sub">El color del marcador indica el tipo de evento.</span></span>`;
+  const legHtml = `<span class="inclegend"><b>Eventos:</b> ${Object.entries(PIN).map(([k, c]) => `<span>${pinSvg(c, "#fff", 18, 22)} ${INC_ESTADOS[k]}</span>`).join("")}</span><span class="inclegend"><b>Afectaciones:</b> ${INC_AFECT_ICONOS.map(x => `<span>${x.e} ${x.t}</span>`).join("")}</span>`;
   const leg1 = document.createElement("div"); leg1.className = "legend"; leg1.innerHTML = legHtml; list.before(leg1);
   const leg2 = document.getElementById("incinfo"); leg2.innerHTML = legHtml;
   layer.on("add", () => leg2.hidden = false); layer.on("remove", () => leg2.hidden = true); leg2.hidden = !map.hasLayer(layer);
@@ -594,6 +589,9 @@ function initIncidents(map, ctrl){
     // only signed-in team members get "Registrar evento" (and the update box / edit buttons, which need a login to work)
     const canEdit = !IncStore.remote || !!IncStore.user();
     document.querySelectorAll("[data-newinc]").forEach(b => b.hidden = !canEdit);
+    // Excel export: team members only (the public view has no names or e-mails to give out anyway)
+    const xb = document.getElementById("incexport"); xb.hidden = !canEdit || typeof IncExport === "undefined";
+    if (!xb.hidden && !xb.childElementCount) IncExport.mount(xb);
     if (IncStore.user()) { const h = IncStore.handle();
       who.innerHTML = `Conectado como <b>${escI(h || IncStore.user())}</b> <button type="button" id="incname">${h ? "Cambiar nombre" : "Elegir mi nombre"}</button> <button type="button" id="incout">Salir</button>`;
       document.getElementById("incout").onclick = () => IncStore.signOut(); loginBox.hidden = true;
@@ -639,9 +637,9 @@ function initIncidents(map, ctrl){
         gl.bindTooltip(escI(inc.titulo), {sticky:true}); gl.on("click", () => focusCard(inc.id));
         if (!ll) { const c = gl.getBounds().getCenter(); ll = [c.lat, c.lng]; } }
       if (ll) { const first = items.find(x => !x.video);
-        L.marker(ll, {icon:pin(color, MARK[inc.estado], inc), pane:"inc", title:inc.titulo}).addTo(layer)
+        L.marker(ll, {icon:pin(PIN[inc.estado] || PIN.activo), pane:"inc", title:inc.titulo}).addTo(layer)
           .bindPopup(`<div class="incpop"><b>${escI(inc.titulo)}</b><div class="sub">${escI(tname)} · ${escI(inc.municipio)}<br>${escI(fmt(inc.fecha))} · ${escI(INC_ESTADOS[inc.estado] || "")}${IncUtil.registra(inc) ? `<br>Registrado por ${escI(IncUtil.registra(inc))}` : ""}</div>
-            ${first ? `<img src="${first.u}" alt="">` : ""}${afect(inc.afectados) ? `<div>${escI(afect(inc.afectados))}</div>` : ""}${IncUtil.impacto(inc).length ? `<div><b>${escI(IncUtil.impacto(inc).join(" · "))}</b></div>` : ""}${IncUtil.respCR(inc) ? `<div>${escI(IncUtil.respCR(inc))}</div>` : ""}
+            ${first ? `<img src="${first.u}" alt="">` : ""}${affChips(inc)}${IncUtil.respCR(inc) ? `<div>${escI(IncUtil.respCR(inc))}</div>` : ""}
             <button type="button" class="btn" data-card="${escI(inc.id)}">Ver detalles</button></div>`, {maxWidth:Math.min(280, innerWidth - 90)}); }
       // photos of the event itself (not of an update) go in the strip under the description
       const own = items.map((x, i) => [x, i]).filter(([x]) => !x.upd);
