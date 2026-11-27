@@ -1,0 +1,29 @@
+name: Actualizar alertas CAP (IDEAM)
+# Every 30 minutes: reads IDEAM's official CAP alerts (alertascap.ideam.gov.co) and keeps the ones that touch Tolima in
+# data/ideam-cap.json, which the dashboard reads. Commits only when the alerts change (or every 3 h to refresh the date).
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main, claude/project-thread-mqhd5b]
+    paths:
+      - .github/workflows/ideam-cap.yml
+      - tools/ideam_cap.py
+permissions:
+  contents: write
+concurrency:
+  group: ideam-cap
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/ideam_cap.py data/ideam-cap.json
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/ideam-cap.json
+          git diff --cached --quiet || (git commit -m "Actualizar alertas CAP del IDEAM" && git pull --rebase && git push)
