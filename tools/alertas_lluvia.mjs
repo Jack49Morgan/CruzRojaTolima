@@ -94,8 +94,8 @@ try {
     const s = {id:"davis-" + d.id, name:`${d.n} (Davis)`, mun:d.ciudad || "", mm:{}, davis:true};
     for (const h of cfg.ventanas) {
       const covered = (d.h || []).some(([ts]) => ts <= nowS - (h - 1)*3600);
-      if (covered) s.mm[h] = (d.h || []).reduce((a, [ts, mm]) => ts > nowS - h*3600 ? a + mm : a, 0);
-      else if (h === 24 && d.r24 != null) s.mm[h] = d.r24;
+      if (h === 24 && d.r24 != null) s.mm[h] = d.r24;   // the station's own 24 h total when it gives one
+      else if (covered) s.mm[h] = (d.h || []).reduce((a, [ts, mm]) => ts > nowS - h*3600 ? a + mm : a, 0);
     }
     if (Object.keys(s.mm).length) { st[s.id] = s; n++; }
   }

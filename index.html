@@ -153,10 +153,9 @@ th .ic{margin-right:3px}
 .acper button{flex:1;font:600 11px var(--sans);padding:3px 5px;border:1px solid #b9c6d6;border-radius:6px;background:#fff;color:#0b2a5b;cursor:pointer;white-space:nowrap}
 .acper button[aria-pressed="true"]{background:#0b2a5b;color:#fff;border-color:#0b2a5b}
 @media (max-width:600px){.irleg.acleg .t{display:inline}.irleg.acleg .ft{display:none}.irleg.acleg .sw{width:14px;height:9px}.irleg.acleg .r{margin:1px 0;gap:5px}.acper button{padding:2px 4px;font-size:10px}}
-.dvm{display:flex;align-items:center;justify-content:center;box-sizing:border-box;border-radius:50%;border:2.5px solid #6a3d9a;box-shadow:0 0 0 1px #fff,0 0 2px #0009}
-.dvm b{font:800 9px/1 var(--sans)}
-.dvm.old{background:#e3e7ec!important;border-style:dashed;border-color:#7d8796}.dvm.old b{color:#7d8796!important}
-.legend .dvm{display:inline-flex;vertical-align:-3px;margin-right:3px}
+.srctag{display:inline-block;padding:1px 6px;border-radius:8px;font:700 10px/1.4 var(--sans);letter-spacing:.02em;background:#e6eef8;color:#0b2a5b;white-space:nowrap}
+.srctag.davis{background:#efe6f7;color:#4b2a7a}
+.dvdrop{position:relative;display:block}.dvdrop i{position:absolute;right:-6px;top:-4px;font:800 8px/12px var(--sans);font-style:normal;width:12px;height:12px;border-radius:50%;background:#6a3d9a;color:#fff;text-align:center;box-shadow:0 0 0 1px #fff}
 .dvold{color:#9a4b00;font-weight:600;margin:3px 0}
 .emm{display:inline-block;min-width:40px;text-align:center;padding:3px 5px;border-radius:11px;border:2px solid #fff;box-shadow:0 0 0 1px #0007;color:#fff;font:700 11px/1 var(--sans);white-space:nowrap}
 .vlvl{display:inline-block;padding:2px 7px;border-radius:9px;font:700 12px/1.4 var(--sans);margin:3px 0;white-space:nowrap}
@@ -421,7 +420,7 @@ h2 button.info{vertical-align:2px}
       <div class="tablewrap">
         <table id="tbl">
           <thead><tr>
-            <th data-k="name">Estación</th><th data-k="mun">Municipio</th><th data-k="nvars">Datos</th>
+            <th data-k="name">Estación · fuente</th><th data-k="mun">Municipio</th><th data-k="nvars">Datos</th>
             <th data-k="rain"><svg class="ic rain"><use href="#i-rain"/></svg>Lluvia (mm)</th><th data-k="temp"><svg class="ic temp"><use href="#i-temp"/></svg>Temp (°C)</th>
             <th data-k="hum"><svg class="ic hum"><use href="#i-hum"/></svg>HR (%)</th><th data-k="wind"><svg class="ic wind"><use href="#i-wind"/></svg>Viento (m/s)</th><th data-k="level"><svg class="ic level"><use href="#i-level"/></svg>Nivel río (m)</th><th data-k="last">Último dato</th>
           </tr></thead>
@@ -2147,13 +2146,25 @@ function buildEmbLayer(){
 }
 // ---- Davis stations (WeatherLink account of the SAT). WeatherLink needs a secret key, so a scheduled job (.github/workflows/davis.yml)
 // reads them every 15 minutes and publishes davis.json on the branch davis-datos; the page reads that file, never the key.
+// They are drawn with the same raindrop as the IDEAM stations (plus a small purple "D") and listed in the same table, source "Davis".
 const DAVIS_URL = "https://raw.githubusercontent.com/jack49morgan/cruzrojatolima/davis-datos/davis.json";
-const DAVIS_OLD = 2 * 3600;   // seconds without a new reading before a station is shown as "sin datos recientes"
+const DAVIS_OLD = 2 * 3600;   // seconds without a new reading before a station is shown as "sin transmisión"
+let DAVIS = [], davisMarks = {};
+const srcTag = src => `<span class="srctag${src === "IDEAM" ? "" : " " + esc(src.toLowerCase())}">${esc(src)}</span>`;
 const davisRain = (s, h, now) => (s.h || []).reduce((a, [t, mm]) => t > now - h * 3600 ? a + mm : a, 0);
 const davisHasHist = (s, h, now) => (s.h || []).some(([t]) => t <= now - (h - 1) * 3600);
+const davisWin = (s, h, now) => h === 24 && s.r24 != null ? s.r24 : davisHasHist(s, h, now) ? davisRain(s, h, now) : null;   // the station's own 24 h total when it gives one
 const cardinal = d => d == null ? "" : ["N","NE","E","SE","S","SO","O","NO"][Math.round(d / 45) % 8];
 const davisAgo = sec => sec < 3600 ? `hace ${Math.max(1, Math.round(sec / 60))} min` : sec < 172800 ? `hace ${Math.round(sec / 3600)} h` : `hace ${Math.round(sec / 86400)} días`;
-const davisPin = (fill, sz, old) => `<span class="dvm${old ? " old" : ""}" style="width:${sz}px;height:${sz}px;background:${fill}"><b style="color:${fill === "#ffffff" || fill === "#bcd7f0" ? "#4b2a7a" : "#fff"}">D</b></span>`;
+// rows for the station table, in the same shape as the IDEAM stations (wind in m/s like IDEAM)
+function davisRows(){
+  const now = Date.now() / 1000;
+  return DAVIS.map(d => { const old = !d.ts || now - d.ts > DAVIS_OLD;
+    return {id:"davis-" + d.id, name:d.n, mun:d.ciudad || "", src:"Davis", davis:d, status:old ? "off" : "ok", lat:d.lat, lon:d.lon,
+      has:{rain:d.hoy != null, temp:d.t != null, hum:d.hr != null, wind:d.v != null, level:false},
+      rain:davisWin(d, hours, now), today:d.hoy, temp:d.t, hum:d.hr, wind:d.v != null ? d.v / 3.6 : null, level:null,
+      last:d.ts ? new Date(d.ts * 1000) : null}; });
+}
 function davisBars(s, now){   // rain per hour over the last 24 h, from the 15-minute increments
   const b = Array(24).fill(0); let any = false;
   for (const [t, mm] of s.h || []) { const i = Math.floor((now - t) / 3600); if (i >= 0 && i < 24) { b[23 - i] += mm; any = true; } }
@@ -2166,11 +2177,11 @@ function davisBars(s, now){   // rain per hour over the last 24 h, from the 15-m
 }
 function davisPopup(s, now){
   const age = s.ts ? now - s.ts : null, old = age == null || age > DAVIS_OLD;
-  const r24 = s.r24 ?? (davisHasHist(s, 24, now) ? davisRain(s, 24, now) : null), r72 = davisHasHist(s, 72, now) ? davisRain(s, 72, now) : null;
+  const r24 = davisWin(s, 24, now), r72 = davisWin(s, 72, now);
   const row = (l, v) => v == null || v === "" ? "" : `${l}: <b>${v}</b><br>`;
   return `<div class="flpop"><b>${esc(s.n)}</b> <span class="sub">${esc(s.ciudad || "")}</span><br>
-    <span class="sub">Estación Davis (WeatherLink)${s.alt != null ? ` · ${fmtN(s.alt * 0.3048, 0)} m s. n. m.` : ""}</span><br>
-    ${old ? `<div class="dvold">⚠ Sin datos recientes${s.ts ? ` (último dato ${davisAgo(age)})` : ""}. Los valores pueden no ser los actuales.</div>` : ""}
+    <span class="sub">Fuente: ${srcTag("Davis")} estación de la cuenta WeatherLink${s.alt != null ? ` · ${fmtN(s.alt * 0.3048, 0)} m s. n. m.` : ""}</span><br>
+    ${old ? `<div class="dvold">⚠ Sin transmisión${s.ts ? ` (último dato ${davisAgo(age)})` : ""}. Los valores pueden no ser los actuales.</div>` : ""}
     ${row("Lluvia hoy desde las 0:00", s.hoy != null ? `${fmtN(s.hoy)} mm` : null)}
     ${row("Lluvia últimas 24 h", r24 != null ? `${fmtN(r24)} mm` : null)}
     ${row("Lluvia últimas 72 h", r72 != null ? `${fmtN(r72)} mm` : null)}
@@ -2182,39 +2193,52 @@ function davisPopup(s, now){
     ${davisBars(s, now)}
     <div class="sub">Último dato: ${s.ts ? `${fmtLocal(new Date(s.ts * 1000))} (${davisAgo(age)})` : "sin dato"}. Se actualiza cada 15 minutos.</div></div>`;
 }
+function openDavisPop(d){   // from a table row: show the map and open the station's popup
+  if (!map || !isFinite(d.lat)) return;
+  document.getElementById("map").scrollIntoView({behavior:"smooth", block:"center"});
+  const m = davisMarks[d.id];
+  if (m && map.hasLayer(m)) m.openPopup();
+  else L.popup({maxWidth:Math.min(260, innerWidth - 80)}).setLatLng([d.lat, d.lon]).setContent(davisPopup(d, Date.now() / 1000)).openOn(map);
+}
 function buildDavisLayer(){
-  const g = L.layerGroup(), box = document.getElementById("dvinfo"); let timer = null;
-  async function load(){
-    let D = null;
-    try { const r = await fetch(DAVIS_URL + "?t=" + Math.floor(Date.now() / 3e5), {cache:"no-store"}); if (r.ok) D = await r.json(); } catch (e) {}
-    g.clearLayers();
-    const est = (D?.est || []).filter(s => isFinite(s.lat) && isFinite(s.lon));
-    if (!est.length) { box.hidden = true; return; }
-    const now = Date.now() / 1000; let fresh = 0, wet = [];
+  const g = L.layerGroup(), box = document.getElementById("dvinfo");
+  function draw(){
+    g.clearLayers(); davisMarks = {};
+    const est = DAVIS.filter(s => isFinite(s.lat) && isFinite(s.lon));
+    if (!est.length || !map?.hasLayer(g)) { box.hidden = true; return; }
+    const now = Date.now() / 1000; let fresh = 0; const wet = [];
     for (const s of est) {
       const old = !s.ts || now - s.ts > DAVIS_OLD; if (!old) fresh++;
-      const b = s.hoy != null && !old ? rbin(s.hoy) : null, sz = b ? b.size + 5 : 19;
-      const m = L.marker([s.lat, s.lon], {zIndexOffset:200, keyboard:true, title:`Estación Davis: ${s.n}`,
-        icon:L.divIcon({className:"", html:davisPin(b ? b.color : "#ffffff", sz, old), iconSize:[sz, sz], iconAnchor:[sz/2, sz/2]})});
-      if (HOVER) m.bindTooltip(`<b>${esc(s.n)}</b> (Davis)<br>Lluvia hoy: <b>${s.hoy != null ? fmtN(s.hoy) + " mm" : "sin dato"}</b>${s.t != null ? `<br>Temp: ${fmtN(s.t)} °C · HR: ${fmtN(s.hr, 0)} %` : ""}${old ? "<br><b>Sin datos recientes</b>" : ""}`, {direction:"top"});
+      let html, sz;
+      if (old) { sz = 20; html = `<span class="xmark big">✕</span>`; }
+      else { const b = s.hoy != null ? rbin(s.hoy) : null; sz = b ? b.size + 3 : 16;
+        html = b ? triSvg(b.color, sz, b.max === 0 ? "#6b7a8c" : "#fff", 1.4) : triSvg("#ffffffcc", sz, "#6b7a8c", 1.4, "2 1.5"); }
+      const m = L.marker([s.lat, s.lon], {zIndexOffset:200, keyboard:true, title:`${s.n} (Davis)`,
+        icon:L.divIcon({className:"", html:`<span class="tri dvdrop">${html}<i>D</i></span>`, iconSize:[sz, sz], iconAnchor:old ? [sz/2, sz/2] : [sz/2, sz*0.7]})});
+      if (HOVER) m.bindTooltip(`<b>${esc(s.n)}</b><br>${esc(s.ciudad || "")} · Fuente: Davis<br>Lluvia hoy desde 0:00: <b>${s.hoy != null ? fmtN(s.hoy) + " mm" : "sin dato"}</b>${s.t != null ? `<br>Temp: ${fmtN(s.t)} °C · HR: ${fmtN(s.hr, 0)} %` : ""}${old ? "<br><b>Sin transmisión</b>" : ""}`);
       m.bindPopup(() => davisPopup(s, Date.now() / 1000), {maxWidth:Math.min(260, innerWidth - 80)}).addTo(g);
+      davisMarks[s.id] = m;
       if (!old && s.hoy > 0) wet.push(s);
     }
     wet.sort((a, b) => b.hoy - a.hoy);
-    box.innerHTML = `<span>${davisPin("#6fa8dc", 15)} <b>Estaciones Davis</b> (WeatherLink): ${fresh} de ${est.length} con datos recientes.`
+    box.innerHTML = `<span><b>Estaciones Davis</b> (WeatherLink) <span class="dvdrop" style="display:inline-block;vertical-align:-2px;margin-right:4px">${triSvg("#6fa8dc", 14, "#fff", 1.4)}<i>D</i></span>: ${fresh} de ${est.length} transmitiendo.`
       + (wet.length ? ` Lluvia hoy: ${wet.slice(0, 5).map(s => `${esc(s.n)} <b>${fmtN(s.hoy)} mm</b>`).join(" · ")}.` : fresh ? " Sin lluvia hoy." : "")
       + `</span>${infoBtn("davis", "estaciones Davis")}`;
     box.hidden = false;
   }
-  g.on("add", () => { load(); timer = setInterval(load, 5 * 60e3); });
-  g.on("remove", () => { clearInterval(timer); box.hidden = true; });
+  async function load(){
+    try { const r = await fetch(DAVIS_URL + "?t=" + Math.floor(Date.now() / 3e5), {cache:"no-store"}); if (r.ok) DAVIS = (await r.json()).est || []; } catch (e) {}
+    draw(); renderTable();
+  }
+  load(); setInterval(load, 5 * 60e3);   // the table lists them even when the map layer is off
+  g.on("add", () => setTimeout(draw)); g.on("remove", () => { g.clearLayers(); box.hidden = true; });
   return g;
 }
 const INFO = {
   davis: ["Estaciones Davis (WeatherLink)",
-    `<p>Estaciones meteorológicas <b>Davis</b> de la cuenta <b>WeatherLink</b> de la Cruz Roja Tolima, aparte de las del IDEAM. Se muestran con un círculo con la letra <b>D</b>, del mismo color que la gota del IDEAM según la lluvia caída hoy desde las 0:00 (blanco sin lluvia, azul oscuro más de 50 mm). Un círculo gris con borde punteado es una estación que no ha enviado datos en las últimas 2 horas.</p>
+    `<p>Estaciones meteorológicas <b>Davis</b> de la cuenta <b>WeatherLink</b> de la Cruz Roja Tolima, además de las del IDEAM. En el mapa se dibujan con la misma gota que las del IDEAM, coloreada según la lluvia caída hoy desde las 0:00, con una pequeña <b>D</b> morada para distinguirlas. Una ✕ es una estación que no ha enviado datos en las últimas 2 horas. En la tabla de estaciones aparecen con la fuente <b>Davis</b>.</p>
      <p>Toque una estación para ver la lluvia de hoy, de las últimas 24 y 72 horas, la intensidad, la temperatura, la humedad, el viento, la presión y la hora del último dato, con un gráfico de la lluvia por hora del último día.</p>
-     <p>WeatherLink exige una llave secreta, así que el sitio la consulta cada 15 minutos desde GitHub y publica solo las lecturas; la llave nunca llega a la página. La lluvia de 72 horas se calcula con esas consultas, así que aparece cuando el sistema lleve 3 días recogiendo datos. Estas estaciones también cuentan para las alertas de lluvia al celular, con los mismos umbrales que las del IDEAM.</p>`],
+     <p>WeatherLink exige una llave secreta, así que el sitio la consulta cada 15 minutos desde GitHub y publica solo las lecturas; la llave nunca llega a la página. La lluvia de 72 horas y de 7 días se calcula con esas consultas, así que aparece cuando el sistema lleve ese tiempo recogiendo datos. Estas estaciones también cuentan para las alertas de lluvia al celular, con los mismos umbrales que las del IDEAM.</p>`],
   embalses: ["Embalses (XM)",
     `<p>Volumen útil diario de los embalses del Tolima y de los vecinos que afectan sus ríos, según los datos abiertos de <b>XM</b>, el operador del sistema eléctrico colombiano: <b>Prado</b> (Tolima), <b>Amaní / Miel I</b> (Caldas, río La Miel) y <b>Betania</b> y <b>El Quimbo</b> (Huila, aguas arriba del Magdalena que pasa por el Tolima).</p>
      <p>El porcentaje es la parte del volumen útil que está llena; la flecha compara con hace 7 días y la curva muestra los últimos 30 días. El marcador se pone naranja desde el 85 % y rojo desde el 95 %: un embalse casi lleno puede tener que verter agua y aumentar el caudal aguas abajo. También se muestra el caudal que entra a cada embalse y a las centrales sin embalse de Amoyá y Cucuana, comparado con la media histórica del mes.</p>
@@ -2393,7 +2417,7 @@ function dryText(s){
 function openStationPop(s, extra){
   const row = (l, v) => `<tr><td>${l}</td><td><b>${v}</b></td></tr>`;
   const stt = s.status === "ok" ? `<span class="badge ok">Transmitiendo</span>` : `<span class="badge ${STATUS[s.status][0]}">${STATUS[s.status][1]}</span>`;
-  const html = `<div class="stpop"><b class="nm">${esc(s.name)}</b><div class="mu">${esc(s.mun)} · cód. ${esc(String(s.id).replace(/^0+(?=\d)/,""))}</div>${stt}<table>`
+  const html = `<div class="stpop"><b class="nm">${esc(s.name)}</b><div class="mu">${esc(s.mun)} · cód. ${esc(String(s.id).replace(/^0+(?=\d)/,""))} · Fuente: ${srcTag("IDEAM")}</div>${stt}<table>`
     + row("Lluvia hoy (desde 0:00)", s.today != null ? fmt(s.today) + " mm" : "sin dato")
     + row("Lluvia últimas 24 h", s.rain != null ? fmt(s.rain) + " mm" : "sin dato")
     + row("Días sin lluvia", dryText(s))
@@ -2565,7 +2589,7 @@ function renderMap(){
 }
 
 function renderTable(){
-  const rows = [...stations].sort((a,b) => {
+  const rows = [...stations, ...davisRows()].sort((a,b) => {
     const x = a[sortK], y = b[sortK];
     if (x == null) return 1; if (y == null) return -1;
     return (x > y ? 1 : x < y ? -1 : 0) * sortDir;
@@ -2576,11 +2600,11 @@ function renderTable(){
     const tr = document.createElement("tr");
     if (s.id === sel) tr.className = "sel";
     if (s.status === "off") tr.classList.add("offrow");
-    const stale = !s.last || latest - s.last > 3*3600e3;
+    const stale = !s.last || (s.davis ? new Date() : latest) - s.last > 3*3600e3;
     // name cell: status badge + name
     const tdN = document.createElement("td");
     if (s.status !== "ok") { const b = document.createElement("span"); b.className = "badge " + STATUS[s.status][0]; b.textContent = STATUS[s.status][1]; tdN.appendChild(b); }
-    tdN.appendChild(document.createTextNode(s.name)); tr.appendChild(tdN);
+    tdN.appendChild(document.createTextNode(s.name)); tdN.insertAdjacentHTML("beforeend", " " + srcTag(s.src || "IDEAM")); tr.appendChild(tdN);
     const tdM = document.createElement("td"); tdM.textContent = s.mun; tr.appendChild(tdM);
     const tdI = document.createElement("td"); tdI.innerHTML = `<span class="icons">${VARS.map(([v,l]) => icon(v, s.has[v], l + (s.has[v] ? "" : ": sin datos"))).join("")}</span>`; tr.appendChild(tdI);
     const cells = [fmt(s.rain), fmt(s.temp), fmt(s.hum,0), fmt(s.wind), fmt(s.level,2), s.last ? fmtLocal(s.last).slice(5) : "sin datos"];
@@ -2590,7 +2614,7 @@ function renderTable(){
       if (i===4 && s.alert) { const d = document.createElement("span"); d.className = "al-dot al-" + s.alert; d.title = ALERTS[s.alert]; td.prepend(d); }
       tr.appendChild(td);
     });
-    tr.addEventListener("click", () => loadDetail(s.id));
+    tr.addEventListener("click", () => s.davis ? openDavisPop(s.davis) : loadDetail(s.id));
     tb.appendChild(tr);
   }
 }
