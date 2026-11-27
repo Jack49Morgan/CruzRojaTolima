@@ -28,7 +28,7 @@ const INC_ESTADOS = {activo:"Activo", controlado:"Controlado", cerrado:"Cerrado"
 Object.defineProperty(INC_ESTADOS, "atencion", {value:"En atención", enumerable:false});
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "viviendas"];   // "familias" dropped 2026-11-23   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 32;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 33;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
 //   remote, ready(), user(), handle(), setHandle(name), signIn(email, pw), signOut(), onAuth(fn), sendAlert({title, body, url, tag}), smsInfo(), sendSms({texto, prueba}), smsStatus(jobId)
@@ -38,12 +38,26 @@ const INC_VERSION = 32;   // bump with each change to the incident pages, so pho
 //   addUpdate(incId, {texto, estado, afectados}, files) ; removeUpdate(upd)
 //   onChange(fn)
 // "add" items are {id,name,type,blob}; "drop" is a list of media ids.
+// one emoji per afectación (counts from "afectados", flags from the event); used in the WhatsApp alert, map popup, event page and legend
+const INC_AFECT_ICONOS = [
+  {k:"fallecidos", e:"⚫", t:"Fallecidos"},   // black = fallecido in triage colours
+  {k:"heridos",    e:"🤕", t:"Heridos"},
+  {k:"personas",   e:"👥", t:"Personas afectadas"},
+  {k:"viviendas",  e:"🏠", t:"Viviendas afectadas"},
+  {k:"via",        e:"🛣️", t:"Vía afectada", flag:true},
+  {k:"puente",     e:"🌉", t:"Puente afectado", flag:true},
+];
 const IncUtil = {
   uid: () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
   // how an author shows on updates: their handle, or for older entries the part of the e-mail before "@"
   autor: a => String(a || "").split("@")[0],
   // who registered an event: the public copy in datos, else (signed-in readers) the autor column
   registra: inc => inc.registra || (inc.autor ? String(inc.autor).split("@")[0] : ""),
+  // the event's afectaciones with their emoji: [{e, t, n}] (n = count, null for yes/no flags)
+  afectIconos: inc => INC_AFECT_ICONOS.flatMap(x => x.flag ? (inc?.[x.k] ? [{e:x.e, t:x.t, n:null}] : [])
+    : (+inc?.afectados?.[x.k] > 0 ? [{e:x.e, t:x.t, n:+inc.afectados[x.k]}] : [])),
+  // as text lines: "⚫ Fallecidos: 2", "🌉 Puente afectado"
+  afectLineas: inc => IncUtil.afectIconos(inc).map(a => `${a.e} ${a.t}${a.n != null ? ": " + a.n : ""}`),
   // road / bridge impact flags of an event, as labels
   impacto: inc => [inc?.via && "Vía afectada", inc?.puente && "Puente afectado"].filter(Boolean),
   // "Respuesta Cruz Roja: Sí — …" line, or "" when not answered
