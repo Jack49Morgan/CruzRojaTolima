@@ -28,7 +28,7 @@ const INC_ESTADOS = {activo:"Activo", controlado:"Controlado", cerrado:"Cerrado"
 Object.defineProperty(INC_ESTADOS, "atencion", {value:"En atención", enumerable:false});
 const INC_AFECT_KEYS = ["fallecidos", "heridos", "personas", "viviendas"];   // "familias" dropped 2026-11-23   // counts kept on each incident
 const INC_MAX_MB = 50;
-const INC_VERSION = 31;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
+const INC_VERSION = 32;   // bump with each change to the incident pages, so phones load the new page instead of a cached copy   // Supabase free plan: 50 MB per file
 
 // Common interface (both stores):
 //   remote, ready(), user(), handle(), setHandle(name), signIn(email, pw), signOut(), onAuth(fn), sendAlert({title, body, url, tag}), smsInfo(), sendSms({texto, prueba}), smsStatus(jobId)
@@ -42,6 +42,8 @@ const IncUtil = {
   uid: () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
   // how an author shows on updates: their handle, or for older entries the part of the e-mail before "@"
   autor: a => String(a || "").split("@")[0],
+  // who registered an event: the public copy in datos, else (signed-in readers) the autor column
+  registra: inc => inc.registra || (inc.autor ? String(inc.autor).split("@")[0] : ""),
   // road / bridge impact flags of an event, as labels
   impacto: inc => [inc?.via && "Vía afectada", inc?.puente && "Puente afectado"].filter(Boolean),
   // "Respuesta Cruz Roja: Sí — …" line, or "" when not answered
@@ -238,7 +240,8 @@ function incSupabaseStore(cfg){
       const {id, estado, afectados, fecha, creado, actualizado, autor, ...datos} = inc;
       const isNew = !creado;
       const row = {id, estado, afectados, fecha, datos:{...datos, fecha}, actualizado:new Date().toISOString()};
-      if (isNew) row.autor = who();
+      // the creator's name also goes in datos ("registra"), which the public page can read (the autor column stays private)
+      if (isNew) { row.autor = who(); row.datos.registra = IncUtil.autor(who()) || null; }
       // the row comes back with its server dates, so no second read is needed
       const saved = ok(await sb.from("incidentes").upsert(row).select().single());   // must exist before its photos
       await Promise.all([drop.length ? sb.from("medios").select("id,ruta").in("id", drop).then(ok).then(dropMedia) : null, upload(id, add)]);

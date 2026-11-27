@@ -5,7 +5,9 @@
 <meta name="copyright" content="© 2026 Cruz Roja Colombiana, Seccional Tolima. Todos los derechos reservados.">
 <meta name="author" content="Cruz Roja Colombiana, Seccional Tolima">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Registrar evento</title>
+<title>🚨 Alerta Nuevo Evento</title>
+<meta property="og:title" content="🚨 Alerta Nuevo Evento">
+<meta property="og:description" content="Cruz Roja Colombiana · Seccional Tolima · Seguimiento del evento">
 <meta name="theme-color" content="#c8102e">
 <link rel="icon" href="icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -18,7 +20,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.min.js"></script>
 <script src="vendor/supabase-2.118.0.min.js"></script>
-<script src="incstore.js?v=31"></script>
+<script src="incstore.js?v=32"></script>
 <script src="enviar-alerta.js?v=1" defer></script>
 <style>
 :root{
@@ -136,7 +138,7 @@ details.edit.nosum>summary{display:none}
     <div><h1>Registrar evento</h1><div class="sub">Cruz Roja Colombiana · Seccional Tolima</div></div>
     <span class="sp"></span>
     <span class="who" id="who" hidden><span id="whoe"></span><button type="button" class="btn sm" id="namebtn" hidden>Mi nombre</button><button type="button" class="btn sm" id="logout">Salir</button></span>
-    <a class="btn" href="index.html?v=31" id="back">← Ver tablero</a>
+    <a class="btn" href="index.html?v=32" id="back">← Ver tablero</a>
   </header>
 
   <div class="card" id="auth" hidden></div>
@@ -191,7 +193,7 @@ details.edit.nosum>summary{display:none}
       </div>
       <label><span>Lugar (vereda)</span><select name="lugar"></select></label>
       <label><span>Descripción</span><textarea name="descripcion" maxlength="4000" placeholder="Qué pasó, situación actual, necesidades"></textarea></label>
-      <label><span>Acciones de respuesta</span><textarea name="acciones" maxlength="4000" placeholder="Equipos desplegados, ayudas entregadas, coordinación"></textarea></label>
+      <label><span>Acciones de otras entidades</span><textarea name="acciones" maxlength="4000" placeholder="Bomberos, Defensa Civil, alcaldía, UNGRD: qué hicieron"></textarea></label>
     </fieldset>
 
     <fieldset>
@@ -484,10 +486,10 @@ function drawSummary(){
   $("#sum").innerHTML = `<a class="btn sm backtop" href="${esc($("#back").getAttribute("href"))}">← Volver al tablero</a><h2>${esc(cur.titulo)}</h2>
     <div><span class="chip st-${esc(cur.estado)}">${esc(INC_ESTADOS[cur.estado] || cur.estado)}</span>${IncUtil.afect(cur.afectados) ? `<span class="chip af">${esc(IncUtil.afect(cur.afectados))}</span>` : ""}</div>
     <div class="sub">${esc(tname)} · ${esc(cur.municipio)}${cur.lugar ? " · " + esc(cur.lugar) : ""}<br>
-    Inicio: ${esc((cur.fecha || "").replace("T", " "))}${cur.actualizado ? ` · Última actualización ${esc(IncUtil.ago(cur.actualizado))}` : ""}</div>
+    Inicio: ${esc((cur.fecha || "").replace("T", " "))}${IncUtil.registra(cur) ? ` · Registrado por ${esc(IncUtil.registra(cur))}` : ""}${cur.actualizado ? ` · Última actualización ${esc(IncUtil.ago(cur.actualizado))}` : ""}</div>
     ${IncUtil.impacto(cur).length ? `<div>${IncUtil.impacto(cur).map(t => `<span class="chip imp">${esc(t)}</span>`).join("")}</div>` : ""}
     ${cur.respcr ? `<div class="sub"><span class="chip ${cur.respcr === "si" ? "cr" : "crno"}">Respuesta Cruz Roja: ${cur.respcr === "si" ? "Sí" : "No"}</span>${cur.respcr === "si" && cur.respcrdesc ? ` ${esc(cur.respcrdesc)}` : ""}</div>` : ""}
-    ${cur.acciones ? `<div class="sub"><b>Acciones de respuesta:</b> ${esc(cur.acciones)}</div>` : ""}
+    ${cur.acciones ? `<div class="sub"><b>Acciones de otras entidades:</b> ${esc(cur.acciones)}</div>` : ""}
     <div class="sumbtns"><a class="btn wa" id="wabtn" target="_blank" rel="noopener" href="${esc(waLink())}"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.5-.3z"/></svg> WhatsApp</a>
     ${navigator.share ? `<button type="button" class="btn" id="sharebtn">Compartir</button>` : `<button type="button" class="btn" id="copybtn">Copiar enlace</button>`}
     <button type="button" class="btn" id="pdfbtn">Guardar en PDF</button>
@@ -498,7 +500,7 @@ function drawSummary(){
   const b = $("#delsum"); if (b) b.onclick = () => delEvent(b, "Eliminar evento", $("#dmsg"), true);
   $("#pdfbtn").onclick = savePdf;
   $("#sum .backtop").addEventListener("click", toBoard);
-  if ($("#sharebtn")) $("#sharebtn").onclick = () => navigator.share({title:cur.titulo, text:shareText(), url:pubLink()}).catch(() => {});
+  if ($("#sharebtn")) $("#sharebtn").onclick = () => navigator.share({title:"🚨 Alerta Nuevo Evento", text:shareText(), url:pubLink()}).catch(() => {});
   if ($("#copybtn")) $("#copybtn").onclick = async () => { try { await navigator.clipboard.writeText(pubLink()); $("#copybtn").textContent = "Enlace copiado"; } catch { prompt("Copie el enlace:", pubLink()); } };
 }
 // "📣 Enviar como alerta" checkboxes on the event and update forms: after saving, the alert box opens
@@ -523,7 +525,7 @@ function openAlertBox(note = ""){
 const pubLink = () => location.origin + location.pathname + "?id=" + encodeURIComponent(cur.id);
 function shareText(){
   const [tname] = INC_TIPOS[cur.tipo] || INC_TIPOS.otro, af = IncUtil.afect(cur.afectados);
-  return `🚨 ${cur.titulo}\n${tname} · ${cur.municipio}${cur.lugar ? " · " + cur.lugar : ""}\nEstado: ${INC_ESTADOS[cur.estado] || cur.estado}${af ? "\n" + af : ""}\nSeguimiento en línea:`;
+  return `🚨 *Alerta Nuevo Evento*\n*${cur.titulo}*\n${tname} · ${cur.municipio}${cur.lugar ? " · " + cur.lugar : ""}\nEstado: ${INC_ESTADOS[cur.estado] || cur.estado}${af ? "\n" + af : ""}${IncUtil.registra(cur) ? "\nRegistrado por: " + IncUtil.registra(cur) : ""}\nSeguimiento en línea:`;
 }
 const waLink = () => "https://wa.me/?text=" + encodeURIComponent(shareText() + " " + pubLink());
 // "Guardar en PDF": the browser's print dialog, where "Guardar como PDF" is a destination (on iPhone: Compartir > Imprimir > Compartir > Guardar en Archivos)
@@ -633,6 +635,7 @@ async function load(id, pre){
   $("#seg").hidden = !cur;
   $("#edit").open = !cur; $("#edit").classList.toggle("nosum", !cur);
   document.querySelector("h1").textContent = cur ? "Seguimiento del evento" : "Registrar evento";
+  document.title = cur ? "🚨 " + cur.titulo : "Registrar evento";
   if (!cur) setTimeout(fitCur, 0);
   drawThumbs();
   $("#del").hidden = !cur; $("#del").textContent = "Eliminar"; delarm = false;
