@@ -7,7 +7,7 @@ on:
     branches: [main]
   # the data jobs commit with the workflow token, which does not start other workflows, so redeploy after them
   workflow_run:
-    workflows: ["Actualizar embalses (XM)"]
+    workflows: ["Actualizar embalses (XM)", "Actualizar alertas CAP (IDEAM)"]
     types: [completed]
   workflow_dispatch:
 permissions:

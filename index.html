@@ -226,6 +226,10 @@ h2 button.info{vertical-align:2px}
 .seglg .sw{display:inline-block;width:14px;height:11px;border:1.5px solid;border-radius:2px}
 .seglg .sw.dot{width:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #4a148c}
 .seglg .sw.ln{height:0;border-width:0;border-top:2.5px dashed}
+.caplg{border-left-color:#f57c00;max-width:240px}
+.caplg>div:not(.hd):not(.sub){display:flex;align-items:center;gap:6px;margin:2px 0;white-space:nowrap}
+.caplg .sw{display:inline-block;width:14px;height:11px;border:1.5px solid;border-radius:2px}
+.caplg .sub{white-space:normal;margin-top:4px;color:#5c6b80;font-size:11px}
 .segpop{font:13px/1.35 var(--sans)}
 .segpop .segact{display:flex;flex-wrap:wrap;gap:4px 10px;margin:4px 0}
 .segpop .segact span{display:inline-flex;align-items:center;gap:3px;font-size:12px}
@@ -2423,6 +2427,67 @@ function shareBuilder(){
     dlg.showModal();
   }
 }
+// ---- Official IDEAM alerts in CAP format (Common Alerting Protocol). A scheduled GitHub Action (tools/ideam_cap.py) reads
+// alertascap.ideam.gov.co every 30 min and keeps the alerts that touch Tolima in data/ideam-cap.json. Landslide and fire alerts name
+// municipios, drawn with the map's own municipio shapes; flash flood and regional alerts come as zones (polygons), drawn dashed.
+const CAP_LV = {amarilla:{c:"#fdd835", f:"#222", n:"Amarilla", q:"Esté atento"}, naranja:{c:"#f57c00", f:"#fff", n:"Naranja", q:"Prepárese"}, roja:{c:"#d32f2f", f:"#fff", n:"Roja", q:"Actúe"}};
+const CAP_ORD = {roja:0, naranja:1, amarilla:2};
+const CAP_IC = {desl:"⛰️", inc:"🔥", crec:"🌊", inund:"🌊", tiempo:"⛈️", lluvia:"🌧️", viento:"💨", mar:"🌊"};
+const capHora = s => { const d = new Date(s); return isNaN(d) ? (s || "") : d.toLocaleString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"short", hour:"numeric", minute:"2-digit"}); };
+function capAlertHtml(a, mn){
+  const lv = CAP_LV[a.nivel] || CAP_LV.amarilla, ic = CAP_IC[a.tipo] || "⚠️";
+  const que = a.prob ? `probabilidad <b>${esc(a.prob)}</b> de ${esc(a.ev.toLowerCase())}` : `${esc(a.ev.toLowerCase())}`;
+  const donde = a.zona && mn ? `en ${a.zonas ? "la zona " + esc(a.zonas) : "cuencas"} que tocan ${esc(mn)}` : a.zona ? `en ${a.zonas ? "la zona " + esc(a.zonas) + ", que" : "cuencas que"} en el Tolima ${a.zonas ? "toca" : "tocan"} ${esc(a.mun.join(", "))}` : `en ${esc(a.mun.join(", "))}`;
+  return `<div style="margin-top:6px;padding-top:6px;border-top:1px solid #0001">
+    <span class="vlvl" style="background:${lv.c};color:${lv.f}">${ic} Alerta ${lv.n.toLowerCase()} · ${esc(a.ev)}</span>
+    <div>El IDEAM prevé ${que} ${donde}. <b>${lv.q}.</b></div>
+    <div class="sub">Vigente desde ${esc(capHora(a.onset || a.eff))} hasta ${esc(capHora(a.exp))} (hora de Colombia).</div>
+    ${a.instr ? `<div style="margin-top:3px">${esc(a.instr)}</div>` : ""}
+    <details style="margin-top:3px"><summary class="sub">Texto oficial del IDEAM${/^en/i.test(a.lang) ? " (en inglés)" : ""}</summary><div class="sub" style="margin-top:3px">${esc(a.ev_orig)}. ${esc(a.desc)}</div></details>
+    <div class="sub" style="margin-top:3px">Fuente: <a href="${esc(a.link)}" target="_blank" rel="noopener">alerta CAP del IDEAM</a>${a.web ? ` · <a href="${esc(a.web)}" target="_blank" rel="noopener">más información</a>` : ""}</div></div>`;
+}
+function buildCapLayer(){
+  const g = L.featureGroup(); let timer = null, legend = null, D = null;
+  const popO = {maxWidth:Math.min(340, innerWidth - 70), autoPanPadding:[10,10]};
+  const foot = () => `<div class="sub" style="margin-top:6px">Alertas oficiales del IDEAM (formato CAP), revisadas el ${esc(capHora(D.updated.replace("Z", ":00Z")))}; para decisiones, confirme en <a href="https://www.ideam.gov.co" target="_blank" rel="noopener">ideam.gov.co</a>.</div>`;
+  async function load(){
+    try { const r = await fetch("data/ideam-cap.json?t=" + Math.floor(Date.now() / 6e5)); if (r.ok) D = await r.json(); } catch (e) {}
+    g.clearLayers(); if (!D) { updLegend([]); return; }
+    const now = Date.now(), al = (D.alerts || []).filter(a => !a.exp || new Date(a.exp) > now);
+    // zones first (underneath), dashed
+    for (const a of al.filter(a => a.zona)) { const lv = CAP_LV[a.nivel] || CAP_LV.amarilla;
+      L.polygon(a.poly, {color:lv.c, weight:2, dashArray:"6 4", fillColor:lv.c, fillOpacity:0.18})
+        .bindTooltip(`${CAP_IC[a.tipo] || "⚠️"} Alerta ${lv.n.toLowerCase()} IDEAM · ${esc(a.ev)}`, {sticky:true, direction:"top", className:"muntip"})
+        .bindPopup(() => `<div class="segpop"><b>Alerta oficial del IDEAM</b>${capAlertHtml(a)}${foot()}</div>`, popO).addTo(g); }
+    // municipios: one shape each, coloured by the highest level; the popup lists every alert that touches it
+    const byMun = {};
+    for (const a of al) for (const m of a.mun) (byMun[m] ||= []).push(a);
+    for (const [mn, as] of Object.entries(byMun)) {
+      as.sort((x, y) => (CAP_ORD[x.nivel] ?? 3) - (CAP_ORD[y.nivel] ?? 3));
+      const named = as.filter(a => !a.zona); if (!named.length) continue;
+      const f = TOLIMA_GEO.mun.features.find(x => x.properties.n === mn); if (!f) continue;
+      const lv = CAP_LV[named[0].nivel] || CAP_LV.amarilla;
+      L.geoJSON(f, {style:{color:lv.c === "#fdd835" ? "#c6a700" : lv.c, weight:2.5, opacity:1, fillColor:lv.c, fillOpacity:0.45}})
+        .bindTooltip(`<b>${esc(mn)}</b><br>${as.map(a => `${CAP_IC[a.tipo] || "⚠️"} Alerta ${esc((CAP_LV[a.nivel] || CAP_LV.amarilla).n.toLowerCase())} · ${esc(a.ev)}`).join("<br>")}`, {sticky:true, direction:"top", className:"muntip"})
+        .bindPopup(() => `<div class="segpop"><b>${esc(mn)}</b> <span class="sub">${as.length === 1 ? "1 alerta vigente" : as.length + " alertas vigentes"} del IDEAM</span>${as.map(a => capAlertHtml(a, mn)).join("")}${foot()}</div>`, popO).addTo(g);
+    }
+    updLegend(al);
+  }
+  function updLegend(al){
+    if (!legend?._container) return;
+    const n = {}; for (const a of al) n[a.nivel] = (n[a.nivel] || 0) + 1;
+    legend._container.innerHTML = `<div class="hd">Alertas IDEAM <span>CAP oficiales</span></div>
+      ${["roja", "naranja", "amarilla"].map(k => `<div><span class="sw" style="background:${CAP_LV[k].c}88;border-color:${CAP_LV[k].c}"></span>${CAP_LV[k].n} · ${CAP_LV[k].q.toLowerCase()}${n[k] ? ` (${n[k]})` : ""}</div>`).join("")}
+      <div><span class="sw" style="border-style:dashed;border-color:#555"></span>Zona (cuenca o región)</div>
+      <div class="sub">${!D ? "No se pudo leer el archivo de alertas." : al.length ? `${al.length} vigente${al.length > 1 ? "s" : ""} que tocan el Tolima · revisado ${esc(capHora(D.updated.replace("Z", ":00Z")))}` : `Sin alertas vigentes para el Tolima · revisado ${esc(capHora(D.updated.replace("Z", ":00Z")))}`}</div>`;
+  }
+  g.on("add", () => {
+    legend = L.control({position:"bottomright"});
+    legend.onAdd = () => { const d = L.DomUtil.create("div", "maplegend caplg"); L.DomEvent.disableClickPropagation(d); return d; };
+    legend.addTo(g._map); load(); timer = setInterval(load, 15 * 60e3); });
+  g.on("remove", () => { clearInterval(timer); legend?.remove(); legend = null; });
+  return g;
+}
 // Explanations shown by the "i" buttons (Spanish, plain language)
 const GL = "https://gibs.earthdata.nasa.gov/legends/";
 // ---- Fire weather (GWIS / Copernicus): ECMWF Fire Weather Index forecast as danger classes, and active fire hotspots.
@@ -2964,6 +3029,11 @@ const INFO = {
     `<p>Zonas advertidas por el <b>Sistema de Alertas Tempranas</b> de la Defensoría del Pueblo por riesgo de violaciones a los derechos humanos y al DIH relacionadas con el conflicto armado. Ahora muestra la <b>Alerta Temprana 031 de 2026</b> (18 nov 2026, riesgo <b>alto</b>) para Ataco, Chaparral, Rioblanco y Planadas.</p>
      <p>Los municipios de la alerta van en color tenue; los corregimientos, veredas y cascos urbanos que nombra la alerta, en un tono más oscuro del mismo color. Los triángulos rojos son sectores con extracción ilícita de oro, y los símbolos de estrella y círculo indican los grupos armados presentes en cada municipio (EMC, Segunda Marquetalia, EGC), como en el mapa de la Defensoría.</p>
      <p><b>Ubicaciones aproximadas:</b> la alerta da los lugares por nombre. Se buscaron en la capa de veredas del DANE (2020) y, si no es una vereda, en OpenStreetMap. Algunos sectores (Aponte, La Hamaca, Apa, El Oso, río Mendarco) no se encontraron y solo aparecen en el texto. Los símbolos de grupos armados no marcan un punto exacto y los corredores son líneas rectas entre los lugares que unen. Toque cualquier zona para ver el resumen y el PDF de la alerta.</p>`],
+  cap: ["Alertas oficiales del IDEAM (CAP)",
+    `<p>Alertas que publica el <b>IDEAM</b> en el formato internacional <b>CAP</b> (Common Alerting Protocol) para deslizamientos, incendios forestales, crecientes súbitas y tiempo severo. Aquí solo se muestran las que tocan el Tolima y siguen vigentes.</p>
+     <p><span class="vlvl" style="background:#fdd835;color:#222">Amarilla</span> probabilidad baja: esté atento · <span class="vlvl" style="background:#f57c00;color:#fff">Naranja</span> probabilidad moderada: prepárese · <span class="vlvl" style="background:#d32f2f;color:#fff">Roja</span> probabilidad alta: actúe.</p>
+     <p>Las alertas de deslizamientos e incendios nombran municipios, que se pintan del color de la alerta más alta. Las de crecientes súbitas y tiempo severo cubren zonas (cuencas o regiones), que van con borde punteado. Toque un municipio o zona para ver qué se prevé, desde y hasta cuándo, el texto oficial y el enlace a la alerta.</p>
+     <p>Un proceso automático revisa el IDEAM cada 30 minutos (GitHub puede atrasarlo unos minutos). <b>Para decisiones, confirme en <a href="https://www.ideam.gov.co" target="_blank" rel="noopener">ideam.gov.co</a></b>.</p>`],
   volcanes: ["Alerta volcánica (SGC)",
     `<p>Nivel de actividad que el <b>Servicio Geológico Colombiano</b> asigna a los volcanes que pueden afectar al Tolima: <b>Cerro Machín</b> (Cajamarca), <b>Nevado del Ruiz</b> (límite Caldas–Tolima) y <b>Nevado del Tolima</b>. El triángulo lleva el color y el número del nivel:</p>
      <p><span class="vlvl" style="background:#43a047;color:#fff">Verde · IV</span> volcán activo en reposo · <span class="vlvl" style="background:#fdd835;color:#222">Amarilla · III</span> cambios en el nivel base de lo que se vigila · <span class="vlvl" style="background:#f57c00;color:#fff">Naranja · II</span> erupción probable en días o semanas · <span class="vlvl" style="background:#d32f2f;color:#fff">Roja · I</span> erupción inminente o en curso.</p>
@@ -3118,6 +3188,7 @@ function renderMap(){
         [`Alerta volcánica (SGC) ${infoBtn("volcanes", "alerta volcánica")}`, buildVolcLayer(), "volc"],
         satL("so2")]],
       ["Clima actual", [["Estaciones (lluvia)", layer, "est"], [`Estaciones Davis (WeatherLink) ${infoBtn("davis", "estaciones Davis")}`, davisL, "davis"], ["Alertas de nivel IDEAM", alertLayer, "alert"],
+        [`Alertas oficiales IDEAM (CAP) ${infoBtn("cap", "alertas CAP del IDEAM")}`, buildCapLayer(), "cap"],
         ...["radar", "glm", "cmorph", "acum", "ir", "geo", "imerg"].filter(k => SAT[k]).map(satL),
         [`Embalses: volumen útil (XM) ${infoBtn("embalses", "embalses")}`, buildEmbLayer(), "emb"],
         [`Focos de calor, 7 días (GWIS) ${infoBtn("focos", "focos de calor")}`, buildHotspotLayer(), "focos"],
