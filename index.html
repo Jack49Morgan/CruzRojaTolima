@@ -480,6 +480,7 @@ body.sexp.sxl-right .shgrid{grid-template-columns:minmax(0,1fr) 30%}
 body.sexp.sxl-below .shgrid{grid-template-columns:1fr} body.sexp.sxl-below .shside{columns:2;column-gap:16px} body.sexp.sxl-below .shsec{break-inside:avoid}
 body.sexp.sxl-none .shgrid{grid-template-columns:1fr} body.sexp.sxl-none .shside{display:none}
 body.sexp.sxl-none .shxsrc{display:block;font-size:11px;color:var(--muted)}
+.glogo{pointer-events:none;line-height:0;margin:0 0 2px 4px!important}.glogo img{display:block}
 /* print preview and printing. Sizes fit both A4 and carta (letter): horizontal = map left, legend right;
    vertical (default on iPad/iPhone, whose Safari ignores @page size) = map on top, legend below in two columns.
    The page keeps this size until "Salir" (iPad Safari fires afterprint before it has finished printing). */
@@ -2408,9 +2409,8 @@ const shDate = d => d.toLocaleString("es-CO", {timeZone:"America/Bogota", day:"n
 const shDay = s => fmtFecha(s);
 
 // Called by renderMap() in shared mode once the map, the layer control and the default layers exist
-function shareAfterMap({ctrl, sat, topo, applyBorders, hl}){
+function shareAfterMap({ctrl, hl}){
   const S = SHARE, box = document.getElementById("share");
-  if (S.b === "sat") { map.removeLayer(topo); sat.addTo(map); SATBASE = true; applyBorders(); }
   L.control.scale({imperial:false, position:"bottomleft", maxWidth:160}).addTo(map);
   const na = L.control({position:"topleft"});
   na.onAdd = () => { const d = L.DomUtil.create("div", "snorth"); d.title = "Norte";
@@ -2455,9 +2455,9 @@ function shareAfterMap({ctrl, sat, topo, applyBorders, hl}){
     document.querySelectorAll("#map .maplegend").forEach(m => { const c = m.cloneNode(true); c.removeAttribute("style"); c.classList.remove("leaflet-control"); more.appendChild(c); });
     lg.closest(".shsec").hidden = !lg.innerHTML && !more.childElementCount;
     const src = [...new Set(on.map(id => SH_SRC[id] || SH_SRC[id.replace(/^sat-/, "")]).filter(Boolean))];
-    box.querySelector("#shsrc").innerHTML = src.map(esc).join("<br>") + (src.length ? "<br>" : "") + "Mapa base: Esri";
+    box.querySelector("#shsrc").innerHTML = src.map(esc).join("<br>") + (src.length ? "<br>" : "") + "Mapa base: " + esc(baseOf(CUR_BASE).src);
   }
-  map.on("overlayadd overlayremove", () => setTimeout(drawLegend, 50));
+  map.on("overlayadd overlayremove baselayerchange", () => setTimeout(drawLegend, 50));
   box._legend = drawLegend; setTimeout(drawLegend, 300);
   document.title = (S.t || "Mapa") + " · Cruz Roja Tolima";
 }
@@ -2627,7 +2627,7 @@ function shareBuilder(){
         <div id="mdl_eq" class="row" hidden><span>Sismos desde</span><input type="date" id="mdl_ef" max="${today}"><span>hasta</span><input type="date" id="mdl_et" max="${today}"></div>
         <div id="mdl_at" hidden><span class="m">Alertas Tempranas a incluir:</span>${SEG_AT.map((a, i) => `<label class="ch2"><input type="checkbox" value="${esc(a.id)}" ${i === 0 ? "checked" : ""}> ${esc(a.n)} (${esc(fmtFecha(a.f))})</label>`).join("")}</div>
       </fieldset>
-      <div class="row"><label>Mapa base <select id="mdl_b"><option value="topo">Topográfico</option><option value="sat" ${SATBASE ? "selected" : ""}>Imagen satelital</option></select></label></div>
+      <div class="row"><label>Mapa base <select id="mdl_b">${BASEMAPS.map(b => `<option value="${b.id}" ${b.id === CUR_BASE ? "selected" : ""}>${esc(b.short)}</option>`).join("")}</select></label></div>
       <div class="row mfoot"><span class="m" id="mdl_msg"></span><button type="button" class="btn" id="mdl_pv">Vista previa</button><button type="button" class="btn go" id="mdl_go">Crear enlace</button></div>
       <div id="mdl_out" hidden></div>
     </form>`;
@@ -2977,6 +2977,70 @@ const VEREDAS = {"m":["Ibagué","Villarrica","Venadillo","Valle de San Juan","Su
 function decPoly(s){ const out = []; let i = 0, x = 0, y = 0;
   const nx = () => { let r = 0, sh = 0, b; do { b = s.charCodeAt(i++) - 63; r |= (b & 31) << sh; sh += 5; } while (b >= 32); return r & 1 ? ~(r >> 1) : r >> 1; };
   while (i < s.length) { y += nx(); x += nx(); out.push([y / 1e4, x / 1e4]); } return out; }
+// ---- Base maps -------------------------------------------------------------------------------------------
+// Google base maps use Google's Map Tiles API (2D tiles), the route its terms allow for Leaflet. They stay hidden
+// until a key is pasted here. The key must be restricted in Google Cloud to the site's address and to the Map Tiles API.
+const GOOGLE_TILES_KEY = "";
+const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/";
+const OSM_ATTR = '© colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+// dark: imagery, where borders and roads switch to light lines with a dark casing
+const BASEMAPS = [
+  // Esri World Topo is the default: it also works when the page is opened as a local file
+  // (the OSM tile servers refuse requests that carry no Referer)
+  {id:"topo", name:"Topográfico (Esri)", short:"Topográfico", src:"Esri World Topo Map",
+   make:() => L.tileLayer(ESRI + "World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+     {maxZoom:17, attribution:"Tiles © Esri — Esri, HERE, Garmin, USGS, NGA, OpenStreetMap contributors"})},
+  // OpenStreetMap standard tiles: allowed for normal browsing with attribution (operations.osmfoundation.org/policies/tiles);
+  // nothing here prefetches or downloads tiles in bulk
+  {id:"osm", name:"OpenStreetMap", short:"OpenStreetMap", src:"© colaboradores de OpenStreetMap (ODbL)",
+   make:() => L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:19, attribution:OSM_ATTR})},
+  {id:"otm", name:"Relieve (OpenTopoMap)", short:"Relieve (OpenTopoMap)", src:"OpenTopoMap (CC-BY-SA), datos © colaboradores de OpenStreetMap",
+   make:() => L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {subdomains:"abc", maxZoom:17,
+     attribution:'Mapa © <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA) · datos ' + OSM_ATTR})},
+  // Esri World Imagery (Maxar, Airbus and others) with place-name and boundary labels on top
+  {id:"sat", name:"Imagen satelital (Esri)", short:"Imagen satelital", src:"Esri World Imagery", dark:true,
+   make:() => L.layerGroup([
+     L.tileLayer(ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}", {maxZoom:17,
+       attribution:"Imágenes © Esri — Esri, Maxar, Earthstar Geographics, Airbus DS, USDA, USGS, IGN y la comunidad de usuarios SIG"}),
+     L.tileLayer(ESRI + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {maxZoom:17})])},
+  ...(GOOGLE_TILES_KEY ? [
+    {id:"groad", name:"Google · Mapa", short:"Google Mapa", src:"Google", make:() => googleBase("roadmap")},
+    {id:"gsat", name:"Google · Satélite", short:"Google Satélite", src:"Google", dark:true, make:() => googleBase("satellite")},
+    {id:"ghyb", name:"Google · Híbrido", short:"Google Híbrido", src:"Google", dark:true, make:() => googleBase("satellite", ["layerRoadmap"])},
+    {id:"gter", name:"Google · Relieve", short:"Google Relieve", src:"Google", make:() => googleBase("terrain", ["layerRoadmap"])}] : [])];
+// a base map id from a shared link or a saved choice; Google ones fall back to Esri when no key is set
+const baseOf = id => BASEMAPS.find(b => b.id === id) || BASEMAPS.find(b => b.id === (/^g(sat|hyb)$/.test(id || "") ? "sat" : "topo"));
+const BASE_PREF = "satTolima.base";
+let CUR_BASE = "topo", setBase = () => {};
+// Google Map Tiles API: one session per map type (valid about two weeks), tiles from /v1/2dtiles, and the credits
+// for the visible area from /tile/v1/viewport, which must be shown together with the Google logo.
+function googleBase(mapType, layerTypes){
+  const K = encodeURIComponent(GOOGLE_TILES_KEY), API = "https://tile.googleapis.com";
+  const g = L.layerGroup(); let tl = null, sess = null, exp = 0, pending = null, credit = "", map_ = null, timer = 0;
+  const logo = L.control({position:"bottomright"});
+  logo.onAdd = () => { const d = L.DomUtil.create("div", "glogo");
+    d.innerHTML = `<img src="https://maps.gstatic.com/mapfiles/api-3/images/google_white5_hdpi.png" alt="Google" width="66" height="26" onerror="this.replaceWith('Google')">`;
+    return d; };
+  const setCredit = t => { const a = map_?.attributionControl; if (!a) return;
+    if (credit) a.removeAttribution(credit); credit = t; if (t) a.addAttribution(t); };
+  const credits = () => { clearTimeout(timer); timer = setTimeout(() => { if (!map_ || !sess) return; const b = map_.getBounds();
+    fetch(`${API}/tile/v1/viewport?session=${sess}&key=${K}&zoom=${Math.round(map_.getZoom())}&north=${b.getNorth()}&south=${b.getSouth()}&east=${b.getEast()}&west=${b.getWest()}`)
+      .then(r => r.ok ? r.json() : null).then(j => { if (j && map_) setCredit(esc(j.copyright || "Datos del mapa © Google")); }).catch(() => {}); }, 400); };
+  const session = () => (sess && Date.now() < exp - 36e5) ? Promise.resolve() : (pending ||= fetch(`${API}/v1/createSession?key=${K}`, {method:"POST",
+      headers:{"Content-Type":"application/json"}, body:JSON.stringify({mapType, language:"es-419", region:"CO", ...(layerTypes ? {layerTypes} : {})})})
+    .then(r => r.ok ? r.json() : r.text().then(t => Promise.reject(new Error(r.status + " " + t.slice(0, 200)))))
+    .then(j => { sess = j.session; exp = Number(j.expiry) * 1000 || Date.now() + 864e5;
+      const url = `${API}/v1/2dtiles/{z}/{x}/{y}?session=${sess}&key=${K}`;
+      if (tl) tl.setUrl(url); else tl = L.tileLayer(url, {maxZoom:20, maxNativeZoom:mapType === "terrain" ? 15 : 20, tileSize:256}); })
+    .finally(() => { pending = null; }));
+  g.on("add", () => { map_ = g._map; logo.addTo(map_); setCredit("Datos del mapa © Google");
+    session().then(() => { if (!map_) return; g.addLayer(tl); credits(); map_.on("moveend", credits); })
+      .catch(err => { console.warn("Google Map Tiles:", err);
+        const m = map_; if (!m) return; setBase("topo");
+        L.popup({maxWidth:260}).setLatLng(m.getCenter()).setContent("<b>No se pudo cargar el mapa de Google.</b><br>Se volvió al mapa topográfico. Revise la llave de Google (API habilitada, facturación y dominio permitido).").openOn(m); }); });
+  g.on("remove", () => { if (tl) g.removeLayer(tl); logo.remove(); map_?.off("moveend", credits); setCredit(""); map_ = null; });
+  return g;
+}
 // border colours for the plain map and for the satellite basemap (light lines with a dark halo read better on imagery)
 let SATBASE = false;
 // k thickens lines when zoomed out (set from the map zoom); on satellite every border gets a dark casing underneath
@@ -3281,6 +3345,11 @@ const INFO = {
     `<p>Cierres de vías nacionales en el Tolima declarados por el <b>INVÍAS</b> mediante resolución, tal como los publica la Policía Nacional en <a href="https://www.policia.gov.co/estado-de-las-vias" target="_blank" rel="noopener">Estado de las vías</a>: vía, PR (punto de referencia, el kilómetro de la vía), tipo de cierre, motivo, vía alterna, fechas y resolución.</p>
      <p>El sitio revisa esa lista cada hora y muestra solo los cierres vigentes (sin fecha de fin, con fecha de fin futura o indefinidos). La lista no trae coordenadas: cada cierre se ubica en la Red Vial Nacional del INVÍAS según su PR, así que el punto es aproximado (unos cientos de metros). Los que no se pueden ubicar aparecen en la leyenda, sin punto en el mapa.</p>
      <p><b>No incluye</b> derrumbes o cierres de última hora que aún no tienen resolución, ni vías departamentales o veredales. Para eso: línea #767 de la Policía de Tránsito y las redes del INVÍAS. Algunas filas de la fuente tienen errores (por ejemplo, una vía de Santander marcada como Tolima).</p>`],
+  mapabase: ["Mapa base",
+    `<p>El mapa base es el fondo sobre el que se dibujan las capas. Elíjalo en el panel de capas; el tablero recuerda el último que usó en este equipo, y un mapa compartido lleva el que se eligió al crearlo.</p>
+     <p><b>Topográfico (Esri)</b>: relieve suave, ríos y nombres. Es el predeterminado. <b>OpenStreetMap</b>: el mapa libre de voluntarios, con más detalle de calles, caminos y lugares en pueblos y veredas. <b>Relieve (OpenTopoMap)</b>: curvas de nivel y sombreado, útil para ver pendientes y cañones (máximo acercamiento algo menor). <b>Imagen satelital (Esri)</b>: fotos de satélite y avión de varios años, con nombres encima; la fecha de la imagen cambia según la zona.</p>
+     <p>${GOOGLE_TILES_KEY ? "<b>Google</b> (mapa, satélite, híbrido y relieve) se carga con la llave de Cruz Roja Tolima en la plataforma de Google Maps." : "Los mapas de <b>Google</b> se activan cuando se configure una llave de Google Maps Platform (Map Tiles API); copiar las imágenes de Google sin llave no está permitido por sus condiciones."}</p>
+     <p>Fuentes: Esri, Maxar, Earthstar Geographics, HERE, Garmin, USGS; © colaboradores de OpenStreetMap (ODbL); OpenTopoMap (CC-BY-SA)${GOOGLE_TILES_KEY ? "; Google" : ""}.</p>`],
   vias: ["Vías (OpenStreetMap)",
     `<p>Red de carreteras del Tolima tomada de <b>OpenStreetMap</b> (OSM), el mapa libre que construyen voluntarios, instituciones y empresas. Se usó la exportación de OSM para Colombia del Humanitarian OpenStreetMap Team (HOT) del 2 de noviembre de 2026, recortada al Tolima y simplificada (unos 15 m) para que cargue rápido en el celular.</p>
      <p><span style="color:#d50000">━</span> <b>Primaria</b>: troncales y vías nacionales · <span style="color:#ff8f00">━</span> <b>secundaria</b>: vías departamentales · <span style="color:#7b4a2a">━</span> <b>terciaria o veredal</b>: carreteables entre veredas y cabeceras (visible desde zoom 9) · <span style="color:#7b4a2a">┅</span> <b>camino o trocha</b> (desde zoom 11). Sobre la imagen satelital las terciarias se dibujan en amarillo claro. No se incluyen calles urbanas ni senderos peatonales.</p>
@@ -3393,17 +3462,11 @@ function renderMap(){
   if (!map) {
     map = L.map("map", {scrollWheelZoom:!!SHARE}).setView([4.1,-75.1], 8);
     initCoordBox(map);
-    // Esri World Topo basemap: works when the page is opened as a local file
-    // (OSM and CARTO tile servers refuse requests that carry no Referer)
-    const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/";
-    const topo = L.tileLayer(ESRI + "World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
-      {maxZoom:17, attribution:"Tiles © Esri — Esri, HERE, Garmin, USGS, NGA, OpenStreetMap contributors"}).addTo(map);
-    // satellite: Esri World Imagery (Maxar, Airbus and others) with place-name and boundary labels on top
-    const sat = L.layerGroup([
-      L.tileLayer(ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}", {maxZoom:17,
-        attribution:"Imágenes © Esri — Esri, Maxar, Earthstar Geographics, Airbus DS, USDA, USGS, IGN y la comunidad de usuarios SIG"}),
-      L.tileLayer(ESRI + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {maxZoom:17})]);
-    var BASES = {"Mapa topográfico": topo, "Imagen satelital": sat};
+    // base maps (see BASEMAPS); the dashboard remembers the last one chosen on this device, a shared map uses the link's
+    const BASES = {}, baseLayer = new Map();
+    for (const b of BASEMAPS) { b.layer = b.make(); BASES[b.name] = b.layer; baseLayer.set(b.layer, b); }
+    { let saved = null; if (!SHARE) try { saved = localStorage.getItem(BASE_PREF); } catch (e) {}
+      const b0 = baseOf(SHARE ? SHARE.b : saved); CUR_BASE = b0.id; SATBASE = !!b0.dark; b0.layer.addTo(map); }
     // municipal boundaries (hover shows the name) and the department outline
     const mun = L.geoJSON(TOLIMA_GEO.mun, {
       style: {color:"#3d4a46", weight:0.8, opacity:0.7, fill:true, fillColor:"#3d4a46", fillOpacity:0},
@@ -3442,7 +3505,13 @@ function renderMap(){
       const showCase = (c, base, on, sty) => { if (SATBASE && on) { if (!map.hasLayer(c)) { c.addTo(map); c.bringToBack(); } c.setStyle({...sty, fill:false}); } else if (map.hasLayer(c)) map.removeLayer(c); };
       showCase(munCase, mun, map.hasLayer(mun) && !vOn, b.munCase); showCase(depCase, dep, map.hasLayer(dep), b.depCase);
     };
-    map.on("baselayerchange", e => { SATBASE = e.layer === sat; applyBorders(); });
+    map.on("baselayerchange", e => { const b = baseLayer.get(e.layer); if (!b) return;
+      CUR_BASE = b.id; SATBASE = !!b.dark; applyBorders();
+      if (!SHARE) try { localStorage.setItem(BASE_PREF, b.id); } catch (err) {} });
+    // switch base map from code (shared links, Google fallback); the layer control follows the map's layers
+    setBase = id => { const b = baseOf(id), cur = baseOf(CUR_BASE); if (b === cur && map.hasLayer(b.layer)) return;
+      map.removeLayer(cur.layer); b.layer.addTo(map); map.fire("baselayerchange", {layer:b.layer, name:b.name}); };
+    applyBorders();
     map.on("zoomend", applyBorders);
     map.on("overlayadd overlayremove", e => { if (e.layer === mun || e.layer === dep || e.layer === verL) applyBorders(); });
     const satL = k => [`${esc(SAT[k].name)} ${infoBtn(SAT[k].info, SAT[k].name)}`, SAT[k].layer, "sat-" + k];
@@ -3491,7 +3560,7 @@ function renderMap(){
     ctrl._update = function(){
       const r = baseUpdate.apply(this, arguments);
       let last = null;
-      const bh = document.createElement("div"); bh.className = "lgrp"; bh.textContent = "Mapa base"; this._baseLayersList.prepend(bh);
+      const bh = document.createElement("div"); bh.className = "lgrp"; bh.innerHTML = `Mapa base ${infoBtn("mapabase", "el mapa base")}`; this._baseLayersList.prepend(bh);
       for (const lab of [...this._overlaysList.children]) {
         const inp = lab.querySelector("input"); if (!inp) continue;
         const gname = groupOf.get(inp.layerId) || "Eventos";
@@ -3514,7 +3583,7 @@ function renderMap(){
         + RBINS.map(b => `<div class="st"><span class="dr">${triSvg(b.color, b.size, b.max === 0 ? "#8a97a8" : "#0b2a5b", 1.2)}</span><b>${b.short}</b><span class="lg-l">${b.label}</span></div>`).join("") + `</div>`;
       L.DomEvent.disableClickPropagation(d); return d; };
     if (!SHARE || SHARE.L.includes("est")) lg.addTo(map);
-    if (SHARE) shareAfterMap({ctrl, sat, topo, applyBorders, hl:shHl});
+    if (SHARE) shareAfterMap({ctrl, hl:shHl});
     document.getElementById("legend").innerHTML = `<span>${triSvg("#fff", 14, "#9e9e9e", 1.5, "2 2")}Sin dato de lluvia hoy</span>`
       + `<span><span class="xmark">✕</span>Sin transmisión${infoBtn("offline")}</span><span>${triSvg("#fff", 14, css("--warn"), 3)}Datos dudosos o incompletos (borde naranja)${infoBtn("dudosos")}</span>`
       + `<span style="flex-basis:100%;height:0"></span><span>Nivel del río vs. umbral IDEAM${infoBtn("umbrales")}:</span>`
