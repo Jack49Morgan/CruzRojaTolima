@@ -98,11 +98,15 @@ tbody tr.offrow td{color:var(--muted)}
 .medir .mbtn.on{background:#0b2a5b;color:#fff}
 .medir .mpanel{background:#fff;padding:8px 10px;width:220px;font:12px/1.35 var(--sans);color:#17221f;border-top:1px solid #0002}
 .medir .mhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.medir .mx{border:0;background:none;font-size:14px;cursor:pointer;color:#5c6b80}
-.medir .mmode{display:flex;gap:4px;margin-bottom:6px}.medir .mmode button,.medir .mact button{flex:1;border:1px solid #0b2a5b55;background:#fff;color:#0b2a5b;border-radius:6px;padding:5px 4px;font:600 12px var(--sans);cursor:pointer}
+.medir .mmode{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px}
+.mcoord{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;margin:4px 0}.mcoord b{user-select:all;font-variant-numeric:tabular-nums}
+.medir .mpanel a{display:inline;width:auto;height:auto;line-height:inherit;border:0;background:none;text-align:left;color:#0b6bcb;text-decoration:underline;font-size:inherit}
+.mcopy{border:1px solid #0b2a5b55;background:#fff;color:#0b2a5b;border-radius:6px;padding:4px 8px;font:600 12px var(--sans);cursor:pointer}.medir .mmode button,.medir .mact button{flex:1;border:1px solid #0b2a5b55;background:#fff;color:#0b2a5b;border-radius:6px;padding:5px 3px;font:600 11.5px var(--sans);cursor:pointer}
 .medir .mmode button.on{background:#0b2a5b;color:#fff}.medir .mact{display:flex;gap:4px;margin-top:6px}
+.medir .mver{margin:4px 0;font-size:12px}.medir .mver summary{cursor:pointer;color:#0b2a5b;font-weight:600}.medir .mver div{padding:1px 0}
 .medir p{margin:3px 0}.medir .mkm{font-size:20px;font-weight:700;color:#1565c0}.medir .sub{font-size:11px}.medir .mwarn{color:#b45309}
 .measuring .leaflet-interactive,.measuring.leaflet-container{cursor:crosshair!important}
-@media (max-width:600px){.medir .mpanel{width:190px}}
+@media (max-width:600px){.medir .mpanel{width:205px;padding:6px 8px;font-size:11.5px}.medir .mkm{font-size:17px}.medir p.sub:not(.mnote){display:none}.measuring .maplegend{display:none}}
 .leaflet-vias-pane canvas,.leaflet-viasLo-pane canvas{pointer-events:none!important}
 .leaflet-control-layers .lgrp{font:600 11px/1.2 var(--sans);text-transform:uppercase;letter-spacing:.04em;color:#c8102e;margin:8px 0 3px;padding-top:6px;border-top:1px solid #0002}
 .leaflet-control-layers .lgrp:first-child{border-top:0;padding-top:0;margin-top:2px}
@@ -1659,20 +1663,25 @@ function buildMeasureTool(map){
   let box, btn, out;
   ctl.onAdd = () => {
     const d = L.DomUtil.create("div", "leaflet-bar medir");
-    d.innerHTML = `<button type="button" class="mbtn" title="Medir distancia" aria-label="Medir distancia"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 17 17 3l4 4L7 21z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2" stroke="currentColor" stroke-width="1.6"/></svg></button>`
-      + `<div class="mpanel" hidden><div class="mhd"><b>Medir distancia</b><button type="button" class="mx" aria-label="Cerrar">✕</button></div>`
-      + `<div class="mmode" role="group" aria-label="Tipo de medida"><button type="button" data-m="via" class="on">Por la vía</button><button type="button" data-m="recta">Línea recta</button></div>`
+    d.innerHTML = `<button type="button" class="mbtn" title="Medir distancia o área" aria-label="Medir distancia o área"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 17 17 3l4 4L7 21z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2" stroke="currentColor" stroke-width="1.6"/></svg></button>`
+      + `<div class="mpanel" hidden><div class="mhd"><b>Medir</b><button type="button" class="mx" aria-label="Cerrar">✕</button></div>`
+      + `<div class="mmode" role="group" aria-label="Tipo de medida"><button type="button" data-m="via" class="on">Por la vía</button><button type="button" data-m="recta">Línea recta</button><button type="button" data-m="area">Área</button><button type="button" data-m="pt">Coordenadas</button></div>`
       + `<div class="mout"></div><div class="mact"><button type="button" data-a="undo">Deshacer</button><button type="button" data-a="clear">Borrar</button></div></div>`;
     btn = d.querySelector(".mbtn"); box = d.querySelector(".mpanel"); out = d.querySelector(".mout");
     btn.onclick = () => toggle(!M.on);
     d.querySelector(".mx").onclick = () => toggle(false);
     d.querySelector(".mmode").onclick = e => { const b = e.target.closest("button[data-m]"); if (!b) return; M.mode = b.dataset.m;
-      d.querySelectorAll(".mmode button").forEach(x => x.classList.toggle("on", x === b)); draw(); };
+      d.querySelectorAll(".mmode button").forEach(x => x.classList.toggle("on", x === b)); if (M.mode === "area") loadUrb(); draw(); };
+    out.onclick = e => { const b = e.target.closest(".mcopy"); if (b) copyCoord(b); };
     d.querySelector(".mact").onclick = e => { const a = e.target.closest("button[data-a]")?.dataset.a; if (a === "undo") M.pts.pop(); if (a === "clear") M.pts = []; if (a) draw(); };
     L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d);
     return d;
   };
   ctl.addTo(map);
+  // right-click (or long-press on a phone) anywhere: the point's coordinates with a copy button
+  map.on("contextmenu", e => { if (M.on) return;
+    const pop = L.popup({maxWidth:260}).setLatLng(e.latlng).setContent(coordHtml(e.latlng)).openOn(map);
+    pop.getElement()?.querySelector(".mcopy")?.addEventListener("click", ev => copyCoord(ev.currentTarget)); });
   function toggle(on){
     M.on = on; box.hidden = !on; btn.classList.toggle("on", on);
     map.getContainer().classList.toggle("measuring", on);
@@ -1691,6 +1700,14 @@ function buildMeasureTool(map){
   async function draw(){
     const id = ++M.req; g.clearLayers();
     const n = M.pts.length, rect = straight();
+    if (M.mode === "area") return drawArea();
+    if (M.mode === "pt") {
+      if (n > 1) M.pts = M.pts.slice(-1);
+      const p = M.pts[0];
+      if (!p) { out.innerHTML = `<p>Toque un punto del mapa para ver sus coordenadas.</p>`; return; }
+      L.circleMarker(p, {radius:6, color:"#fff", weight:2, fillColor:"#c8102e", fillOpacity:1, interactive:false}).addTo(g);
+      out.innerHTML = coordHtml(p); return;
+    }
     if (n < 2) { dots(); out.innerHTML = `<p>${n ? "Toque el punto de llegada." : "Toque el punto de inicio en el mapa."}</p>`; return; }
     if (M.mode === "recta") {
       L.polyline(M.pts, {color:"#0b2a5b", weight:3, dashArray:"6 5", interactive:false}).addTo(g); dots();
@@ -1722,7 +1739,97 @@ function buildMeasureTool(map){
     L.polyline(M.pts, {color:"#0b2a5b", weight:3, dashArray:"6 5", interactive:false}).addTo(g);
     out.innerHTML = `<p class="mkm">${fmtKm(rect)}</p><p>No se pudo calcular la ruta por la vía (sin conexión con el servicio o sin vía entre los puntos). Se muestra la distancia en línea recta.</p>`;
   }
+  function drawArea(){
+    const n = M.pts.length;
+    if (n >= 3) L.polygon(M.pts, {color:"#6a1b9a", weight:2.5, fillColor:"#ab47bc", fillOpacity:0.25, interactive:false}).addTo(g);
+    else if (n === 2) L.polyline(M.pts, {color:"#6a1b9a", weight:2.5, dashArray:"6 5", interactive:false}).addTo(g);
+    dots();
+    if (n < 3) { out.innerHTML = `<p>Toque los vértices del área en el mapa (mínimo 3). ${n ? `Lleva ${n}.` : ""}</p>`; return; }
+    const a = polyAreaM2(M.pts), per = straight() + map.distance(M.pts[n - 1], M.pts[0]);
+    if (!URB) { out.innerHTML = `<p>Calculando…</p>`; loadUrb().then(() => { if (M.mode === "area") draw(); }); return; }
+    const ha = a / 1e4, est = popInPolygon(M.pts);
+    const top = est.v.slice(0, 5).map(([vi, pp]) => `<div>${esc(shVName(VEREDAS.f[vi][1]))} <span class="sub">(${esc(VEREDAS.m[VEREDAS.f[vi][0]])})</span>: ${fmtPeople(pp)}</div>`).join("");
+    out.innerHTML = `<p class="mkm">${ha < 100 ? `${ha.toLocaleString("es-CO", {maximumFractionDigits:1})} ha` : `${(a / 1e6).toLocaleString("es-CO", {maximumFractionDigits:2})} km²`}</p>`
+      + `<p>${ha < 100 ? `${(a / 1e6).toLocaleString("es-CO", {maximumFractionDigits:3})} km²` : `${Math.round(ha).toLocaleString("es-CO")} ha`} · perímetro ${fmtKm(per)}</p>`
+      + `<p>Población estimada: <b>${fmtPeople(est.p)}</b> personas${est.u > 0 ? ` <span class="sub">(${fmtPeople(est.u)} en cascos urbanos)</span>` : ""}${est.out > 0.02 ? `<br><span class="mwarn">${Math.round(est.out * 100)} % del área queda fuera del Tolima y no se cuenta.</span>` : ""}</p>`
+      + (top ? `<details class="mver"><summary>Veredas incluidas (${est.v.length})</summary>${top}${est.v.length > 5 ? `<div class="sub">y ${est.v.length - 5} más</div>` : ""}</details>` : "")
+      + `<p class="sub mnote">Estimación con GHS-POP 2025 por vereda y casco urbano ${infoBtn("medirpob", "población estimada del área")}. Toque para agregar vértices.</p>`;
+  }
   return M;
+}
+// Coordinates in decimal degrees (WGS84, 5 decimals ≈ 1 m), "lat, lon" as Google Maps and WhatsApp read them
+const ddTxt = p => `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`;
+const coordHtml = p => `<div class="mcoord"><b>${ddTxt(p)}</b><button type="button" class="mcopy" data-c="${ddTxt(p)}">📋 Copiar</button></div>`
+  + `<p class="sub mnote">Latitud, longitud en grados decimales (WGS84). <a href="https://www.google.com/maps/search/?api=1&query=${p.lat.toFixed(5)},${p.lng.toFixed(5)}" target="_blank" rel="noopener">Abrir en Google Maps</a></p>`;
+async function copyCoord(b){
+  const t = b.dataset.c; let ok = false;
+  try { await navigator.clipboard.writeText(t); ok = true; } catch (e) {
+    try { const ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); ok = document.execCommand("copy"); ta.remove(); } catch (e2) {} }
+  b.textContent = ok ? "✓ Copiado" : "Seleccione y copie"; setTimeout(() => { b.textContent = "📋 Copiar"; }, 2000);
+}
+// Area of a polygon on the sphere (m²), small-polygon formula on a local equirectangular projection
+function polyAreaM2(pts){
+  const R = 6371008.8, lat0 = pts.reduce((s, p) => s + p.lat, 0) / pts.length * Math.PI / 180, k = Math.cos(lat0);
+  let a = 0; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const xi = pts[i].lng * k, yi = pts[i].lat, xj = pts[j].lng * k, yj = pts[j].lat; a += xj * yi - xi * yj; }
+  return Math.abs(a / 2) * (Math.PI / 180 * R) ** 2;
+}
+// Estimated population inside a drawn polygon: the polygon is sampled on a fine grid (≤ ~40 000 points, 50 m at the finest);
+// each sample takes the population density of the vereda it falls in (GHS-POP 2025 total of the vereda / its area).
+// Urban areas are their own "Z U" polygons in the DANE layer, so town centres keep their much higher density.
+let VIDX = null;
+function vIndex(){
+  if (VIDX) return VIDX;
+  const C = 0.05, cells = new Map(), V = VEREDAS.f.map(([, , polys], vi) => {
+    const rings = polys.flatMap(rs => rs.map(decPoly));
+    let s = 90, n = -90, w = 180, e = -180;
+    for (const r of rings) for (const [la, lo] of r) { if (la < s) s = la; if (la > n) n = la; if (lo < w) w = lo; if (lo > e) e = lo; }
+    return {rings, s, n, w, e, vi};
+  });
+  for (const v of V) { let a = 0;
+    for (const r of v.rings) { const ar = polyAreaM2(r.map(([la, lo]) => ({lat:la, lng:lo}))); a += ar; }
+    v.dens = a > 0 ? (VPOP[v.vi] || 0) / a : 0;   // people per m² (holes are rare in this layer; they are counted as area)
+    for (let x = Math.floor(v.w / C); x <= Math.floor(v.e / C); x++) for (let y = Math.floor(v.s / C); y <= Math.floor(v.n / C); y++) {
+      const k = x + "," + y; if (!cells.has(k)) cells.set(k, []); cells.get(k).push(v); } }
+  return VIDX = {C, cells};
+}
+const pip = (la, lo, r) => { let c = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+  const yi = r[i][0], xi = r[i][1], yj = r[j][0], xj = r[j][1];
+  if ((yi > la) !== (yj > la) && lo < (xj - xi) * (la - yi) / (yj - yi) + xi) c = !c; } return c; };
+function vAt(la, lo){
+  const {C, cells} = vIndex(), cand = cells.get(Math.floor(lo / C) + "," + Math.floor(la / C)); if (!cand) return null;
+  for (const v of cand) { if (la < v.s || la > v.n || lo < v.w || lo > v.e) continue;
+    let inside = false; for (const r of v.rings) if (pip(la, lo, r)) inside = !inside;
+    if (inside) return v; }
+  return null;
+}
+// town centres (not in the vereda layer): each municipio's remaining population spread over its OpenStreetMap buildings,
+// ~110 m cells built by tools/poblacion_urbana.py
+let URB = null, URBP = null;
+const loadUrb = () => URBP ??= fetch("data/poblacion-urbana.json").then(r => r.json()).then(d => { URB = d; }).catch(() => { URB = {celda:0.001, c:[], bad:true}; });
+let DEPRINGS = null;
+const inTolima = (la, lo) => { DEPRINGS ??= (f => { const g = f.geometry || f; return (g.type === "Polygon" ? [g.coordinates] : g.coordinates).flatMap(pl => pl.map(r => r.map(([x, y]) => [y, x]))); })(TOLIMA_GEO.dep.features ? TOLIMA_GEO.dep.features[0] : TOLIMA_GEO.dep);
+  let c = false; for (const r of DEPRINGS) if (pip(la, lo, r)) c = !c; return c; };
+function popInPolygon(pts){
+  const ring = pts.map(p => [p.lat, p.lng]), a = polyAreaM2(pts);
+  let s = 90, n = -90, w = 180, e = -180; for (const p of pts) { s = Math.min(s, p.lat); n = Math.max(n, p.lat); w = Math.min(w, p.lng); e = Math.max(e, p.lng); }
+  const k = Math.cos((s + n) / 2 * Math.PI / 180), mPerDeg = 111195;
+  const bboxM2 = (n - s) * mPerDeg * (e - w) * mPerDeg * k;
+  const stepM = Math.max(50, Math.sqrt(bboxM2 / 40000)), dLa = stepM / mPerDeg, dLo = stepM / (mPerDeg * k);
+  let tot = 0, cnt = 0, outN = 0; const per = new Map();
+  for (let la = s + dLa / 2; la < n; la += dLa) for (let lo = w + dLo / 2; lo < e; lo += dLo) {
+    if (!pip(la, lo, ring)) continue; cnt++;
+    const v = vAt(la, lo); if (!v) { if (!inTolima(la, lo)) outN++; continue; }
+    per.set(v.vi, (per.get(v.vi) || 0) + v.dens);
+  }
+  // scale the sample sum to the exact polygon area (each inside sample stands for a / cnt m²)
+  const cellA = cnt ? a / cnt : 0;
+  const v = [...per].map(([vi, d]) => [vi, d * cellA]).sort((x, y) => y[1] - x[1]);
+  for (const [, pp] of v) tot += pp;
+  let u = 0; const C = URB?.celda || 0.001;
+  for (const [ia, io, pp] of URB?.c || []) { const la = (ia + 0.5) * C, lo = (io + 0.5) * C;
+    if (la >= s && la <= n && lo >= w && lo <= e && pip(la, lo, ring)) u += pp; }
+  return {p: Math.round(tot + u), u: Math.round(u), v, out: cnt ? outN / cnt : 0};
 }
 // Earthquakes M4+ in and around Tolima over the last year, from the USGS FDSN service.
 // (The SGC feed at archive.sgc.gov.co only answers its own website, so a browser page elsewhere cannot read it.)
@@ -2997,6 +3104,11 @@ const INFO = {
     `<p>Pronóstico de caudal diario del <b>Sistema Mundial de Alerta de Inundaciones (GloFAS)</b> del programa Copernicus, servido por la API de inundaciones de Open-Meteo, para cuatro puntos del río Magdalena: Honda, Ambalema, Flandes y Natagaima.</p>
      <p>El color del marcador compara el pico del pronóstico de los próximos 10 días con el caudal que en el modelo se supera en promedio una vez cada 2 años (amarillo), 5 años (naranja) o 20 años (rojo); verde es por debajo del de 2 años. Esos umbrales se calcularon con los máximos anuales de GloFAS de 1984 a 2024 en cada punto.</p>
      <p>GloFAS usa una malla de unos 5 km, así que solo representa bien los ríos grandes. Ríos como el Combeima, el Coello, el Totare o la Lagunilla son demasiado pequeños para esa malla y no se muestran: para ellos sirven los niveles de las estaciones del IDEAM.</p>`],
+  medirpob: ["Población estimada de un área dibujada",
+    `<p>Con la herramienta <b>Medir → Área</b> se dibuja un polígono y se estima cuántas personas viven dentro.</p>
+     <p><b>Cómo se calcula:</b> cada vereda (DANE 2020) tiene su población estimada para 2025 según <b>GHS-POP R2023A</b> (JRC, Comisión Europea, malla de 100 m). Esa población se reparte en forma pareja sobre la superficie de la vereda y se suma la parte de cada vereda que queda dentro del polígono (se muestrea con una malla fina, de hasta 50 m).</p>
+     <p>Los <b>cascos urbanos</b> no están en la capa de veredas: la población del municipio que no está en sus veredas (también GHS-POP 2025) se reparte sobre los edificios mapeados en OpenStreetMap en el casco, en celdas de unos 110 m, y se suman las celdas que caen dentro del polígono.</p>
+     <p><b>Límites:</b> dentro de una vereda rural la gente no vive repartida en forma pareja; si el polígono toma solo una parte de una vereda, la cifra puede alejarse de la real (más en veredas grandes con caseríos). En los cascos urbanos depende de qué tan completo esté OpenStreetMap. Úsela como orden de magnitud para dimensionar una respuesta, no como censo. Las áreas fuera del Tolima no se cuentan.</p>`],
   poblacion: ["Población por municipio y vereda: fuente y metodología",
     `<p><b>Qué es:</b> una estimación de cuántas personas viven en cada municipio y en cada vereda, para dimensionar una respuesta. No es un censo ni cuenta población flotante. Pase el cursor o toque un municipio (capa Municipios o Lluvia pronosticada) o una vereda (capa Veredas) para verla.</p>
      <p><b>Fuente:</b> <i>GHS-POP R2023A</i>, estimación para 2025, del Global Human Settlement Layer (GHSL), Centro Común de Investigación (JRC) de la Comisión Europea. Malla de 100 m. Uso libre citando la fuente.
