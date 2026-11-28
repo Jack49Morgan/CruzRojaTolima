@@ -93,12 +93,14 @@ tbody tr.offrow td{color:var(--muted)}
 .badtxt{color:var(--bad)}
 .eqm span{display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid #1b1b1b;box-shadow:0 0 0 1.5px #fff;font:600 10px/1 var(--mono);color:#1b1b1b}
 .saludgrp{border-radius:50%;background:#1565c0d9;color:#fff;border:2px solid #fff;font:700 11px/1 var(--sans);text-align:center;box-shadow:0 1px 3px #0006}
+.cierresleg .r svg{flex:none;width:18px;height:18px}.cierresin{margin-top:4px;max-height:200px;overflow:auto}.cierresin summary{cursor:pointer;font-weight:600;color:#0b2a5b}.cierresin div{border-top:1px solid #0001;padding:4px 0}
 .saludlist{max-height:220px;overflow:auto;margin-top:6px;font-size:12px}.saludlist div{padding:3px 0;border-top:1px solid #0001}
 .medir .mbtn{width:30px;height:30px;border:0;background:#fff;color:#17221f;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:4px}
 .medir .mbtn.on{background:#0b2a5b;color:#fff}
 .medir .mpanel{background:#fff;padding:8px 10px;width:220px;font:12px/1.35 var(--sans);color:#17221f;border-top:1px solid #0002}
 .medir .mhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.medir .mx{border:0;background:none;font-size:14px;cursor:pointer;color:#5c6b80}
 .medir .mmode{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px}
+.altln{margin-top:4px}.altln b{font-variant-numeric:tabular-nums}.altprof{margin-top:6px}
 .mcoord{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;margin:4px 0}.mcoord b{user-select:all;font-variant-numeric:tabular-nums}
 .medir .mpanel a{display:inline;width:auto;height:auto;line-height:inherit;border:0;background:none;text-align:left;color:#0b6bcb;text-decoration:underline;font-size:inherit}
 .mcopy{border:1px solid #0b2a5b55;background:#fff;color:#0b2a5b;border-radius:6px;padding:4px 8px;font:600 12px var(--sans);cursor:pointer}.medir .mmode button,.medir .mact button{flex:1;border:1px solid #0b2a5b55;background:#fff;color:#0b2a5b;border-radius:6px;padding:5px 3px;font:600 11.5px var(--sans);cursor:pointer}
@@ -184,6 +186,17 @@ th .ic{margin-right:3px}
 .dia{display:block;width:14px;height:14px;transform:rotate(45deg);border:2px solid #fff;box-shadow:0 0 0 1px #0007;border-radius:2px}
 .dia.sel{box-shadow:0 0 0 3px #0b2540}
 .pill.alert{color:#fff;border-color:transparent}
+/* Histórico climático (CHIRPS + ONI + UNGRD) */
+#clima select{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);max-width:100%}
+.cwide{margin-top:10px}.chart.tall{height:270px}
+.cstats{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:8px;font-size:13px}.cstats b{font-size:15px}
+.cstats span{min-width:0}
+.csw{display:inline-block;width:11px;height:11px;border-radius:2px;background:var(--c);vertical-align:-1px;margin:0 2px 0 6px}
+.csw.ln{height:3px;vertical-align:3px;background:var(--fg)}.csw.nino{background:#c8102e33;border:1px solid #c8102e88}.csw.nina{background:#1f6fb233;border:1px solid #1f6fb288}
+.cstripes{position:relative;height:64px;margin-top:4px;border-radius:6px;overflow:hidden;cursor:pointer}.cstripes canvas{width:100%;height:100%;display:block}
+.cstripax{display:flex;justify-content:space-between;margin-top:2px}
+.cdrag{font-size:12px;margin-top:2px}
+#cstripinfo{margin-top:4px;font-size:13px}
 .hist-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .hist-controls input[type=date]{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:4px 8px}
 .hist-controls label{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
@@ -459,6 +472,27 @@ body.smode #map{height:max(420px,calc(100vh - 150px));border-radius:6px}
 .snorth{background:#ffffffe6;border-radius:6px;padding:3px 4px 1px;box-shadow:0 1px 4px #0004;line-height:0}
 .shlab{background:#ffffffd9;border:0;box-shadow:none;font:600 11px/1.15 var(--sans);color:#17221f;padding:1px 4px;border-radius:3px;white-space:nowrap}
 .shlab::before{display:none}
+/* "Imagen para informe": the same page laid out as one picture (white, fixed width) for Word */
+#shxbar{display:none;position:fixed;top:8px;left:8px;z-index:1200;box-shadow:0 2px 10px #0005;background:var(--navy-dk);color:#fff;border-radius:10px;padding:8px 12px;gap:6px 10px;align-items:center;flex-wrap:wrap;font-size:13px;width:min(100vw - 24px,980px)}
+body.sexp #shxbar{display:flex} #shxbar>b{flex-basis:100%} .shxg{display:inline-flex;gap:4px;flex-wrap:wrap}
+#shxbar .btn{background:transparent;color:#fff;border-color:#fff8;padding:4px 9px;font-size:13px} #shxbar .btn[aria-pressed=true]{background:#fff;color:var(--navy-dk);font-weight:600}
+#shxbar .go{background:#c8102e;border-color:#c8102e} #shxbar .btn:disabled{opacity:.55} .shxc{display:inline-flex;gap:5px;align-items:center} .shxmsg{flex-basis:100%;color:#dfe7f5;font-size:12.5px}
+.shxsrc{display:none}
+body.sexp{--bg:#fff;--panel:#fff;--fg:#17221f;--muted:#4a5753;--line:#c9d1ce;--navy:#0b2a5b;color-scheme:light;background:#fff}
+body.sexp::before{display:none}
+body.sexp .wrap{width:auto;max-width:none;padding:8px;margin:0;display:block}
+body.sexp #share{width:var(--xw);gap:8px;background:#fff;padding:10px;margin-top:var(--xtop,150px)}
+body.sexp .shbtns,body.sexp .shhelp,body.sexp #shnotes,body.sexp .shsec:has(#shnotes),body.sexp .shsec:has(#shhl),body.sexp .shprinted,body.sexp .shfoot,
+body.sexp .coordbox,body.sexp .leaflet-control-zoom,body.sexp .leaflet-control-layers,body.sexp #map .maplegend,body.sexp .eqctl,body.sexp .eqlist,body.sexp .medir,body.sexp .animbar,body.sexp .shmap .legend:empty{display:none!important}
+body.sexp.sxnot .shead{display:none}
+body.sexp .shead{padding:6px 8px;border-top-width:3px;gap:8px} body.sexp .shemb{width:40px;height:40px} body.sexp .shtit h1{font-size:18px}
+body.sexp .shmap .panel{padding:0;border:1px solid #9aa4a0;border-radius:0} body.sexp #map{border-radius:0}
+body.sexp .shside{font-size:12px;padding:0 10px;border-radius:0} body.sexp .shside .sub{font-size:inherit} body.sexp #shlgmore{display:block}
+body.sexp.sxl-right .shgrid{grid-template-columns:minmax(0,1fr) 30%}
+body.sexp.sxl-below .shgrid{grid-template-columns:1fr} body.sexp.sxl-below .shside{columns:2;column-gap:16px} body.sexp.sxl-below .shsec{break-inside:avoid}
+body.sexp.sxl-none .shgrid{grid-template-columns:1fr} body.sexp.sxl-none .shside{display:none}
+body.sexp.sxl-none .shxsrc{display:block;font-size:11px;color:var(--muted)}
+.glogo{pointer-events:none;line-height:0;margin:0 0 2px 4px!important}.glogo img{display:block}
 /* print preview and printing. Sizes fit both A4 and carta (letter): horizontal = map left, legend right;
    vertical (default on iPad/iPhone, whose Safari ignores @page size) = map on top, legend below in two columns.
    The page keeps this size until "Salir" (iPad Safari fires afterprint before it has finished printing). */
@@ -470,7 +504,7 @@ body.sprint.sport .shgrid{grid-template-columns:1fr}
 body.sprint.sport #map{height:125mm!important}
 body.sprint.sport .shside{columns:2;column-gap:6mm} body.sprint.sport .shsec{break-inside:avoid}
 body.sprint .shprinted{display:inline} body.sprint .shbtns,body.sprint .shhelp{display:none!important}
-body.sprint .leaflet-control-zoom,body.sprint .leaflet-control-layers,body.sprint #map .maplegend,body.sprint .eqctl,body.sprint .medir{display:none!important}
+body.sprint .coordbox,body.sprint .leaflet-control-zoom,body.sprint .leaflet-control-layers,body.sprint #map .maplegend,body.sprint .eqctl,body.sprint .medir{display:none!important}
 #shbar{display:none;position:sticky;top:0;z-index:1200;background:var(--navy-dk);color:#fff;border-radius:10px;padding:8px 12px;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
 body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pressed=true]{background:#fff;color:var(--navy-dk);font-weight:600}
 #shbar .btn{background:transparent;color:#fff;border-color:#fff8} #shbar .go{background:#c8102e;border-color:#c8102e}
@@ -480,7 +514,7 @@ body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pr
   body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact} body::before{display:none!important}
   body.smode .wrap{max-width:none;padding:0;margin:0;gap:4mm} #shbar{display:none!important}
   body.smode .shead{padding:2mm 3mm;border-radius:2mm} .shemb{width:14mm;height:14mm} .shtit h1{font-size:17pt}
-  .shprinted{display:inline!important} .shbtns,.shhelp,.leaflet-control-zoom,.leaflet-control-layers,#map .maplegend,.eqctl,.medir,.animbar,dialog{display:none!important}
+  .shprinted{display:inline!important} .shbtns,.shhelp,.leaflet-control-zoom,.leaflet-control-layers,#map .maplegend,.eqctl,.medir,.coordbox,.animbar,dialog{display:none!important}
   .shgrid{gap:3mm} .shside .sub{font-size:inherit}
   #shlgmore{display:block!important} .eqlist button{display:none!important} .shside .shsec{padding:1.5mm 0} .shsec h3{font-size:7.5pt;margin-bottom:1mm}
   .shmap .panel{border:1px solid #999;padding:0} .shside{font-size:8pt;line-height:1.3;padding:0 3mm}
@@ -547,7 +581,7 @@ body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pr
       <div class="legend" id="dvinfo" hidden></div>
       <div class="legend" id="fwinfo" hidden></div>
       <div class="legend" id="hsinfo" hidden></div>
-      <div class="legend" id="vcminfo" hidden></div>
+      <div class="legend" id="spiinfo" hidden></div>
     </div>
     <div class="panel">
       <h2>Estaciones</h2>
@@ -616,6 +650,40 @@ body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pr
     </div>
   </section>
 
+  <section class="panel" id="clima">
+    <div class="detail-head">
+      <h2>Histórico climático · <span id="ctitle">Todo el Tolima</span> <button type="button" class="info" data-info="clima" aria-label="Qué es el histórico climático">i</button></h2>
+      <div class="hist-controls">
+        <select id="cmun" aria-label="Municipio"><option value="Tolima">Todo el Tolima</option></select>
+        <div class="seg" id="cbase" role="group" aria-label="Anomalía en">
+          <button data-u="mm" aria-pressed="true">mm</button><button data-u="pct" aria-pressed="false">% de lo normal</button>
+        </div>
+        <div class="seg" id="crange" role="group" aria-label="Periodo">
+          <button data-y="0" aria-pressed="true">Desde 1981</button><button data-y="20" aria-pressed="false">20 años</button><button data-y="5" aria-pressed="false">5 años</button>
+        </div>
+        <button class="btn" id="ccsv" disabled>Descargar CSV</button>
+      </div>
+    </div>
+    <div class="sub" id="csub">Lluvia mensual por satélite (CHIRPS) desde 1981, comparada con lo normal de 1991–2020, con los periodos de El Niño y La Niña. Elija un municipio aquí o tóquelo en el mapa.</div>
+    <div class="cstats" id="cstats"></div>
+    <div class="cwide"><div class="sub">Anomalía de lluvia mensual · <span class="csw" style="--c:var(--rain)"></span>más lluvia de lo normal <span class="csw" style="--c:var(--warn)"></span>menos <span class="csw ln"></span>promedio de 12 meses · franjas: <span class="csw nino"></span>El Niño <span class="csw nina"></span>La Niña</div>
+      <div class="chart tall"><canvas id="cAnom"></canvas></div>
+</div>
+    <div class="cwide"><div class="sub">Índice de precipitación estandarizado (SPI) <button type="button" class="info" data-info="spi" aria-label="Qué es el SPI">i</button>
+        <span class="seg" id="cspik" role="group" aria-label="Escala del SPI" style="margin-left:6px;vertical-align:middle">
+          <button data-k="1" aria-pressed="false">1 mes</button><button data-k="3" aria-pressed="true">3 meses</button><button data-k="6" aria-pressed="false">6 meses</button><button data-k="12" aria-pressed="false">12 meses</button></span></div>
+      <div class="chart tall"><canvas id="cSpi"></canvas></div><div class="legend" id="cspileg"></div></div>
+    <div class="cwide"><div class="sub">Lluvia de cada año comparada con lo normal (cada franja es un año; azul = más lluvioso, café = más seco). Toque una franja para ver el año.</div>
+      <div class="cstripes" id="cstripes"><canvas id="cStripe"></canvas></div><div class="cstripax sub" id="cstripax"></div></div>
+    <div class="charts">
+      <div><div class="sub">Calendario de lluvias: promedio de cada mes (1991–2020), el último año y el año elegido</div><div class="chart"><canvas id="cClim"></canvas></div>
+        <div class="hist-controls" style="margin-top:4px"><label>Comparar con <select id="cyear" aria-label="Año a comparar"></select></label></div></div>
+      <div><div class="sub">Emergencias reportadas a la UNGRD por mes (2019–2025) y la lluvia del mes <button type="button" class="info" data-info="ungrd" aria-label="Qué son las emergencias UNGRD">i</button></div><div class="chart"><canvas id="cEv"></canvas></div>
+        <div class="sub" id="cevsum"></div></div>
+    </div>
+    <div class="sub" id="csrc" style="margin-top:6px"></div>
+  </section>
+
   <p class="note">
     Fuente: IDEAM, “Datos Hidrometeorológicos Crudos – Red de Estaciones IDEAM” en
     <a href="https://www.datos.gov.co/Ambiente-y-Desarrollo-Sostenible/Precipitaci-n/s54a-sgyg" target="_blank" rel="noopener">datos.gov.co</a>
@@ -642,11 +710,10 @@ body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pr
     Población por municipio y vereda: GHS-POP R2023A 2025, JRC – Comisión Europea, malla de 100 m <button type="button" class="info" data-info="poblacion" aria-label="Fuente y metodología de la población">i</button>.
   </p>
   <p class="note">
-    <b>Capas de radar y satélite</b> (botón de capas del mapa, apagadas por defecto; la hora de cada imagen aparece bajo el mapa y se revisa cada 5 minutos):
-    radar de lluvia de <a href="https://www.rainviewer.com" target="_blank" rel="noopener">RainViewer</a>, un compuesto de radares nacionales con nueva imagen cada 10 minutos y detalle hasta zoom 7;
+    <b>Capas de satélite</b> (botón de capas del mapa, apagadas por defecto; la hora de cada imagen aparece bajo el mapa y se revisa cada 5 minutos):
     nubes en infrarrojo (banda 13) y GeoColor del satélite GOES-East de NOAA, servidos por <a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a> con unos 40 a 90 minutos de retraso
     (GeoColor es color real de día e infrarrojo de noche);
-    lluvia estimada por satélite CMORPH2 de la NOAA (acumulado de la última hora, unos 40 a 60 minutos de retraso) y rayos del sensor GLM del GOES-East (últimos 10 minutos, 1 a 3 minutos de retraso), ambos servidos por
+    y rayos del sensor GLM del GOES-East (últimos 10 minutos, 1 a 3 minutos de retraso), servidos por
     <a href="https://realearth.ssec.wisc.edu" target="_blank" rel="noopener">SSEC RealEarth</a> de la Universidad de Wisconsin;
     y lluvia estimada por satélite NASA IMERG cada 30 minutos (versión temprana, unas 4 a 6 horas de retraso). El botón “i” junto a cada capa explica qué muestra.
     Cámaras web: imágenes públicas del <a href="https://www2.sgc.gov.co/sgc/volcanes/VolcanNevadoRuiz/Paginas/Imagenes-en-linea.aspx" target="_blank" rel="noopener">Servicio Geológico Colombiano</a> (volcanes Nevado del Ruiz y Cerro Machín), en posiciones aproximadas.
@@ -677,6 +744,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
 <script src="vendor/supabase-2.118.0.min.js"></script>
 <script src="incstore.js?v=33"></script>
 <script src="incexport.js?v=33"></script>
+<script src="mapexport.js?v=1"></script>
 <script src="alertas.js?v=4" defer></script>
 <script src="enviar-alerta.js?v=1" defer></script>
 <script src="ubicaciones.js?v=20"></script>
@@ -1137,8 +1205,8 @@ const triSvg = (fill, size=18, stroke="#fff", sw=1.5, dash="") =>
   `<svg width="${size}" height="${size}" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5 C10 1.5 3.5 9.5 3.5 13 a6.5 6.5 0 0 0 13 0 C16.5 9.5 10 1.5 10 1.5 Z" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/></svg>`;
 
 // Near-real-time imagery overlays (off by default; toggled from the layers button on the map).
-// NASA GIBS serves GOES-East and IMERG; SSEC RealEarth (Univ. of Wisconsin) serves CMORPH2 and GOES GLM lightning;
-// RainViewer serves a radar composite. All are image tiles the browser loads directly.
+// NASA GIBS serves GOES-East and IMERG; SSEC RealEarth (Univ. of Wisconsin) serves GOES GLM lightning.
+// All are image tiles the browser loads directly.
 const GIBS = (id, tms) => t => `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${id}/default/${t || "default"}/${tms}/{z}/{y}/{x}.png`;
 const RE_HOST = "https://realearth.ssec.wisc.edu";
 const reTime = s => new Date(`${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}T${s.slice(9,11)}:${s.slice(11,13)}:${s.slice(13,15)}Z`);
@@ -1147,28 +1215,17 @@ const reTimes = async id => (await (await fetch(`${RE_HOST}/api/products?product
 const RE_ATTR = 'Datos: <a href="https://realearth.ssec.wisc.edu" target="_blank" rel="noopener">SSEC RealEarth</a>';
 const GIBS_ATTR = 'Imagen: <a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a>';
 const SAT = {
-  radar: {name:"Radar de lluvia (RainViewer)", info:"radar", opacity:0.75, maxNative:7, every:5,
-    attribution:'Radar © <a href="https://www.rainviewer.com" target="_blank" rel="noopener">RainViewer</a>',
-    url: path => path ? `https://tilecache.rainviewer.com${path}/256/{z}/{x}/{y}/2/1_1.png` : "data:,",
-    latest: async () => { const j = await (await fetch("https://api.rainviewer.com/public/weather-maps.json")).json();
-      const f = j.radar.past.slice(-1)[0]; return {key:f.path, time:new Date(f.time*1000)}; }},
   glm: {name:"Rayos GOES-East GLM (últimos 10 min)", info:"glm", every:2, group:true, attribution:RE_ATTR},
-  cmorph: {name:"Lluvia satelital CMORPH2 (última hora)", info:"cmorph", opacity:0.75, maxNative:7, every:10, attribution:RE_ATTR,
-    url: s => s ? reUrl("c2accum1hr", s) : "data:,",
-    latest: async () => { const s = (await reTimes("c2accum1hr")).slice(-1)[0]; if (!s) throw new Error("sin fechas"); return {key:s, time:reTime(s)}; },
-    label: t => `acumulado de la hora que termina a las ${fmtLocal(new Date(t.getTime() + 1000)).slice(11)}`},
   ir: {name:"Nubes GOES-East · infrarrojo (NASA)", info:"ir", gibs:"GOES-East_ABI_Band13_Clean_Infrared", tms:"GoogleMapsCompatible_Level6", opacity:0.55, maxNative:6, every:5},
   geo: {name:"Satélite GOES-East · GeoColor (NASA)", info:"geo", gibs:"GOES-East_ABI_GeoColor", tms:"GoogleMapsCompatible_Level7", opacity:0.8, maxNative:7, every:5},
   imerg: {name:"Lluvia satelital NASA IMERG (30 min)", info:"imerg", gibs:"IMERG_Precipitation_Rate_30min", tms:"GoogleMapsCompatible_Level6", opacity:0.75, maxNative:6, every:15},
-  so2: {name:"Dióxido de azufre volcánico (Sentinel-5P)", info:"so2", gibs:"TROPOMI_L2_Sulfur_Dioxide_Total_Vertical_Column", tms:"GoogleMapsCompatible_Level6", opacity:0.8, maxNative:6, every:180, days:45,
-    label: t => `pasada del ${t.toLocaleDateString("es-CO", {day:"numeric", month:"short", timeZone:"UTC"})}, hacia la 1:30 p. m.`},
 };
 for (const o of Object.values(SAT)) if (o.gibs) {
   o.url = GIBS(o.gibs, o.tms);
   o.attribution = GIBS_ATTR;
   // newest available time from the layer's DescribeDomains document (small XML, CORS open)
   o.latest = async () => {
-    const d0 = new Date(Date.now() - (o.days || 2)*86400e3).toISOString().slice(0,10), d1 = new Date(Date.now() + 86400e3).toISOString().slice(0,10);
+    const d0 = new Date(Date.now() - 2*86400e3).toISOString().slice(0,10), d1 = new Date(Date.now() + 86400e3).toISOString().slice(0,10);
     const x = await (await fetch(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/${o.gibs}/default/${o.tms}/all/${d0}--${d1}.xml`)).text();
     const dom = (x.match(/<Domain>([^<]*)<\/Domain>/) || [])[1] || "";
     let last = dom.split(",").pop().split("/"); last = last.length > 1 ? last[1] : last[0];
@@ -1393,7 +1450,7 @@ const infoBtn = (k, label = "") => `<button type="button" class="info" data-info
 // Population popups (tap/click) for municipios and veredas; tooltips only on devices with a mouse
 const HOVER = matchMedia("(hover: hover)").matches;
 const popHtml = (title, sub, n) => `<div class="flpop"><b>${esc(title)}</b>${sub ? `<br><span class="sub">${esc(sub)}</span>` : ""}
-  <div style="margin-top:4px">Población: <b>${fmtPeople(n)}</b> personas</div><div class="sub">GHS-POP 2025 (JRC) ${infoBtn("poblacion", "población")}</div>${acPopLine(sub === "Municipio" ? title : null)}</div>`;
+  <div style="margin-top:4px">Población: <b>${fmtPeople(n)}</b> personas</div><div class="sub">GHS-POP 2025 (JRC) ${infoBtn("poblacion", "población")}</div>${acPopLine(sub === "Municipio" ? title : null)}${ACLICK ? altSlot(ACLICK, "Altitud del punto tocado") : ""}${sub === "Municipio" && !SHARE ? `<button type="button" class="btn sm" data-climun="${esc(title)}" style="margin-top:6px">📈 Histórico climático</button>` : ""}</div>`;
 function renderSatInfo(){
   const el = document.getElementById("satinfo"); if (!el) return;
   const on = Object.values(SAT).filter(o => map && o.layer && map.hasLayer(o.layer));
@@ -1406,9 +1463,7 @@ function renderSatInfo(){
     const anim = o.frames && ANIM.k !== k ? ` <button type="button" class="btn animbtn" data-anim="${k}">▶ Ver movimiento (últimas 2 h)</button>` : "";
     return `<span><b>${esc(o.name)}</b>${infoBtn(o.info, o.name)} ${when}${anim}</span>`; }).join("");
 }
-// ---- Loops of the latest frames (GOES-East infrared and GeoColor, RainViewer radar) to see where clouds and rain are moving
-SAT.radar.frames = async () => { const j = await (await fetch("https://api.rainviewer.com/public/weather-maps.json")).json();
-  return j.radar.past.map(f => ({key:f.path, time:new Date(f.time * 1000)})); };
+// ---- Loops of the latest frames (GOES-East infrared and GeoColor) to see where clouds are moving
 for (const k of ["ir", "geo"]) { const o = SAT[k];
   o.frames = async () => {      // GIBS domains look like "start/end/PT10M"; step back from the newest time
     const d0 = new Date(Date.now() - 86400e3).toISOString().slice(0,10), d1 = new Date(Date.now() + 86400e3).toISOString().slice(0,10);
@@ -1715,13 +1770,13 @@ function buildMeasureTool(map){
       const p = M.pts[0];
       if (!p) { out.innerHTML = `<p>Toque un punto del mapa para ver sus coordenadas.</p>`; return; }
       L.circleMarker(p, {radius:6, color:"#fff", weight:2, fillColor:"#c8102e", fillOpacity:1, interactive:false}).addTo(g);
-      out.innerHTML = coordHtml(p); return;
+      out.innerHTML = coordHtml(p); fillAlt(out); return;
     }
     if (n < 2) { dots(); out.innerHTML = `<p>${n ? "Toque el punto de llegada." : "Toque el punto de inicio en el mapa."}</p>`; return; }
     if (M.mode === "recta") {
       L.polyline(M.pts, {color:"#0b2a5b", weight:3, dashArray:"6 5", interactive:false}).addTo(g); dots();
       out.innerHTML = `<p class="mkm">${fmtKm(rect)}</p><p>En línea recta${n > 2 ? `, ${n - 1} tramos` : ""}. Toque para agregar más puntos.</p>`;
-      return;
+      addProf(id, M.pts); return;
     }
     dots(); out.innerHTML = `<p>Calculando la ruta…</p>`;
     let r = null;
@@ -1742,12 +1797,15 @@ function buildMeasureTool(map){
           + `<br><span class="sub">En línea recta: ${fmtKm(rect)}</span>`
           + (off > 300 ? `<br><span class="mwarn">Un punto está a ${fmtKm(off)} de la vía más cercana; la ruta empieza o termina allí.</span>` : "")
           + `</p><p class="sub">Ruta: OSRM con datos de OpenStreetMap. Toque para agregar paradas.</p>`;
-        return;
+        addProf(id, line); return;
       }
     } catch (e) { if (id !== M.req) return; }
     L.polyline(M.pts, {color:"#0b2a5b", weight:3, dashArray:"6 5", interactive:false}).addTo(g);
     out.innerHTML = `<p class="mkm">${fmtKm(rect)}</p><p>No se pudo calcular la ruta por la vía (sin conexión con el servicio o sin vía entre los puntos). Se muestra la distancia en línea recta.</p>`;
+    addProf(id, M.pts);
   }
+  // climb and descent under the distance, once the altitudes have loaded (skipped if the measure changed meanwhile)
+  function addProf(id, pts){ altProfile(pts).then(r => { if (id === M.req && r) out.insertAdjacentHTML("beforeend", profHtml(r)); }); }
   function drawArea(){
     const n = M.pts.length;
     if (n >= 3) L.polygon(M.pts, {color:"#6a1b9a", weight:2.5, fillColor:"#ab47bc", fillOpacity:0.25, interactive:false}).addTo(g);
@@ -1769,12 +1827,108 @@ function buildMeasureTool(map){
 // Coordinates in decimal degrees (WGS84, 5 decimals ≈ 1 m), "lat, lon" as Google Maps and WhatsApp read them
 const ddTxt = p => `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`;
 const coordHtml = p => `<div class="mcoord"><b>${ddTxt(p)}</b><button type="button" class="mcopy" data-c="${ddTxt(p)}">📋 Copiar</button></div>`
-  + `<p class="sub mnote">Latitud, longitud en grados decimales (WGS84). <a href="https://www.google.com/maps/search/?api=1&query=${p.lat.toFixed(5)},${p.lng.toFixed(5)}" target="_blank" rel="noopener">Abrir en Google Maps</a></p>`;
+  + altSlot(p) + `<p class="sub mnote">Latitud, longitud en grados decimales (WGS84). <a href="https://www.google.com/maps/search/?api=1&query=${p.lat.toFixed(5)},${p.lng.toFixed(5)}" target="_blank" rel="noopener">Abrir en Google Maps</a></p>`;
 async function copyCoord(b){
   const t = b.dataset.c; let ok = false;
   try { await navigator.clipboard.writeText(t); ok = true; } catch (e) {
     try { const ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); ok = document.execCommand("copy"); ta.remove(); } catch (e2) {} }
   b.textContent = ok ? "✓ Copiado" : "Seleccione y copie"; setTimeout(() => { b.textContent = "📋 Copiar"; }, 2000);
+}
+// ---- Altitude from the Tolima DEM: data/dem/{z}/{x}/{y}.webp, Web Mercator tiles (zoom 7 to 12) made by tools/dem_tiles.py.
+// Each pixel holds whole metres as red * 256 + green; 0 = no data (outside Tolima and a ~2 km margin).
+const DEM = {zmin:7, zmax:12, cache:new Map()};
+function demTile(z, x, y){
+  const k = `${z}/${x}/${y}`;
+  let p = DEM.cache.get(k);
+  if (!p) {
+    p = fetch(`data/dem/${k}.webp`).then(r => r.ok ? r.blob() : null)
+      .then(b => b && createImageBitmap(b, {colorSpaceConversion:"none", premultiplyAlpha:"none"}))
+      .then(im => { if (!im) return null;
+        const cv = document.createElement("canvas"); cv.width = cv.height = 256;
+        const cx = cv.getContext("2d", {willReadFrequently:true}); cx.drawImage(im, 0, 0);
+        const d = cx.getImageData(0, 0, 256, 256).data, h = new Uint16Array(65536);
+        for (let i = 0; i < 65536; i++) h[i] = d[i * 4] * 256 + d[i * 4 + 1];
+        return h; })
+      .catch(() => null);
+    DEM.cache.set(k, p);
+    if (DEM.cache.size > 300) DEM.cache.delete(DEM.cache.keys().next().value);
+  }
+  return p;
+}
+// altitude (m) at a point, bilinear between the four nearest cells; null where there is no data
+async function altAt(lat, lng, z = DEM.zmax){
+  const n = 2 ** z * 256, s = Math.sin(lat * Math.PI / 180);
+  const X = (lng + 180) / 360 * n - 0.5, Y = (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * n - 0.5;
+  const x0 = Math.floor(X), y0 = Math.floor(Y), fx = X - x0, fy = Y - y0;
+  let sum = 0, wsum = 0;
+  for (const [dx, dy, w] of [[0, 0, (1 - fx) * (1 - fy)], [1, 0, fx * (1 - fy)], [0, 1, (1 - fx) * fy], [1, 1, fx * fy]]) {
+    const px = x0 + dx, py = y0 + dy, t = await demTile(z, px >> 8, py >> 8);
+    const v = t ? t[(py & 255) * 256 + (px & 255)] : 0;
+    if (v) { sum += v * w; wsum += w; }
+  }
+  return wsum > 0.25 ? sum / wsum : null;
+}
+const fmtAlt = h => `${Math.round(h).toLocaleString("es-CO")} m s. n. m.`;
+// a slot "Altitud: …" in any popup or panel; fillAlt() puts the value in
+const altSlot = (p, lab = "Altitud") => `<div class="altln" data-alt="${(+p.lat).toFixed(6)},${(+p.lng).toFixed(6)}" data-lab="${lab}">${lab}: <span class="sub">calculando…</span></div>`;
+function fillAlt(root){
+  root?.querySelectorAll("[data-alt]:not([data-done])").forEach(async el => {
+    el.dataset.done = "1";
+    const [a, b] = el.dataset.alt.split(",").map(Number), h = await altAt(a, b);
+    const lab = el.dataset.lab || "Altitud";
+    el.innerHTML = h == null ? `${lab}: <span class="sub">sin dato (fuera del Tolima)</span>`
+      : `${lab}: <b>${fmtAlt(h)}</b> <span class="sub">(±10 m)</span> ${infoBtn("altitud", "altitud")}`;
+  });
+}
+// climb and descent along a line (taps or a route), sampled every ~100–400 m depending on its length
+async function altProfile(pts){
+  const P = pts.map(p => L.latLng(p)); let len = 0; const cum = [0];
+  for (let i = 1; i < P.length; i++) cum.push(len += P[i - 1].distanceTo(P[i]));
+  if (!len) return null;
+  const z = len < 25e3 ? 12 : len < 80e3 ? 11 : 10, step = Math.max(len / 400, z === 12 ? 80 : z === 11 ? 150 : 300);
+  const xs = []; for (let d = 0, i = 1; d <= len + 1e-6; d += step) { while (i < P.length - 1 && cum[i] < d) i++;
+    const f = (d - cum[i - 1]) / ((cum[i] - cum[i - 1]) || 1); xs.push([P[i - 1].lat + (P[i].lat - P[i - 1].lat) * f, P[i - 1].lng + (P[i].lng - P[i - 1].lng) * f]); }
+  xs.push([P.at(-1).lat, P.at(-1).lng]);
+  const hs = (await Promise.all(xs.map(([a, b]) => altAt(a, b, z)))).filter(h => h != null);
+  if (hs.length < 2) return null;
+  let up = 0, down = 0, ref = hs[0];   // count only changes of 10 m or more, so DEM noise does not add up
+  for (const h of hs) { if (h - ref >= 10) { up += h - ref; ref = h; } else if (ref - h >= 10) { down += ref - h; ref = h; } }
+  const [h0, h1] = await Promise.all([altAt(P[0].lat, P[0].lng), altAt(P.at(-1).lat, P.at(-1).lng)]);
+  return {h0, h1, up, down, max:Math.max(...hs), min:Math.min(...hs)};
+}
+const profHtml = r => !r ? "" : `<p class="altprof">⛰️ ${r.h0 != null ? `Sale a <b>${fmtAlt(r.h0)}</b>` : "Salida sin dato de altitud"}${r.h1 != null ? `, llega a <b>${fmtAlt(r.h1)}</b>` : ""}`
+  + `<br><span class="sub">Sube unos ${Math.round(r.up).toLocaleString("es-CO")} m y baja unos ${Math.round(r.down).toLocaleString("es-CO")} m en el camino; punto más alto: ${fmtAlt(r.max)}</span> ${infoBtn("altitud", "altitud")}</p>`;
+// "Relieve" layer: hill shading drawn in the browser from the same tiles (light from the northwest)
+function buildReliefLayer(){
+  const Relief = L.GridLayer.extend({
+    createTile(c, done){
+      const cv = document.createElement("canvas"); cv.width = cv.height = 256;
+      demTile(c.z, c.x, c.y).then(h => {
+        if (h) {
+          const cx = cv.getContext("2d"), im = cx.createImageData(256, 256), d = im.data;
+          const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * (c.y + 0.5) / 2 ** c.z))), cell = 40075016.7 * Math.cos(lat) / (256 * 2 ** c.z);
+          const ex = c.z <= 8 ? 2.5 : c.z <= 10 ? 1.8 : 1.3;   // a little vertical exaggeration when zoomed out
+          const azm = (360 - 315 + 90) * Math.PI / 180, el = 45 * Math.PI / 180, flat = Math.sin(el);   // sun at azimuth 315°, 45° high
+          const at = (x, y) => h[Math.min(255, Math.max(0, y)) * 256 + Math.min(255, Math.max(0, x))];
+          for (let y = 0; y < 256; y++) for (let x = 0; x < 256; x++) {
+            const i = y * 256 + x, v = h[i]; if (!v) continue;
+            const xl = x > 0 && at(x - 1, y) ? x - 1 : x, xr = x < 255 && at(x + 1, y) ? x + 1 : x;
+            const yu = y > 0 && at(x, y - 1) ? y - 1 : y, yd = y < 255 && at(x, y + 1) ? y + 1 : y;
+            const dzdx = (at(xr, y) - at(xl, y)) / (((xr - xl) || 1) * cell) * ex, dzdy = (at(x, yd) - at(x, yu)) / (((yd - yu) || 1) * cell) * ex;
+            const slope = Math.atan(Math.hypot(dzdx, dzdy)), aspect = Math.atan2(dzdy, -dzdx);
+            const s = Math.sin(el) * Math.cos(slope) + Math.cos(el) * Math.sin(slope) * Math.cos(azm - aspect);
+            const k = i * 4;
+            if (s < flat) { d[k] = 20; d[k + 1] = 28; d[k + 2] = 40; d[k + 3] = Math.min(200, (flat - s) / flat * 255); }
+            else { d[k] = d[k + 1] = d[k + 2] = 255; d[k + 3] = Math.min(110, (s - flat) / (1 - flat) * 240); }
+          }
+          cx.putImageData(im, 0, 0);
+        }
+        done(null, cv);
+      });
+      return cv;
+    }});
+  return new Relief({pane:"sat", opacity:0.75, minNativeZoom:DEM.zmin, maxNativeZoom:DEM.zmax, maxZoom:17,
+    attribution:"Relieve: modelo digital de elevación del Tolima (38 m)"});
 }
 // Area of a polygon on the sphere (m²), small-polygon formula on a local equirectangular projection
 function polyAreaM2(pts){
@@ -1839,6 +1993,45 @@ function popInPolygon(pts){
   for (const [ia, io, pp] of URB?.c || []) { const la = (ia + 0.5) * C, lo = (io + 0.5) * C;
     if (la >= s && la <= n && lo >= w && lo <= e && pip(la, lo, ring)) u += pp; }
   return {p: Math.round(tot + u), u: Math.round(u), v, out: cnt ? outN / cnt : 0};
+}
+// Road closures declared by INVÍAS (resolutions), as listed in the Policía Nacional "Estado de las vías" table; a scheduled job
+// (tools/cierres_viales.py) reads it every hour and places each closure on the INVÍAS national network by its PR.
+// Closures it cannot place are listed in the legend box without a marker.
+const CIERRE_TOTAL = /total/i;
+const fmtFechaCorta = iso => { try { return new Date(iso).toLocaleDateString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"short", year:"numeric"}); } catch (e) { return iso; } };
+function buildCierresLayer(){
+  const g = L.layerGroup(); let D = null, loading = false, map = null;
+  const leg = L.control({position:"topright"});
+  const card = c => `<b>${esc(c.via)}</b>${c.sector ? `<br>${esc(c.sector)}` : ""}`
+    + `<br><b style="color:${CIERRE_TOTAL.test(c.cond) ? "#b71c1c" : "#e65100"}">${esc(c.cond)}</b> · ${esc(c.motivo)}`
+    + `<br>${esc(c.km)}${c.en ? ` <span class="sub">(ruta ${esc(c.en.ruta)}, tramo ${esc(c.en.tramo)}${c.en.aprox ? ", ubicación aproximada" : ""})</span>` : ""}`
+    + (c.alterna ? `<br>Vía alterna: ${esc(c.alterna)}` : "")
+    + `<br>Desde ${fmtFechaCorta(c.ini)}${c.indef ? " · <b>cierre indefinido</b>" : c.fin ? ` hasta ${fmtFechaCorta(c.fin)}` : ""}`
+    + `<br><span class="sub">${c.res ? esc(c.res) : ""}${c.url ? ` <a href="${esc(c.url)}" target="_blank" rel="noopener">resolución INVÍAS</a>` : ""}</span>`;
+  const icon = total => L.divIcon({className:"", iconSize:[24, 24], iconAnchor:[12, 12],
+    html:`<svg width="24" height="24" viewBox="-12 -12 24 24"><circle r="10.5" fill="${total ? "#b71c1c" : "#ef6c00"}" stroke="#fff" stroke-width="2"/><rect x="-6" y="-2.2" width="12" height="4.4" rx="1" fill="#fff"/></svg>`});
+  leg.onAdd = () => { const d = L.DomUtil.create("div", "irleg cierresleg");
+    const sin = (D?.cierres || []).filter(c => !c.ll);
+    d.innerHTML = `<button type="button" class="irx" aria-label="Cerrar leyenda" title="Cerrar leyenda">✕</button>`
+      + `<button type="button" class="iropen" title="Mostrar leyenda de cierres">Cierres viales</button>`
+      + `<div class="hd">Cierres viales (INVÍAS) ${infoBtn("cierres", "cierres viales")}</div>`
+      + `<div class="r">${icon(true).options.html}<span>Cierre total</span></div><div class="r">${icon(false).options.html}<span>Cierre parcial u obras</span></div>`
+      + (!D ? `<div class="ft">Cargando…</div>` : `<div class="ft">${D.cierres.length} vigente${D.cierres.length === 1 ? "" : "s"} en el Tolima. Último cambio: ${fmtLocal(new Date(D.actualizado))}.</div>`)
+      + (sin.length ? `<details class="cierresin"><summary>${sin.length} sin ubicar en el mapa</summary>${sin.map(c => `<div>${card(c)}</div>`).join("")}</details>` : "");
+    d.querySelector(".irx").onclick = () => d.classList.add("min");
+    d.querySelector(".iropen").onclick = () => d.classList.remove("min");
+    L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d); return d; };
+  async function load(){
+    loading = true;
+    try { D = await (await fetch("data/cierres-viales.json", {cache:"no-cache"})).json(); } catch (e) { loading = false; D = {cierres:[], actualizado:new Date().toISOString(), bad:true}; }
+    for (const c of D.cierres) if (c.ll)
+      L.marker(c.ll, {icon:icon(CIERRE_TOTAL.test(c.cond)), zIndexOffset:500}).bindPopup(card(c), {maxWidth:300})
+        .bindTooltip(`${esc(c.cond)}: ${esc(c.via)}`, {direction:"top"}).addTo(g);
+    if (map && map.hasLayer(g)) { leg.remove(); leg.addTo(map); }
+  }
+  g.on("add", () => { map = g._map; leg.addTo(map); if (!D && !loading) load(); });
+  g.on("remove", () => leg.remove());
+  return g;
 }
 // Earthquakes M4+ in and around Tolima over the last year, from the USGS FDSN service.
 // (The SGC feed at archive.sgc.gov.co only answers its own website, so a browser page elsewhere cannot read it.)
@@ -2338,18 +2531,17 @@ function shareFilterLayers(groups, hl){
 }
 
 const SH_SRC = {dep:"Límites: shapefile del Tolima (MAGNA-SIRGAS), simplificado", mun:"Límites: shapefile del Tolima (MAGNA-SIRGAS), simplificado",
-  ver:"Veredas: DANE 2020", eq:"Sismos: USGS (catálogo FDSN, M4+)", movmasa:"Movimientos en masa: SGC (SIMMA)", machin:"Amenaza Cerro Machín: SGC / Cortolima 2026",
+  ver:"Veredas: DANE 2020", eq:"Sismos: USGS (catálogo FDSN, M4+)", movmasa:"Movimientos en masa: SGC (SIMMA)",
   volc:"Alerta volcánica: SGC", seg:"Seguridad: Defensoría del Pueblo, Sistema de Alertas Tempranas", est:"Estaciones: IDEAM (datos.gov.co)", alert:"Umbrales de nivel: IDEAM (FEWS)",
   davis:"Estaciones Davis: WeatherLink", emb:"Embalses: XM", focos:"Focos de calor: GWIS / NASA FIRMS", fwi:"Peligro de incendio: GWIS (Copernicus)",
-  fc:"Pronóstico: Open-Meteo", suelo:"Humedad del suelo: Open-Meteo", slide:"Riesgo orientativo: Open-Meteo (cálculo propio)", glofas:"Caudales: GloFAS (Copernicus)",
-  salud:"Prestadores de salud: REPS (MinSalud)", vias:"Vías: © colaboradores de OpenStreetMap (ODbL); rutas nacionales: INVÍAS", inc:"Eventos: registros de Cruz Roja Tolima", cam:"Cámaras: SGC"};
+  relieve:"Relieve: modelo digital de elevación (38 m)", spi:"SPI-3: lluvia CHIRPS (UCSB), cálculo propio", fc:"Pronóstico: Open-Meteo", suelo:"Humedad del suelo: Open-Meteo", slide:"Riesgo orientativo: Open-Meteo (cálculo propio)", glofas:"Caudales: GloFAS (Copernicus)",
+  salud:"Prestadores de salud: REPS (MinSalud)", vias:"Vías: © colaboradores de OpenStreetMap (ODbL); rutas nacionales: INVÍAS", cierres:"Cierres viales: INVÍAS / Policía Nacional (Estado de las vías)", inc:"Eventos: registros de Cruz Roja Tolima", cam:"Cámaras: SGC"};
 const shDate = d => d.toLocaleString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"long", year:"numeric", hour:"numeric", minute:"2-digit"});
 const shDay = s => fmtFecha(s);
 
 // Called by renderMap() in shared mode once the map, the layer control and the default layers exist
-function shareAfterMap({ctrl, sat, topo, applyBorders, hl}){
+function shareAfterMap({ctrl, hl}){
   const S = SHARE, box = document.getElementById("share");
-  if (S.b === "sat") { map.removeLayer(topo); sat.addTo(map); SATBASE = true; applyBorders(); }
   L.control.scale({imperial:false, position:"bottomleft", maxWidth:160}).addTo(map);
   const na = L.control({position:"topleft"});
   na.onAdd = () => { const d = L.DomUtil.create("div", "snorth"); d.title = "Norte";
@@ -2380,6 +2572,7 @@ function shareAfterMap({ctrl, sat, topo, applyBorders, hl}){
     dep:() => `<div>${sw("transparent", "#17221f", "border-width:0 0 3px;border-radius:0;height:8px")}Límite departamental</div>`,
     mun:() => `<div>${sw("transparent", "#3d4a46", "border-width:0 0 1.5px;border-radius:0;height:8px")}Límite municipal</div>`,
     ver:() => `<div>${sw("transparent", "#9a7b4f", "border-width:0 0 1px;border-radius:0;height:8px")}Veredas (DANE 2020)</div>`,
+    cierres:() => `<div><span class="shdot" style="background:#b71c1c"></span>Cierre total</div><div><span class="shdot" style="background:#ef6c00"></span>Cierre parcial u obras (INVÍAS)</div>`,
     vias:() => VIA_CLS.map(k => `<div><svg width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><path d="M1 5H21" stroke="${k.c}" stroke-width="${Math.max(1.5, k.w[1])}"${k.dash ? ` stroke-dasharray="${k.dash}"` : ""}/></svg>${k.n}</div>`).join(""),
     eq:() => `<div class="shlg-eq"><b>Sismos M4+</b> <span class="sub">(número = magnitud; ${S.eq ? `${shDay(S.eq.f)} a ${shDay(S.eq.t)}` : "último año"})</span><br>`
       + [["#ffd21f", "24 h"], ["#ff8a3d", "semana"], ["#c77dff", "mes"], ["#b0b7c3", "más antiguo"]].map(([c, t]) => `<span><span class="shdot" style="background:${c}"></span>${t}</span>`).join("") + `</div>`,
@@ -2393,9 +2586,9 @@ function shareAfterMap({ctrl, sat, topo, applyBorders, hl}){
     document.querySelectorAll("#map .maplegend").forEach(m => { const c = m.cloneNode(true); c.removeAttribute("style"); c.classList.remove("leaflet-control"); more.appendChild(c); });
     lg.closest(".shsec").hidden = !lg.innerHTML && !more.childElementCount;
     const src = [...new Set(on.map(id => SH_SRC[id] || SH_SRC[id.replace(/^sat-/, "")]).filter(Boolean))];
-    box.querySelector("#shsrc").innerHTML = src.map(esc).join("<br>") + (src.length ? "<br>" : "") + "Mapa base: Esri";
+    box.querySelector("#shsrc").innerHTML = src.map(esc).join("<br>") + (src.length ? "<br>" : "") + "Mapa base: " + esc(baseOf(CUR_BASE).src);
   }
-  map.on("overlayadd overlayremove", () => setTimeout(drawLegend, 50));
+  map.on("overlayadd overlayremove baselayerchange", () => setTimeout(drawLegend, 50));
   box._legend = drawLegend; setTimeout(drawLegend, 300);
   document.title = (S.t || "Mapa") + " · Cruz Roja Tolima";
 }
@@ -2410,12 +2603,19 @@ function shareBuildPage(){
   sec.innerHTML = `<div id="shbar" role="toolbar" aria-label="Vista de impresión"><b>Vista de impresión</b>
       <button type="button" class="btn" data-or="land">Horizontal</button><button type="button" class="btn" data-or="port">Vertical</button>
       <button type="button" class="btn go" id="shgo" disabled>Cargando mapa…</button><button type="button" class="btn" id="shexit">✕ Salir</button></div>
+    <div id="shxbar" role="toolbar" aria-label="Imagen para informe"><b>Imagen para informe</b>
+      <span class="shxg" role="group" aria-label="Forma"><button type="button" class="btn" data-xr="land">Horizontal</button><button type="button" class="btn" data-xr="sq">Cuadrada</button><button type="button" class="btn" data-xr="port">Vertical</button></span>
+      <span class="shxg" role="group" aria-label="Ancho en Word"><button type="button" class="btn" data-xw="16">16 cm (página)</button><button type="button" class="btn" data-xw="8">8 cm (media)</button></span>
+      <span class="shxg" role="group" aria-label="Convenciones"><button type="button" class="btn" data-xl="right">Convenciones al lado</button><button type="button" class="btn" data-xl="below">debajo</button><button type="button" class="btn" data-xl="none">sin</button></span>
+      <label class="shxc"><input type="checkbox" id="shxt" checked> Título</label>
+      <span class="shxg"><button type="button" class="btn go" id="shxpng" disabled>⬇ PNG</button><button type="button" class="btn go" id="shxdoc" disabled>⬇ Word</button><button type="button" class="btn" id="shxcp" disabled>Copiar imagen</button><button type="button" class="btn" id="shxexit">✕ Salir</button></span>
+      <span id="shxmsg" class="shxmsg"></span></div>
     <div class="shead">
       <img src="${emblem}" alt="Cruz Roja Colombiana, Seccional Tolima" class="shemb">
       <div class="shtit"><h1 id="shtitle"></h1>
         <div class="shmeta">${S.p ? `<span>Para: <b>${esc(S.p)}</b></span>` : ""}<span>Cruz Roja Colombiana · Seccional Tolima${S.a ? ` · ${esc(S.a)}` : ""}</span>
           ${made ? `<span>Elaborado: ${esc(shDate(made))}</span>` : ""}<span class="shprinted">Impreso: <span id="shnow"></span></span></div></div>
-      <div class="shbtns"><button type="button" class="btn go" id="shprint">🖨️ Imprimir o guardar PDF</button><button type="button" class="btn" id="shfit">⤢ Volver al encuadre</button></div>
+      <div class="shbtns"><button type="button" class="btn go" id="shprint">🖨️ Imprimir o guardar PDF</button><button type="button" class="btn" id="shimg">🖼️ Imagen para informe (Word)</button><button type="button" class="btn" id="shfit">⤢ Volver al encuadre</button></div>
     </div>
     <div class="shgrid"><div class="shmap"></div>
       <aside class="shside">
@@ -2426,6 +2626,7 @@ function shareBuildPage(){
         <div class="shsec"><h3>Fuentes</h3><div class="sub" id="shsrc"></div>
           <div class="sub" style="margin-top:6px">Los datos de cada capa se consultan en vivo al abrir el mapa; ubicaciones y límites aproximados.</div></div>
       </aside></div>
+    <div class="shxsrc" id="shxsrc"></div>
     <div class="shfoot">© ${new Date().getFullYear()} Cruz Roja Colombiana, Seccional Tolima · Sistema de Monitoreo (SAT Tolima)</div>`;
   wrap.prepend(sec);
   sec.querySelector("#shtitle").textContent = S.bad ? "Enlace de mapa dañado o incompleto" : (S.t || "Mapa compartido");
@@ -2462,6 +2663,63 @@ function shareBuildPage(){
   sec.querySelector("#shexit").onclick = unprep;
   // printing from the browser menu or share sheet without the preview: switch to the paper layout on the spot
   addEventListener("beforeprint", () => { if (!body.classList.contains("sprint")) { tick(); body.classList.add("sprint"); setOrient(orient); map.invalidateSize(); sec._legend?.(); sec._fit?.(); go.disabled = false; go.textContent = "🖨️ Imprimir ahora"; } });
+
+  // ---- "Imagen para informe": the map with title, legend, scale, north arrow and sources as a PNG sized for Word
+  // (300 ppp, 16 or 8 cm wide; the PNG carries that size so Word inserts it at that width), or a .docx with it and a caption.
+  const X = {r:"land", w:16, l:"right", t:true}, xmsg = sec.querySelector("#shxmsg"), xbtns = ["#shxpng", "#shxdoc", "#shxcp"].map(q => sec.querySelector(q));
+  const RATIO = {land:0.66, sq:1, port:1.15}, FRAME = {16:900, 8:560};   // map height / width; frame width in screen px
+  let xseq = 0;
+  const xsync = () => { sec.querySelectorAll("[data-xr]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.xr === X.r)));
+    sec.querySelectorAll("[data-xw]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.xw === X.w)));
+    sec.querySelectorAll("[data-xl]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.xl === X.l))); };
+  const xsrcLine = () => { const d = document.createElement("div"); d.innerHTML = sec.querySelector("#shsrc").innerHTML.replace(/<br\s*\/?>/gi, "\n");
+    const src = d.textContent.split("\n").map(t => t.trim()).filter(Boolean).join("; ");
+    return `Fuente: ${src}. Elaboración: Cruz Roja Colombiana, Seccional Tolima, ${shDate(new Date()).replace(/\.$/, "")}.`; };
+  async function xprep(){
+    const my = ++xseq; if (body.classList.contains("sprint")) unprep();
+    map.closePopup(); tick(); xbtns.forEach(b => b.disabled = true); xmsg.textContent = "Preparando el mapa…";
+    body.classList.add("sexp"); body.classList.toggle("sxnot", !X.t);
+    ["right", "below", "none"].forEach(k => body.classList.toggle("sxl-" + k, X.l === k));
+    body.style.setProperty("--xw", FRAME[X.w] + "px");
+    body.style.setProperty("--xtop", (sec.querySelector("#shxbar").getBoundingClientRect().height + 16) + "px");
+    sec._legend?.(); sec.querySelector("#shxsrc").textContent = xsrcLine();
+    const mapEl = document.getElementById("map"); mapEl.style.setProperty("height", "200px", "important"); map.invalidateSize();
+    mapEl.style.setProperty("height", Math.round(mapEl.getBoundingClientRect().width * RATIO[X.r]) + "px", "important");
+    map.invalidateSize(); sec._fit?.(); scrollTo(0, 0);
+    await new Promise(r => setTimeout(r, 600)); await waitTiles();
+    if (my !== xseq) return; xbtns.forEach(b => b.disabled = false);
+    xmsg.textContent = `Lista: ${X.w} cm de ancho en Word.`;
+  }
+  const xexit = () => { xseq++; ["sexp", "sxnot", "sxl-right", "sxl-below", "sxl-none"].forEach(c => body.classList.remove(c));
+    document.getElementById("map").style.removeProperty("height"); map.invalidateSize(); };
+  const fileBase = () => (S.t || "mapa").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w-]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 60) || "mapa";
+  async function xrender(){
+    const frame = sec.getBoundingClientRect().width, outW = Math.round(X.w / 2.54 * 300);
+    const cv = await MapExport.render(sec, outW / frame, el => el.id === "shxbar" || el.id === "shbar");
+    const png = await MapExport.pngBytes(cv, 300);
+    xmsg.textContent = cv._stats.tilesMissing ? `Lista, pero ${cv._stats.tilesMissing} partes del mapa base no se pudieron incluir (el servidor de mapas no lo permite).` : `Lista: ${cv.width} × ${cv.height} px, ${X.w} cm de ancho en Word.`;
+    return {png, w:cv.width, h:cv.height};
+  }
+  const save = (blob, name) => { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 60e3); };
+  const busy = async (b, fn) => { const t = b.textContent; b.disabled = true; b.textContent = "Creando…";
+    try { await fn(); } catch (e) { console.error(e); xmsg.textContent = "No se pudo crear la imagen: " + e.message; } b.disabled = false; b.textContent = t; };
+  sec.querySelector("#shimg").onclick = () => { xsync(); xprep(); };
+  sec.querySelectorAll("[data-xr]").forEach(b => b.onclick = () => { X.r = b.dataset.xr; xsync(); xprep(); });
+  sec.querySelectorAll("[data-xw]").forEach(b => b.onclick = () => { X.w = +b.dataset.xw; xsync(); xprep(); });
+  sec.querySelectorAll("[data-xl]").forEach(b => b.onclick = () => { X.l = b.dataset.xl; xsync(); xprep(); });
+  sec.querySelector("#shxt").onchange = e => { X.t = e.target.checked; xprep(); };
+  sec.querySelector("#shxexit").onclick = xexit;
+  xbtns[0].onclick = () => busy(xbtns[0], async () => { const r = await xrender(); save(new Blob([r.png], {type:"image/png"}), fileBase() + ".png"); });
+  xbtns[1].onclick = () => busy(xbtns[1], async () => { const r = await xrender();
+    save(MapExport.docx(r.png, r.w, r.h, X.w, S.t || "Mapa", xsrcLine()), fileBase() + ".docx"); });
+  // the clipboard needs the picture promised inside the tap (Safari), so the item gets a promise
+  xbtns[2].onclick = () => { const b = xbtns[2];
+    if (!navigator.clipboard?.write || typeof ClipboardItem === "undefined") { xmsg.textContent = "Este navegador no permite copiar imágenes: use ⬇ PNG."; return; }
+    const p = xrender().then(r => new Blob([r.png], {type:"image/png"}));
+    navigator.clipboard.write([new ClipboardItem({"image/png": p})]).then(() => { xmsg.textContent = "Imagen copiada: péguela en Word con Ctrl+V (⌘V)."; },
+      e => { xmsg.textContent = "No se pudo copiar (" + e.message + "): use ⬇ PNG."; });
+    b.blur(); };
 }
 
 // ---- The builder (team members only)
@@ -2500,7 +2758,7 @@ function shareBuilder(){
         <div id="mdl_eq" class="row" hidden><span>Sismos desde</span><input type="date" id="mdl_ef" max="${today}"><span>hasta</span><input type="date" id="mdl_et" max="${today}"></div>
         <div id="mdl_at" hidden><span class="m">Alertas Tempranas a incluir:</span>${SEG_AT.map((a, i) => `<label class="ch2"><input type="checkbox" value="${esc(a.id)}" ${i === 0 ? "checked" : ""}> ${esc(a.n)} (${esc(fmtFecha(a.f))})</label>`).join("")}</div>
       </fieldset>
-      <div class="row"><label>Mapa base <select id="mdl_b"><option value="topo">Topográfico</option><option value="sat" ${SATBASE ? "selected" : ""}>Imagen satelital</option></select></label></div>
+      <div class="row"><label>Mapa base <select id="mdl_b">${BASEMAPS.map(b => `<option value="${b.id}" ${b.id === CUR_BASE ? "selected" : ""}>${esc(b.short)}</option>`).join("")}</select></label></div>
       <div class="row mfoot"><span class="m" id="mdl_msg"></span><button type="button" class="btn" id="mdl_pv">Vista previa</button><button type="button" class="btn go" id="mdl_go">Crear enlace</button></div>
       <div id="mdl_out" hidden></div>
     </form>`;
@@ -2675,9 +2933,10 @@ function initCoordBox(map){
     const ll = [+lat.toFixed(6), +lng.toFixed(6)], mn = munName(munAt(ll[1], ll[0]));
     if (mk) mk.remove();
     mk = L.marker(ll, {icon:L.divIcon({className:"", html:'<div class="xpin"></div>', iconSize:[22,22], iconAnchor:[11,11]}), zIndexOffset:1000, keyboard:true, title:"Punto ubicado"})
-      .bindPopup(`<b>Punto ubicado</b><br>${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}<br><span class="sub">${dms(ll[0], "N", "S")} ${dms(ll[1], "E", "O")}</span><br>${mn ? "Municipio: <b>" + esc(mn) + "</b>" : "Fuera de los municipios del Tolima"}`).addTo(map);
+      .bindPopup(`<b>Punto ubicado</b><br>${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}<br><span class="sub">${dms(ll[0], "N", "S")} ${dms(ll[1], "E", "O")}</span><br>${mn ? "Municipio: <b>" + esc(mn) + "</b>" : "Fuera de los municipios del Tolima"}${altSlot({lat:ll[0], lng:ll[1]})}`).addTo(map);
     map.setView(ll, Math.max(map.getZoom(), 13)); mk.openPopup(); $c("xclr").hidden = false;
     say(`${ll[0].toFixed(5)}, ${ll[1].toFixed(5)} · ${mn ? mn : "fuera del Tolima"}`, !mn);
+    altAt(ll[0], ll[1]).then(h => { if (h != null && mk && mk.getLatLng().equals(ll)) msg.textContent += ` · ${fmtAlt(h)}`; });
     document.getElementById("map").scrollIntoView({behavior:"smooth", block:"center"});
   };
   $c("xgo").onclick = go;
@@ -2710,59 +2969,6 @@ async function fwiDay(day){
     let best = 0, bd = 1e9; FWICL.forEach((c, i) => { const dd = (c.c[0] - d[k]) ** 2 + (c.c[1] - d[k+1]) ** 2 + (c.c[2] - d[k+2]) ** 2; if (dd < bd) { bd = dd; best = i; } });
     max = Math.max(max, best); mun[m] = Math.max(mun[m] ?? -1, best); }
   return n ? {max, mun} : null;
-}
-// Cerro Machín volcanic hazard map, SGC 2nd version (2026), served by Cortolima's ArcGIS server (SIA). The MapServer draws
-// the map as one image per view (export?f=image), which any page can show; clicking asks the same server what is there.
-const VCM = "https://sia.cortolima.gov.co/arcgis/rest/services/Amenazas_Riesgos/AMENAZA_MACHIN_2026/MapServer";
-function buildMachinLayer(){
-  const box = document.getElementById("vcminfo");
-  let img = null, mapRef = null, seq = 0;
-  const g = L.layerGroup();
-  function update(){
-    if (!mapRef) return;
-    const b = mapRef.getBounds(), sz = mapRef.getSize(), crs = L.CRS.EPSG3857;
-    const sw = crs.project(b.getSouthWest()), ne = crs.project(b.getNorthEast());
-    const url = `${VCM}/export?` + new URLSearchParams({bbox:[sw.x, sw.y, ne.x, ne.y].map(v => v.toFixed(1)).join(","), bboxSR:3857, imageSR:3857,
-      size:`${sz.x},${sz.y}`, dpi:96, format:"png32", transparent:true, f:"image"});
-    const my = ++seq, next = L.imageOverlay(url, b, {pane:"sat", opacity:0.8, interactive:false,
-      attribution:'Amenaza Cerro Machín: SGC (2.ª versión, 2026) vía <a href="https://sia.cortolima.gov.co" target="_blank" rel="noopener">Cortolima</a>'});
-    next.once("load", () => { if (my !== seq) { g.removeLayer(next); return; } if (img) g.removeLayer(img); img = next; });
-    next.once("error", async () => { g.removeLayer(next);
-      // fallback: ask for JSON and load the image file the server writes
-      try { const j = await (await fetch(url.replace("f=image", "f=json"))).json(); if (my !== seq || !j.href) throw 0;
-        const alt = L.imageOverlay(j.href, b, {pane:"sat", opacity:0.8, interactive:false});
-        alt.once("load", () => { if (my !== seq) { g.removeLayer(alt); return; } if (img) g.removeLayer(img); img = alt; }); g.addLayer(alt);
-      } catch (e) { if (my === seq) box.querySelector(".vcmerr")?.removeAttribute("hidden"); } });
-    g.addLayer(next);
-  }
-  async function identify(e){
-    const b = mapRef.getBounds(), sz = mapRef.getSize();
-    try {
-      const j = await (await fetch(`${VCM}/identify?` + new URLSearchParams({geometry:`${e.latlng.lng},${e.latlng.lat}`, geometryType:"esriGeometryPoint", sr:4326,
-        layers:"visible:1", tolerance:2, mapExtent:[b.getWest(), b.getSouth(), b.getEast(), b.getNorth()].join(","), imageDisplay:`${sz.x},${sz.y},96`,
-        returnGeometry:false, f:"json"}))).json();
-      const rows = (j.results || []).map(r => r.attributes);
-      if (!rows.length) return;
-      const a = rows[0];
-      L.popup({maxWidth:Math.min(300, innerWidth - 80)}).setLatLng(e.latlng).setContent(`<div class="flpop"><b>Amenaza volcánica · Cerro Machín</b><br>
-        ${esc(a.Nombre_Ver || "")}${a.mun_nombre ? " · " + esc(a.mun_nombre) : ""}
-        <ul style="margin:6px 0 0;padding-left:18px">${rows.map(r => `<li><b>${esc(r.AME || "")}</b>: ${esc(r.DescFenom || r.Fenomeno || "")}</li>`).join("")}</ul>
-        <div class="sub">SGC, 2.ª versión (2026), vía Cortolima</div></div>`).openOn(mapRef);
-    } catch (err) { /* the server may not allow other sites to ask; the map image still shows */ }
-  }
-  g.on("add", () => { mapRef = g._map; update(); mapRef.on("moveend", update); mapRef.on("click", identify);
-    // legend swatches are the server's own legend images (MapServer/<layer>/images/<id>)
-    const li = (l, id) => `<img src="${VCM}/${l}/images/${id}" width="16" height="16" alt="" style="vertical-align:-3px;margin-right:3px">`;
-    box.innerHTML = `<span><b>Amenaza volcánica Cerro Machín</b> (SGC, 2.ª versión 2026) ${infoBtn("machin", "amenaza del Cerro Machín")}</span>
-      <span>${li(1, "8c1c549eea9784ada831b1ddeb1aae09")}Alta: corrientes de densidad piroclástica, proyectiles y avalancha por colapso del domo</span>
-      <span>${li(1, "5184297b4bdad7161f42c4fd914a579e")}Alta: lahares 1</span><span>${li(1, "f5280322d510980540d55696975a884e")}Alta: lahares 2</span>
-      <span>Caída de ceniza y lapilli: ${li(1, "27f95dc32216ca9f4e728ca272a48e13")}alta · ${li(1, "fced45748d7e4a962d3f66cd9c0c4cf3")}media · ${li(1, "269ee0c2b0189995d726813a5f7c1394")}baja</span>
-      <span>Acumulación de ceniza: ${li(0, "4aa901c7e0102b3df1f26234ba61cc82")}≥ 10 cm · ${li(0, "6d1f73d1e35b1dbd27b655ea5e4b43bb")}1 a 10 cm · ${li(0, "d167c0bf967db467220cf797bad1d5df")}0,5 a 1 cm</span>
-      <span>Toque el mapa para ver la amenaza en ese punto.</span>
-      <span class="vcmerr badtxt" hidden>No se pudo cargar el mapa desde el servidor de Cortolima; intente de nuevo más tarde.</span>`;
-    box.hidden = false; });
-  g.on("remove", () => { if (mapRef) { mapRef.off("moveend", update); mapRef.off("click", identify); } g.clearLayers(); img = null; box.hidden = true; });
-  return g;
 }
 function buildFwiLayer(){
   const wms = L.tileLayer.wms(GWIS, {layers:"ecmwf.fwi", styles:"", format:"image/png", transparent:true, version:"1.3.0", pane:"sat",
@@ -2850,6 +3056,70 @@ const VEREDAS = {"m":["Ibagué","Villarrica","Venadillo","Valle de San Juan","Su
 function decPoly(s){ const out = []; let i = 0, x = 0, y = 0;
   const nx = () => { let r = 0, sh = 0, b; do { b = s.charCodeAt(i++) - 63; r |= (b & 31) << sh; sh += 5; } while (b >= 32); return r & 1 ? ~(r >> 1) : r >> 1; };
   while (i < s.length) { y += nx(); x += nx(); out.push([y / 1e4, x / 1e4]); } return out; }
+// ---- Base maps -------------------------------------------------------------------------------------------
+// Google base maps use Google's Map Tiles API (2D tiles), the route its terms allow for Leaflet. They stay hidden
+// until a key is pasted here. The key must be restricted in Google Cloud to the site's address and to the Map Tiles API.
+const GOOGLE_TILES_KEY = "";
+const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/";
+const OSM_ATTR = '© colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+// dark: imagery, where borders and roads switch to light lines with a dark casing
+const BASEMAPS = [
+  // Esri World Topo is the default: it also works when the page is opened as a local file
+  // (the OSM tile servers refuse requests that carry no Referer)
+  {id:"topo", name:"Topográfico (Esri)", short:"Topográfico", src:"Esri World Topo Map",
+   make:() => L.tileLayer(ESRI + "World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+     {maxZoom:17, attribution:"Tiles © Esri — Esri, HERE, Garmin, USGS, NGA, OpenStreetMap contributors"})},
+  // OpenStreetMap standard tiles: allowed for normal browsing with attribution (operations.osmfoundation.org/policies/tiles);
+  // nothing here prefetches or downloads tiles in bulk
+  {id:"osm", name:"OpenStreetMap", short:"OpenStreetMap", src:"© colaboradores de OpenStreetMap (ODbL)",
+   make:() => L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:19, attribution:OSM_ATTR})},
+  {id:"otm", name:"Relieve (OpenTopoMap)", short:"Relieve (OpenTopoMap)", src:"OpenTopoMap (CC-BY-SA), datos © colaboradores de OpenStreetMap",
+   make:() => L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {subdomains:"abc", maxZoom:17,
+     attribution:'Mapa © <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA) · datos ' + OSM_ATTR})},
+  // Esri World Imagery (Maxar, Airbus and others) with place-name and boundary labels on top
+  {id:"sat", name:"Imagen satelital (Esri)", short:"Imagen satelital", src:"Esri World Imagery", dark:true,
+   make:() => L.layerGroup([
+     L.tileLayer(ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}", {maxZoom:17,
+       attribution:"Imágenes © Esri — Esri, Maxar, Earthstar Geographics, Airbus DS, USDA, USGS, IGN y la comunidad de usuarios SIG"}),
+     L.tileLayer(ESRI + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {maxZoom:17})])},
+  ...(GOOGLE_TILES_KEY ? [
+    {id:"groad", name:"Google · Mapa", short:"Google Mapa", src:"Google", make:() => googleBase("roadmap")},
+    {id:"gsat", name:"Google · Satélite", short:"Google Satélite", src:"Google", dark:true, make:() => googleBase("satellite")},
+    {id:"ghyb", name:"Google · Híbrido", short:"Google Híbrido", src:"Google", dark:true, make:() => googleBase("satellite", ["layerRoadmap"])},
+    {id:"gter", name:"Google · Relieve", short:"Google Relieve", src:"Google", make:() => googleBase("terrain", ["layerRoadmap"])}] : [])];
+// a base map id from a shared link or a saved choice; Google ones fall back to Esri when no key is set
+const baseOf = id => BASEMAPS.find(b => b.id === id) || BASEMAPS.find(b => b.id === (/^g(sat|hyb)$/.test(id || "") ? "sat" : "topo"));
+const BASE_PREF = "satTolima.base";
+let CUR_BASE = "topo", setBase = () => {};
+// Google Map Tiles API: one session per map type (valid about two weeks), tiles from /v1/2dtiles, and the credits
+// for the visible area from /tile/v1/viewport, which must be shown together with the Google logo.
+function googleBase(mapType, layerTypes){
+  const K = encodeURIComponent(GOOGLE_TILES_KEY), API = "https://tile.googleapis.com";
+  const g = L.layerGroup(); let tl = null, sess = null, exp = 0, pending = null, credit = "", map_ = null, timer = 0;
+  const logo = L.control({position:"bottomright"});
+  logo.onAdd = () => { const d = L.DomUtil.create("div", "glogo");
+    d.innerHTML = `<img src="https://maps.gstatic.com/mapfiles/api-3/images/google_white5_hdpi.png" alt="Google" width="66" height="26" onerror="this.replaceWith('Google')">`;
+    return d; };
+  const setCredit = t => { const a = map_?.attributionControl; if (!a) return;
+    if (credit) a.removeAttribution(credit); credit = t; if (t) a.addAttribution(t); };
+  const credits = () => { clearTimeout(timer); timer = setTimeout(() => { if (!map_ || !sess) return; const b = map_.getBounds();
+    fetch(`${API}/tile/v1/viewport?session=${sess}&key=${K}&zoom=${Math.round(map_.getZoom())}&north=${b.getNorth()}&south=${b.getSouth()}&east=${b.getEast()}&west=${b.getWest()}`)
+      .then(r => r.ok ? r.json() : null).then(j => { if (j && map_) setCredit(esc(j.copyright || "Datos del mapa © Google")); }).catch(() => {}); }, 400); };
+  const session = () => (sess && Date.now() < exp - 36e5) ? Promise.resolve() : (pending ||= fetch(`${API}/v1/createSession?key=${K}`, {method:"POST",
+      headers:{"Content-Type":"application/json"}, body:JSON.stringify({mapType, language:"es-419", region:"CO", ...(layerTypes ? {layerTypes} : {})})})
+    .then(r => r.ok ? r.json() : r.text().then(t => Promise.reject(new Error(r.status + " " + t.slice(0, 200)))))
+    .then(j => { sess = j.session; exp = Number(j.expiry) * 1000 || Date.now() + 864e5;
+      const url = `${API}/v1/2dtiles/{z}/{x}/{y}?session=${sess}&key=${K}`;
+      if (tl) tl.setUrl(url); else tl = L.tileLayer(url, {maxZoom:20, maxNativeZoom:mapType === "terrain" ? 15 : 20, tileSize:256}); })
+    .finally(() => { pending = null; }));
+  g.on("add", () => { map_ = g._map; logo.addTo(map_); setCredit("Datos del mapa © Google");
+    session().then(() => { if (!map_) return; g.addLayer(tl); credits(); map_.on("moveend", credits); })
+      .catch(err => { console.warn("Google Map Tiles:", err);
+        const m = map_; if (!m) return; setBase("topo");
+        L.popup({maxWidth:260}).setLatLng(m.getCenter()).setContent("<b>No se pudo cargar el mapa de Google.</b><br>Se volvió al mapa topográfico. Revise la llave de Google (API habilitada, facturación y dominio permitido).").openOn(m); }); });
+  g.on("remove", () => { if (tl) g.removeLayer(tl); logo.remove(); map_?.off("moveend", credits); setCredit(""); map_ = null; });
+  return g;
+}
 // border colours for the plain map and for the satellite basemap (light lines with a dark halo read better on imagery)
 let SATBASE = false;
 // k thickens lines when zoomed out (set from the map zoom); on satellite every border gets a dark casing underneath
@@ -3048,6 +3318,20 @@ function buildDavisLayer(){
   return g;
 }
 const INFO = {
+  clima: ["Histórico climático (CHIRPS, El Niño / La Niña)",
+    `<p>Muestra cuánto ha llovido cada mes desde 1981 en el municipio elegido (o en todo el Tolima) y si fue más o menos de lo normal. <b>Lo normal</b> es el promedio de ese mismo mes entre 1991 y 2020, el periodo de referencia de la Organización Meteorológica Mundial.</p>
+     <p>La lluvia viene de <b>CHIRPS</b> (Climate Hazards Center, Universidad de California en Santa Bárbara), que combina imágenes de satélite con estaciones en celdas de unos 5 km. Para cada municipio se promedian las celdas que caen dentro de su límite. En la montaña CHIRPS puede diferir de una estación concreta del IDEAM, pero sirve bien para comparar años y épocas.</p>
+     <p>Las franjas de color de fondo marcan los periodos de <b>El Niño</b> (rojo, en el Tolima suele llover menos) y <b>La Niña</b> (azul, suele llover más), según el índice ONI de la NOAA: hay episodio cuando el ONI pasa de +0,5 (o baja de −0,5) durante al menos cinco trimestres seguidos.</p>
+     <p>Las franjas por año van de café (año seco) a azul (año lluvioso); el color lleno es un 35 % o más por encima o por debajo de lo normal. El calendario de lluvias compara cada mes con lo normal, con el último año y con el año que usted elija. El botón CSV descarga la serie mensual con la anomalía, el SPI y el ONI.</p>
+     <p>Los datos se actualizan solos cada mes (el 24), cuando el CHC publica el mes anterior.</p>`],
+  spi: ["Índice de precipitación estandarizado (SPI)",
+    `<p>El <b>SPI</b> dice qué tan rara es la lluvia de un periodo comparada con la misma época de otros años. Un SPI de 0 es lo normal; −1 es un periodo seco que pasa más o menos uno de cada seis años; −2 o menos, algo que pasa uno de cada 40 años. Lo positivo es lo mismo hacia el lado lluvioso.</p>
+     <p><b>SPI-1</b> mira solo el último mes; <b>SPI-3</b> los últimos tres (útil para cultivos y suelos); <b>SPI-6</b> y <b>SPI-12</b> la lluvia acumulada de seis y doce meses (ríos, embalses y acueductos).</p>
+     <p>Categorías (McKee y otros, 1993, las que usa la OMM): 2 o más extremadamente húmedo; 1,5 a 2 muy húmedo; 1 a 1,5 moderadamente húmedo; −1 a 1 normal; −1 a −1,5 moderadamente seco; −1,5 a −2 severamente seco; −2 o menos extremadamente seco.</p>
+     <p>Se calcula aquí con la lluvia mensual de CHIRPS de cada municipio: para cada mes del año se ajusta una distribución gamma a los años 1991–2020 y se convierte a una escala normal. La capa del mapa colorea cada municipio con el SPI-3 del último mes publicado. Es un cálculo propio, no un boletín oficial del IDEAM.</p>`],
+  ungrd: ["Emergencias reportadas a la UNGRD",
+    `<p>Son las emergencias que los municipios reportan a la <b>Unidad Nacional para la Gestión del Riesgo de Desastres</b> (UNGRD), según sus datos abiertos en datos.gov.co (consolidados de 2019 a 2025). Cada barra cuenta las emergencias de un mes, por tipo, y la línea azul es la lluvia de ese mes según CHIRPS, para ver si las inundaciones y los deslizamientos llegan con los meses más lluviosos.</p>
+     <p>Los incendios forestales incluyen los incendios de cobertura vegetal. “Otros” reúne incendios estructurales, accidentes, colapsos, sismos y demás. Un evento que afecta a varios municipios aparece una vez en cada uno. Los años anteriores a 2019 (DesInventar) se pueden añadir más adelante.</p>`],
   davis: ["Estaciones Davis (WeatherLink)",
     `<p>Estaciones meteorológicas <b>Davis</b> de la cuenta <b>WeatherLink</b> de la Cruz Roja Tolima, además de las del IDEAM. En el mapa se dibujan con la misma gota que las del IDEAM, coloreada según la lluvia caída hoy desde las 0:00, con una pequeña <b>D</b> morada para distinguirlas. Una ✕ es una estación que no ha enviado datos en las últimas 2 horas. En la tabla de estaciones aparecen con la fuente <b>Davis</b>.</p>
      <p>Toque una estación para ver la lluvia de hoy, de las últimas 24 y 72 horas, la intensidad, la temperatura, la humedad, el viento, la presión y la hora del último dato, con un gráfico de la lluvia por hora del último día.</p>
@@ -3073,10 +3357,6 @@ const INFO = {
     `<p>Cada gota es una estación automática del IDEAM. El color y el tamaño indican cuánta lluvia ha registrado desde las 0:00 de hoy (hora Colombia): cuanto más oscura y grande, más lluvia.</p>
      <p>blanca = sin lluvia (0 mm) · azul claro = baja (hasta 10 mm) · azul medio = moderada (10.1–30 mm) · azul = alta (30.1–50 mm) · azul marino = muy alta (más de 50 mm).</p>
      <p>Una gota con borde punteado significa que la estación no ha enviado datos de lluvia hoy. Los datos llegan con 1 a 2 horas de retraso y son crudos, sin revisión.</p>`],
-  machin: ["Amenaza volcánica del Volcán Cerro Machín",
-    `<p>Zonificación de la amenaza volcánica del Cerro Machín, <b>segunda versión (2026)</b>, elaborada por el <b>Servicio Geológico Colombiano (SGC)</b>. Se muestra desde el servidor de mapas de <a href="https://sia.cortolima.gov.co/arcgis/rest/services/Amenazas_Riesgos/AMENAZA_MACHIN_2026/MapServer" target="_blank" rel="noopener">Cortolima (SIA)</a>, que la publica cruzada con las veredas del Tolima. Para el documento oficial y su memoria técnica consulte al <a href="https://www.sgc.gov.co" target="_blank" rel="noopener">SGC</a>.</p>
-     <p><b>Qué muestra:</b> zonas de amenaza <b>alta</b> por corrientes de densidad piroclástica, proyectiles balísticos y avalancha por colapso del domo (rojo); <b>alta</b> por lahares, que bajan por los ríos que nacen en el volcán (negro); y amenaza <b>alta, media y baja</b> por caída de ceniza y lapilli llevados por el viento (rojo, naranja y amarillo), con líneas que marcan acumulaciones de 10 cm o más, de 1 a 10 cm y de 0,5 a 1 cm.</p>
-     <p>Es un mapa de amenaza (qué puede pasar y dónde si hay una erupción), no de actividad actual. El nivel de actividad vigente lo da el boletín del Observatorio Vulcanológico del SGC en Manizales. Toque el mapa para ver la vereda y los fenómenos en ese punto.</p>`],
   secas: ["Estaciones sin lluvia",
     `<p>Cuenta las estaciones del IDEAM en el Tolima que <b>no han registrado lluvia</b> (ningún registro de 10 minutos por encima de 0 mm) en el periodo, contado hacia atrás desde el último dato publicado.</p>
      <p><b>15 días o más:</b> ninguna lluvia en los últimos 15 días; incluye las que llevan 30 días o más. <b>30 días o más:</b> ninguna lluvia en los últimos 30 días (el IDEAM permite consultar más atrás, pero aquí se cuenta hasta 30 para que la página cargue rápido).</p>
@@ -3150,6 +3430,20 @@ const INFO = {
      <p><b>Fechas:</b> bajo el mapa puede elegir el periodo (desde / hasta) o usar los atajos de 30 días a 20 años. Por defecto muestra el último año.</p>
      <p>Cada círculo lleva escrita su magnitud y crece con ella. Bajo el mapa aparece la lista de los sismos más recientes; tóquelos para ir a cada uno. El color indica cuándo ocurrió: <span style="color:#e0b000">●</span> últimas 24 horas · <span style="color:#ff8a3d">●</span> última semana · <span style="color:#c77dff">●</span> último mes · <span style="color:#8a93a3">●</span> último año.</p>
      <p>La red oficial de Colombia es la del <b>Servicio Geológico Colombiano</b>. Su visor no permite que otras páginas lean sus datos, así que aquí se usa el USGS; la magnitud puede diferir unas décimas de la del SGC. Cada sismo tiene un enlace al <a href="https://www.sgc.gov.co/sismos" target="_blank" rel="noopener">visor de sismos del SGC</a>.</p>`],
+  cierres: ["Cierres viales (INVÍAS)",
+    `<p>Cierres de vías nacionales en el Tolima declarados por el <b>INVÍAS</b> mediante resolución, tal como los publica la Policía Nacional en <a href="https://www.policia.gov.co/estado-de-las-vias" target="_blank" rel="noopener">Estado de las vías</a>: vía, PR (punto de referencia, el kilómetro de la vía), tipo de cierre, motivo, vía alterna, fechas y resolución.</p>
+     <p>El sitio revisa esa lista cada hora y muestra solo los cierres vigentes (sin fecha de fin, con fecha de fin futura o indefinidos). La lista no trae coordenadas: cada cierre se ubica en la Red Vial Nacional del INVÍAS según su PR, así que el punto es aproximado (unos cientos de metros). Los que no se pueden ubicar aparecen en la leyenda, sin punto en el mapa.</p>
+     <p><b>No incluye</b> derrumbes o cierres de última hora que aún no tienen resolución, ni vías departamentales o veredales. Para eso: línea #767 de la Policía de Tránsito y las redes del INVÍAS. Algunas filas de la fuente tienen errores (por ejemplo, una vía de Santander marcada como Tolima).</p>`],
+  mapabase: ["Mapa base",
+    `<p>El mapa base es el fondo sobre el que se dibujan las capas. Elíjalo en el panel de capas; el tablero recuerda el último que usó en este equipo, y un mapa compartido lleva el que se eligió al crearlo.</p>
+     <p><b>Topográfico (Esri)</b>: relieve suave, ríos y nombres. Es el predeterminado. <b>OpenStreetMap</b>: el mapa libre de voluntarios, con más detalle de calles, caminos y lugares en pueblos y veredas. <b>Relieve (OpenTopoMap)</b>: curvas de nivel y sombreado, útil para ver pendientes y cañones (máximo acercamiento algo menor). <b>Imagen satelital (Esri)</b>: fotos de satélite y avión de varios años, con nombres encima; la fecha de la imagen cambia según la zona.</p>
+     <p>${GOOGLE_TILES_KEY ? "<b>Google</b> (mapa, satélite, híbrido y relieve) se carga con la llave de Cruz Roja Tolima en la plataforma de Google Maps." : "Los mapas de <b>Google</b> se activan cuando se configure una llave de Google Maps Platform (Map Tiles API); copiar las imágenes de Google sin llave no está permitido por sus condiciones."}</p>
+     <p>Fuentes: Esri, Maxar, Earthstar Geographics, HERE, Garmin, USGS; © colaboradores de OpenStreetMap (ODbL); OpenTopoMap (CC-BY-SA)${GOOGLE_TILES_KEY ? "; Google" : ""}.</p>`],
+  altitud: ["Altitud y relieve",
+    `<p>La altitud sale de un <b>modelo digital de elevación</b> (DEM) del Tolima con celdas de unos <b>38 m</b>, recortado del DEM de Colombia. Por su tamaño de celda, casi seguro viene de un servicio de mosaicos de elevación basado en el <b>SRTM de 30 m</b> de la NASA (comparado con el SRTM y el Copernicus GLO-30, difiere unos 3 a 4 m en promedio).</p>
+     <p>Aparece en <b>Ubicar coordenadas</b>, en <b>Medir → Coordenadas</b>, al mantener presionado el mapa y en las fichas de municipios y veredas (la altitud del punto tocado). En <b>Medir</b> por la vía o en línea recta muestra también cuánto sube y baja el recorrido.</p>
+     <p>Precisión: unos <b>±10 m</b> en terreno plano y más en laderas muy empinadas, cañones y cumbres, donde una celda de 38 m mezcla alturas distintas. En los nevados el hielo ha cambiado desde que se tomaron los datos. Es orientativa: no sirve para obras ni deslindes.</p>
+     <p>La capa <b>Relieve (sombreado)</b> dibuja las montañas con luz desde el noroeste, a partir de los mismos datos. Solo cubre el Tolima y unos 2 km alrededor.</p>`],
   vias: ["Vías (OpenStreetMap)",
     `<p>Red de carreteras del Tolima tomada de <b>OpenStreetMap</b> (OSM), el mapa libre que construyen voluntarios, instituciones y empresas. Se usó la exportación de OSM para Colombia del Humanitarian OpenStreetMap Team (HOT) del 2 de noviembre de 2026, recortada al Tolima y simplificada (unos 15 m) para que cargue rápido en el celular.</p>
      <p><span style="color:#d50000">━</span> <b>Primaria</b>: troncales y vías nacionales · <span style="color:#ff8f00">━</span> <b>secundaria</b>: vías departamentales · <span style="color:#7b4a2a">━</span> <b>terciaria o veredal</b>: carreteables entre veredas y cabeceras (visible desde zoom 9) · <span style="color:#7b4a2a">┅</span> <b>camino o trocha</b> (desde zoom 11). Sobre la imagen satelital las terciarias se dibujan en amarillo claro. No se incluyen calles urbanas ni senderos peatonales.</p>
@@ -3182,18 +3476,10 @@ const INFO = {
     `<p>Imágenes en vivo de las cámaras que el <b>Servicio Geológico Colombiano</b> usa para vigilar el volcán Nevado del Ruiz (en el límite entre Caldas y Tolima) y el volcán Cerro Machín (Cajamarca, Tolima). Se actualizan cada pocos minutos.</p>
      <p>Toque un ícono de cámara para ver la última imagen; toque la imagen para abrirla en tamaño completo. Con nubes o de noche puede no verse nada. La posición de cada cámara en el mapa es aproximada, porque el SGC no publica sus coordenadas.</p>
      <p>Son imágenes públicas del SGC, mostradas con su crédito y enlace. No hay cámaras públicas y abiertas de ciudades o vías del Tolima que se puedan incrustar aquí.</p>`],
-  radar: ["Radar de lluvia (RainViewer)",
-    `<p>Un radar meteorológico envía pulsos de microondas y mide el eco que devuelven las gotas de lluvia. Así ve dónde está lloviendo <b>ahora</b> y con qué intensidad, cada 10 minutos.</p>
-     <p>Esta capa es el mosaico de radares de <a href="https://www.rainviewer.com" target="_blank" rel="noopener">RainViewer</a>. Azul claro = lluvia débil; azul oscuro, amarillo o rojo = lluvia fuerte. Las montañas pueden bloquear el haz del radar, así que en zonas altas puede no ver toda la lluvia. Detalle máximo: zoom 7.</p>`],
   glm: ["Rayos GOES-East GLM",
     `<p>El <b>GLM</b> (Geostationary Lightning Mapper) es una cámara del satélite GOES-East de la NOAA que detecta, día y noche, los destellos de los rayos vistos desde el espacio, cada 20 segundos.</p>
      <p>Cada rayo amarillo es un grupo de destellos detectado en los últimos 10 minutos en el Tolima y alrededores; los más tenues son los más antiguos. Pase el dedo o el ratón sobre uno para ver la hora. Llega con 1 a 3 minutos de retraso. Incluye rayos dentro de las nubes y rayos a tierra, sin distinguirlos. Sirve para seguir tormentas eléctricas activas.</p>
      <p>Fuente: NOAA, procesado por <a href="https://realearth.ssec.wisc.edu" target="_blank" rel="noopener">SSEC RealEarth</a> (Universidad de Wisconsin).</p>`],
-  cmorph: ["Lluvia satelital CMORPH2",
-    `<p><b>CMORPH2</b> es una estimación de lluvia por satélite del Centro de Predicción Climática de la NOAA. Combina sensores de microondas de varios satélites con el movimiento de las nubes visto por satélites geoestacionarios.</p>
-     <p>Muestra la lluvia acumulada en la última hora, en mm, en una cuadrícula de unos 5 km. Llega con unos 40 a 60 minutos de retraso: es la lluvia satelital más rápida disponible aquí. Es una estimación: en montaña puede fallar, por eso conviene compararla con las estaciones.</p>
-     <img src="${RE_HOST}/api/legend?products=c2accum1hr" alt="Escala de colores CMORPH2 en mm" loading="lazy">
-     <p>Producto en fase de prueba, servido por <a href="https://realearth.ssec.wisc.edu" target="_blank" rel="noopener">SSEC RealEarth</a>.</p>`],
   ir: ["Nubes GOES-East en infrarrojo",
     `<p>El satélite <b>GOES-East</b> de la NOAA está fijo sobre el ecuador y toma imágenes de América cada 10 minutos. La banda 13 (infrarrojo “limpio”, 10.3 µm) mide la temperatura de lo que ve, de día y de noche.</p>
      <p>Las nubes más frías (más altas) se ven más blancas o de colores; las nubes de tormenta muy altas son las más frías. No mide lluvia directamente. Llega con unos 30 a 60 minutos de retraso a través de NASA GIBS.</p>
@@ -3201,7 +3487,7 @@ const INFO = {
      <p><b>Leyenda “¿Llueve bajo esta nube?”</b> (aparece en el mapa al activar esta capa). Agrupa los colores de la escala de NASA GIBS por la temperatura del tope de la nube:</p>
      <p>gris, más tibia que −20 °C: nubes bajas o cielo despejado, lluvia poco probable · cian y azul, −20 a −32 °C: nubes medias, posible lluvia débil · verde a amarillo verdoso, −32 a −50 °C: lluvia probable, débil a moderada · amarillo, naranja y rojo, −50 a −70 °C: convección profunda, lluvia moderada a fuerte y tormentas · negro, gris claro, blanco y magenta, más fría que −70 °C: topes muy altos, aguaceros fuertes, tormentas eléctricas, posible granizo y vientos fuertes.</p>
      <p>Base: el índice de precipitación GOES (GPI) de la NOAA (Arkin y Meisner, 1987) asocia los topes más fríos que −38 °C (235 K) con lluvia de unos 3 mm por hora en los trópicos. Los cortes de −52 °C y −70 °C son los que se usan habitualmente para identificar convección profunda y topes de tormenta muy activos en las imágenes infrarrojas del GOES. Consulte la <a href="https://rammb.cira.colostate.edu/training/visit/quick_guides/" target="_blank" rel="noopener">guía rápida de la banda 13 del ABI (NOAA/CIRA)</a>.</p>
-     <p><b>Es una indicación, no una medición:</b> algunos cirros altos y fríos no dan lluvia, y algunas nubes bajas y tibias sí, sobre todo en la montaña. Para lluvia medida use las estaciones del IDEAM, el radar o CMORPH2.</p>`],
+     <p><b>Es una indicación, no una medición:</b> algunos cirros altos y fríos no dan lluvia, y algunas nubes bajas y tibias sí, sobre todo en la montaña. Para lluvia medida use las estaciones del IDEAM.</p>`],
   geo: ["GOES-East GeoColor",
     `<p><b>GeoColor</b> combina bandas del satélite GOES-East para mostrar las nubes como se verían a simple vista durante el día. De noche cambia a infrarrojo, con las nubes altas en blanco y las luces de las ciudades.</p>
      <p>Es útil para ver la nubosidad general. Llega con unos 40 a 90 minutos de retraso a través de NASA GIBS.</p>`],
@@ -3213,14 +3499,8 @@ const INFO = {
      <p><b>Es una estimación por satélite:</b> en la montaña suele quedarse corta con los aguaceros cortos e intensos y puede exagerar en otras zonas. Compárela con las estaciones del IDEAM, que miden la lluvia en el suelo.</p>`],
   imerg: ["Lluvia satelital NASA IMERG",
     `<p><b>IMERG</b> (Integrated Multi-satellitE Retrievals for GPM) es la estimación de lluvia de la NASA que combina todos los satélites de la misión GPM. Aquí se muestra la versión <b>temprana</b> (“Early”), cada 30 minutos, en mm por hora.</p>
-     <p>Es muy usada y cubre todo el planeta, pero no es rápida: la NASA la publica unas 4 horas después y llega a este mapa con unas 5 a 6 horas de retraso. Para lo que está pasando ahora, use el radar, CMORPH2 o los rayos.</p>
+     <p>Es muy usada y cubre todo el planeta, pero no es rápida: la NASA la publica unas 4 horas después y llega a este mapa con unas 5 a 6 horas de retraso. Para lo que está pasando ahora, use las estaciones, las nubes GOES-East o los rayos.</p>
      <img src="${GL}GPM_Precipitation_Rate_H.svg" alt="Escala de lluvia en mm/h" loading="lazy">`],
-  so2: ["Dióxido de azufre volcánico (Sentinel-5P)",
-    `<p>Gas <b>dióxido de azufre (SO₂)</b> medido desde el espacio por el instrumento <b>TROPOMI</b> del satélite europeo <b>Sentinel-5P</b> (programa Copernicus). El satélite pasa una vez al día, hacia la 1:30 p. m. hora local, y ve cada píxel de unos 5.5 × 3.5 km. Se muestra la columna total de SO₂ en <b>unidades Dobson (DU)</b>.</p>
-     <p>El SO₂ es el gas que más emite el <b>Nevado del Ruiz</b>; la mancha muestra hacia dónde lo lleva el viento. El <b>Cerro Machín</b> emite muy poco y normalmente no se ve. Las nubes pueden tapar parte de la pluma, y los valores bajos aislados pueden ser ruido.</p>
-     <p><b>No es tiempo real:</b> NASA GIBS publica este producto con unos 10 días de retraso. Para la actividad actual del volcán use los boletines y las cámaras del SGC.</p>
-     <img src="${GL}OMI_SO2_Lower_Troposphere_H.svg" alt="Escala de SO₂ en unidades Dobson" loading="lazy">
-     <p>Fuente: <a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a>, datos Copernicus Sentinel-5P (ESA/KNMI).</p>`],
 };
 const dlg = document.getElementById("infodlg");
 document.addEventListener("click", e => {
@@ -3262,17 +3542,11 @@ function renderMap(){
   if (!map) {
     map = L.map("map", {scrollWheelZoom:!!SHARE}).setView([4.1,-75.1], 8);
     initCoordBox(map);
-    // Esri World Topo basemap: works when the page is opened as a local file
-    // (OSM and CARTO tile servers refuse requests that carry no Referer)
-    const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/";
-    const topo = L.tileLayer(ESRI + "World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
-      {maxZoom:17, attribution:"Tiles © Esri — Esri, HERE, Garmin, USGS, NGA, OpenStreetMap contributors"}).addTo(map);
-    // satellite: Esri World Imagery (Maxar, Airbus and others) with place-name and boundary labels on top
-    const sat = L.layerGroup([
-      L.tileLayer(ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}", {maxZoom:17,
-        attribution:"Imágenes © Esri — Esri, Maxar, Earthstar Geographics, Airbus DS, USDA, USGS, IGN y la comunidad de usuarios SIG"}),
-      L.tileLayer(ESRI + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {maxZoom:17})]);
-    var BASES = {"Mapa topográfico": topo, "Imagen satelital": sat};
+    // base maps (see BASEMAPS); the dashboard remembers the last one chosen on this device, a shared map uses the link's
+    const BASES = {}, baseLayer = new Map();
+    for (const b of BASEMAPS) { b.layer = b.make(); BASES[b.name] = b.layer; baseLayer.set(b.layer, b); }
+    { let saved = null; if (!SHARE) try { saved = localStorage.getItem(BASE_PREF); } catch (e) {}
+      const b0 = baseOf(SHARE ? SHARE.b : saved); CUR_BASE = b0.id; SATBASE = !!b0.dark; b0.layer.addTo(map); }
     // municipal boundaries (hover shows the name) and the department outline
     const mun = L.geoJSON(TOLIMA_GEO.mun, {
       style: {color:"#3d4a46", weight:0.8, opacity:0.7, fill:true, fillColor:"#3d4a46", fillOpacity:0},
@@ -3299,7 +3573,7 @@ function renderMap(){
       satOverlays[`${esc(o.name)} ${infoBtn(o.info, o.name)}`] = o.layer;
     }
     const camLayer = buildCamLayer();
-    // Layer list in four groups (Fronteras administrativas, Investigación, Clima actual, Pronósticos), plus Eventos added later;
+    // Layer list in groups (Fronteras administrativas, Investigación, Estaciones meteorológicas, Clima actual, Pronósticos, ...), plus Eventos added later;
     // a heading is drawn above the first layer of each group every time Leaflet redraws the list
     const verL = buildVeredaLayer(mun);
     // dark casings under the municipio and department lines, shown only on the satellite basemap
@@ -3311,11 +3585,18 @@ function renderMap(){
       const showCase = (c, base, on, sty) => { if (SATBASE && on) { if (!map.hasLayer(c)) { c.addTo(map); c.bringToBack(); } c.setStyle({...sty, fill:false}); } else if (map.hasLayer(c)) map.removeLayer(c); };
       showCase(munCase, mun, map.hasLayer(mun) && !vOn, b.munCase); showCase(depCase, dep, map.hasLayer(dep), b.depCase);
     };
-    map.on("baselayerchange", e => { SATBASE = e.layer === sat; applyBorders(); });
+    map.on("baselayerchange", e => { const b = baseLayer.get(e.layer); if (!b) return;
+      CUR_BASE = b.id; SATBASE = !!b.dark; applyBorders();
+      if (!SHARE) try { localStorage.setItem(BASE_PREF, b.id); } catch (err) {} });
+    // switch base map from code (shared links, Google fallback); the layer control follows the map's layers
+    setBase = id => { const b = baseOf(id), cur = baseOf(CUR_BASE); if (b === cur && map.hasLayer(b.layer)) return;
+      map.removeLayer(cur.layer); b.layer.addTo(map); map.fire("baselayerchange", {layer:b.layer, name:b.name}); };
+    applyBorders();
     map.on("zoomend", applyBorders);
     map.on("overlayadd overlayremove", e => { if (e.layer === mun || e.layer === dep || e.layer === verL) applyBorders(); });
     const satL = k => [`${esc(SAT[k].name)} ${infoBtn(SAT[k].info, SAT[k].name)}`, SAT[k].layer, "sat-" + k];
     const SOIL = buildSoilLayers(TOLIMA_GEO.mun);
+    map.on("popupopen", e => fillAlt(e.popup.getElement()));   // "Altitud: …" lines in any popup
     const davisL = buildDavisLayer().addTo(map);   // on by default, next to the IDEAM stations; hidden while there is no data
     const LAYER_GROUPS = [
       ["Fronteras administrativas", [["Límite departamental", dep, "dep"], ["Municipios", mun, "mun"],
@@ -3323,12 +3604,14 @@ function renderMap(){
       ["Investigación", [
         [`Sismos M4+ (elija las fechas) ${infoBtn("sismos", "sismos")}`, buildEqLayer(), "eq"],
         [`Movimientos en masa (SGC, ${MOVMASA.length}) ${infoBtn("movmasa", "movimientos en masa")}`, buildMovLayer(), "movmasa"],
-        [`Amenaza volcánica Cerro Machín (SGC 2026) ${infoBtn("machin", "amenaza del Cerro Machín")}`, buildMachinLayer(), "machin"],
         [`Alerta volcánica (SGC) ${infoBtn("volcanes", "alerta volcánica")}`, buildVolcLayer(), "volc"],
-        satL("so2")]],
-      ["Clima actual", [["Estaciones (lluvia)", layer, "est"], [`Estaciones Davis (WeatherLink) ${infoBtn("davis", "estaciones Davis")}`, davisL, "davis"], ["Alertas de nivel IDEAM", alertLayer, "alert"],
+        [`Sequía o exceso de lluvia, SPI-3 (CHIRPS) ${infoBtn("spi", "SPI")}`, buildSpiLayer(TOLIMA_GEO.mun), "spi"]]],
+      ["Estaciones meteorológicas", [["Estaciones IDEAM", layer, "est"],
+        [`Estaciones Davis (WeatherLink) ${infoBtn("davis", "estaciones Davis")}`, davisL, "davis"],
+        [`Nivel de ríos: alertas IDEAM ${infoBtn("umbrales", "umbrales de nivel")}`, alertLayer, "alert"]]],
+      ["Clima actual", [
         [`Alertas oficiales IDEAM (CAP) ${infoBtn("cap", "alertas CAP del IDEAM")}`, buildCapLayer(), "cap"],
-        ...["radar", "glm", "cmorph", "acum", "ir", "geo", "imerg"].filter(k => SAT[k]).map(satL),
+        ...["glm", "acum", "ir", "geo", "imerg"].filter(k => SAT[k]).map(satL),
         [`Embalses: volumen útil (XM) ${infoBtn("embalses", "embalses")}`, buildEmbLayer(), "emb"],
         [`Focos de calor, 7 días (GWIS) ${infoBtn("focos", "focos de calor")}`, buildHotspotLayer(), "focos"],
         [`Cámaras web de volcanes (SGC) ${infoBtn("camaras", "cámaras web")}`, camLayer, "cam"]]],
@@ -3343,10 +3626,13 @@ function renderMap(){
       ["Seguridad", [
         [`Alertas Tempranas (Defensoría) ${infoBtn("seguridad", "alertas tempranas")}`, buildSegLayer(), "seg"]]],
       ["Infraestructura", [
-        [`Vías (OpenStreetMap) ${infoBtn("vias", "vías")}`, buildViasLayer(), "vias"]]],
+        [`Vías (OpenStreetMap) ${infoBtn("vias", "vías")}`, buildViasLayer(), "vias"],
+        [`Cierres viales (INVÍAS) ${infoBtn("cierres", "cierres viales")}`, buildCierresLayer(), "cierres"]]],
+      ["Terreno", [
+        [`Relieve (sombreado) ${infoBtn("altitud", "relieve y altitud")}`, buildReliefLayer(), "relieve"]]],
     ];
     const inGroup = new Set(LAYER_GROUPS.flatMap(([, ls]) => ls.map(([, l]) => l)));
-    for (const o of Object.values(SAT)) if (!inGroup.has(o.layer)) LAYER_GROUPS[2][1].push(satL(Object.keys(SAT).find(k => SAT[k] === o)));
+    for (const o of Object.values(SAT)) if (!inGroup.has(o.layer)) LAYER_GROUPS.find(([g]) => g === "Clima actual")[1].push(satL(Object.keys(SAT).find(k => SAT[k] === o)));
     for (const [, ls] of LAYER_GROUPS) for (const [, l, id] of ls) l._shId = id;
     SHARE_LAYERS = LAYER_GROUPS.map(([g, ls]) => [g, ls.map(([lab, l, id]) => [plainLabel(lab), id, l])]);
     const shHl = SHARE ? shareHlLayer(SHARE) : null;
@@ -3359,7 +3645,7 @@ function renderMap(){
     ctrl._update = function(){
       const r = baseUpdate.apply(this, arguments);
       let last = null;
-      const bh = document.createElement("div"); bh.className = "lgrp"; bh.textContent = "Mapa base"; this._baseLayersList.prepend(bh);
+      const bh = document.createElement("div"); bh.className = "lgrp"; bh.innerHTML = `Mapa base ${infoBtn("mapabase", "el mapa base")}`; this._baseLayersList.prepend(bh);
       for (const lab of [...this._overlaysList.children]) {
         const inp = lab.querySelector("input"); if (!inp) continue;
         const gname = groupOf.get(inp.layerId) || "Eventos";
@@ -3382,7 +3668,7 @@ function renderMap(){
         + RBINS.map(b => `<div class="st"><span class="dr">${triSvg(b.color, b.size, b.max === 0 ? "#8a97a8" : "#0b2a5b", 1.2)}</span><b>${b.short}</b><span class="lg-l">${b.label}</span></div>`).join("") + `</div>`;
       L.DomEvent.disableClickPropagation(d); return d; };
     if (!SHARE || SHARE.L.includes("est")) lg.addTo(map);
-    if (SHARE) shareAfterMap({ctrl, sat, topo, applyBorders, hl:shHl});
+    if (SHARE) shareAfterMap({ctrl, hl:shHl});
     document.getElementById("legend").innerHTML = `<span>${triSvg("#fff", 14, "#9e9e9e", 1.5, "2 2")}Sin dato de lluvia hoy</span>`
       + `<span><span class="xmark">✕</span>Sin transmisión${infoBtn("offline")}</span><span>${triSvg("#fff", 14, css("--warn"), 3)}Datos dudosos o incompletos (borde naranja)${infoBtn("dudosos")}</span>`
       + `<span style="flex-basis:100%;height:0"></span><span>Nivel del río vs. umbral IDEAM${infoBtn("umbrales")}:</span>`
@@ -3670,6 +3956,270 @@ document.getElementById("hcsv").addEventListener("click", () => {
   a.download = `historico_IDEAM_${sid(hId)}_${hFrom.value}_${hTo.value}.csv`;
   document.body.appendChild(a); a.click(); a.remove();
 });
+// ---- Histórico climático: monthly CHIRPS rain per municipio since 1981 (data/historico-lluvia.json, built monthly by
+// tools/chirps_historico.py), anomalies against 1991-2020, El Niño / La Niña from the NOAA ONI, SPI, yearly stripes,
+// the rain calendar and the emergencies reported to the UNGRD (data/historico-eventos.json, tools/ungrd_eventos.py).
+const CL = {rain:null, ev:null, loading:null, mun:"Tolima", u:"mm", k:3, years:0, cmp:null, charts:{}};
+const CL_BASE = [1991, 2020];
+const CL_MES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const CL_MESL = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const EVCOL = ["#1f6fb2", "#0f7f8c", "#8a5a2b", "#6b5ca5", "#c8102e", "#b7791f", "#9aa5a1"];
+// SPI classes (McKee et al. 1993), driest first
+const SPICL = [
+  {min:-Infinity, n:"Extremadamente seco", c:"#8c510a"}, {min:-2, n:"Severamente seco", c:"#d0913a"}, {min:-1.5, n:"Moderadamente seco", c:"#efcf8a"},
+  {min:-1, n:"Normal", c:"#d9dedc"}, {min:1, n:"Moderadamente húmedo", c:"#9cc8e6"}, {min:1.5, n:"Muy húmedo", c:"#4a90c8"}, {min:2, n:"Extremadamente húmedo", c:"#1d4e8f"}];
+const spiClass = z => { let c = SPICL[0]; for (const x of SPICL) if (z >= x.min) c = x; return c; };
+const ymLabel = i => { const m0 = clM0(); const a = m0 + i; return `${CL_MES[a % 12]} ${Math.floor(a / 12)}`; };
+const clM0 = () => { const [y, m] = CL.rain.inicio.split("-").map(Number); return y * 12 + m - 1; };
+const clX = i => { const a = clM0() + i; return Math.floor(a / 12) + (a % 12 + 0.5) / 12; };   // decimal year at mid-month
+
+function clLoad(){
+  if (!CL.loading) CL.loading = Promise.all([
+    fetch("data/historico-lluvia.json", {cache:"no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch("data/historico-eventos.json", {cache:"no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null)])
+    .then(([r, e]) => { CL.rain = r; CL.ev = e; CL.cache = {}; return CL; });
+  return CL.loading;
+}
+
+// --- statistics: gamma fit (Thom), incomplete gamma, inverse normal; SPI per calendar month over 1991-2020
+function lnGamma(x){ const c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+  let y = x, t = x + 5.5; t -= (x + 0.5) * Math.log(t); let s = 1.000000000190015; for (const k of c) s += k / ++y; return -t + Math.log(2.5066282746310005 * s / x); }
+function gammaP(a, x){                       // regularized lower incomplete gamma P(a, x)
+  if (x <= 0) return 0;
+  const gl = lnGamma(a);
+  if (x < a + 1) { let ap = a, sum = 1 / a, del = sum; for (let n = 0; n < 200; n++) { del *= x / ++ap; sum += del; if (Math.abs(del) < Math.abs(sum) * 1e-10) break; }
+    return sum * Math.exp(-x + a * Math.log(x) - gl); }
+  let b = x + 1 - a, c = 1e300, d = 1 / b, h = d;
+  for (let i = 1; i < 200; i++) { const an = -i * (i - a); b += 2; d = an * d + b; if (Math.abs(d) < 1e-300) d = 1e-300; c = b + an / c; if (Math.abs(c) < 1e-300) c = 1e-300;
+    d = 1 / d; const del = d * c; h *= del; if (Math.abs(del - 1) < 1e-10) break; }
+  return 1 - Math.exp(-x + a * Math.log(x) - gl) * h;
+}
+function normInv(p){                          // Acklam's approximation
+  if (p <= 0) return -Infinity; if (p >= 1) return Infinity;
+  const a = [-39.69683028665376, 220.9460984245205, -275.9285104469687, 138.357751867269, -30.66479806614716, 2.506628277459239],
+        b = [-54.47609879822406, 161.5858368580409, -155.6989798598866, 66.80131188771972, -13.28068155288572],
+        c = [-0.007784894002430293, -0.3223964580411365, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783],
+        d = [0.007784695709041462, 0.3224671290700398, 2.445134137142996, 3.754408661907416], pl = 0.02425;
+  let q, r;
+  if (p < pl) { q = Math.sqrt(-2 * Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  if (p > 1 - pl) { q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  q = p - 0.5; r = q * q; return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+function spiSeries(v, k){
+  const m0 = clM0(), n = v.length, acc = new Array(n).fill(null);
+  for (let i = k - 1; i < n; i++) { let s = 0, ok = true; for (let j = i - k + 1; j <= i; j++) { if (v[j] == null) { ok = false; break; } s += v[j]; } if (ok) acc[i] = s; }
+  const out = new Array(n).fill(null);
+  for (let m = 0; m < 12; m++) {
+    const idx = [], cal = [];
+    for (let i = 0; i < n; i++) if ((m0 + i) % 12 === m && acc[i] != null) { idx.push(i); const y = Math.floor((m0 + i) / 12); if (y >= CL_BASE[0] && y <= CL_BASE[1]) cal.push(acc[i]); }
+    const pos = cal.filter(x => x > 0); if (pos.length < 20) continue;
+    const q = (cal.length - pos.length) / cal.length, mean = pos.reduce((a, b) => a + b, 0) / pos.length;
+    const A = Math.log(mean) - pos.reduce((a, b) => a + Math.log(b), 0) / pos.length;
+    const al = (1 + Math.sqrt(1 + 4 * A / 3)) / (4 * A), be = mean / al;
+    for (const i of idx) { const H = q + (1 - q) * gammaP(al, acc[i] / be); out[i] = Math.max(-3.5, Math.min(3.5, normInv(Math.min(Math.max(H, 1e-6), 1 - 1e-6)))); }
+  }
+  return out;
+}
+function clStats(mun){
+  if (CL.cache[mun]) return CL.cache[mun];
+  const v = CL.rain.mun[mun], m0 = clM0(), clim = Array(12).fill(0), cn = Array(12).fill(0);
+  v.forEach((x, i) => { const y = Math.floor((m0 + i) / 12); if (x != null && y >= CL_BASE[0] && y <= CL_BASE[1]) { clim[(m0 + i) % 12] += x; cn[(m0 + i) % 12]++; } });
+  for (let m = 0; m < 12; m++) clim[m] = cn[m] ? clim[m] / cn[m] : null;
+  const anom = v.map((x, i) => x == null ? null : x - clim[(m0 + i) % 12]);
+  const pct = v.map((x, i) => x == null || !clim[(m0 + i) % 12] ? null : 100 * (x / clim[(m0 + i) % 12] - 1));
+  const years = {};
+  v.forEach((x, i) => { const y = Math.floor((m0 + i) / 12); (years[y] ||= {s:0, n:0}); if (x != null) { years[y].s += x; years[y].n++; } });
+  const normal = clim.reduce((a, b) => a + (b || 0), 0);
+  const spi = {}; for (const k of [1, 3, 6, 12]) spi[k] = spiSeries(v, k);
+  return CL.cache[mun] = {v, clim, anom, pct, years, normal, spi};
+}
+function clPhaseName(ch){ return ch === "N" ? "El Niño" : ch === "L" ? "La Niña" : "neutral"; }
+function clYearPhase(y){            // dominant ENSO phase of a year (most months)
+  const m0 = clM0(), f = CL.rain.fase || "", c = {N:0, L:0, ".":0};
+  for (let m = 0; m < 12; m++) { const ch = f[y * 12 + m - m0]; if (ch) c[ch]++; }
+  return c.N >= 6 ? "N" : c.L >= 6 ? "L" : ".";
+}
+
+// draws El Niño / La Niña bands behind a chart whose x axis is decimal years
+const ensoBands = {id:"enso", beforeDatasetsDraw(c){
+  const f = CL.rain?.fase; if (!f) return;
+  const {ctx, chartArea:a, scales:{x}} = c; ctx.save(); ctx.beginPath(); ctx.rect(a.left, a.top, a.right - a.left, a.bottom - a.top); ctx.clip();
+  let i = 0;
+  while (i < f.length) { const ch = f[i]; let j = i; while (j < f.length && f[j] === ch) j++;
+    if (ch !== ".") { const x0 = x.getPixelForValue(clX(i) - 1/24), x1 = x.getPixelForValue(clX(j - 1) + 1/24);
+      ctx.fillStyle = ch === "N" ? "#c8102e22" : "#1f6fb222"; ctx.fillRect(x0, a.top, x1 - x0, a.bottom - a.top); }
+    i = j; }
+  ctx.restore(); }};
+
+function clChart(id, cfg){ if (CL.charts[id]) CL.charts[id].destroy(); CL.charts[id] = new Chart(document.getElementById(id), cfg); return CL.charts[id]; }
+function clAxes(xmin, xmax, yTitle){
+  const grid = css("--line"), muted = css("--muted");
+  return {x:{type:"linear", min:xmin, max:xmax, grid:{color:grid}, ticks:{color:muted, maxRotation:0, autoSkip:false, callback:v => String(v)},
+      afterBuildTicks:ax => { const nar = ax.chart.width < 600, st = xmax - xmin > 25 ? (nar ? 10 : 5) : xmax - xmin > 8 ? (nar ? 5 : 2) : 1, t = [];
+        for (let y = Math.ceil(xmin / st) * st; y <= xmax; y += st) t.push({value:y}); ax.ticks = t; }},
+    y:{grid:{color:grid}, ticks:{color:muted}, title:{display:!!yTitle, text:yTitle, color:muted, font:{size:11}}}};
+}
+
+function clRender(){
+  const R = CL.rain, mun = CL.mun;
+  document.getElementById("ctitle").textContent = mun === "Tolima" ? "Todo el Tolima" : mun;
+  if (!R) { document.getElementById("csub").textContent = "Los datos históricos aún no están disponibles. Se generan una vez al mes en GitHub; vuelva a intentarlo más tarde."; return; }
+  const S = clStats(mun), m0 = clM0(), n = S.v.length, rain = css("--rain"), dry = css("--warn"), fg = css("--fg"), muted = css("--muted");
+  const last = n - 1, lastY = Math.floor((m0 + last) / 12);
+  const xmax = clX(last) + 0.5, xmin = CL.years ? Math.max(clX(0) - 0.5, xmax - CL.years) : clX(0) - 0.5;
+  const pctMode = CL.u === "pct", A = pctMode ? S.pct : S.anom, unit = pctMode ? "%" : "mm";
+  // headline numbers
+  const full = Object.entries(S.years).filter(([, o]) => o.n === 12).map(([y, o]) => [+y, o.s]);
+  const wet = full.reduce((a, b) => b[1] > a[1] ? b : a), dryY = full.reduce((a, b) => b[1] < a[1] ? b : a);
+  const lastSpi = S.spi[3][last], lc = lastSpi != null ? spiClass(lastSpi) : null;
+  const fmtN = v => Math.round(v).toLocaleString("es-CO");
+  document.getElementById("csub").innerHTML = `Lluvia mensual por satélite (CHIRPS), promedio ${mun === "Tolima" ? "del departamento" : "del municipio"}, de ${CL_MESL[m0 % 12]} de ${Math.floor(m0 / 12)} a ${CL_MESL[(m0 + last) % 12]} de ${lastY}, comparada con lo normal de ${CL_BASE[0]}–${CL_BASE[1]}. Elija un municipio aquí o tóquelo en el mapa.`;
+  document.getElementById("cstats").innerHTML = [
+    `<span>Lluvia normal al año<br><b>${fmtN(S.normal)} mm</b></span>`,
+    `<span>Último mes (${ymLabel(last)})<br><b>${fmtN(S.v[last])} mm</b> · ${S.pct[last] == null ? "" : (S.pct[last] >= 0 ? "+" : "") + Math.round(S.pct[last]) + " %"} de lo normal</span>`,
+    lc ? `<span>SPI-3 actual<br><b style="color:${lc.c === "#d9dedc" ? fg : lc.c}">${fmt(lastSpi, 1)}</b> · ${lc.n}</span>` : "",
+    `<span>Año más lluvioso<br><b>${wet[0]}</b> · ${fmtN(wet[1])} mm (${clPhaseName(clYearPhase(wet[0]))})</span>`,
+    `<span>Año más seco<br><b>${dryY[0]}</b> · ${fmtN(dryY[1])} mm (${clPhaseName(clYearPhase(dryY[0]))})</span>`,
+    `<span>ENSO ahora (ONI)<br><b>${(() => { const k = R.oni.map((x, i) => [x, i]).filter(([x]) => x != null).pop(); return k ? `${k[0] > 0 ? "+" : ""}${fmt(k[0], 1)} · ${k[0] >= 0.5 ? "cálido (El Niño)" : k[0] <= -0.5 ? "frío (La Niña)" : "neutral"}</b> (${ymLabel(k[1])})` : "—</b>"; })()}</span>`].join("");
+  // 1) anomaly bars + 12-month running mean
+  const bars = [], run = [];
+  for (let i = 0; i < n; i++) { if (A[i] != null) bars.push({x:clX(i), y:A[i], i});
+    if (i >= 11) { let s = 0, c = 0; for (let j = i - 11; j <= i; j++) if (A[j] != null) { s += A[j]; c++; } if (c >= 10) run.push({x:clX(i), y:s / c}); } }
+  clChart("cAnom", {type:"bar", plugins:[ensoBands],
+    data:{datasets:[{type:"line", label:"Promedio de 12 meses", data:run, borderColor:fg, borderWidth:1.4, pointRadius:0, tension:.25},
+      {label:"Anomalía", data:bars, backgroundColor:bars.map(b => b.y >= 0 ? rain : dry), borderWidth:0, barPercentage:1, categoryPercentage:1}]},
+    options:{responsive:true, maintainAspectRatio:false, animation:false, parsing:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{title:it => ymLabel(Math.round((it[0].parsed.x - clX(0)) * 12)),
+        label:it => { const i = Math.round((it.parsed.x - clX(0)) * 12), a = clM0() + i;
+          return it.datasetIndex ? [`Lluvia: ${fmtN(S.v[i])} mm (normal ${fmtN(S.clim[a % 12])} mm)`, `Anomalía: ${S.anom[i] >= 0 ? "+" : ""}${fmtN(S.anom[i])} mm · ${S.pct[i] >= 0 ? "+" : ""}${Math.round(S.pct[i])} %`,
+            `ENSO: ${clPhaseName(R.fase[i])}${R.oni[i] != null ? ` (ONI ${fmt(R.oni[i], 1)})` : ""}`] : `Promedio de 12 meses: ${fmt(it.parsed.y, 0)} ${unit}`; }}}},
+      scales:clAxes(xmin, xmax, pctMode ? "% sobre o bajo lo normal" : "mm sobre o bajo lo normal")}});
+  // 2) SPI
+  const sp = S.spi[CL.k], spd = []; for (let i = 0; i < n; i++) if (sp[i] != null) spd.push({x:clX(i), y:sp[i]});
+  clChart("cSpi", {type:"bar", plugins:[ensoBands],
+    data:{datasets:[{label:"SPI", data:spd, backgroundColor:spd.map(p => spiClass(p.y).c), borderWidth:0, barPercentage:1, categoryPercentage:1}]},
+    options:{responsive:true, maintainAspectRatio:false, animation:false, parsing:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{title:it => ymLabel(Math.round((it[0].parsed.x - clX(0)) * 12)),
+        label:it => `SPI-${CL.k}: ${fmt(it.parsed.y, 2)} · ${spiClass(it.parsed.y).n}`}}},
+      scales:{...clAxes(xmin, xmax, `SPI-${CL.k}`), y:{...clAxes(0, 1).y, min:-3, max:3}}}});
+  document.getElementById("cspileg").innerHTML = SPICL.map(c => `<span><span class="csw" style="--c:${c.c};margin-left:0"></span>${c.n}</span>`).join("")
+    + `<span class="sub">SPI-${CL.k} = lluvia de los últimos ${CL.k === 1 ? "mes" : CL.k + " meses"} frente a la misma época de ${CL_BASE[0]}–${CL_BASE[1]}</span>`;
+  // 3) stripes
+  const st = document.getElementById("cStripe"), box = document.getElementById("cstripes");
+  const dpr = devicePixelRatio || 1, W = box.clientWidth || 600, H = box.clientHeight || 64; st.width = W * dpr; st.height = H * dpr;
+  const g = st.getContext("2d"); g.scale(dpr, dpr);
+  const sc = p => { const t = Math.max(-1, Math.min(1, p / 35));      // ±35 % of normal = full colour
+    const mix = (a, b, f) => a.map((x, i) => Math.round(x + (b[i] - x) * f)), w = [246, 244, 238];
+    const c = t >= 0 ? mix(w, [29, 78, 143], t) : mix(w, [140, 81, 10], -t); return `rgb(${c})`; };
+  const wy = W / full.length; full.forEach(([y, s], j) => { g.fillStyle = sc(100 * (s / S.normal - 1)); g.fillRect(j * wy, 0, wy + 0.5, H);
+    const ph = clYearPhase(y); if (ph !== ".") { g.fillStyle = ph === "N" ? "#c8102e" : "#1f6fb2"; g.fillRect(j * wy + wy * 0.2, H - 5, wy * 0.6, 4); } });
+  st.onclick = e => { const j = Math.floor((e.offsetX) / wy), f = full[j]; if (!f) return;
+    let el = document.getElementById("cstripinfo"); if (!el) { el = document.createElement("div"); el.id = "cstripinfo"; document.getElementById("cstripax").after(el); }
+    el.innerHTML = `<b>${f[0]}</b>: ${fmtN(f[1])} mm, ${Math.round(100 * (f[1] / S.normal - 1)) >= 0 ? "+" : ""}${Math.round(100 * (f[1] / S.normal - 1))} % de lo normal · ${clPhaseName(clYearPhase(f[0]))}`;
+    CL.cmp = f[0]; document.getElementById("cyear").value = f[0]; clClim(S); };
+  document.getElementById("cstripax").innerHTML = `<span>${full[0][0]}</span><span>marca roja = año de El Niño, azul = La Niña</span><span>${full[full.length - 1][0]}</span>`;
+  // 4) calendar
+  const ysel = document.getElementById("cyear"), ys = Object.keys(S.years).map(Number).sort((a, b) => b - a);
+  if (CL.cmp == null || !ys.includes(CL.cmp)) CL.cmp = ys[1] ?? ys[0];
+  ysel.innerHTML = ys.map(y => `<option value="${y}"${y === CL.cmp ? " selected" : ""}>${y}${S.years[y].n < 12 ? " (en curso)" : ""} · ${clPhaseName(clYearPhase(y))}</option>`).join("");
+  clClim(S);
+  // 5) UNGRD events by month, stacked by type, with the month's rain
+  clEvents(S);
+  document.getElementById("ccsv").disabled = false;
+  document.getElementById("csrc").innerHTML = `Fuentes: ${esc(R.fuente)}. ${CL.ev ? esc(CL.ev.fuente) + "." : ""} Actualizado ${esc((R.actualizado || "").slice(0, 10))}. `
+    + `CHIRPS combina satélite y estaciones en celdas de unos 5 km; en zonas de montaña puede diferir de las estaciones del IDEAM.`;
+}
+function clClim(S){
+  const m0 = clM0(), yr = CL.cmp, lastY = Math.max(...Object.keys(S.years).map(Number));
+  const ofYear = y => Array.from({length:12}, (_, m) => { const i = y * 12 + m - m0; return i >= 0 && i < S.v.length ? S.v[i] : null; });
+  const rain = css("--rain"), muted = css("--muted"), grid = css("--line"), temp = css("--temp"), fg = css("--fg");
+  clChart("cClim", {type:"bar", data:{labels:CL_MES, datasets:[
+    {label:`Normal ${CL_BASE[0]}–${CL_BASE[1]}`, data:S.clim, backgroundColor:css("--rain-soft"), borderColor:rain, borderWidth:1},
+    {type:"line", label:String(lastY), data:ofYear(lastY), borderColor:temp, backgroundColor:temp, pointRadius:2.5, borderWidth:2, tension:.2, spanGaps:false},
+    ...(yr !== lastY ? [{type:"line", label:String(yr), data:ofYear(yr), borderColor:fg, backgroundColor:fg, pointRadius:2, borderWidth:1.4, borderDash:[5,3], tension:.2}] : [])]},
+    options:{responsive:true, maintainAspectRatio:false, animation:false,
+      plugins:{legend:{labels:{color:muted, boxWidth:12, font:{size:11}}}, tooltip:{callbacks:{label:it => `${it.dataset.label}: ${it.parsed.y == null ? "—" : Math.round(it.parsed.y)} mm`}}},
+      scales:{x:{grid:{color:grid}, ticks:{color:muted}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{color:muted}, title:{display:true, text:"mm por mes", color:muted, font:{size:11}}}}}});
+}
+function clEvents(S){
+  const E = CL.ev, sum = document.getElementById("cevsum"), muted = css("--muted"), grid = css("--line");
+  if (!E) { clChart("cEv", {type:"bar", data:{datasets:[]}}); sum.textContent = "Sin datos de emergencias."; return; }
+  const list = CL.mun === "Tolima" ? Object.values(E.mun).flat() : (E.mun[CL.mun] || []);
+  const [y0, y1] = [+E.desde.slice(0, 4), +E.hasta.slice(0, 4)], nM = (y1 - y0 + 1) * 12, m0 = clM0();
+  const cnt = E.tipos.map(() => new Array(nM).fill(0));
+  let per = 0, viv = 0, fal = 0; const byT = E.tipos.map(() => 0);
+  for (const [f, t, p, v, d] of list) { const i = (+f.slice(0, 4) - y0) * 12 + +f.slice(5, 7) - 1; if (i >= 0 && i < nM) cnt[t][i]++; per += p; viv += v; fal += d; byT[t]++; }
+  const xs = i => (y0 * 12 + i) / 12 + 1 / 24 + 0;
+  const rainLine = []; for (let i = 0; i < nM; i++) { const k = y0 * 12 + i - m0; if (k >= 0 && k < S.v.length && S.v[k] != null) rainLine.push({x:y0 + i / 12 + 1 / 24, y:S.v[k]}); }
+  clChart("cEv", {type:"bar", plugins:[ensoBands], data:{datasets:[
+    {type:"line", label:"Lluvia del mes (mm)", data:rainLine, yAxisID:"y2", borderColor:css("--rain"), borderWidth:1.2, pointRadius:0, tension:.25},
+    ...E.tipos.map((t, k) => ({label:t, data:cnt[k].map((c, i) => ({x:y0 + i / 12 + 1 / 24, y:c})).filter(p => p.y), backgroundColor:EVCOL[k], stack:"e", borderWidth:0, barPercentage:1, categoryPercentage:1}))
+      .filter(d => d.data.length)]},
+    options:{responsive:true, maintainAspectRatio:false, animation:false, parsing:false,
+      plugins:{legend:{labels:{color:muted, boxWidth:10, font:{size:10.5}}}, tooltip:{callbacks:{title:it => { const v = it[0].parsed.x - 1 / 24, a = Math.round(v * 12); return `${CL_MES[a % 12]} ${Math.floor(a / 12)}`; },
+        label:it => it.dataset.yAxisID === "y2" ? `Lluvia: ${Math.round(it.parsed.y)} mm` : `${it.dataset.label}: ${it.parsed.y}`}}},
+      scales:{x:{type:"linear", min:y0, max:y1 + 1, stacked:true, grid:{color:grid}, ticks:{color:muted, stepSize:1, callback:v => v}},
+        y:{stacked:true, beginAtZero:true, grid:{color:grid}, ticks:{color:muted, precision:0}, title:{display:true, text:"emergencias por mes", color:muted, font:{size:11}}},
+        y2:{position:"right", beginAtZero:true, grid:{display:false}, ticks:{color:muted}, title:{display:true, text:"mm", color:muted, font:{size:11}}}}}});
+  const top = byT.map((n, k) => [n, E.tipos[k]]).filter(([n]) => n).sort((a, b) => b[0] - a[0]);
+  sum.innerHTML = list.length ? `<b>${list.length.toLocaleString("es-CO")}</b> emergencias entre ${y0} y ${y1}: ${top.map(([n, t]) => `${esc(t.toLowerCase())} ${n}`).join(", ")}. `
+    + `Personas afectadas ${per.toLocaleString("es-CO")}, viviendas destruidas o averiadas ${viv.toLocaleString("es-CO")}, fallecidos ${fal}.` : "No hay emergencias reportadas a la UNGRD en este municipio entre 2019 y 2025.";
+}
+function clCsv(){
+  const S = clStats(CL.mun), R = CL.rain, m0 = clM0();
+  const rows = [["mes", "lluvia_mm", "normal_mm", "anomalia_mm", "anomalia_pct", "spi1", "spi3", "spi6", "spi12", "oni", "fase_enso"].join(",")];
+  S.v.forEach((x, i) => { const a = m0 + i; rows.push([`${Math.floor(a / 12)}-${String(a % 12 + 1).padStart(2, "0")}`, x ?? "", Math.round(S.clim[a % 12] ?? 0),
+    S.anom[i] == null ? "" : Math.round(S.anom[i]), S.pct[i] == null ? "" : Math.round(S.pct[i]),
+    ...[1, 3, 6, 12].map(k => S.spi[k][i] == null ? "" : S.spi[k][i].toFixed(2)), R.oni[i] ?? "", clPhaseName(R.fase[i])].join(",")); });
+  const el = document.createElement("a"); el.href = URL.createObjectURL(new Blob([rows.join("\n")], {type:"text/csv"}));
+  el.download = `historico_CHIRPS_${CL.mun.normalize("NFD").replace(/[^\w]+/g, "_")}.csv`; document.body.appendChild(el); el.click(); el.remove();
+}
+function clShow(mun, scroll){
+  CL.mun = mun; const sel = document.getElementById("cmun"); if (sel.value !== mun) sel.value = mun;
+  clLoad().then(clRender);
+  if (scroll) document.getElementById("clima").scrollIntoView({behavior:"smooth", block:"start"});
+}
+{ // controls
+  const sel = document.getElementById("cmun");
+  sel.innerHTML += Object.keys(MUNPOP).sort((a, b) => a.localeCompare(b, "es")).map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+  sel.addEventListener("change", () => clShow(sel.value));
+  const seg = (id, f) => document.querySelectorAll(`#${id} button`).forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false")); f(b); if (CL.rain) clRender(); }));
+  seg("cbase", b => CL.u = b.dataset.u); seg("crange", b => CL.years = +b.dataset.y); seg("cspik", b => CL.k = +b.dataset.k);
+  document.getElementById("cyear").addEventListener("change", e => { CL.cmp = +e.target.value; clClim(clStats(CL.mun)); });
+  document.getElementById("ccsv").addEventListener("click", clCsv);
+  // "Histórico climático" button in the municipio popups
+  document.addEventListener("click", e => { const b = e.target.closest?.("[data-climun]"); if (b) { map?.closePopup(); clShow(b.dataset.climun, true); } });
+  // load when the panel comes near the screen
+  const io = "IntersectionObserver" in window ? new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); clShow(CL.mun); } }, {rootMargin:"300px"}) : null;
+  if (io && !location.hash.includes("mapa=")) io.observe(document.getElementById("clima"));
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => CL.rain && clRender(), 250); });
+}
+
+// ---- Map layer: municipios coloured by the latest SPI-3 (CHIRPS), in the Investigación group
+function buildSpiLayer(munFeatures){
+  const box = document.getElementById("spiinfo");
+  const g = L.geoJSON(munFeatures, {style:{color:"#0b2a5b", weight:0.6, opacity:0.5, fillOpacity:0}, attribution:"Lluvia: CHIRPS (UCSB CHC)"});
+  const pop = n => { if (!CL.rain) return "Cargando…"; const S = clStats(n), i = S.v.length - 1, z = S.spi[3][i], c = z == null ? null : spiClass(z);
+    return `<div class="flpop"><b>${esc(n)}</b><br><span class="sub">SPI-3 a ${ymLabel(i)} (CHIRPS)</span>`
+      + `<div style="margin-top:4px">${c ? `<span class="csw" style="--c:${c.c};margin-left:0"></span><b>${fmt(z, 1)}</b> · ${c.n}` : "sin dato"}</div>`
+      + `<div class="sub">Lluvia de los últimos 3 meses: ${Math.round(S.v.slice(-3).reduce((a, b) => a + (b || 0), 0))} mm (normal ${Math.round([0, 1, 2].reduce((a, k) => a + (S.clim[(clM0() + i - k) % 12] || 0), 0))} mm)</div>`
+      + `<button type="button" class="btn sm" data-climun="${esc(n)}" style="margin-top:6px">📈 Ver histórico climático</button></div>`; };
+  g.eachLayer(l => l.bindPopup(() => pop(l.feature.properties.n), {maxWidth:270}));
+  const paint = () => clLoad().then(() => {
+    if (!map.hasLayer(g)) return;
+    if (!CL.rain) { box.innerHTML = "<b>SPI-3</b>: datos históricos no disponibles todavía."; box.hidden = false; return; }
+    const cnt = {}; let i = 0;
+    g.eachLayer(l => { const S = clStats(l.feature.properties.n); i = S.v.length - 1; const z = S.spi[3][i]; const c = z == null ? null : spiClass(z);
+      if (c) cnt[c.n] = (cnt[c.n] || 0) + 1;
+      l.setStyle({fillColor:c ? c.c : "#999", fillOpacity:c ? (c.n === "Normal" ? 0.15 : 0.6) : 0}); });
+    box.innerHTML = `<div style="flex-basis:100%"><b>Sequía o exceso de lluvia, SPI-3</b> (CHIRPS, ${ymLabel(i)}): `
+      + SPICL.filter(c => cnt[c.n]).map(c => `${cnt[c.n]} ${c.n.toLowerCase()}`).join(", ") + `. ${infoBtn("spi", "SPI")}</div>`
+      + SPICL.map(c => `<span><span class="csw" style="--c:${c.c};margin-left:0"></span>${c.n}</span>`).join("");
+    box.hidden = false; });
+  g.on("add", paint); g.on("remove", () => { box.hidden = true; });
+  return g;
+}
 document.getElementById("refresh").addEventListener("click", load);
 document.getElementById("avail").innerHTML = "Datos: " + VARS.map(([v,l]) => `<span>${icon(v, true, l)}${l}</span>`).join("")
   + `<span>${icon("rain", false, "Sin datos")}gris = sin datos</span>`;
