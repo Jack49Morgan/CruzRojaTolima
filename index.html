@@ -425,20 +425,29 @@ body.smode #map{height:max(420px,calc(100vh - 150px));border-radius:6px}
 .snorth{background:#ffffffe6;border-radius:6px;padding:3px 4px 1px;box-shadow:0 1px 4px #0004;line-height:0}
 .shlab{background:#ffffffd9;border:0;box-shadow:none;font:600 11px/1.15 var(--sans);color:#17221f;padding:1px 4px;border-radius:3px;white-space:nowrap}
 .shlab::before{display:none}
-/* printing (and the moment before it): A4 landscape, map on the left, legend and notes on the right */
-body.sprint .wrap{width:281mm;max-width:none;padding:0;margin:0}
-body.sprint .shgrid{grid-template-columns:minmax(0,1fr) 64mm}
-body.sprint #map{height:146mm!important}
+/* print preview and printing. Sizes fit both A4 and carta (letter): horizontal = map left, legend right;
+   vertical (default on iPad/iPhone, whose Safari ignores @page size) = map on top, legend below in two columns.
+   The page keeps this size until "Salir" (iPad Safari fires afterprint before it has finished printing). */
+body.sprint .wrap{width:258mm;max-width:none;padding:0;margin:0 auto}
+body.sprint .shgrid{grid-template-columns:minmax(0,1fr) 62mm}
+body.sprint #map{height:140mm!important}
+body.sprint.sport .wrap{width:192mm}
+body.sprint.sport .shgrid{grid-template-columns:1fr}
+body.sprint.sport #map{height:125mm!important}
+body.sprint.sport .shside{columns:2;column-gap:6mm} body.sprint.sport .shsec{break-inside:avoid}
 body.sprint .shprinted{display:inline} body.sprint .shbtns,body.sprint .shhelp{display:none!important}
-body.sprint .leaflet-control-zoom,body.sprint .leaflet-control-layers,body.sprint #map .maplegend,body.sprint .eqctl{display:none!important}
-@page{size:A4 landscape;margin:8mm}
+body.sprint .leaflet-control-zoom,body.sprint .leaflet-control-layers,body.sprint #map .maplegend,body.sprint .eqctl,body.sprint .medir{display:none!important}
+#shbar{display:none;position:sticky;top:0;z-index:1200;background:var(--navy-dk);color:#fff;border-radius:10px;padding:8px 12px;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pressed=true]{background:#fff;color:var(--navy-dk);font-weight:600}
+#shbar .btn{background:transparent;color:#fff;border-color:#fff8} #shbar .go{background:#c8102e;border-color:#c8102e}
+#shbar .go:disabled{opacity:.6}
 @media print{
   :root{--bg:#fff;--panel:#fff;--fg:#17221f;--muted:#4a5753;--line:#c9d1ce;--navy:#0b2a5b;color-scheme:light}
   body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact} body::before{display:none!important}
-  body.smode .wrap{width:auto;max-width:none;padding:0;margin:0;gap:4mm}
+  body.smode .wrap{max-width:none;padding:0;margin:0;gap:4mm} #shbar{display:none!important}
   body.smode .shead{padding:2mm 3mm;border-radius:2mm} .shemb{width:14mm;height:14mm} .shtit h1{font-size:17pt}
-  .shprinted{display:inline!important} .shbtns,.shhelp,.leaflet-control-zoom,.leaflet-control-layers,#map .maplegend,.eqctl,.animbar,dialog{display:none!important}
-  .shgrid{grid-template-columns:minmax(0,1fr) 64mm!important;gap:3mm} body.smode #map{height:146mm!important} .shside .sub{font-size:inherit}
+  .shprinted{display:inline!important} .shbtns,.shhelp,.leaflet-control-zoom,.leaflet-control-layers,#map .maplegend,.eqctl,.medir,.animbar,dialog{display:none!important}
+  .shgrid{gap:3mm} .shside .sub{font-size:inherit}
   #shlgmore{display:block!important} .eqlist button{display:none!important} .shside .shsec{padding:1.5mm 0} .shsec h3{font-size:7.5pt;margin-bottom:1mm}
   .shmap .panel{border:1px solid #999;padding:0} .shside{font-size:8pt;line-height:1.3;padding:0 3mm}
   .shmap .panel .legend{font-size:8pt;margin-top:1mm} .shgrp button{font-size:8pt;padding:0 5px}
@@ -2244,7 +2253,10 @@ function shareBuildPage(){
   const emblem = document.querySelector("header .emblem")?.src || "icon-192.png";
   const sec = document.createElement("section"); sec.id = "share";
   const made = S.d ? new Date(S.d) : null;
-  sec.innerHTML = `<div class="shead">
+  sec.innerHTML = `<div id="shbar" role="toolbar" aria-label="Vista de impresión"><b>Vista de impresión</b>
+      <button type="button" class="btn" data-or="land">Horizontal</button><button type="button" class="btn" data-or="port">Vertical</button>
+      <button type="button" class="btn go" id="shgo" disabled>Cargando mapa…</button><button type="button" class="btn" id="shexit">✕ Salir</button></div>
+    <div class="shead">
       <img src="${emblem}" alt="Cruz Roja Colombiana, Seccional Tolima" class="shemb">
       <div class="shtit"><h1 id="shtitle"></h1>
         <div class="shmeta">${S.p ? `<span>Para: <b>${esc(S.p)}</b></span>` : ""}<span>Cruz Roja Colombiana · Seccional Tolima${S.a ? ` · ${esc(S.a)}` : ""}</span>
@@ -2273,14 +2285,29 @@ function shareBuildPage(){
   const waitTiles = () => new Promise(res => { const ps = [];
     map.eachLayer(l => { if (l instanceof L.TileLayer && l._loading) ps.push(new Promise(r => l.once("load", r))); });
     Promise.race([Promise.all(ps), new Promise(r => setTimeout(r, 5000))]).then(res); });
-  const prep = () => { tick(); document.body.classList.add("sprint"); map.invalidateSize(); sec._legend?.(); };
-  const unprep = () => { document.body.classList.remove("sprint"); map.invalidateSize(); };
-  sec.querySelector("#shprint").onclick = async () => {
-    const b = sec.querySelector("#shprint"); b.disabled = true; b.textContent = "Preparando…";
-    map.closePopup(); prep(); sec._fit?.(); await new Promise(r => setTimeout(r, 700)); await waitTiles();
-    b.disabled = false; b.textContent = "🖨️ Imprimir o guardar PDF"; window.print(); };
-  addEventListener("beforeprint", () => { if (!document.body.classList.contains("sprint")) prep(); });
-  addEventListener("afterprint", unprep);
+  // Two steps: "Imprimir" opens a print preview at paper size and loads the map for it; "Imprimir ahora" then calls
+  // window.print() straight from the tap (Safari on iPad may refuse a print() that comes seconds after the tap).
+  const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const pageCss = document.createElement("style"); document.head.appendChild(pageCss);
+  const go = sec.querySelector("#shgo"), body = document.body;
+  let orient = IOS ? "port" : "land", seq = 0;
+  const setOrient = o => { orient = o; body.classList.toggle("sport", o === "port");
+    pageCss.textContent = `@page{size:${o === "port" ? "portrait" : "landscape"};margin:8mm}`;
+    sec.querySelectorAll("[data-or]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.or === o))); };
+  setOrient(orient);
+  const prep = async () => {
+    const my = ++seq; tick(); map.closePopup(); body.classList.add("sprint"); setOrient(orient);
+    go.disabled = true; go.textContent = "Cargando mapa…";
+    map.invalidateSize(); sec._legend?.(); sec._fit?.(); scrollTo(0, 0);
+    await new Promise(r => setTimeout(r, 600)); await waitTiles();
+    if (my === seq) { go.disabled = false; go.textContent = "🖨️ Imprimir ahora"; } };
+  const unprep = () => { seq++; body.classList.remove("sprint", "sport"); map.invalidateSize(); };
+  sec.querySelector("#shprint").onclick = prep;
+  sec.querySelectorAll("[data-or]").forEach(b => b.onclick = () => { setOrient(b.dataset.or); prep(); });
+  go.onclick = () => window.print();
+  sec.querySelector("#shexit").onclick = unprep;
+  // printing from the browser menu or share sheet without the preview: switch to the paper layout on the spot
+  addEventListener("beforeprint", () => { if (!body.classList.contains("sprint")) { tick(); body.classList.add("sprint"); setOrient(orient); map.invalidateSize(); sec._legend?.(); sec._fit?.(); go.disabled = false; go.textContent = "🖨️ Imprimir ahora"; } });
 }
 
 // ---- The builder (team members only)
