@@ -119,14 +119,16 @@ def oni():
 
 
 def phases(vals):
-    """NOAA rule: El Niño (N) / La Niña (L) when ONI >= +0.5 / <= -0.5 for at least 5 overlapping seasons in a row."""
+    """NOAA rule: El Niño (N) / La Niña (L) when ONI >= +0.5 / <= -0.5 for at least 5 overlapping seasons in a row;
+    a run still going at the end of the record counts from its start (the page recomputes this the same way)."""
     ph = ["."] * len(vals)
+    last = max([i for i, v in enumerate(vals) if v is not None], default=-1)
     for sign, ch in ((1, "N"), (-1, "L")):
         i = 0
         while i < len(vals):
             j = i
             while j < len(vals) and vals[j] is not None and sign * vals[j] >= 0.5: j += 1
-            if j - i >= 5: ph[i:j] = ch * (j - i)
+            if j - i >= 5 or (j > i and j == last + 1): ph[i:j] = ch * (j - i)   # a run still going at the end is provisional
             i = max(j, i + 1)
     return "".join(ph)
 
