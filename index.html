@@ -23,7 +23,7 @@
 <style>
 /* Layout: header strip, KPI row, map + station table side by side, station detail below */
 :root{
-  --bg:#f4f6f5; --panel:#ffffff; --fg:#17221f; --muted:#5c6b66; --line:#dde3e0;
+  --cork:#e8dcc6; --bg:#f4f6f5; --panel:#ffffff; --fg:#17221f; --muted:#5c6b66; --line:#dde3e0;
   --rain:#1f6fb2; --rain-soft:#d6e6f4; --temp:#c2552b; --hum:#2f8f6b; --wind:#6b5ca5;
   --level:#0f7f8c; --warn:#b7791f; --bad:#b83a3a; --ok:#2f8f6b; --off:#7b8794;
   --red:#c8102e; --red-dk:#9e0b23; --navy:#0b2a5b; --navy-dk:#0b2a5b; --navy-soft:#e6ecf6;
@@ -31,7 +31,7 @@
   --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){
-  :root{--bg:#101615; --panel:#18201e; --fg:#e6ece9; --muted:#9aaaa4; --line:#2a3532;
+  :root{--cork:#3b3126; --bg:#101615; --panel:#18201e; --fg:#e6ece9; --muted:#9aaaa4; --line:#2a3532;
     --rain:#5aa4e0; --rain-soft:#1c3347; --temp:#e07b52; --hum:#4fbf92; --wind:#9d8fd6; --level:#3fb8c6; --navy:#8fb0e8; --navy-soft:#16233a; color-scheme:dark}
 }
 *{box-sizing:border-box}
@@ -98,11 +98,15 @@ tbody tr.offrow td{color:var(--muted)}
 .medir .mbtn.on{background:#0b2a5b;color:#fff}
 .medir .mpanel{background:#fff;padding:8px 10px;width:220px;font:12px/1.35 var(--sans);color:#17221f;border-top:1px solid #0002}
 .medir .mhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.medir .mx{border:0;background:none;font-size:14px;cursor:pointer;color:#5c6b80}
-.medir .mmode{display:flex;gap:4px;margin-bottom:6px}.medir .mmode button,.medir .mact button{flex:1;border:1px solid #0b2a5b55;background:#fff;color:#0b2a5b;border-radius:6px;padding:5px 4px;font:600 12px var(--sans);cursor:pointer}
+.medir .mmode{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px}
+.mcoord{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;margin:4px 0}.mcoord b{user-select:all;font-variant-numeric:tabular-nums}
+.medir .mpanel a{display:inline;width:auto;height:auto;line-height:inherit;border:0;background:none;text-align:left;color:#0b6bcb;text-decoration:underline;font-size:inherit}
+.mcopy{border:1px solid #0b2a5b55;background:#fff;color:#0b2a5b;border-radius:6px;padding:4px 8px;font:600 12px var(--sans);cursor:pointer}.medir .mmode button,.medir .mact button{flex:1;border:1px solid #0b2a5b55;background:#fff;color:#0b2a5b;border-radius:6px;padding:5px 3px;font:600 11.5px var(--sans);cursor:pointer}
 .medir .mmode button.on{background:#0b2a5b;color:#fff}.medir .mact{display:flex;gap:4px;margin-top:6px}
+.medir .mver{margin:4px 0;font-size:12px}.medir .mver summary{cursor:pointer;color:#0b2a5b;font-weight:600}.medir .mver div{padding:1px 0}
 .medir p{margin:3px 0}.medir .mkm{font-size:20px;font-weight:700;color:#1565c0}.medir .sub{font-size:11px}.medir .mwarn{color:#b45309}
 .measuring .leaflet-interactive,.measuring.leaflet-container{cursor:crosshair!important}
-@media (max-width:600px){.medir .mpanel{width:190px}}
+@media (max-width:600px){.medir .mpanel{width:205px;padding:6px 8px;font-size:11.5px}.medir .mkm{font-size:17px}.medir p.sub:not(.mnote){display:none}.measuring .maplegend{display:none}}
 .leaflet-vias-pane canvas,.leaflet-viasLo-pane canvas{pointer-events:none!important}
 .leaflet-control-layers .lgrp{font:600 11px/1.2 var(--sans);text-transform:uppercase;letter-spacing:.04em;color:#c8102e;margin:8px 0 3px;padding-top:6px;border-top:1px solid #0002}
 .leaflet-control-layers .lgrp:first-child{border-top:0;padding-top:0;margin-top:2px}
@@ -226,6 +230,10 @@ h2 button.info{vertical-align:2px}
 .seglg .sw{display:inline-block;width:14px;height:11px;border:1.5px solid;border-radius:2px}
 .seglg .sw.dot{width:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #4a148c}
 .seglg .sw.ln{height:0;border-width:0;border-top:2.5px dashed}
+.caplg{border-left-color:#f57c00;max-width:240px}
+.caplg>div:not(.hd):not(.sub){display:flex;align-items:center;gap:6px;margin:2px 0;white-space:nowrap}
+.caplg .sw{display:inline-block;width:14px;height:11px;border:1.5px solid;border-radius:2px}
+.caplg .sub{white-space:normal;margin-top:4px;color:#5c6b80;font-size:11px}
 .segpop{font:13px/1.35 var(--sans)}
 .segpop .segact{display:flex;flex-wrap:wrap;gap:4px 10px;margin:4px 0}
 .segpop .segact span{display:inline-flex;align-items:center;gap:3px;font-size:12px}
@@ -243,6 +251,32 @@ h2 button.info{vertical-align:2px}
 .inclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:12px}
 .inccard{border:1px solid var(--line);border-left:5px solid var(--c);border-radius:8px;padding:10px 12px;display:grid;gap:6px;align-content:start;transition:box-shadow .3s}
 .inccard.flash{box-shadow:0 0 0 3px var(--red)}
+/* index cards, like a corkboard: ruled paper, estado colour along the top, event-type colour on the left */
+.inclist{grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:14px;padding:12px;border-radius:10px;background:var(--cork)}
+.inccard.idx{background:#fffdf6 repeating-linear-gradient(transparent 0 23px,#8fb3d940 23px 24px) 0 50px;
+  border:0;border-top:6px solid var(--e);border-left:4px solid var(--c);border-radius:3px;box-shadow:0 2px 6px #0003,0 0 0 1px #0001;padding:9px 11px 10px;gap:5px;color:#1d2733}
+.inccard.idx:hover{box-shadow:0 4px 12px #0004,0 0 0 1px #0001}
+.inccard.idx.open{grid-column:1/-1}
+.inccard.idx h3{font-size:14.5px;line-height:1.25;color:#14243a}
+.inccard.idx .sub{color:#55606e;font-size:12px}
+.inccard.idx .inctype{color:var(--c);font-weight:600}
+.inccard.idx .incdesc{-webkit-line-clamp:2;font-size:12.5px}
+.inccard.idx.open .incdesc{-webkit-line-clamp:unset}
+.incemo{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:15px;line-height:1}
+.incemo span{display:inline-flex;align-items:center;gap:2px}.incemo b{font:700 12.5px var(--sans);color:#14243a}
+.incmore{display:grid;gap:8px;padding-top:4px;border-top:1px dashed #0002}
+.incmore[hidden]{display:none}
+.inccard.idx .incbtns{margin-top:auto;gap:6px}
+.btn.sm{padding:3px 9px;font-size:12.5px}
+.btn.more{margin-left:auto}
+/* "Ubicar coordenadas" under the map: closed by default */
+.coordbox{margin-top:8px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font-size:13px}
+.coordbox summary{cursor:pointer;padding:6px 0;font-weight:600;color:var(--navy, #0b2a5b)}
+.coordbox[open]{padding-bottom:8px}
+.coordrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.coordrow input{flex:1 1 150px;min-width:0;font:inherit;border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:var(--panel);color:var(--fg)}
+#xmsg{margin-top:5px}#xmsg.bad{color:var(--red)}
+.xpin{width:22px;height:22px;border-radius:50%;border:3px solid #fff;background:#0b2a5b;box-shadow:0 0 0 2px #0b2a5b,0 2px 6px #0006}
 .inchead{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
 .inccard h3{margin:0;font-size:15px;color:var(--fg)}
 .incst{flex:none;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;color:#fff;background:#616161}
@@ -425,20 +459,29 @@ body.smode #map{height:max(420px,calc(100vh - 150px));border-radius:6px}
 .snorth{background:#ffffffe6;border-radius:6px;padding:3px 4px 1px;box-shadow:0 1px 4px #0004;line-height:0}
 .shlab{background:#ffffffd9;border:0;box-shadow:none;font:600 11px/1.15 var(--sans);color:#17221f;padding:1px 4px;border-radius:3px;white-space:nowrap}
 .shlab::before{display:none}
-/* printing (and the moment before it): A4 landscape, map on the left, legend and notes on the right */
-body.sprint .wrap{width:281mm;max-width:none;padding:0;margin:0}
-body.sprint .shgrid{grid-template-columns:minmax(0,1fr) 64mm}
-body.sprint #map{height:146mm!important}
+/* print preview and printing. Sizes fit both A4 and carta (letter): horizontal = map left, legend right;
+   vertical (default on iPad/iPhone, whose Safari ignores @page size) = map on top, legend below in two columns.
+   The page keeps this size until "Salir" (iPad Safari fires afterprint before it has finished printing). */
+body.sprint .wrap{width:258mm;max-width:none;padding:0;margin:0 auto}
+body.sprint .shgrid{grid-template-columns:minmax(0,1fr) 62mm}
+body.sprint #map{height:140mm!important}
+body.sprint.sport .wrap{width:192mm}
+body.sprint.sport .shgrid{grid-template-columns:1fr}
+body.sprint.sport #map{height:125mm!important}
+body.sprint.sport .shside{columns:2;column-gap:6mm} body.sprint.sport .shsec{break-inside:avoid}
 body.sprint .shprinted{display:inline} body.sprint .shbtns,body.sprint .shhelp{display:none!important}
-body.sprint .leaflet-control-zoom,body.sprint .leaflet-control-layers,body.sprint #map .maplegend,body.sprint .eqctl{display:none!important}
-@page{size:A4 landscape;margin:8mm}
+body.sprint .leaflet-control-zoom,body.sprint .leaflet-control-layers,body.sprint #map .maplegend,body.sprint .eqctl,body.sprint .medir{display:none!important}
+#shbar{display:none;position:sticky;top:0;z-index:1200;background:var(--navy-dk);color:#fff;border-radius:10px;padding:8px 12px;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pressed=true]{background:#fff;color:var(--navy-dk);font-weight:600}
+#shbar .btn{background:transparent;color:#fff;border-color:#fff8} #shbar .go{background:#c8102e;border-color:#c8102e}
+#shbar .go:disabled{opacity:.6}
 @media print{
   :root{--bg:#fff;--panel:#fff;--fg:#17221f;--muted:#4a5753;--line:#c9d1ce;--navy:#0b2a5b;color-scheme:light}
   body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact} body::before{display:none!important}
-  body.smode .wrap{width:auto;max-width:none;padding:0;margin:0;gap:4mm}
+  body.smode .wrap{max-width:none;padding:0;margin:0;gap:4mm} #shbar{display:none!important}
   body.smode .shead{padding:2mm 3mm;border-radius:2mm} .shemb{width:14mm;height:14mm} .shtit h1{font-size:17pt}
-  .shprinted{display:inline!important} .shbtns,.shhelp,.leaflet-control-zoom,.leaflet-control-layers,#map .maplegend,.eqctl,.animbar,dialog{display:none!important}
-  .shgrid{grid-template-columns:minmax(0,1fr) 64mm!important;gap:3mm} body.smode #map{height:146mm!important} .shside .sub{font-size:inherit}
+  .shprinted{display:inline!important} .shbtns,.shhelp,.leaflet-control-zoom,.leaflet-control-layers,#map .maplegend,.eqctl,.medir,.animbar,dialog{display:none!important}
+  .shgrid{gap:3mm} .shside .sub{font-size:inherit}
   #shlgmore{display:block!important} .eqlist button{display:none!important} .shside .shsec{padding:1.5mm 0} .shsec h3{font-size:7.5pt;margin-bottom:1mm}
   .shmap .panel{border:1px solid #999;padding:0} .shside{font-size:8pt;line-height:1.3;padding:0 3mm}
   .shmap .panel .legend{font-size:8pt;margin-top:1mm} .shgrp button{font-size:8pt;padding:0 5px}
@@ -486,6 +529,12 @@ body.sprint .leaflet-control-zoom,body.sprint .leaflet-control-layers,body.sprin
     <div class="panel">
       <h2><span id="maptitle">Lluvia acumulada por estación</span> <button type="button" class="info" data-info="lluvia" aria-label="Qué es la escala de lluvia">i</button></h2>
       <div id="map"></div>
+      <details class="coordbox" id="coordbox"><summary>📍 Ubicar coordenadas</summary>
+        <div class="coordrow"><input id="xlat" inputmode="decimal" autocomplete="off" placeholder="Latitud: 4,4389 o 4°26'20&quot;N" aria-label="Latitud">
+          <input id="xlng" inputmode="decimal" autocomplete="off" placeholder="Longitud: -75,4277 o 75°25'40&quot;O" aria-label="Longitud">
+          <button type="button" class="btn sm redbtn" id="xgo">Ubicar</button> <button type="button" class="btn sm" id="xclr" hidden>Quitar</button></div>
+        <div class="sub" id="xmsg" role="status">Decimales (DD) con punto o coma, o grados-minutos-segundos (DMS). También puede pegar el par completo en la primera casilla.</div>
+      </details>
       <div class="animbar" id="animbar" hidden></div>
       <div class="legend" id="legend"></div>
       <div class="legend" id="satinfo" hidden></div>
@@ -731,31 +780,35 @@ function initIncidents(map, ctrl){
       const own = items.map((x, i) => [x, i]).filter(([x]) => !x.upd);
       const th = own.slice(0, 4).map(([x, i]) => thumb(x, i)).join("")
         + (own.length > 4 ? `<button type="button" class="incth more" data-g="${escI(inc.id)}" data-i="${own[4][1]}">+${own.length - 4}</button>` : "");
-      cards.push(`<article class="inccard" id="inc-${escI(inc.id)}" style="--c:${color}">
+      // index card (corkboard style): the front shows the essentials; "Más" turns it over to updates, photos and the update box
+      const open = openCards.has(inc.id), aff = IncUtil.afectIconos(inc);
+      cards.push(`<article class="inccard idx${open ? " open" : ""}" id="inc-${escI(inc.id)}" style="--c:${color};--e:${PIN[inc.estado] || PIN.activo}">
         <div class="inchead"><h3>${escI(inc.titulo)}</h3><span class="incst st-${escI(inc.estado)}">${escI(INC_ESTADOS[inc.estado] || inc.estado)}</span></div>
-        <div class="sub">${escI(tname)} · ${escI(inc.municipio)}${inc.lugar ? " · " + escI(inc.lugar) : ""}<br>${escI(fmt(inc.fecha))}${IncUtil.registra(inc) ? ` · Registrado por ${escI(IncUtil.registra(inc))}` : ""}</div>
-        ${(() => { const a = inc.afectados || {}, vic = afect({fallecidos:a.fallecidos, heridos:a.heridos}), rest = afect({personas:a.personas, viviendas:a.viviendas});
-          return vic || rest ? `<div class="incaf">${vic ? `<b style="color:var(--red)">${escI(vic)}</b>` : ""}${vic && rest ? " · " : ""}${rest ? escI(rest) : ""}</div>` : ""; })()}
-        ${IncUtil.impacto(inc).length || inc.respcr ? `<div class="incimp">${IncUtil.impacto(inc).map(t => `<span class="incst st-imp">${escI(t)}</span>`).join("")}${inc.respcr ? `<span class="incst ${inc.respcr === "si" ? "st-activo" : "st-cerrado"}">Respuesta Cruz Roja: ${inc.respcr === "si" ? "Sí" : "No"}</span>` : ""}</div>${inc.respcr === "si" && inc.respcrdesc ? `<div class="sub"><b>Respuesta Cruz Roja:</b> ${escI(inc.respcrdesc)}</div>` : ""}` : ""}
+        <div class="sub"><b class="inctype">${escI(tname)}</b> · ${escI(inc.municipio)}${inc.lugar ? " · " + escI(inc.lugar) : ""}<br>${escI(fmt(inc.fecha))}${IncUtil.registra(inc) ? ` · ${escI(IncUtil.registra(inc))}` : ""}</div>
+        ${aff.length ? `<div class="incemo">${aff.map(a => `<span title="${escI(a.t)}${a.n != null ? ": " + a.n : ""}">${a.e}${a.n != null ? `<b>${a.n}</b>` : ""}</span>`).join("")}</div>` : ""}
         ${inc.descripcion ? `<p class="incdesc">${escI(inc.descripcion)}</p>` : ""}
-        ${iu.length ? `<ul class="incups" aria-label="Actualizaciones">${iu.slice(0, 3).map(upItem).join("")}</ul>` : ""}
-        ${th ? `<div class="incmedia">${th}</div>` : ""}
-        ${canEdit ? `<form class="incquick" data-q="${escI(inc.id)}">
+        <div class="incmore"${open ? "" : " hidden"}>
+          ${IncUtil.impacto(inc).length || inc.respcr ? `<div class="incimp">${IncUtil.impacto(inc).map(t => `<span class="incst st-imp">${escI(t)}</span>`).join("")}${inc.respcr ? `<span class="incst ${inc.respcr === "si" ? "st-activo" : "st-cerrado"}">Respuesta Cruz Roja: ${inc.respcr === "si" ? "Sí" : "No"}</span>` : ""}</div>${inc.respcr === "si" && inc.respcrdesc ? `<div class="sub"><b>Respuesta Cruz Roja:</b> ${escI(inc.respcrdesc)}</div>` : ""}` : ""}
+          ${iu.length ? `<ul class="incups" aria-label="Actualizaciones">${iu.slice(0, 3).map(upItem).join("")}</ul>` : ""}
+          ${th ? `<div class="incmedia">${th}</div>` : ""}
+          ${canEdit ? `<form class="incquick" data-q="${escI(inc.id)}">
           <textarea name="t" rows="2" maxlength="4000" placeholder="Escriba una actualización…" aria-label="Nueva actualización para ${escI(inc.titulo)}">${escI(drafts[inc.id] || "")}</textarea>
           <div class="incqrow"><button class="btn redbtn" type="submit">Publicar</button>
             <label class="btn" title="Agregar fotos o videos">📷 Foto/Video<input type="file" name="f" multiple hidden accept="image/*,video/*"></label>
             <span class="qm" role="status"></span></div>
         </form>` : ""}
-        <div class="incbtns"><button type="button" class="btn redbtn" data-edit="${escI(inc.id)}" title="${canEdit ? "Seguimiento, actualizaciones y datos del evento" : "Seguimiento del evento (solo lectura)"}">Abrir evento</button>
-          ${ll ? `<button type="button" class="btn" data-zoom="${escI(inc.id)}">Ver en mapa</button>` : `<span class="sub">Sin ubicación</span>`}
-          ${IncStore.remote && IncStore.user() && window.SATAlert ? `<button type="button" class="btn" data-alert="${escI(inc.id)}" title="Avisar a todos los celulares suscritos">📣 Enviar como alerta</button>` : ""}</div>
+          ${IncStore.remote && IncStore.user() && window.SATAlert ? `<button type="button" class="btn" data-alert="${escI(inc.id)}" title="Avisar a todos los celulares suscritos">📣 Enviar como alerta</button>` : ""}
+        </div>
+        <div class="incbtns"><button type="button" class="btn sm redbtn" data-edit="${escI(inc.id)}" title="${canEdit ? "Seguimiento, actualizaciones y datos del evento" : "Seguimiento del evento (solo lectura)"}">Abrir</button>
+          ${ll ? `<button type="button" class="btn sm" data-zoom="${escI(inc.id)}">Mapa</button>` : `<span class="sub">Sin ubicación</span>`}
+          <button type="button" class="btn sm more" data-more="${escI(inc.id)}" aria-expanded="${open}">${open ? "Menos ▴" : `Más ▾${iu.length ? ` <span class="sub">${iu.length}</span>` : ""}`}</button></div>
       </article>`);
       byId[inc.id].ll = ll; byId[inc.id].gl = gl;
     }
     list.innerHTML = cards.join("");
   }
   // quick update box on each card: type, optionally add photos, Publicar
-  const drafts = {}, qfiles = {};
+  const drafts = {}, qfiles = {}, openCards = new Set();
   const qmsg = (fm, t, bad) => { const m = fm.querySelector(".qm"); m.textContent = t; m.classList.toggle("bad", !!bad); };
   list.addEventListener("input", e => { const fm = e.target.closest("[data-q]"); if (fm && e.target.name === "t") drafts[fm.dataset.q] = e.target.value; });
   list.addEventListener("change", e => { const fm = e.target.closest("[data-q]"); if (!fm || e.target.name !== "f") return;
@@ -771,7 +824,13 @@ function initIncidents(map, ctrl){
     try { await IncStore.addUpdate(id, {texto}, files); delete drafts[id]; delete qfiles[id]; fm.t.value = ""; fm.t.blur(); rr(); }
     catch (err) { qmsg(fm, "No se pudo publicar: " + err.message + ". El texto sigue aquí.", true); }
     btn.disabled = false; });
-  function focusCard(id){ const el = document.getElementById("inc-" + id); if (!el) return;
+  // turn an index card over (and remember it across redraws)
+  function toggleCard(id, show){ const el = document.getElementById("inc-" + id); if (!el) return;
+    show ??= !openCards.has(id); show ? openCards.add(id) : openCards.delete(id);
+    el.classList.toggle("open", show); el.querySelector(".incmore").hidden = !show;
+    const b = el.querySelector("[data-more]"), n = (byId[id]?.ups || []).length;
+    b.setAttribute("aria-expanded", show); b.innerHTML = show ? "Menos ▴" : `Más ▾${n ? ` <span class="sub">${n}</span>` : ""}`; }
+  function focusCard(id){ const el = document.getElementById("inc-" + id); if (!el) return; toggleCard(id, true);
     el.scrollIntoView({behavior:"smooth", block:"center"}); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1600); }
   function zoomTo(id){ const r = byId[id]; if (!r) return;
     if (!map.hasLayer(layer)) layer.addTo(map);
@@ -788,7 +847,8 @@ function initIncidents(map, ctrl){
   document.getElementById("mnext").onclick = () => { gi = (gi + 1) % gallery.length; showMedia(); };
   dlg.addEventListener("close", () => box.innerHTML = "");
   document.addEventListener("click", e => {
-    const b = e.target.closest("[data-g],[data-zoom],[data-edit],[data-card],[data-alert]"); if (!b) return;
+    const b = e.target.closest("[data-g],[data-zoom],[data-edit],[data-card],[data-alert],[data-more]"); if (!b) return;
+    if (b.dataset.more) { toggleCard(b.dataset.more); return; }
     if (b.dataset.alert) { const inc = byId[b.dataset.alert]?.inc; if (!inc) return;
       // event as a push alert: type, title, place, status, victims and the latest update, linked to its follow-up page
       const [tname] = INC_TIPOS[inc.tipo] || INC_TIPOS.otro, last = (byId[b.dataset.alert].ups || [])[0];
@@ -1612,20 +1672,25 @@ function buildMeasureTool(map){
   let box, btn, out;
   ctl.onAdd = () => {
     const d = L.DomUtil.create("div", "leaflet-bar medir");
-    d.innerHTML = `<button type="button" class="mbtn" title="Medir distancia" aria-label="Medir distancia"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 17 17 3l4 4L7 21z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2" stroke="currentColor" stroke-width="1.6"/></svg></button>`
-      + `<div class="mpanel" hidden><div class="mhd"><b>Medir distancia</b><button type="button" class="mx" aria-label="Cerrar">✕</button></div>`
-      + `<div class="mmode" role="group" aria-label="Tipo de medida"><button type="button" data-m="via" class="on">Por la vía</button><button type="button" data-m="recta">Línea recta</button></div>`
+    d.innerHTML = `<button type="button" class="mbtn" title="Medir distancia o área" aria-label="Medir distancia o área"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 17 17 3l4 4L7 21z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2" stroke="currentColor" stroke-width="1.6"/></svg></button>`
+      + `<div class="mpanel" hidden><div class="mhd"><b>Medir</b><button type="button" class="mx" aria-label="Cerrar">✕</button></div>`
+      + `<div class="mmode" role="group" aria-label="Tipo de medida"><button type="button" data-m="via" class="on">Por la vía</button><button type="button" data-m="recta">Línea recta</button><button type="button" data-m="area">Área</button><button type="button" data-m="pt">Coordenadas</button></div>`
       + `<div class="mout"></div><div class="mact"><button type="button" data-a="undo">Deshacer</button><button type="button" data-a="clear">Borrar</button></div></div>`;
     btn = d.querySelector(".mbtn"); box = d.querySelector(".mpanel"); out = d.querySelector(".mout");
     btn.onclick = () => toggle(!M.on);
     d.querySelector(".mx").onclick = () => toggle(false);
     d.querySelector(".mmode").onclick = e => { const b = e.target.closest("button[data-m]"); if (!b) return; M.mode = b.dataset.m;
-      d.querySelectorAll(".mmode button").forEach(x => x.classList.toggle("on", x === b)); draw(); };
+      d.querySelectorAll(".mmode button").forEach(x => x.classList.toggle("on", x === b)); if (M.mode === "area") loadUrb(); draw(); };
+    out.onclick = e => { const b = e.target.closest(".mcopy"); if (b) copyCoord(b); };
     d.querySelector(".mact").onclick = e => { const a = e.target.closest("button[data-a]")?.dataset.a; if (a === "undo") M.pts.pop(); if (a === "clear") M.pts = []; if (a) draw(); };
     L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d);
     return d;
   };
   ctl.addTo(map);
+  // right-click (or long-press on a phone) anywhere: the point's coordinates with a copy button
+  map.on("contextmenu", e => { if (M.on) return;
+    const pop = L.popup({maxWidth:260}).setLatLng(e.latlng).setContent(coordHtml(e.latlng)).openOn(map);
+    pop.getElement()?.querySelector(".mcopy")?.addEventListener("click", ev => copyCoord(ev.currentTarget)); });
   function toggle(on){
     M.on = on; box.hidden = !on; btn.classList.toggle("on", on);
     map.getContainer().classList.toggle("measuring", on);
@@ -1644,6 +1709,14 @@ function buildMeasureTool(map){
   async function draw(){
     const id = ++M.req; g.clearLayers();
     const n = M.pts.length, rect = straight();
+    if (M.mode === "area") return drawArea();
+    if (M.mode === "pt") {
+      if (n > 1) M.pts = M.pts.slice(-1);
+      const p = M.pts[0];
+      if (!p) { out.innerHTML = `<p>Toque un punto del mapa para ver sus coordenadas.</p>`; return; }
+      L.circleMarker(p, {radius:6, color:"#fff", weight:2, fillColor:"#c8102e", fillOpacity:1, interactive:false}).addTo(g);
+      out.innerHTML = coordHtml(p); return;
+    }
     if (n < 2) { dots(); out.innerHTML = `<p>${n ? "Toque el punto de llegada." : "Toque el punto de inicio en el mapa."}</p>`; return; }
     if (M.mode === "recta") {
       L.polyline(M.pts, {color:"#0b2a5b", weight:3, dashArray:"6 5", interactive:false}).addTo(g); dots();
@@ -1675,7 +1748,97 @@ function buildMeasureTool(map){
     L.polyline(M.pts, {color:"#0b2a5b", weight:3, dashArray:"6 5", interactive:false}).addTo(g);
     out.innerHTML = `<p class="mkm">${fmtKm(rect)}</p><p>No se pudo calcular la ruta por la vía (sin conexión con el servicio o sin vía entre los puntos). Se muestra la distancia en línea recta.</p>`;
   }
+  function drawArea(){
+    const n = M.pts.length;
+    if (n >= 3) L.polygon(M.pts, {color:"#6a1b9a", weight:2.5, fillColor:"#ab47bc", fillOpacity:0.25, interactive:false}).addTo(g);
+    else if (n === 2) L.polyline(M.pts, {color:"#6a1b9a", weight:2.5, dashArray:"6 5", interactive:false}).addTo(g);
+    dots();
+    if (n < 3) { out.innerHTML = `<p>Toque los vértices del área en el mapa (mínimo 3). ${n ? `Lleva ${n}.` : ""}</p>`; return; }
+    const a = polyAreaM2(M.pts), per = straight() + map.distance(M.pts[n - 1], M.pts[0]);
+    if (!URB) { out.innerHTML = `<p>Calculando…</p>`; loadUrb().then(() => { if (M.mode === "area") draw(); }); return; }
+    const ha = a / 1e4, est = popInPolygon(M.pts);
+    const top = est.v.slice(0, 5).map(([vi, pp]) => `<div>${esc(shVName(VEREDAS.f[vi][1]))} <span class="sub">(${esc(VEREDAS.m[VEREDAS.f[vi][0]])})</span>: ${fmtPeople(pp)}</div>`).join("");
+    out.innerHTML = `<p class="mkm">${ha < 100 ? `${ha.toLocaleString("es-CO", {maximumFractionDigits:1})} ha` : `${(a / 1e6).toLocaleString("es-CO", {maximumFractionDigits:2})} km²`}</p>`
+      + `<p>${ha < 100 ? `${(a / 1e6).toLocaleString("es-CO", {maximumFractionDigits:3})} km²` : `${Math.round(ha).toLocaleString("es-CO")} ha`} · perímetro ${fmtKm(per)}</p>`
+      + `<p>Población estimada: <b>${fmtPeople(est.p)}</b> personas${est.u > 0 ? ` <span class="sub">(${fmtPeople(est.u)} en cascos urbanos)</span>` : ""}${est.out > 0.02 ? `<br><span class="mwarn">${Math.round(est.out * 100)} % del área queda fuera del Tolima y no se cuenta.</span>` : ""}</p>`
+      + (top ? `<details class="mver"><summary>Veredas incluidas (${est.v.length})</summary>${top}${est.v.length > 5 ? `<div class="sub">y ${est.v.length - 5} más</div>` : ""}</details>` : "")
+      + `<p class="sub mnote">Estimación con GHS-POP 2025 por vereda y casco urbano ${infoBtn("medirpob", "población estimada del área")}. Toque para agregar vértices.</p>`;
+  }
   return M;
+}
+// Coordinates in decimal degrees (WGS84, 5 decimals ≈ 1 m), "lat, lon" as Google Maps and WhatsApp read them
+const ddTxt = p => `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`;
+const coordHtml = p => `<div class="mcoord"><b>${ddTxt(p)}</b><button type="button" class="mcopy" data-c="${ddTxt(p)}">📋 Copiar</button></div>`
+  + `<p class="sub mnote">Latitud, longitud en grados decimales (WGS84). <a href="https://www.google.com/maps/search/?api=1&query=${p.lat.toFixed(5)},${p.lng.toFixed(5)}" target="_blank" rel="noopener">Abrir en Google Maps</a></p>`;
+async function copyCoord(b){
+  const t = b.dataset.c; let ok = false;
+  try { await navigator.clipboard.writeText(t); ok = true; } catch (e) {
+    try { const ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); ok = document.execCommand("copy"); ta.remove(); } catch (e2) {} }
+  b.textContent = ok ? "✓ Copiado" : "Seleccione y copie"; setTimeout(() => { b.textContent = "📋 Copiar"; }, 2000);
+}
+// Area of a polygon on the sphere (m²), small-polygon formula on a local equirectangular projection
+function polyAreaM2(pts){
+  const R = 6371008.8, lat0 = pts.reduce((s, p) => s + p.lat, 0) / pts.length * Math.PI / 180, k = Math.cos(lat0);
+  let a = 0; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const xi = pts[i].lng * k, yi = pts[i].lat, xj = pts[j].lng * k, yj = pts[j].lat; a += xj * yi - xi * yj; }
+  return Math.abs(a / 2) * (Math.PI / 180 * R) ** 2;
+}
+// Estimated population inside a drawn polygon: the polygon is sampled on a fine grid (≤ ~40 000 points, 50 m at the finest);
+// each sample takes the population density of the vereda it falls in (GHS-POP 2025 total of the vereda / its area).
+// Urban areas are their own "Z U" polygons in the DANE layer, so town centres keep their much higher density.
+let VIDX = null;
+function vIndex(){
+  if (VIDX) return VIDX;
+  const C = 0.05, cells = new Map(), V = VEREDAS.f.map(([, , polys], vi) => {
+    const rings = polys.flatMap(rs => rs.map(decPoly));
+    let s = 90, n = -90, w = 180, e = -180;
+    for (const r of rings) for (const [la, lo] of r) { if (la < s) s = la; if (la > n) n = la; if (lo < w) w = lo; if (lo > e) e = lo; }
+    return {rings, s, n, w, e, vi};
+  });
+  for (const v of V) { let a = 0;
+    for (const r of v.rings) { const ar = polyAreaM2(r.map(([la, lo]) => ({lat:la, lng:lo}))); a += ar; }
+    v.dens = a > 0 ? (VPOP[v.vi] || 0) / a : 0;   // people per m² (holes are rare in this layer; they are counted as area)
+    for (let x = Math.floor(v.w / C); x <= Math.floor(v.e / C); x++) for (let y = Math.floor(v.s / C); y <= Math.floor(v.n / C); y++) {
+      const k = x + "," + y; if (!cells.has(k)) cells.set(k, []); cells.get(k).push(v); } }
+  return VIDX = {C, cells};
+}
+const pip = (la, lo, r) => { let c = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+  const yi = r[i][0], xi = r[i][1], yj = r[j][0], xj = r[j][1];
+  if ((yi > la) !== (yj > la) && lo < (xj - xi) * (la - yi) / (yj - yi) + xi) c = !c; } return c; };
+function vAt(la, lo){
+  const {C, cells} = vIndex(), cand = cells.get(Math.floor(lo / C) + "," + Math.floor(la / C)); if (!cand) return null;
+  for (const v of cand) { if (la < v.s || la > v.n || lo < v.w || lo > v.e) continue;
+    let inside = false; for (const r of v.rings) if (pip(la, lo, r)) inside = !inside;
+    if (inside) return v; }
+  return null;
+}
+// town centres (not in the vereda layer): each municipio's remaining population spread over its OpenStreetMap buildings,
+// ~110 m cells built by tools/poblacion_urbana.py
+let URB = null, URBP = null;
+const loadUrb = () => URBP ??= fetch("data/poblacion-urbana.json").then(r => r.json()).then(d => { URB = d; }).catch(() => { URB = {celda:0.001, c:[], bad:true}; });
+let DEPRINGS = null;
+const inTolima = (la, lo) => { DEPRINGS ??= (f => { const g = f.geometry || f; return (g.type === "Polygon" ? [g.coordinates] : g.coordinates).flatMap(pl => pl.map(r => r.map(([x, y]) => [y, x]))); })(TOLIMA_GEO.dep.features ? TOLIMA_GEO.dep.features[0] : TOLIMA_GEO.dep);
+  let c = false; for (const r of DEPRINGS) if (pip(la, lo, r)) c = !c; return c; };
+function popInPolygon(pts){
+  const ring = pts.map(p => [p.lat, p.lng]), a = polyAreaM2(pts);
+  let s = 90, n = -90, w = 180, e = -180; for (const p of pts) { s = Math.min(s, p.lat); n = Math.max(n, p.lat); w = Math.min(w, p.lng); e = Math.max(e, p.lng); }
+  const k = Math.cos((s + n) / 2 * Math.PI / 180), mPerDeg = 111195;
+  const bboxM2 = (n - s) * mPerDeg * (e - w) * mPerDeg * k;
+  const stepM = Math.max(50, Math.sqrt(bboxM2 / 40000)), dLa = stepM / mPerDeg, dLo = stepM / (mPerDeg * k);
+  let tot = 0, cnt = 0, outN = 0; const per = new Map();
+  for (let la = s + dLa / 2; la < n; la += dLa) for (let lo = w + dLo / 2; lo < e; lo += dLo) {
+    if (!pip(la, lo, ring)) continue; cnt++;
+    const v = vAt(la, lo); if (!v) { if (!inTolima(la, lo)) outN++; continue; }
+    per.set(v.vi, (per.get(v.vi) || 0) + v.dens);
+  }
+  // scale the sample sum to the exact polygon area (each inside sample stands for a / cnt m²)
+  const cellA = cnt ? a / cnt : 0;
+  const v = [...per].map(([vi, d]) => [vi, d * cellA]).sort((x, y) => y[1] - x[1]);
+  for (const [, pp] of v) tot += pp;
+  let u = 0; const C = URB?.celda || 0.001;
+  for (const [ia, io, pp] of URB?.c || []) { const la = (ia + 0.5) * C, lo = (io + 0.5) * C;
+    if (la >= s && la <= n && lo >= w && lo <= e && pip(la, lo, ring)) u += pp; }
+  return {p: Math.round(tot + u), u: Math.round(u), v, out: cnt ? outN / cnt : 0};
 }
 // Earthquakes M4+ in and around Tolima over the last year, from the USGS FDSN service.
 // (The SGC feed at archive.sgc.gov.co only answers its own website, so a browser page elsewhere cannot read it.)
@@ -2244,7 +2407,10 @@ function shareBuildPage(){
   const emblem = document.querySelector("header .emblem")?.src || "icon-192.png";
   const sec = document.createElement("section"); sec.id = "share";
   const made = S.d ? new Date(S.d) : null;
-  sec.innerHTML = `<div class="shead">
+  sec.innerHTML = `<div id="shbar" role="toolbar" aria-label="Vista de impresión"><b>Vista de impresión</b>
+      <button type="button" class="btn" data-or="land">Horizontal</button><button type="button" class="btn" data-or="port">Vertical</button>
+      <button type="button" class="btn go" id="shgo" disabled>Cargando mapa…</button><button type="button" class="btn" id="shexit">✕ Salir</button></div>
+    <div class="shead">
       <img src="${emblem}" alt="Cruz Roja Colombiana, Seccional Tolima" class="shemb">
       <div class="shtit"><h1 id="shtitle"></h1>
         <div class="shmeta">${S.p ? `<span>Para: <b>${esc(S.p)}</b></span>` : ""}<span>Cruz Roja Colombiana · Seccional Tolima${S.a ? ` · ${esc(S.a)}` : ""}</span>
@@ -2273,14 +2439,29 @@ function shareBuildPage(){
   const waitTiles = () => new Promise(res => { const ps = [];
     map.eachLayer(l => { if (l instanceof L.TileLayer && l._loading) ps.push(new Promise(r => l.once("load", r))); });
     Promise.race([Promise.all(ps), new Promise(r => setTimeout(r, 5000))]).then(res); });
-  const prep = () => { tick(); document.body.classList.add("sprint"); map.invalidateSize(); sec._legend?.(); };
-  const unprep = () => { document.body.classList.remove("sprint"); map.invalidateSize(); };
-  sec.querySelector("#shprint").onclick = async () => {
-    const b = sec.querySelector("#shprint"); b.disabled = true; b.textContent = "Preparando…";
-    map.closePopup(); prep(); sec._fit?.(); await new Promise(r => setTimeout(r, 700)); await waitTiles();
-    b.disabled = false; b.textContent = "🖨️ Imprimir o guardar PDF"; window.print(); };
-  addEventListener("beforeprint", () => { if (!document.body.classList.contains("sprint")) prep(); });
-  addEventListener("afterprint", unprep);
+  // Two steps: "Imprimir" opens a print preview at paper size and loads the map for it; "Imprimir ahora" then calls
+  // window.print() straight from the tap (Safari on iPad may refuse a print() that comes seconds after the tap).
+  const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const pageCss = document.createElement("style"); document.head.appendChild(pageCss);
+  const go = sec.querySelector("#shgo"), body = document.body;
+  let orient = IOS ? "port" : "land", seq = 0;
+  const setOrient = o => { orient = o; body.classList.toggle("sport", o === "port");
+    pageCss.textContent = `@page{size:${o === "port" ? "portrait" : "landscape"};margin:8mm}`;
+    sec.querySelectorAll("[data-or]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.or === o))); };
+  setOrient(orient);
+  const prep = async () => {
+    const my = ++seq; tick(); map.closePopup(); body.classList.add("sprint"); setOrient(orient);
+    go.disabled = true; go.textContent = "Cargando mapa…";
+    map.invalidateSize(); sec._legend?.(); sec._fit?.(); scrollTo(0, 0);
+    await new Promise(r => setTimeout(r, 600)); await waitTiles();
+    if (my === seq) { go.disabled = false; go.textContent = "🖨️ Imprimir ahora"; } };
+  const unprep = () => { seq++; body.classList.remove("sprint", "sport"); map.invalidateSize(); };
+  sec.querySelector("#shprint").onclick = prep;
+  sec.querySelectorAll("[data-or]").forEach(b => b.onclick = () => { setOrient(b.dataset.or); prep(); });
+  go.onclick = () => window.print();
+  sec.querySelector("#shexit").onclick = unprep;
+  // printing from the browser menu or share sheet without the preview: switch to the paper layout on the spot
+  addEventListener("beforeprint", () => { if (!body.classList.contains("sprint")) { tick(); body.classList.add("sprint"); setOrient(orient); map.invalidateSize(); sec._legend?.(); sec._fit?.(); go.disabled = false; go.textContent = "🖨️ Imprimir ahora"; } });
 }
 
 // ---- The builder (team members only)
@@ -2380,6 +2561,67 @@ function shareBuilder(){
     dlg.showModal();
   }
 }
+// ---- Official IDEAM alerts in CAP format (Common Alerting Protocol). A scheduled GitHub Action (tools/ideam_cap.py) reads
+// alertascap.ideam.gov.co every 30 min and keeps the alerts that touch Tolima in data/ideam-cap.json. Landslide and fire alerts name
+// municipios, drawn with the map's own municipio shapes; flash flood and regional alerts come as zones (polygons), drawn dashed.
+const CAP_LV = {amarilla:{c:"#fdd835", f:"#222", n:"Amarilla", q:"Esté atento"}, naranja:{c:"#f57c00", f:"#fff", n:"Naranja", q:"Prepárese"}, roja:{c:"#d32f2f", f:"#fff", n:"Roja", q:"Actúe"}};
+const CAP_ORD = {roja:0, naranja:1, amarilla:2};
+const CAP_IC = {desl:"⛰️", inc:"🔥", crec:"🌊", inund:"🌊", tiempo:"⛈️", lluvia:"🌧️", viento:"💨", mar:"🌊"};
+const capHora = s => { const d = new Date(s); return isNaN(d) ? (s || "") : d.toLocaleString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"short", hour:"numeric", minute:"2-digit"}); };
+function capAlertHtml(a, mn){
+  const lv = CAP_LV[a.nivel] || CAP_LV.amarilla, ic = CAP_IC[a.tipo] || "⚠️";
+  const que = a.prob ? `probabilidad <b>${esc(a.prob)}</b> de ${esc(a.ev.toLowerCase())}` : `${esc(a.ev.toLowerCase())}`;
+  const donde = a.zona && mn ? `en ${a.zonas ? "la zona " + esc(a.zonas) : "cuencas"} que tocan ${esc(mn)}` : a.zona ? `en ${a.zonas ? "la zona " + esc(a.zonas) + ", que" : "cuencas que"} en el Tolima ${a.zonas ? "toca" : "tocan"} ${esc(a.mun.join(", "))}` : `en ${esc(a.mun.join(", "))}`;
+  return `<div style="margin-top:6px;padding-top:6px;border-top:1px solid #0001">
+    <span class="vlvl" style="background:${lv.c};color:${lv.f}">${ic} Alerta ${lv.n.toLowerCase()} · ${esc(a.ev)}</span>
+    <div>El IDEAM prevé ${que} ${donde}. <b>${lv.q}.</b></div>
+    <div class="sub">Vigente desde ${esc(capHora(a.onset || a.eff))} hasta ${esc(capHora(a.exp))} (hora de Colombia).</div>
+    ${a.instr ? `<div style="margin-top:3px">${esc(a.instr)}</div>` : ""}
+    <details style="margin-top:3px"><summary class="sub">Texto oficial del IDEAM${/^en/i.test(a.lang) ? " (en inglés)" : ""}</summary><div class="sub" style="margin-top:3px">${esc(a.ev_orig)}. ${esc(a.desc)}</div></details>
+    <div class="sub" style="margin-top:3px">Fuente: <a href="${esc(a.link)}" target="_blank" rel="noopener">alerta CAP del IDEAM</a>${a.web ? ` · <a href="${esc(a.web)}" target="_blank" rel="noopener">más información</a>` : ""}</div></div>`;
+}
+function buildCapLayer(){
+  const g = L.featureGroup(); let timer = null, legend = null, D = null;
+  const popO = {maxWidth:Math.min(340, innerWidth - 70), autoPanPadding:[10,10]};
+  const foot = () => `<div class="sub" style="margin-top:6px">Alertas oficiales del IDEAM (formato CAP), revisadas el ${esc(capHora(D.updated.replace("Z", ":00Z")))}; para decisiones, confirme en <a href="https://www.ideam.gov.co" target="_blank" rel="noopener">ideam.gov.co</a>.</div>`;
+  async function load(){
+    try { const r = await fetch("data/ideam-cap.json?t=" + Math.floor(Date.now() / 6e5)); if (r.ok) D = await r.json(); } catch (e) {}
+    g.clearLayers(); if (!D) { updLegend([]); return; }
+    const now = Date.now(), al = (D.alerts || []).filter(a => !a.exp || new Date(a.exp) > now);
+    // zones first (underneath), dashed
+    for (const a of al.filter(a => a.zona)) { const lv = CAP_LV[a.nivel] || CAP_LV.amarilla;
+      L.polygon(a.poly, {color:lv.c, weight:2, dashArray:"6 4", fillColor:lv.c, fillOpacity:0.18})
+        .bindTooltip(`${CAP_IC[a.tipo] || "⚠️"} Alerta ${lv.n.toLowerCase()} IDEAM · ${esc(a.ev)}`, {sticky:true, direction:"top", className:"muntip"})
+        .bindPopup(() => `<div class="segpop"><b>Alerta oficial del IDEAM</b>${capAlertHtml(a)}${foot()}</div>`, popO).addTo(g); }
+    // municipios: one shape each, coloured by the highest level; the popup lists every alert that touches it
+    const byMun = {};
+    for (const a of al) for (const m of a.mun) (byMun[m] ||= []).push(a);
+    for (const [mn, as] of Object.entries(byMun)) {
+      as.sort((x, y) => (CAP_ORD[x.nivel] ?? 3) - (CAP_ORD[y.nivel] ?? 3));
+      const named = as.filter(a => !a.zona); if (!named.length) continue;
+      const f = TOLIMA_GEO.mun.features.find(x => x.properties.n === mn); if (!f) continue;
+      const lv = CAP_LV[named[0].nivel] || CAP_LV.amarilla;
+      L.geoJSON(f, {style:{color:lv.c === "#fdd835" ? "#c6a700" : lv.c, weight:2.5, opacity:1, fillColor:lv.c, fillOpacity:0.45}})
+        .bindTooltip(`<b>${esc(mn)}</b><br>${as.map(a => `${CAP_IC[a.tipo] || "⚠️"} Alerta ${esc((CAP_LV[a.nivel] || CAP_LV.amarilla).n.toLowerCase())} · ${esc(a.ev)}`).join("<br>")}`, {sticky:true, direction:"top", className:"muntip"})
+        .bindPopup(() => `<div class="segpop"><b>${esc(mn)}</b> <span class="sub">${as.length === 1 ? "1 alerta vigente" : as.length + " alertas vigentes"} del IDEAM</span>${as.map(a => capAlertHtml(a, mn)).join("")}${foot()}</div>`, popO).addTo(g);
+    }
+    updLegend(al);
+  }
+  function updLegend(al){
+    if (!legend?._container) return;
+    const n = {}; for (const a of al) n[a.nivel] = (n[a.nivel] || 0) + 1;
+    legend._container.innerHTML = `<div class="hd">Alertas IDEAM <span>CAP oficiales</span></div>
+      ${["roja", "naranja", "amarilla"].map(k => `<div><span class="sw" style="background:${CAP_LV[k].c}88;border-color:${CAP_LV[k].c}"></span>${CAP_LV[k].n} · ${CAP_LV[k].q.toLowerCase()}${n[k] ? ` (${n[k]})` : ""}</div>`).join("")}
+      <div><span class="sw" style="border-style:dashed;border-color:#555"></span>Zona (cuenca o región)</div>
+      <div class="sub">${!D ? "No se pudo leer el archivo de alertas." : al.length ? `${al.length} vigente${al.length > 1 ? "s" : ""} que tocan el Tolima · revisado ${esc(capHora(D.updated.replace("Z", ":00Z")))}` : `Sin alertas vigentes para el Tolima · revisado ${esc(capHora(D.updated.replace("Z", ":00Z")))}`}</div>`;
+  }
+  g.on("add", () => {
+    legend = L.control({position:"bottomright"});
+    legend.onAdd = () => { const d = L.DomUtil.create("div", "maplegend caplg"); L.DomEvent.disableClickPropagation(d); return d; };
+    legend.addTo(g._map); load(); timer = setInterval(load, 15 * 60e3); });
+  g.on("remove", () => { clearInterval(timer); legend?.remove(); legend = null; });
+  return g;
+}
 // Explanations shown by the "i" buttons (Spanish, plain language)
 const GL = "https://gibs.earthdata.nasa.gov/legends/";
 // ---- Fire weather (GWIS / Copernicus): ECMWF Fire Weather Index forecast as danger classes, and active fire hotspots.
@@ -2402,6 +2644,46 @@ const inRingP = (x, y, r) => { let c = false; for (let i = 0, j = r.length - 1; 
   const [xi, yi] = r[i], [xj, yj] = r[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
 const munAt = (lon, lat) => MUNRINGS.findIndex(ps => ps.some(p => inRingP(lon, lat, p[0]) && !p.slice(1).some(h => inRingP(lon, lat, h))));
 const munName = i => i < 0 ? null : TOLIMA_GEO.mun.features[i].properties.n;
+// ---- "Ubicar coordenadas": a typed point (DD or DMS) gets a marker and the map zooms to it
+// one coordinate: "-75,4277", "4.4389", "4°26'20\"N", "75 25 40 O", "4°26.33' N"; returns NaN when unreadable
+function parseCoord(t){
+  t = String(t || "").trim().toUpperCase().replace(/[º˚]/g, "°").replace(/[’′]/g, "'").replace(/[”″]/g, '"').replace(/''/g, '"');
+  if (!t) return NaN;
+  const hem = (t.match(/[NSEOW]/) || [""])[0], neg = /^-/.test(t) || hem === "S" || hem === "O" || hem === "W";
+  const nums = (t.replace(/[NSEOW]/g, " ").match(/\d+(?:[.,]\d+)?/g) || []).map(x => +x.replace(",", "."));
+  if (!nums.length || nums.length > 3) return NaN;
+  if (nums.length === 1 && !/[°'"]/.test(t) && !hem) return +t.replace(",", ".");   // plain decimal degrees
+  const [d, m = 0, s2 = 0] = nums;
+  if (m >= 60 || s2 >= 60) return NaN;
+  return (neg ? -1 : 1) * (d + m / 60 + s2 / 3600);
+}
+function initCoordBox(map){
+  const $c = id => document.getElementById(id), msg = $c("xmsg"); let mk = null;
+  const say = (t, bad) => { msg.textContent = t; msg.classList.toggle("bad", !!bad); };
+  const dms = (v, pos, ng) => { const a = Math.abs(v), d = Math.floor(a), m = Math.floor((a - d) * 60), s = ((a - d) * 3600 - m * 60).toFixed(1);
+    return `${d}°${m}'${s}"${v < 0 ? ng : pos}`; };
+  const go = () => {
+    let a = $c("xlat").value.trim(), b = $c("xlng").value.trim();
+    if (a && !b) {   // a whole pair pasted into the first box
+      const p = a.match(/^(.+?[NS])\s*,?\s*(.+[EOW])$/i) || a.match(/^([-+]?\d+(?:[.,]\d+)?)\s*[;\s]\s*([-+]?\d+(?:[.,]\d+)?)$/) || a.match(/^([-+]?\d+\.\d+)\s*,\s*([-+]?\d+\.\d+)$/);
+      if (p) { a = p[1]; b = p[2]; } }
+    let lat = parseCoord(a), lng = parseCoord(b);
+    if (isNaN(lat) || isNaN(lng)) return say("No se entienden las coordenadas. Ejemplos: 4,4389 y -75,4277, o 4°26'20\"N y 75°25'40\"O.", true);
+    if (Math.abs(lat) > 60 && Math.abs(lng) < 30) [lat, lng] = [lng, lat];   // typed in the other order
+    if (lng > 0 && !/[EOW]/i.test(b)) lng = -lng;   // Colombia is west of Greenwich: a missing minus sign is the usual slip
+    if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return say("Esas coordenadas no existen. Revise los números.", true);
+    const ll = [+lat.toFixed(6), +lng.toFixed(6)], mn = munName(munAt(ll[1], ll[0]));
+    if (mk) mk.remove();
+    mk = L.marker(ll, {icon:L.divIcon({className:"", html:'<div class="xpin"></div>', iconSize:[22,22], iconAnchor:[11,11]}), zIndexOffset:1000, keyboard:true, title:"Punto ubicado"})
+      .bindPopup(`<b>Punto ubicado</b><br>${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}<br><span class="sub">${dms(ll[0], "N", "S")} ${dms(ll[1], "E", "O")}</span><br>${mn ? "Municipio: <b>" + esc(mn) + "</b>" : "Fuera de los municipios del Tolima"}`).addTo(map);
+    map.setView(ll, Math.max(map.getZoom(), 13)); mk.openPopup(); $c("xclr").hidden = false;
+    say(`${ll[0].toFixed(5)}, ${ll[1].toFixed(5)} · ${mn ? mn : "fuera del Tolima"}`, !mn);
+    document.getElementById("map").scrollIntoView({behavior:"smooth", block:"center"});
+  };
+  $c("xgo").onclick = go;
+  for (const id of ["xlat", "xlng"]) $c(id).addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); go(); } });
+  $c("xclr").onclick = () => { if (mk) mk.remove(); mk = null; $c("xclr").hidden = true; $c("xlat").value = $c("xlng").value = ""; say(""); };
+}
 
 const fwiLegend = L.control({position:"topright"});
 fwiLegend.onAdd = () => { const d = L.DomUtil.create("div", "irleg");
@@ -2849,6 +3131,11 @@ const INFO = {
     `<p>Pronóstico de caudal diario del <b>Sistema Mundial de Alerta de Inundaciones (GloFAS)</b> del programa Copernicus, servido por la API de inundaciones de Open-Meteo, para cuatro puntos del río Magdalena: Honda, Ambalema, Flandes y Natagaima.</p>
      <p>El color del marcador compara el pico del pronóstico de los próximos 10 días con el caudal que en el modelo se supera en promedio una vez cada 2 años (amarillo), 5 años (naranja) o 20 años (rojo); verde es por debajo del de 2 años. Esos umbrales se calcularon con los máximos anuales de GloFAS de 1984 a 2024 en cada punto.</p>
      <p>GloFAS usa una malla de unos 5 km, así que solo representa bien los ríos grandes. Ríos como el Combeima, el Coello, el Totare o la Lagunilla son demasiado pequeños para esa malla y no se muestran: para ellos sirven los niveles de las estaciones del IDEAM.</p>`],
+  medirpob: ["Población estimada de un área dibujada",
+    `<p>Con la herramienta <b>Medir → Área</b> se dibuja un polígono y se estima cuántas personas viven dentro.</p>
+     <p><b>Cómo se calcula:</b> cada vereda (DANE 2020) tiene su población estimada para 2025 según <b>GHS-POP R2023A</b> (JRC, Comisión Europea, malla de 100 m). Esa población se reparte en forma pareja sobre la superficie de la vereda y se suma la parte de cada vereda que queda dentro del polígono (se muestrea con una malla fina, de hasta 50 m).</p>
+     <p>Los <b>cascos urbanos</b> no están en la capa de veredas: la población del municipio que no está en sus veredas (también GHS-POP 2025) se reparte sobre los edificios mapeados en OpenStreetMap en el casco, en celdas de unos 110 m, y se suman las celdas que caen dentro del polígono.</p>
+     <p><b>Límites:</b> dentro de una vereda rural la gente no vive repartida en forma pareja; si el polígono toma solo una parte de una vereda, la cifra puede alejarse de la real (más en veredas grandes con caseríos). En los cascos urbanos depende de qué tan completo esté OpenStreetMap. Úsela como orden de magnitud para dimensionar una respuesta, no como censo. Las áreas fuera del Tolima no se cuentan.</p>`],
   poblacion: ["Población por municipio y vereda: fuente y metodología",
     `<p><b>Qué es:</b> una estimación de cuántas personas viven en cada municipio y en cada vereda, para dimensionar una respuesta. No es un censo ni cuenta población flotante. Pase el cursor o toque un municipio (capa Municipios o Lluvia pronosticada) o una vereda (capa Veredas) para verla.</p>
      <p><b>Fuente:</b> <i>GHS-POP R2023A</i>, estimación para 2025, del Global Human Settlement Layer (GHSL), Centro Común de Investigación (JRC) de la Comisión Europea. Malla de 100 m. Uso libre citando la fuente.
@@ -2881,6 +3168,11 @@ const INFO = {
     `<p>Zonas advertidas por el <b>Sistema de Alertas Tempranas</b> de la Defensoría del Pueblo por riesgo de violaciones a los derechos humanos y al DIH relacionadas con el conflicto armado. Ahora muestra la <b>Alerta Temprana 031 de 2026</b> (18 nov 2026, riesgo <b>alto</b>) para Ataco, Chaparral, Rioblanco y Planadas.</p>
      <p>Los municipios de la alerta van en color tenue; los corregimientos, veredas y cascos urbanos que nombra la alerta, en un tono más oscuro del mismo color. Los triángulos rojos son sectores con extracción ilícita de oro, y los símbolos de estrella y círculo indican los grupos armados presentes en cada municipio (EMC, Segunda Marquetalia, EGC), como en el mapa de la Defensoría.</p>
      <p><b>Ubicaciones aproximadas:</b> la alerta da los lugares por nombre. Se buscaron en la capa de veredas del DANE (2020) y, si no es una vereda, en OpenStreetMap. Algunos sectores (Aponte, La Hamaca, Apa, El Oso, río Mendarco) no se encontraron y solo aparecen en el texto. Los símbolos de grupos armados no marcan un punto exacto y los corredores son líneas rectas entre los lugares que unen. Toque cualquier zona para ver el resumen y el PDF de la alerta.</p>`],
+  cap: ["Alertas oficiales del IDEAM (CAP)",
+    `<p>Alertas que publica el <b>IDEAM</b> en el formato internacional <b>CAP</b> (Common Alerting Protocol) para deslizamientos, incendios forestales, crecientes súbitas y tiempo severo. Aquí solo se muestran las que tocan el Tolima y siguen vigentes.</p>
+     <p><span class="vlvl" style="background:#fdd835;color:#222">Amarilla</span> probabilidad baja: esté atento · <span class="vlvl" style="background:#f57c00;color:#fff">Naranja</span> probabilidad moderada: prepárese · <span class="vlvl" style="background:#d32f2f;color:#fff">Roja</span> probabilidad alta: actúe.</p>
+     <p>Las alertas de deslizamientos e incendios nombran municipios, que se pintan del color de la alerta más alta. Las de crecientes súbitas y tiempo severo cubren zonas (cuencas o regiones), que van con borde punteado. Toque un municipio o zona para ver qué se prevé, desde y hasta cuándo, el texto oficial y el enlace a la alerta.</p>
+     <p>Un proceso automático revisa el IDEAM cada 30 minutos (GitHub puede atrasarlo unos minutos). <b>Para decisiones, confirme en <a href="https://www.ideam.gov.co" target="_blank" rel="noopener">ideam.gov.co</a></b>.</p>`],
   volcanes: ["Alerta volcánica (SGC)",
     `<p>Nivel de actividad que el <b>Servicio Geológico Colombiano</b> asigna a los volcanes que pueden afectar al Tolima: <b>Cerro Machín</b> (Cajamarca), <b>Nevado del Ruiz</b> (límite Caldas–Tolima) y <b>Nevado del Tolima</b>. El triángulo lleva el color y el número del nivel:</p>
      <p><span class="vlvl" style="background:#43a047;color:#fff">Verde · IV</span> volcán activo en reposo · <span class="vlvl" style="background:#fdd835;color:#222">Amarilla · III</span> cambios en el nivel base de lo que se vigila · <span class="vlvl" style="background:#f57c00;color:#fff">Naranja · II</span> erupción probable en días o semanas · <span class="vlvl" style="background:#d32f2f;color:#fff">Roja · I</span> erupción inminente o en curso.</p>
@@ -2969,6 +3261,7 @@ function openStationPop(s, extra){
 function renderMap(){
   if (!map) {
     map = L.map("map", {scrollWheelZoom:!!SHARE}).setView([4.1,-75.1], 8);
+    initCoordBox(map);
     // Esri World Topo basemap: works when the page is opened as a local file
     // (OSM and CARTO tile servers refuse requests that carry no Referer)
     const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/";
@@ -3034,6 +3327,7 @@ function renderMap(){
         [`Alerta volcánica (SGC) ${infoBtn("volcanes", "alerta volcánica")}`, buildVolcLayer(), "volc"],
         satL("so2")]],
       ["Clima actual", [["Estaciones (lluvia)", layer, "est"], [`Estaciones Davis (WeatherLink) ${infoBtn("davis", "estaciones Davis")}`, davisL, "davis"], ["Alertas de nivel IDEAM", alertLayer, "alert"],
+        [`Alertas oficiales IDEAM (CAP) ${infoBtn("cap", "alertas CAP del IDEAM")}`, buildCapLayer(), "cap"],
         ...["radar", "glm", "cmorph", "acum", "ir", "geo", "imerg"].filter(k => SAT[k]).map(satL),
         [`Embalses: volumen útil (XM) ${infoBtn("embalses", "embalses")}`, buildEmbLayer(), "emb"],
         [`Focos de calor, 7 días (GWIS) ${infoBtn("focos", "focos de calor")}`, buildHotspotLayer(), "focos"],
