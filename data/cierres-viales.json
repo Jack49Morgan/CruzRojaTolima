@@ -1,0 +1,123 @@
+{
+"actualizado": "2026-11-28T14:48Z",
+"fuente": "INVÍAS, cierres viales publicados por la Policía Nacional (Estado de las vías)",
+"url": "https://www.policia.gov.co/estado-de-las-vias?field_departamento_via_target_id=2213",
+"cierres": [
+{
+"via": "Calarcá – Cajamarca",
+"dep": "Tolima",
+"sector": "",
+"km": "PR37+0200 y PR38+0400",
+"cond": "Cierre parcial",
+"motivo": "Obras en la vía",
+"alterna": "Manizales - Alto de letras",
+"ini": "2026-09-15T12:00:00Z",
+"fin": "2026-12-31T12:00:00Z",
+"indef": false,
+"res": "RESOLUCIÓN NÚMERO 4519 DE 14 DE SEPTIEMBRE DE 2026",
+"url": "",
+"ll": [
+4.4354,
+-75.4464
+],
+"en": {
+"tramo": "4003A",
+"ruta": "40",
+"sector": "Calarcá - Cajamarca",
+"pr": 36.092,
+"aprox": false
+}
+},
+{
+"via": "Vía Landázuri – Barbosa, Ruta Nacional 6208. PR14+0640 y el PR14+0420",
+"dep": "Tolima",
+"sector": "",
+"km": "PR41+0800 al PR41+0660 PR33+0550 al PR33+0700",
+"cond": "Cierre parcial",
+"motivo": "Obras en la vía",
+"alterna": "Manizales - Alto de letras",
+"ini": "2026-09-15T12:00:00Z",
+"fin": "2026-12-31T12:00:00Z",
+"indef": false,
+"res": "RESOLUCIÓN NÚMERO 4516 DE 14 DE SEPTIEMBRE DE 2026",
+"url": "",
+"ll": null,
+"en": null
+},
+{
+"via": "Via Calarcá – Túnel de La Línea – Cajamarca y en el corredor Cajamarca – Alto de La Línea – Calarcá",
+"dep": "Tolima",
+"sector": "",
+"km": "Pr 47+380 al Pr 47+480",
+"cond": "Cierre parcial",
+"motivo": "contingencia que se presenta en el sector de Calle larga Cajamarca",
+"alterna": "Manizales - Alto de letras",
+"ini": "2026-07-27T12:00:00Z",
+"fin": "",
+"indef": true,
+"res": "Resolución No. 3647 DE 28 DE JULIO DE 2026",
+"url": "",
+"ll": [
+4.43547,
+-75.44672
+],
+"en": {
+"tramo": "4003",
+"ruta": "40",
+"sector": "Armenia - La Línea",
+"pr": 47.38,
+"aprox": false
+}
+},
+{
+"via": "Vía Calarcá – Túnel de La Línea – Cajamarca y en el corredor Cajamarca – Alto de La Línea – Calarcá",
+"dep": "Tolima",
+"sector": "",
+"km": "PR37+0200 y el PR41+0800",
+"cond": "Cierre parcial",
+"motivo": "Contingencia que se presenta en el sector de Calle larga - Cajamarca",
+"alterna": "Manizales - Alto de letras",
+"ini": "2026-07-27T12:00:00Z",
+"fin": "",
+"indef": true,
+"res": "Resolución No. 3647 DE 28 DE JULIO DE 2026",
+"url": "",
+"ll": [
+4.4354,
+-75.4464
+],
+"en": {
+"tramo": "4003A",
+"ruta": "40",
+"sector": "Calarcá - Cajamarca",
+"pr": 36.092,
+"aprox": false
+}
+},
+{
+"via": "Ibagué (Puente Blanco) - Cruce Ruta 45 (Espinal)",
+"dep": "Tolima",
+"sector": "",
+"km": "PR 25+430 y el PR 28+450",
+"cond": "Obras en lavía",
+"motivo": "Obras en lavía",
+"alterna": "Vía veredal Pitiguao – Tubuga para vehículo con configuración máxima C2",
+"ini": "2026-06-22T12:00:00Z",
+"fin": "",
+"indef": true,
+"res": "",
+"url": "https://www.invias.gov.co/index.php/cierres-viales/20019-resolucion-02291-del-22-de-junio-de-2025/file",
+"ll": [
+4.20589,
+-74.97372
+],
+"en": {
+"tramo": "4004",
+"ruta": "40",
+"sector": "Ibague (Puente Blanco) - Cruce Ruta 45 (Espinal)",
+"pr": 25.43,
+"aprox": false
+}
+}
+]
+}

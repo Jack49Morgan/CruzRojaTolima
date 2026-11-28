@@ -93,6 +93,7 @@ tbody tr.offrow td{color:var(--muted)}
 .badtxt{color:var(--bad)}
 .eqm span{display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid #1b1b1b;box-shadow:0 0 0 1.5px #fff;font:600 10px/1 var(--mono);color:#1b1b1b}
 .saludgrp{border-radius:50%;background:#1565c0d9;color:#fff;border:2px solid #fff;font:700 11px/1 var(--sans);text-align:center;box-shadow:0 1px 3px #0006}
+.cierresleg .r svg{flex:none;width:18px;height:18px}.cierresin{margin-top:4px;max-height:200px;overflow:auto}.cierresin summary{cursor:pointer;font-weight:600;color:#0b2a5b}.cierresin div{border-top:1px solid #0001;padding:4px 0}
 .saludlist{max-height:220px;overflow:auto;margin-top:6px;font-size:12px}.saludlist div{padding:3px 0;border-top:1px solid #0001}
 .medir .mbtn{width:30px;height:30px;border:0;background:#fff;color:#17221f;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:4px}
 .medir .mbtn.on{background:#0b2a5b;color:#fff}
@@ -1784,6 +1785,45 @@ function popInPolygon(pts){
     if (la >= s && la <= n && lo >= w && lo <= e && pip(la, lo, ring)) u += pp; }
   return {p: Math.round(tot + u), u: Math.round(u), v, out: cnt ? outN / cnt : 0};
 }
+// Road closures declared by INVÍAS (resolutions), as listed in the Policía Nacional "Estado de las vías" table; a scheduled job
+// (tools/cierres_viales.py) reads it every hour and places each closure on the INVÍAS national network by its PR.
+// Closures it cannot place are listed in the legend box without a marker.
+const CIERRE_TOTAL = /total/i;
+const fmtFechaCorta = iso => { try { return new Date(iso).toLocaleDateString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"short", year:"numeric"}); } catch (e) { return iso; } };
+function buildCierresLayer(){
+  const g = L.layerGroup(); let D = null, loading = false, map = null;
+  const leg = L.control({position:"topright"});
+  const card = c => `<b>${esc(c.via)}</b>${c.sector ? `<br>${esc(c.sector)}` : ""}`
+    + `<br><b style="color:${CIERRE_TOTAL.test(c.cond) ? "#b71c1c" : "#e65100"}">${esc(c.cond)}</b> · ${esc(c.motivo)}`
+    + `<br>${esc(c.km)}${c.en ? ` <span class="sub">(ruta ${esc(c.en.ruta)}, tramo ${esc(c.en.tramo)}${c.en.aprox ? ", ubicación aproximada" : ""})</span>` : ""}`
+    + (c.alterna ? `<br>Vía alterna: ${esc(c.alterna)}` : "")
+    + `<br>Desde ${fmtFechaCorta(c.ini)}${c.indef ? " · <b>cierre indefinido</b>" : c.fin ? ` hasta ${fmtFechaCorta(c.fin)}` : ""}`
+    + `<br><span class="sub">${c.res ? esc(c.res) : ""}${c.url ? ` <a href="${esc(c.url)}" target="_blank" rel="noopener">resolución INVÍAS</a>` : ""}</span>`;
+  const icon = total => L.divIcon({className:"", iconSize:[24, 24], iconAnchor:[12, 12],
+    html:`<svg width="24" height="24" viewBox="-12 -12 24 24"><circle r="10.5" fill="${total ? "#b71c1c" : "#ef6c00"}" stroke="#fff" stroke-width="2"/><rect x="-6" y="-2.2" width="12" height="4.4" rx="1" fill="#fff"/></svg>`});
+  leg.onAdd = () => { const d = L.DomUtil.create("div", "irleg cierresleg");
+    const sin = (D?.cierres || []).filter(c => !c.ll);
+    d.innerHTML = `<button type="button" class="irx" aria-label="Cerrar leyenda" title="Cerrar leyenda">✕</button>`
+      + `<button type="button" class="iropen" title="Mostrar leyenda de cierres">Cierres viales</button>`
+      + `<div class="hd">Cierres viales (INVÍAS) ${infoBtn("cierres", "cierres viales")}</div>`
+      + `<div class="r">${icon(true).options.html}<span>Cierre total</span></div><div class="r">${icon(false).options.html}<span>Cierre parcial u obras</span></div>`
+      + (!D ? `<div class="ft">Cargando…</div>` : `<div class="ft">${D.cierres.length} vigente${D.cierres.length === 1 ? "" : "s"} en el Tolima. Último cambio: ${fmtLocal(new Date(D.actualizado))}.</div>`)
+      + (sin.length ? `<details class="cierresin"><summary>${sin.length} sin ubicar en el mapa</summary>${sin.map(c => `<div>${card(c)}</div>`).join("")}</details>` : "");
+    d.querySelector(".irx").onclick = () => d.classList.add("min");
+    d.querySelector(".iropen").onclick = () => d.classList.remove("min");
+    L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d); return d; };
+  async function load(){
+    loading = true;
+    try { D = await (await fetch("data/cierres-viales.json", {cache:"no-cache"})).json(); } catch (e) { loading = false; D = {cierres:[], actualizado:new Date().toISOString(), bad:true}; }
+    for (const c of D.cierres) if (c.ll)
+      L.marker(c.ll, {icon:icon(CIERRE_TOTAL.test(c.cond)), zIndexOffset:500}).bindPopup(card(c), {maxWidth:300})
+        .bindTooltip(`${esc(c.cond)}: ${esc(c.via)}`, {direction:"top"}).addTo(g);
+    if (map && map.hasLayer(g)) { leg.remove(); leg.addTo(map); }
+  }
+  g.on("add", () => { map = g._map; leg.addTo(map); if (!D && !loading) load(); });
+  g.on("remove", () => leg.remove());
+  return g;
+}
 // Earthquakes M4+ in and around Tolima over the last year, from the USGS FDSN service.
 // (The SGC feed at archive.sgc.gov.co only answers its own website, so a browser page elsewhere cannot read it.)
 // Date range chosen under the map (local dates, YYYY-MM-DD); defaults to the last 365 days
@@ -2286,7 +2326,7 @@ const SH_SRC = {dep:"Límites: shapefile del Tolima (MAGNA-SIRGAS), simplificado
   volc:"Alerta volcánica: SGC", seg:"Seguridad: Defensoría del Pueblo, Sistema de Alertas Tempranas", est:"Estaciones: IDEAM (datos.gov.co)", alert:"Umbrales de nivel: IDEAM (FEWS)",
   davis:"Estaciones Davis: WeatherLink", emb:"Embalses: XM", focos:"Focos de calor: GWIS / NASA FIRMS", fwi:"Peligro de incendio: GWIS (Copernicus)",
   fc:"Pronóstico: Open-Meteo", suelo:"Humedad del suelo: Open-Meteo", slide:"Riesgo orientativo: Open-Meteo (cálculo propio)", glofas:"Caudales: GloFAS (Copernicus)",
-  salud:"Prestadores de salud: REPS (MinSalud)", vias:"Vías: © colaboradores de OpenStreetMap (ODbL); rutas nacionales: INVÍAS", inc:"Eventos: registros de Cruz Roja Tolima", cam:"Cámaras: SGC"};
+  salud:"Prestadores de salud: REPS (MinSalud)", vias:"Vías: © colaboradores de OpenStreetMap (ODbL); rutas nacionales: INVÍAS", cierres:"Cierres viales: INVÍAS / Policía Nacional (Estado de las vías)", inc:"Eventos: registros de Cruz Roja Tolima", cam:"Cámaras: SGC"};
 const shDate = d => d.toLocaleString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"long", year:"numeric", hour:"numeric", minute:"2-digit"});
 const shDay = s => fmtFecha(s);
 
@@ -2324,6 +2364,7 @@ function shareAfterMap({ctrl, sat, topo, applyBorders, hl}){
     dep:() => `<div>${sw("transparent", "#17221f", "border-width:0 0 3px;border-radius:0;height:8px")}Límite departamental</div>`,
     mun:() => `<div>${sw("transparent", "#3d4a46", "border-width:0 0 1.5px;border-radius:0;height:8px")}Límite municipal</div>`,
     ver:() => `<div>${sw("transparent", "#9a7b4f", "border-width:0 0 1px;border-radius:0;height:8px")}Veredas (DANE 2020)</div>`,
+    cierres:() => `<div><span class="shdot" style="background:#b71c1c"></span>Cierre total</div><div><span class="shdot" style="background:#ef6c00"></span>Cierre parcial u obras (INVÍAS)</div>`,
     vias:() => VIA_CLS.map(k => `<div><svg width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><path d="M1 5H21" stroke="${k.c}" stroke-width="${Math.max(1.5, k.w[1])}"${k.dash ? ` stroke-dasharray="${k.dash}"` : ""}/></svg>${k.n}</div>`).join(""),
     eq:() => `<div class="shlg-eq"><b>Sismos M4+</b> <span class="sub">(número = magnitud; ${S.eq ? `${shDay(S.eq.f)} a ${shDay(S.eq.t)}` : "último año"})</span><br>`
       + [["#ffd21f", "24 h"], ["#ff8a3d", "semana"], ["#c77dff", "mes"], ["#b0b7c3", "más antiguo"]].map(([c, t]) => `<span><span class="shdot" style="background:${c}"></span>${t}</span>`).join("") + `</div>`,
@@ -2975,6 +3016,10 @@ const INFO = {
      <p><b>Fechas:</b> bajo el mapa puede elegir el periodo (desde / hasta) o usar los atajos de 30 días a 20 años. Por defecto muestra el último año.</p>
      <p>Cada círculo lleva escrita su magnitud y crece con ella. Bajo el mapa aparece la lista de los sismos más recientes; tóquelos para ir a cada uno. El color indica cuándo ocurrió: <span style="color:#e0b000">●</span> últimas 24 horas · <span style="color:#ff8a3d">●</span> última semana · <span style="color:#c77dff">●</span> último mes · <span style="color:#8a93a3">●</span> último año.</p>
      <p>La red oficial de Colombia es la del <b>Servicio Geológico Colombiano</b>. Su visor no permite que otras páginas lean sus datos, así que aquí se usa el USGS; la magnitud puede diferir unas décimas de la del SGC. Cada sismo tiene un enlace al <a href="https://www.sgc.gov.co/sismos" target="_blank" rel="noopener">visor de sismos del SGC</a>.</p>`],
+  cierres: ["Cierres viales (INVÍAS)",
+    `<p>Cierres de vías nacionales en el Tolima declarados por el <b>INVÍAS</b> mediante resolución, tal como los publica la Policía Nacional en <a href="https://www.policia.gov.co/estado-de-las-vias" target="_blank" rel="noopener">Estado de las vías</a>: vía, PR (punto de referencia, el kilómetro de la vía), tipo de cierre, motivo, vía alterna, fechas y resolución.</p>
+     <p>El sitio revisa esa lista cada hora y muestra solo los cierres vigentes (sin fecha de fin, con fecha de fin futura o indefinidos). La lista no trae coordenadas: cada cierre se ubica en la Red Vial Nacional del INVÍAS según su PR, así que el punto es aproximado (unos cientos de metros). Los que no se pueden ubicar aparecen en la leyenda, sin punto en el mapa.</p>
+     <p><b>No incluye</b> derrumbes o cierres de última hora que aún no tienen resolución, ni vías departamentales o veredales. Para eso: línea #767 de la Policía de Tránsito y las redes del INVÍAS. Algunas filas de la fuente tienen errores (por ejemplo, una vía de Santander marcada como Tolima).</p>`],
   vias: ["Vías (OpenStreetMap)",
     `<p>Red de carreteras del Tolima tomada de <b>OpenStreetMap</b> (OSM), el mapa libre que construyen voluntarios, instituciones y empresas. Se usó la exportación de OSM para Colombia del Humanitarian OpenStreetMap Team (HOT) del 2 de noviembre de 2026, recortada al Tolima y simplificada (unos 15 m) para que cargue rápido en el celular.</p>
      <p><span style="color:#d50000">━</span> <b>Primaria</b>: troncales y vías nacionales · <span style="color:#ff8f00">━</span> <b>secundaria</b>: vías departamentales · <span style="color:#7b4a2a">━</span> <b>terciaria o veredal</b>: carreteables entre veredas y cabeceras (visible desde zoom 9) · <span style="color:#7b4a2a">┅</span> <b>camino o trocha</b> (desde zoom 11). Sobre la imagen satelital las terciarias se dibujan en amarillo claro. No se incluyen calles urbanas ni senderos peatonales.</p>
@@ -3161,7 +3206,8 @@ function renderMap(){
       ["Seguridad", [
         [`Alertas Tempranas (Defensoría) ${infoBtn("seguridad", "alertas tempranas")}`, buildSegLayer(), "seg"]]],
       ["Infraestructura", [
-        [`Vías (OpenStreetMap) ${infoBtn("vias", "vías")}`, buildViasLayer(), "vias"]]],
+        [`Vías (OpenStreetMap) ${infoBtn("vias", "vías")}`, buildViasLayer(), "vias"],
+        [`Cierres viales (INVÍAS) ${infoBtn("cierres", "cierres viales")}`, buildCierresLayer(), "cierres"]]],
     ];
     const inGroup = new Set(LAYER_GROUPS.flatMap(([, ls]) => ls.map(([, l]) => l)));
     for (const o of Object.values(SAT)) if (!inGroup.has(o.layer)) LAYER_GROUPS[2][1].push(satL(Object.keys(SAT).find(k => SAT[k] === o)));

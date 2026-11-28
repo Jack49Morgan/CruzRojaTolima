@@ -1,0 +1,28 @@
+name: Actualizar cierres viales (INVÍAS / Policía)
+on:
+  schedule:
+    - cron: "23 * * * *"   # every hour
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/cierres-viales.yml
+      - tools/cierres_viales.py
+      - data/invias-red-tolima.json
+permissions:
+  contents: write
+concurrency: cierres-viales
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/cierres_viales.py data/invias-red-tolima.json data/cierres-viales.json
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/cierres-viales.json
+          # the file always carries a new "actualizado" time; commit only when the closures themselves changed
+          if git diff --cached -U0 data/cierres-viales.json | grep '^[+-]' | grep -v '^[+-]"actualizado"' | grep -qv '^\(+++\|---\)'; then
+            git commit -m "Actualizar cierres viales" && git pull --rebase && git push
+          fi
