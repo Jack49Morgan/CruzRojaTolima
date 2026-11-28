@@ -186,6 +186,17 @@ th .ic{margin-right:3px}
 .dia{display:block;width:14px;height:14px;transform:rotate(45deg);border:2px solid #fff;box-shadow:0 0 0 1px #0007;border-radius:2px}
 .dia.sel{box-shadow:0 0 0 3px #0b2540}
 .pill.alert{color:#fff;border-color:transparent}
+/* Histórico climático (CHIRPS + ONI + UNGRD) */
+#clima select{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);max-width:100%}
+.cwide{margin-top:10px}.chart.tall{height:270px}
+.cstats{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:8px;font-size:13px}.cstats b{font-size:15px}
+.cstats span{min-width:0}
+.csw{display:inline-block;width:11px;height:11px;border-radius:2px;background:var(--c);vertical-align:-1px;margin:0 2px 0 6px}
+.csw.ln{height:3px;vertical-align:3px;background:var(--fg)}.csw.nino{background:#c8102e33;border:1px solid #c8102e88}.csw.nina{background:#1f6fb233;border:1px solid #1f6fb288}
+.cstripes{position:relative;height:64px;margin-top:4px;border-radius:6px;overflow:hidden;cursor:pointer}.cstripes canvas{width:100%;height:100%;display:block}
+.cstripax{display:flex;justify-content:space-between;margin-top:2px}
+.cdrag{font-size:12px;margin-top:2px}
+#cstripinfo{margin-top:4px;font-size:13px}
 .hist-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .hist-controls input[type=date]{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:4px 8px}
 .hist-controls label{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
@@ -570,6 +581,7 @@ body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pr
       <div class="legend" id="dvinfo" hidden></div>
       <div class="legend" id="fwinfo" hidden></div>
       <div class="legend" id="hsinfo" hidden></div>
+      <div class="legend" id="spiinfo" hidden></div>
     </div>
     <div class="panel">
       <h2>Estaciones</h2>
@@ -636,6 +648,40 @@ body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pr
       <div><div class="sub"><svg class="ic hum"><use href="#i-hum"/></svg>Humedad relativa media (%)</div><div class="chart"><canvas id="hHum"></canvas></div></div>
       <div><div class="sub"><svg class="ic level"><use href="#i-level"/></svg>Nivel del río: mínimo, medio y máximo (m)</div><div class="chart"><canvas id="hLevel"></canvas></div></div>
     </div>
+  </section>
+
+  <section class="panel" id="clima">
+    <div class="detail-head">
+      <h2>Histórico climático · <span id="ctitle">Todo el Tolima</span> <button type="button" class="info" data-info="clima" aria-label="Qué es el histórico climático">i</button></h2>
+      <div class="hist-controls">
+        <select id="cmun" aria-label="Municipio"><option value="Tolima">Todo el Tolima</option></select>
+        <div class="seg" id="cbase" role="group" aria-label="Anomalía en">
+          <button data-u="mm" aria-pressed="true">mm</button><button data-u="pct" aria-pressed="false">% de lo normal</button>
+        </div>
+        <div class="seg" id="crange" role="group" aria-label="Periodo">
+          <button data-y="0" aria-pressed="true">Desde 1981</button><button data-y="20" aria-pressed="false">20 años</button><button data-y="5" aria-pressed="false">5 años</button>
+        </div>
+        <button class="btn" id="ccsv" disabled>Descargar CSV</button>
+      </div>
+    </div>
+    <div class="sub" id="csub">Lluvia mensual por satélite (CHIRPS) desde 1981, comparada con lo normal de 1991–2020, con los periodos de El Niño y La Niña. Elija un municipio aquí o tóquelo en el mapa.</div>
+    <div class="cstats" id="cstats"></div>
+    <div class="cwide"><div class="sub">Anomalía de lluvia mensual · <span class="csw" style="--c:var(--rain)"></span>más lluvia de lo normal <span class="csw" style="--c:var(--warn)"></span>menos <span class="csw ln"></span>promedio de 12 meses · franjas: <span class="csw nino"></span>El Niño <span class="csw nina"></span>La Niña</div>
+      <div class="chart tall"><canvas id="cAnom"></canvas></div>
+</div>
+    <div class="cwide"><div class="sub">Índice de precipitación estandarizado (SPI) <button type="button" class="info" data-info="spi" aria-label="Qué es el SPI">i</button>
+        <span class="seg" id="cspik" role="group" aria-label="Escala del SPI" style="margin-left:6px;vertical-align:middle">
+          <button data-k="1" aria-pressed="false">1 mes</button><button data-k="3" aria-pressed="true">3 meses</button><button data-k="6" aria-pressed="false">6 meses</button><button data-k="12" aria-pressed="false">12 meses</button></span></div>
+      <div class="chart tall"><canvas id="cSpi"></canvas></div><div class="legend" id="cspileg"></div></div>
+    <div class="cwide"><div class="sub">Lluvia de cada año comparada con lo normal (cada franja es un año; azul = más lluvioso, café = más seco). Toque una franja para ver el año.</div>
+      <div class="cstripes" id="cstripes"><canvas id="cStripe"></canvas></div><div class="cstripax sub" id="cstripax"></div></div>
+    <div class="charts">
+      <div><div class="sub">Calendario de lluvias: promedio de cada mes (1991–2020), el último año y el año elegido</div><div class="chart"><canvas id="cClim"></canvas></div>
+        <div class="hist-controls" style="margin-top:4px"><label>Comparar con <select id="cyear" aria-label="Año a comparar"></select></label></div></div>
+      <div><div class="sub">Emergencias reportadas a la UNGRD por mes (2019–2025) y la lluvia del mes <button type="button" class="info" data-info="ungrd" aria-label="Qué son las emergencias UNGRD">i</button></div><div class="chart"><canvas id="cEv"></canvas></div>
+        <div class="sub" id="cevsum"></div></div>
+    </div>
+    <div class="sub" id="csrc" style="margin-top:6px"></div>
   </section>
 
   <p class="note">
@@ -1404,7 +1450,7 @@ const infoBtn = (k, label = "") => `<button type="button" class="info" data-info
 // Population popups (tap/click) for municipios and veredas; tooltips only on devices with a mouse
 const HOVER = matchMedia("(hover: hover)").matches;
 const popHtml = (title, sub, n) => `<div class="flpop"><b>${esc(title)}</b>${sub ? `<br><span class="sub">${esc(sub)}</span>` : ""}
-  <div style="margin-top:4px">Población: <b>${fmtPeople(n)}</b> personas</div><div class="sub">GHS-POP 2025 (JRC) ${infoBtn("poblacion", "población")}</div>${acPopLine(sub === "Municipio" ? title : null)}${ACLICK ? altSlot(ACLICK, "Altitud del punto tocado") : ""}</div>`;
+  <div style="margin-top:4px">Población: <b>${fmtPeople(n)}</b> personas</div><div class="sub">GHS-POP 2025 (JRC) ${infoBtn("poblacion", "población")}</div>${acPopLine(sub === "Municipio" ? title : null)}${ACLICK ? altSlot(ACLICK, "Altitud del punto tocado") : ""}${sub === "Municipio" && !SHARE ? `<button type="button" class="btn sm" data-climun="${esc(title)}" style="margin-top:6px">📈 Histórico climático</button>` : ""}</div>`;
 function renderSatInfo(){
   const el = document.getElementById("satinfo"); if (!el) return;
   const on = Object.values(SAT).filter(o => map && o.layer && map.hasLayer(o.layer));
@@ -3272,6 +3318,20 @@ function buildDavisLayer(){
   return g;
 }
 const INFO = {
+  clima: ["Histórico climático (CHIRPS, El Niño / La Niña)",
+    `<p>Muestra cuánto ha llovido cada mes desde 1981 en el municipio elegido (o en todo el Tolima) y si fue más o menos de lo normal. <b>Lo normal</b> es el promedio de ese mismo mes entre 1991 y 2020, el periodo de referencia de la Organización Meteorológica Mundial.</p>
+     <p>La lluvia viene de <b>CHIRPS</b> (Climate Hazards Center, Universidad de California en Santa Bárbara), que combina imágenes de satélite con estaciones en celdas de unos 5 km. Para cada municipio se promedian las celdas que caen dentro de su límite. En la montaña CHIRPS puede diferir de una estación concreta del IDEAM, pero sirve bien para comparar años y épocas.</p>
+     <p>Las franjas de color de fondo marcan los periodos de <b>El Niño</b> (rojo, en el Tolima suele llover menos) y <b>La Niña</b> (azul, suele llover más), según el índice ONI de la NOAA: hay episodio cuando el ONI pasa de +0,5 (o baja de −0,5) durante al menos cinco trimestres seguidos.</p>
+     <p>Las franjas por año van de café (año seco) a azul (año lluvioso); el color lleno es un 35 % o más por encima o por debajo de lo normal. El calendario de lluvias compara cada mes con lo normal, con el último año y con el año que usted elija. El botón CSV descarga la serie mensual con la anomalía, el SPI y el ONI.</p>
+     <p>Los datos se actualizan solos cada mes (el 24), cuando el CHC publica el mes anterior.</p>`],
+  spi: ["Índice de precipitación estandarizado (SPI)",
+    `<p>El <b>SPI</b> dice qué tan rara es la lluvia de un periodo comparada con la misma época de otros años. Un SPI de 0 es lo normal; −1 es un periodo seco que pasa más o menos uno de cada seis años; −2 o menos, algo que pasa uno de cada 40 años. Lo positivo es lo mismo hacia el lado lluvioso.</p>
+     <p><b>SPI-1</b> mira solo el último mes; <b>SPI-3</b> los últimos tres (útil para cultivos y suelos); <b>SPI-6</b> y <b>SPI-12</b> la lluvia acumulada de seis y doce meses (ríos, embalses y acueductos).</p>
+     <p>Categorías (McKee y otros, 1993, las que usa la OMM): 2 o más extremadamente húmedo; 1,5 a 2 muy húmedo; 1 a 1,5 moderadamente húmedo; −1 a 1 normal; −1 a −1,5 moderadamente seco; −1,5 a −2 severamente seco; −2 o menos extremadamente seco.</p>
+     <p>Se calcula aquí con la lluvia mensual de CHIRPS de cada municipio: para cada mes del año se ajusta una distribución gamma a los años 1991–2020 y se convierte a una escala normal. La capa del mapa colorea cada municipio con el SPI-3 del último mes publicado. Es un cálculo propio, no un boletín oficial del IDEAM.</p>`],
+  ungrd: ["Emergencias reportadas a la UNGRD",
+    `<p>Son las emergencias que los municipios reportan a la <b>Unidad Nacional para la Gestión del Riesgo de Desastres</b> (UNGRD), según sus datos abiertos en datos.gov.co (consolidados de 2019 a 2025). Cada barra cuenta las emergencias de un mes, por tipo, y la línea azul es la lluvia de ese mes según CHIRPS, para ver si las inundaciones y los deslizamientos llegan con los meses más lluviosos.</p>
+     <p>Los incendios forestales incluyen los incendios de cobertura vegetal. “Otros” reúne incendios estructurales, accidentes, colapsos, sismos y demás. Un evento que afecta a varios municipios aparece una vez en cada uno. Los años anteriores a 2019 (DesInventar) se pueden añadir más adelante.</p>`],
   davis: ["Estaciones Davis (WeatherLink)",
     `<p>Estaciones meteorológicas <b>Davis</b> de la cuenta <b>WeatherLink</b> de la Cruz Roja Tolima, además de las del IDEAM. En el mapa se dibujan con la misma gota que las del IDEAM, coloreada según la lluvia caída hoy desde las 0:00, con una pequeña <b>D</b> morada para distinguirlas. Una ✕ es una estación que no ha enviado datos en las últimas 2 horas. En la tabla de estaciones aparecen con la fuente <b>Davis</b>.</p>
      <p>Toque una estación para ver la lluvia de hoy, de las últimas 24 y 72 horas, la intensidad, la temperatura, la humedad, el viento, la presión y la hora del último dato, con un gráfico de la lluvia por hora del último día.</p>
@@ -3544,7 +3604,8 @@ function renderMap(){
       ["Investigación", [
         [`Sismos M4+ (elija las fechas) ${infoBtn("sismos", "sismos")}`, buildEqLayer(), "eq"],
         [`Movimientos en masa (SGC, ${MOVMASA.length}) ${infoBtn("movmasa", "movimientos en masa")}`, buildMovLayer(), "movmasa"],
-        [`Alerta volcánica (SGC) ${infoBtn("volcanes", "alerta volcánica")}`, buildVolcLayer(), "volc"]]],
+        [`Alerta volcánica (SGC) ${infoBtn("volcanes", "alerta volcánica")}`, buildVolcLayer(), "volc"],
+        [`Sequía o exceso de lluvia, SPI-3 (CHIRPS) ${infoBtn("spi", "SPI")}`, buildSpiLayer(TOLIMA_GEO.mun), "spi"]]],
       ["Estaciones meteorológicas", [["Estaciones IDEAM", layer, "est"],
         [`Estaciones Davis (WeatherLink) ${infoBtn("davis", "estaciones Davis")}`, davisL, "davis"],
         [`Nivel de ríos: alertas IDEAM ${infoBtn("umbrales", "umbrales de nivel")}`, alertLayer, "alert"]]],
@@ -3895,6 +3956,270 @@ document.getElementById("hcsv").addEventListener("click", () => {
   a.download = `historico_IDEAM_${sid(hId)}_${hFrom.value}_${hTo.value}.csv`;
   document.body.appendChild(a); a.click(); a.remove();
 });
+// ---- Histórico climático: monthly CHIRPS rain per municipio since 1981 (data/historico-lluvia.json, built monthly by
+// tools/chirps_historico.py), anomalies against 1991-2020, El Niño / La Niña from the NOAA ONI, SPI, yearly stripes,
+// the rain calendar and the emergencies reported to the UNGRD (data/historico-eventos.json, tools/ungrd_eventos.py).
+const CL = {rain:null, ev:null, loading:null, mun:"Tolima", u:"mm", k:3, years:0, cmp:null, charts:{}};
+const CL_BASE = [1991, 2020];
+const CL_MES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const CL_MESL = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const EVCOL = ["#1f6fb2", "#0f7f8c", "#8a5a2b", "#6b5ca5", "#c8102e", "#b7791f", "#9aa5a1"];
+// SPI classes (McKee et al. 1993), driest first
+const SPICL = [
+  {min:-Infinity, n:"Extremadamente seco", c:"#8c510a"}, {min:-2, n:"Severamente seco", c:"#d0913a"}, {min:-1.5, n:"Moderadamente seco", c:"#efcf8a"},
+  {min:-1, n:"Normal", c:"#d9dedc"}, {min:1, n:"Moderadamente húmedo", c:"#9cc8e6"}, {min:1.5, n:"Muy húmedo", c:"#4a90c8"}, {min:2, n:"Extremadamente húmedo", c:"#1d4e8f"}];
+const spiClass = z => { let c = SPICL[0]; for (const x of SPICL) if (z >= x.min) c = x; return c; };
+const ymLabel = i => { const m0 = clM0(); const a = m0 + i; return `${CL_MES[a % 12]} ${Math.floor(a / 12)}`; };
+const clM0 = () => { const [y, m] = CL.rain.inicio.split("-").map(Number); return y * 12 + m - 1; };
+const clX = i => { const a = clM0() + i; return Math.floor(a / 12) + (a % 12 + 0.5) / 12; };   // decimal year at mid-month
+
+function clLoad(){
+  if (!CL.loading) CL.loading = Promise.all([
+    fetch("data/historico-lluvia.json", {cache:"no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch("data/historico-eventos.json", {cache:"no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null)])
+    .then(([r, e]) => { CL.rain = r; CL.ev = e; CL.cache = {}; return CL; });
+  return CL.loading;
+}
+
+// --- statistics: gamma fit (Thom), incomplete gamma, inverse normal; SPI per calendar month over 1991-2020
+function lnGamma(x){ const c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+  let y = x, t = x + 5.5; t -= (x + 0.5) * Math.log(t); let s = 1.000000000190015; for (const k of c) s += k / ++y; return -t + Math.log(2.5066282746310005 * s / x); }
+function gammaP(a, x){                       // regularized lower incomplete gamma P(a, x)
+  if (x <= 0) return 0;
+  const gl = lnGamma(a);
+  if (x < a + 1) { let ap = a, sum = 1 / a, del = sum; for (let n = 0; n < 200; n++) { del *= x / ++ap; sum += del; if (Math.abs(del) < Math.abs(sum) * 1e-10) break; }
+    return sum * Math.exp(-x + a * Math.log(x) - gl); }
+  let b = x + 1 - a, c = 1e300, d = 1 / b, h = d;
+  for (let i = 1; i < 200; i++) { const an = -i * (i - a); b += 2; d = an * d + b; if (Math.abs(d) < 1e-300) d = 1e-300; c = b + an / c; if (Math.abs(c) < 1e-300) c = 1e-300;
+    d = 1 / d; const del = d * c; h *= del; if (Math.abs(del - 1) < 1e-10) break; }
+  return 1 - Math.exp(-x + a * Math.log(x) - gl) * h;
+}
+function normInv(p){                          // Acklam's approximation
+  if (p <= 0) return -Infinity; if (p >= 1) return Infinity;
+  const a = [-39.69683028665376, 220.9460984245205, -275.9285104469687, 138.357751867269, -30.66479806614716, 2.506628277459239],
+        b = [-54.47609879822406, 161.5858368580409, -155.6989798598866, 66.80131188771972, -13.28068155288572],
+        c = [-0.007784894002430293, -0.3223964580411365, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783],
+        d = [0.007784695709041462, 0.3224671290700398, 2.445134137142996, 3.754408661907416], pl = 0.02425;
+  let q, r;
+  if (p < pl) { q = Math.sqrt(-2 * Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  if (p > 1 - pl) { q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  q = p - 0.5; r = q * q; return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+function spiSeries(v, k){
+  const m0 = clM0(), n = v.length, acc = new Array(n).fill(null);
+  for (let i = k - 1; i < n; i++) { let s = 0, ok = true; for (let j = i - k + 1; j <= i; j++) { if (v[j] == null) { ok = false; break; } s += v[j]; } if (ok) acc[i] = s; }
+  const out = new Array(n).fill(null);
+  for (let m = 0; m < 12; m++) {
+    const idx = [], cal = [];
+    for (let i = 0; i < n; i++) if ((m0 + i) % 12 === m && acc[i] != null) { idx.push(i); const y = Math.floor((m0 + i) / 12); if (y >= CL_BASE[0] && y <= CL_BASE[1]) cal.push(acc[i]); }
+    const pos = cal.filter(x => x > 0); if (pos.length < 20) continue;
+    const q = (cal.length - pos.length) / cal.length, mean = pos.reduce((a, b) => a + b, 0) / pos.length;
+    const A = Math.log(mean) - pos.reduce((a, b) => a + Math.log(b), 0) / pos.length;
+    const al = (1 + Math.sqrt(1 + 4 * A / 3)) / (4 * A), be = mean / al;
+    for (const i of idx) { const H = q + (1 - q) * gammaP(al, acc[i] / be); out[i] = Math.max(-3.5, Math.min(3.5, normInv(Math.min(Math.max(H, 1e-6), 1 - 1e-6)))); }
+  }
+  return out;
+}
+function clStats(mun){
+  if (CL.cache[mun]) return CL.cache[mun];
+  const v = CL.rain.mun[mun], m0 = clM0(), clim = Array(12).fill(0), cn = Array(12).fill(0);
+  v.forEach((x, i) => { const y = Math.floor((m0 + i) / 12); if (x != null && y >= CL_BASE[0] && y <= CL_BASE[1]) { clim[(m0 + i) % 12] += x; cn[(m0 + i) % 12]++; } });
+  for (let m = 0; m < 12; m++) clim[m] = cn[m] ? clim[m] / cn[m] : null;
+  const anom = v.map((x, i) => x == null ? null : x - clim[(m0 + i) % 12]);
+  const pct = v.map((x, i) => x == null || !clim[(m0 + i) % 12] ? null : 100 * (x / clim[(m0 + i) % 12] - 1));
+  const years = {};
+  v.forEach((x, i) => { const y = Math.floor((m0 + i) / 12); (years[y] ||= {s:0, n:0}); if (x != null) { years[y].s += x; years[y].n++; } });
+  const normal = clim.reduce((a, b) => a + (b || 0), 0);
+  const spi = {}; for (const k of [1, 3, 6, 12]) spi[k] = spiSeries(v, k);
+  return CL.cache[mun] = {v, clim, anom, pct, years, normal, spi};
+}
+function clPhaseName(ch){ return ch === "N" ? "El Niño" : ch === "L" ? "La Niña" : "neutral"; }
+function clYearPhase(y){            // dominant ENSO phase of a year (most months)
+  const m0 = clM0(), f = CL.rain.fase || "", c = {N:0, L:0, ".":0};
+  for (let m = 0; m < 12; m++) { const ch = f[y * 12 + m - m0]; if (ch) c[ch]++; }
+  return c.N >= 6 ? "N" : c.L >= 6 ? "L" : ".";
+}
+
+// draws El Niño / La Niña bands behind a chart whose x axis is decimal years
+const ensoBands = {id:"enso", beforeDatasetsDraw(c){
+  const f = CL.rain?.fase; if (!f) return;
+  const {ctx, chartArea:a, scales:{x}} = c; ctx.save(); ctx.beginPath(); ctx.rect(a.left, a.top, a.right - a.left, a.bottom - a.top); ctx.clip();
+  let i = 0;
+  while (i < f.length) { const ch = f[i]; let j = i; while (j < f.length && f[j] === ch) j++;
+    if (ch !== ".") { const x0 = x.getPixelForValue(clX(i) - 1/24), x1 = x.getPixelForValue(clX(j - 1) + 1/24);
+      ctx.fillStyle = ch === "N" ? "#c8102e22" : "#1f6fb222"; ctx.fillRect(x0, a.top, x1 - x0, a.bottom - a.top); }
+    i = j; }
+  ctx.restore(); }};
+
+function clChart(id, cfg){ if (CL.charts[id]) CL.charts[id].destroy(); CL.charts[id] = new Chart(document.getElementById(id), cfg); return CL.charts[id]; }
+function clAxes(xmin, xmax, yTitle){
+  const grid = css("--line"), muted = css("--muted");
+  return {x:{type:"linear", min:xmin, max:xmax, grid:{color:grid}, ticks:{color:muted, maxRotation:0, autoSkip:false, callback:v => String(v)},
+      afterBuildTicks:ax => { const nar = ax.chart.width < 600, st = xmax - xmin > 25 ? (nar ? 10 : 5) : xmax - xmin > 8 ? (nar ? 5 : 2) : 1, t = [];
+        for (let y = Math.ceil(xmin / st) * st; y <= xmax; y += st) t.push({value:y}); ax.ticks = t; }},
+    y:{grid:{color:grid}, ticks:{color:muted}, title:{display:!!yTitle, text:yTitle, color:muted, font:{size:11}}}};
+}
+
+function clRender(){
+  const R = CL.rain, mun = CL.mun;
+  document.getElementById("ctitle").textContent = mun === "Tolima" ? "Todo el Tolima" : mun;
+  if (!R) { document.getElementById("csub").textContent = "Los datos históricos aún no están disponibles. Se generan una vez al mes en GitHub; vuelva a intentarlo más tarde."; return; }
+  const S = clStats(mun), m0 = clM0(), n = S.v.length, rain = css("--rain"), dry = css("--warn"), fg = css("--fg"), muted = css("--muted");
+  const last = n - 1, lastY = Math.floor((m0 + last) / 12);
+  const xmax = clX(last) + 0.5, xmin = CL.years ? Math.max(clX(0) - 0.5, xmax - CL.years) : clX(0) - 0.5;
+  const pctMode = CL.u === "pct", A = pctMode ? S.pct : S.anom, unit = pctMode ? "%" : "mm";
+  // headline numbers
+  const full = Object.entries(S.years).filter(([, o]) => o.n === 12).map(([y, o]) => [+y, o.s]);
+  const wet = full.reduce((a, b) => b[1] > a[1] ? b : a), dryY = full.reduce((a, b) => b[1] < a[1] ? b : a);
+  const lastSpi = S.spi[3][last], lc = lastSpi != null ? spiClass(lastSpi) : null;
+  const fmtN = v => Math.round(v).toLocaleString("es-CO");
+  document.getElementById("csub").innerHTML = `Lluvia mensual por satélite (CHIRPS), promedio ${mun === "Tolima" ? "del departamento" : "del municipio"}, de ${CL_MESL[m0 % 12]} de ${Math.floor(m0 / 12)} a ${CL_MESL[(m0 + last) % 12]} de ${lastY}, comparada con lo normal de ${CL_BASE[0]}–${CL_BASE[1]}. Elija un municipio aquí o tóquelo en el mapa.`;
+  document.getElementById("cstats").innerHTML = [
+    `<span>Lluvia normal al año<br><b>${fmtN(S.normal)} mm</b></span>`,
+    `<span>Último mes (${ymLabel(last)})<br><b>${fmtN(S.v[last])} mm</b> · ${S.pct[last] == null ? "" : (S.pct[last] >= 0 ? "+" : "") + Math.round(S.pct[last]) + " %"} de lo normal</span>`,
+    lc ? `<span>SPI-3 actual<br><b style="color:${lc.c === "#d9dedc" ? fg : lc.c}">${fmt(lastSpi, 1)}</b> · ${lc.n}</span>` : "",
+    `<span>Año más lluvioso<br><b>${wet[0]}</b> · ${fmtN(wet[1])} mm (${clPhaseName(clYearPhase(wet[0]))})</span>`,
+    `<span>Año más seco<br><b>${dryY[0]}</b> · ${fmtN(dryY[1])} mm (${clPhaseName(clYearPhase(dryY[0]))})</span>`,
+    `<span>ENSO ahora (ONI)<br><b>${(() => { const k = R.oni.map((x, i) => [x, i]).filter(([x]) => x != null).pop(); return k ? `${k[0] > 0 ? "+" : ""}${fmt(k[0], 1)} · ${k[0] >= 0.5 ? "cálido (El Niño)" : k[0] <= -0.5 ? "frío (La Niña)" : "neutral"}</b> (${ymLabel(k[1])})` : "—</b>"; })()}</span>`].join("");
+  // 1) anomaly bars + 12-month running mean
+  const bars = [], run = [];
+  for (let i = 0; i < n; i++) { if (A[i] != null) bars.push({x:clX(i), y:A[i], i});
+    if (i >= 11) { let s = 0, c = 0; for (let j = i - 11; j <= i; j++) if (A[j] != null) { s += A[j]; c++; } if (c >= 10) run.push({x:clX(i), y:s / c}); } }
+  clChart("cAnom", {type:"bar", plugins:[ensoBands],
+    data:{datasets:[{type:"line", label:"Promedio de 12 meses", data:run, borderColor:fg, borderWidth:1.4, pointRadius:0, tension:.25},
+      {label:"Anomalía", data:bars, backgroundColor:bars.map(b => b.y >= 0 ? rain : dry), borderWidth:0, barPercentage:1, categoryPercentage:1}]},
+    options:{responsive:true, maintainAspectRatio:false, animation:false, parsing:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{title:it => ymLabel(Math.round((it[0].parsed.x - clX(0)) * 12)),
+        label:it => { const i = Math.round((it.parsed.x - clX(0)) * 12), a = clM0() + i;
+          return it.datasetIndex ? [`Lluvia: ${fmtN(S.v[i])} mm (normal ${fmtN(S.clim[a % 12])} mm)`, `Anomalía: ${S.anom[i] >= 0 ? "+" : ""}${fmtN(S.anom[i])} mm · ${S.pct[i] >= 0 ? "+" : ""}${Math.round(S.pct[i])} %`,
+            `ENSO: ${clPhaseName(R.fase[i])}${R.oni[i] != null ? ` (ONI ${fmt(R.oni[i], 1)})` : ""}`] : `Promedio de 12 meses: ${fmt(it.parsed.y, 0)} ${unit}`; }}}},
+      scales:clAxes(xmin, xmax, pctMode ? "% sobre o bajo lo normal" : "mm sobre o bajo lo normal")}});
+  // 2) SPI
+  const sp = S.spi[CL.k], spd = []; for (let i = 0; i < n; i++) if (sp[i] != null) spd.push({x:clX(i), y:sp[i]});
+  clChart("cSpi", {type:"bar", plugins:[ensoBands],
+    data:{datasets:[{label:"SPI", data:spd, backgroundColor:spd.map(p => spiClass(p.y).c), borderWidth:0, barPercentage:1, categoryPercentage:1}]},
+    options:{responsive:true, maintainAspectRatio:false, animation:false, parsing:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{title:it => ymLabel(Math.round((it[0].parsed.x - clX(0)) * 12)),
+        label:it => `SPI-${CL.k}: ${fmt(it.parsed.y, 2)} · ${spiClass(it.parsed.y).n}`}}},
+      scales:{...clAxes(xmin, xmax, `SPI-${CL.k}`), y:{...clAxes(0, 1).y, min:-3, max:3}}}});
+  document.getElementById("cspileg").innerHTML = SPICL.map(c => `<span><span class="csw" style="--c:${c.c};margin-left:0"></span>${c.n}</span>`).join("")
+    + `<span class="sub">SPI-${CL.k} = lluvia de los últimos ${CL.k === 1 ? "mes" : CL.k + " meses"} frente a la misma época de ${CL_BASE[0]}–${CL_BASE[1]}</span>`;
+  // 3) stripes
+  const st = document.getElementById("cStripe"), box = document.getElementById("cstripes");
+  const dpr = devicePixelRatio || 1, W = box.clientWidth || 600, H = box.clientHeight || 64; st.width = W * dpr; st.height = H * dpr;
+  const g = st.getContext("2d"); g.scale(dpr, dpr);
+  const sc = p => { const t = Math.max(-1, Math.min(1, p / 35));      // ±35 % of normal = full colour
+    const mix = (a, b, f) => a.map((x, i) => Math.round(x + (b[i] - x) * f)), w = [246, 244, 238];
+    const c = t >= 0 ? mix(w, [29, 78, 143], t) : mix(w, [140, 81, 10], -t); return `rgb(${c})`; };
+  const wy = W / full.length; full.forEach(([y, s], j) => { g.fillStyle = sc(100 * (s / S.normal - 1)); g.fillRect(j * wy, 0, wy + 0.5, H);
+    const ph = clYearPhase(y); if (ph !== ".") { g.fillStyle = ph === "N" ? "#c8102e" : "#1f6fb2"; g.fillRect(j * wy + wy * 0.2, H - 5, wy * 0.6, 4); } });
+  st.onclick = e => { const j = Math.floor((e.offsetX) / wy), f = full[j]; if (!f) return;
+    let el = document.getElementById("cstripinfo"); if (!el) { el = document.createElement("div"); el.id = "cstripinfo"; document.getElementById("cstripax").after(el); }
+    el.innerHTML = `<b>${f[0]}</b>: ${fmtN(f[1])} mm, ${Math.round(100 * (f[1] / S.normal - 1)) >= 0 ? "+" : ""}${Math.round(100 * (f[1] / S.normal - 1))} % de lo normal · ${clPhaseName(clYearPhase(f[0]))}`;
+    CL.cmp = f[0]; document.getElementById("cyear").value = f[0]; clClim(S); };
+  document.getElementById("cstripax").innerHTML = `<span>${full[0][0]}</span><span>marca roja = año de El Niño, azul = La Niña</span><span>${full[full.length - 1][0]}</span>`;
+  // 4) calendar
+  const ysel = document.getElementById("cyear"), ys = Object.keys(S.years).map(Number).sort((a, b) => b - a);
+  if (CL.cmp == null || !ys.includes(CL.cmp)) CL.cmp = ys[1] ?? ys[0];
+  ysel.innerHTML = ys.map(y => `<option value="${y}"${y === CL.cmp ? " selected" : ""}>${y}${S.years[y].n < 12 ? " (en curso)" : ""} · ${clPhaseName(clYearPhase(y))}</option>`).join("");
+  clClim(S);
+  // 5) UNGRD events by month, stacked by type, with the month's rain
+  clEvents(S);
+  document.getElementById("ccsv").disabled = false;
+  document.getElementById("csrc").innerHTML = `Fuentes: ${esc(R.fuente)}. ${CL.ev ? esc(CL.ev.fuente) + "." : ""} Actualizado ${esc((R.actualizado || "").slice(0, 10))}. `
+    + `CHIRPS combina satélite y estaciones en celdas de unos 5 km; en zonas de montaña puede diferir de las estaciones del IDEAM.`;
+}
+function clClim(S){
+  const m0 = clM0(), yr = CL.cmp, lastY = Math.max(...Object.keys(S.years).map(Number));
+  const ofYear = y => Array.from({length:12}, (_, m) => { const i = y * 12 + m - m0; return i >= 0 && i < S.v.length ? S.v[i] : null; });
+  const rain = css("--rain"), muted = css("--muted"), grid = css("--line"), temp = css("--temp"), fg = css("--fg");
+  clChart("cClim", {type:"bar", data:{labels:CL_MES, datasets:[
+    {label:`Normal ${CL_BASE[0]}–${CL_BASE[1]}`, data:S.clim, backgroundColor:css("--rain-soft"), borderColor:rain, borderWidth:1},
+    {type:"line", label:String(lastY), data:ofYear(lastY), borderColor:temp, backgroundColor:temp, pointRadius:2.5, borderWidth:2, tension:.2, spanGaps:false},
+    ...(yr !== lastY ? [{type:"line", label:String(yr), data:ofYear(yr), borderColor:fg, backgroundColor:fg, pointRadius:2, borderWidth:1.4, borderDash:[5,3], tension:.2}] : [])]},
+    options:{responsive:true, maintainAspectRatio:false, animation:false,
+      plugins:{legend:{labels:{color:muted, boxWidth:12, font:{size:11}}}, tooltip:{callbacks:{label:it => `${it.dataset.label}: ${it.parsed.y == null ? "—" : Math.round(it.parsed.y)} mm`}}},
+      scales:{x:{grid:{color:grid}, ticks:{color:muted}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{color:muted}, title:{display:true, text:"mm por mes", color:muted, font:{size:11}}}}}});
+}
+function clEvents(S){
+  const E = CL.ev, sum = document.getElementById("cevsum"), muted = css("--muted"), grid = css("--line");
+  if (!E) { clChart("cEv", {type:"bar", data:{datasets:[]}}); sum.textContent = "Sin datos de emergencias."; return; }
+  const list = CL.mun === "Tolima" ? Object.values(E.mun).flat() : (E.mun[CL.mun] || []);
+  const [y0, y1] = [+E.desde.slice(0, 4), +E.hasta.slice(0, 4)], nM = (y1 - y0 + 1) * 12, m0 = clM0();
+  const cnt = E.tipos.map(() => new Array(nM).fill(0));
+  let per = 0, viv = 0, fal = 0; const byT = E.tipos.map(() => 0);
+  for (const [f, t, p, v, d] of list) { const i = (+f.slice(0, 4) - y0) * 12 + +f.slice(5, 7) - 1; if (i >= 0 && i < nM) cnt[t][i]++; per += p; viv += v; fal += d; byT[t]++; }
+  const xs = i => (y0 * 12 + i) / 12 + 1 / 24 + 0;
+  const rainLine = []; for (let i = 0; i < nM; i++) { const k = y0 * 12 + i - m0; if (k >= 0 && k < S.v.length && S.v[k] != null) rainLine.push({x:y0 + i / 12 + 1 / 24, y:S.v[k]}); }
+  clChart("cEv", {type:"bar", plugins:[ensoBands], data:{datasets:[
+    {type:"line", label:"Lluvia del mes (mm)", data:rainLine, yAxisID:"y2", borderColor:css("--rain"), borderWidth:1.2, pointRadius:0, tension:.25},
+    ...E.tipos.map((t, k) => ({label:t, data:cnt[k].map((c, i) => ({x:y0 + i / 12 + 1 / 24, y:c})).filter(p => p.y), backgroundColor:EVCOL[k], stack:"e", borderWidth:0, barPercentage:1, categoryPercentage:1}))
+      .filter(d => d.data.length)]},
+    options:{responsive:true, maintainAspectRatio:false, animation:false, parsing:false,
+      plugins:{legend:{labels:{color:muted, boxWidth:10, font:{size:10.5}}}, tooltip:{callbacks:{title:it => { const v = it[0].parsed.x - 1 / 24, a = Math.round(v * 12); return `${CL_MES[a % 12]} ${Math.floor(a / 12)}`; },
+        label:it => it.dataset.yAxisID === "y2" ? `Lluvia: ${Math.round(it.parsed.y)} mm` : `${it.dataset.label}: ${it.parsed.y}`}}},
+      scales:{x:{type:"linear", min:y0, max:y1 + 1, stacked:true, grid:{color:grid}, ticks:{color:muted, stepSize:1, callback:v => v}},
+        y:{stacked:true, beginAtZero:true, grid:{color:grid}, ticks:{color:muted, precision:0}, title:{display:true, text:"emergencias por mes", color:muted, font:{size:11}}},
+        y2:{position:"right", beginAtZero:true, grid:{display:false}, ticks:{color:muted}, title:{display:true, text:"mm", color:muted, font:{size:11}}}}}});
+  const top = byT.map((n, k) => [n, E.tipos[k]]).filter(([n]) => n).sort((a, b) => b[0] - a[0]);
+  sum.innerHTML = list.length ? `<b>${list.length.toLocaleString("es-CO")}</b> emergencias entre ${y0} y ${y1}: ${top.map(([n, t]) => `${esc(t.toLowerCase())} ${n}`).join(", ")}. `
+    + `Personas afectadas ${per.toLocaleString("es-CO")}, viviendas destruidas o averiadas ${viv.toLocaleString("es-CO")}, fallecidos ${fal}.` : "No hay emergencias reportadas a la UNGRD en este municipio entre 2019 y 2025.";
+}
+function clCsv(){
+  const S = clStats(CL.mun), R = CL.rain, m0 = clM0();
+  const rows = [["mes", "lluvia_mm", "normal_mm", "anomalia_mm", "anomalia_pct", "spi1", "spi3", "spi6", "spi12", "oni", "fase_enso"].join(",")];
+  S.v.forEach((x, i) => { const a = m0 + i; rows.push([`${Math.floor(a / 12)}-${String(a % 12 + 1).padStart(2, "0")}`, x ?? "", Math.round(S.clim[a % 12] ?? 0),
+    S.anom[i] == null ? "" : Math.round(S.anom[i]), S.pct[i] == null ? "" : Math.round(S.pct[i]),
+    ...[1, 3, 6, 12].map(k => S.spi[k][i] == null ? "" : S.spi[k][i].toFixed(2)), R.oni[i] ?? "", clPhaseName(R.fase[i])].join(",")); });
+  const el = document.createElement("a"); el.href = URL.createObjectURL(new Blob([rows.join("\n")], {type:"text/csv"}));
+  el.download = `historico_CHIRPS_${CL.mun.normalize("NFD").replace(/[^\w]+/g, "_")}.csv`; document.body.appendChild(el); el.click(); el.remove();
+}
+function clShow(mun, scroll){
+  CL.mun = mun; const sel = document.getElementById("cmun"); if (sel.value !== mun) sel.value = mun;
+  clLoad().then(clRender);
+  if (scroll) document.getElementById("clima").scrollIntoView({behavior:"smooth", block:"start"});
+}
+{ // controls
+  const sel = document.getElementById("cmun");
+  sel.innerHTML += Object.keys(MUNPOP).sort((a, b) => a.localeCompare(b, "es")).map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+  sel.addEventListener("change", () => clShow(sel.value));
+  const seg = (id, f) => document.querySelectorAll(`#${id} button`).forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false")); f(b); if (CL.rain) clRender(); }));
+  seg("cbase", b => CL.u = b.dataset.u); seg("crange", b => CL.years = +b.dataset.y); seg("cspik", b => CL.k = +b.dataset.k);
+  document.getElementById("cyear").addEventListener("change", e => { CL.cmp = +e.target.value; clClim(clStats(CL.mun)); });
+  document.getElementById("ccsv").addEventListener("click", clCsv);
+  // "Histórico climático" button in the municipio popups
+  document.addEventListener("click", e => { const b = e.target.closest?.("[data-climun]"); if (b) { map?.closePopup(); clShow(b.dataset.climun, true); } });
+  // load when the panel comes near the screen
+  const io = "IntersectionObserver" in window ? new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); clShow(CL.mun); } }, {rootMargin:"300px"}) : null;
+  if (io && !location.hash.includes("mapa=")) io.observe(document.getElementById("clima"));
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => CL.rain && clRender(), 250); });
+}
+
+// ---- Map layer: municipios coloured by the latest SPI-3 (CHIRPS), in the Investigación group
+function buildSpiLayer(munFeatures){
+  const box = document.getElementById("spiinfo");
+  const g = L.geoJSON(munFeatures, {style:{color:"#0b2a5b", weight:0.6, opacity:0.5, fillOpacity:0}, attribution:"Lluvia: CHIRPS (UCSB CHC)"});
+  const pop = n => { if (!CL.rain) return "Cargando…"; const S = clStats(n), i = S.v.length - 1, z = S.spi[3][i], c = z == null ? null : spiClass(z);
+    return `<div class="flpop"><b>${esc(n)}</b><br><span class="sub">SPI-3 a ${ymLabel(i)} (CHIRPS)</span>`
+      + `<div style="margin-top:4px">${c ? `<span class="csw" style="--c:${c.c};margin-left:0"></span><b>${fmt(z, 1)}</b> · ${c.n}` : "sin dato"}</div>`
+      + `<div class="sub">Lluvia de los últimos 3 meses: ${Math.round(S.v.slice(-3).reduce((a, b) => a + (b || 0), 0))} mm (normal ${Math.round([0, 1, 2].reduce((a, k) => a + (S.clim[(clM0() + i - k) % 12] || 0), 0))} mm)</div>`
+      + `<button type="button" class="btn sm" data-climun="${esc(n)}" style="margin-top:6px">📈 Ver histórico climático</button></div>`; };
+  g.eachLayer(l => l.bindPopup(() => pop(l.feature.properties.n), {maxWidth:270}));
+  const paint = () => clLoad().then(() => {
+    if (!map.hasLayer(g)) return;
+    if (!CL.rain) { box.innerHTML = "<b>SPI-3</b>: datos históricos no disponibles todavía."; box.hidden = false; return; }
+    const cnt = {}; let i = 0;
+    g.eachLayer(l => { const S = clStats(l.feature.properties.n); i = S.v.length - 1; const z = S.spi[3][i]; const c = z == null ? null : spiClass(z);
+      if (c) cnt[c.n] = (cnt[c.n] || 0) + 1;
+      l.setStyle({fillColor:c ? c.c : "#999", fillOpacity:c ? (c.n === "Normal" ? 0.15 : 0.6) : 0}); });
+    box.innerHTML = `<div style="flex-basis:100%"><b>Sequía o exceso de lluvia, SPI-3</b> (CHIRPS, ${ymLabel(i)}): `
+      + SPICL.filter(c => cnt[c.n]).map(c => `${cnt[c.n]} ${c.n.toLowerCase()}`).join(", ") + `. ${infoBtn("spi", "SPI")}</div>`
+      + SPICL.map(c => `<span><span class="csw" style="--c:${c.c};margin-left:0"></span>${c.n}</span>`).join("");
+    box.hidden = false; });
+  g.on("add", paint); g.on("remove", () => { box.hidden = true; });
+  return g;
+}
 document.getElementById("refresh").addEventListener("click", load);
 document.getElementById("avail").innerHTML = "Datos: " + VARS.map(([v,l]) => `<span>${icon(v, true, l)}${l}</span>`).join("")
   + `<span>${icon("rain", false, "Sin datos")}gris = sin datos</span>`;
