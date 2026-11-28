@@ -459,6 +459,26 @@ body.smode #map{height:max(420px,calc(100vh - 150px));border-radius:6px}
 .snorth{background:#ffffffe6;border-radius:6px;padding:3px 4px 1px;box-shadow:0 1px 4px #0004;line-height:0}
 .shlab{background:#ffffffd9;border:0;box-shadow:none;font:600 11px/1.15 var(--sans);color:#17221f;padding:1px 4px;border-radius:3px;white-space:nowrap}
 .shlab::before{display:none}
+/* "Imagen para informe": the same page laid out as one picture (white, fixed width) for Word */
+#shxbar{display:none;position:fixed;top:8px;left:8px;z-index:1200;box-shadow:0 2px 10px #0005;background:var(--navy-dk);color:#fff;border-radius:10px;padding:8px 12px;gap:6px 10px;align-items:center;flex-wrap:wrap;font-size:13px;width:min(100vw - 24px,980px)}
+body.sexp #shxbar{display:flex} #shxbar>b{flex-basis:100%} .shxg{display:inline-flex;gap:4px;flex-wrap:wrap}
+#shxbar .btn{background:transparent;color:#fff;border-color:#fff8;padding:4px 9px;font-size:13px} #shxbar .btn[aria-pressed=true]{background:#fff;color:var(--navy-dk);font-weight:600}
+#shxbar .go{background:#c8102e;border-color:#c8102e} #shxbar .btn:disabled{opacity:.55} .shxc{display:inline-flex;gap:5px;align-items:center} .shxmsg{flex-basis:100%;color:#dfe7f5;font-size:12.5px}
+.shxsrc{display:none}
+body.sexp{--bg:#fff;--panel:#fff;--fg:#17221f;--muted:#4a5753;--line:#c9d1ce;--navy:#0b2a5b;color-scheme:light;background:#fff}
+body.sexp::before{display:none}
+body.sexp .wrap{width:auto;max-width:none;padding:8px;margin:0;display:block}
+body.sexp #share{width:var(--xw);gap:8px;background:#fff;padding:10px;margin-top:var(--xtop,150px)}
+body.sexp .shbtns,body.sexp .shhelp,body.sexp #shnotes,body.sexp .shsec:has(#shnotes),body.sexp .shsec:has(#shhl),body.sexp .shprinted,body.sexp .shfoot,
+body.sexp .coordbox,body.sexp .leaflet-control-zoom,body.sexp .leaflet-control-layers,body.sexp #map .maplegend,body.sexp .eqctl,body.sexp .eqlist,body.sexp .medir,body.sexp .animbar,body.sexp .shmap .legend:empty{display:none!important}
+body.sexp.sxnot .shead{display:none}
+body.sexp .shead{padding:6px 8px;border-top-width:3px;gap:8px} body.sexp .shemb{width:40px;height:40px} body.sexp .shtit h1{font-size:18px}
+body.sexp .shmap .panel{padding:0;border:1px solid #9aa4a0;border-radius:0} body.sexp #map{border-radius:0}
+body.sexp .shside{font-size:12px;padding:0 10px;border-radius:0} body.sexp .shside .sub{font-size:inherit} body.sexp #shlgmore{display:block}
+body.sexp.sxl-right .shgrid{grid-template-columns:minmax(0,1fr) 30%}
+body.sexp.sxl-below .shgrid{grid-template-columns:1fr} body.sexp.sxl-below .shside{columns:2;column-gap:16px} body.sexp.sxl-below .shsec{break-inside:avoid}
+body.sexp.sxl-none .shgrid{grid-template-columns:1fr} body.sexp.sxl-none .shside{display:none}
+body.sexp.sxl-none .shxsrc{display:block;font-size:11px;color:var(--muted)}
 /* print preview and printing. Sizes fit both A4 and carta (letter): horizontal = map left, legend right;
    vertical (default on iPad/iPhone, whose Safari ignores @page size) = map on top, legend below in two columns.
    The page keeps this size until "Salir" (iPad Safari fires afterprint before it has finished printing). */
@@ -470,7 +490,7 @@ body.sprint.sport .shgrid{grid-template-columns:1fr}
 body.sprint.sport #map{height:125mm!important}
 body.sprint.sport .shside{columns:2;column-gap:6mm} body.sprint.sport .shsec{break-inside:avoid}
 body.sprint .shprinted{display:inline} body.sprint .shbtns,body.sprint .shhelp{display:none!important}
-body.sprint .leaflet-control-zoom,body.sprint .leaflet-control-layers,body.sprint #map .maplegend,body.sprint .eqctl,body.sprint .medir{display:none!important}
+body.sprint .coordbox,body.sprint .leaflet-control-zoom,body.sprint .leaflet-control-layers,body.sprint #map .maplegend,body.sprint .eqctl,body.sprint .medir{display:none!important}
 #shbar{display:none;position:sticky;top:0;z-index:1200;background:var(--navy-dk);color:#fff;border-radius:10px;padding:8px 12px;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
 body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pressed=true]{background:#fff;color:var(--navy-dk);font-weight:600}
 #shbar .btn{background:transparent;color:#fff;border-color:#fff8} #shbar .go{background:#c8102e;border-color:#c8102e}
@@ -480,7 +500,7 @@ body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pr
   body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact} body::before{display:none!important}
   body.smode .wrap{max-width:none;padding:0;margin:0;gap:4mm} #shbar{display:none!important}
   body.smode .shead{padding:2mm 3mm;border-radius:2mm} .shemb{width:14mm;height:14mm} .shtit h1{font-size:17pt}
-  .shprinted{display:inline!important} .shbtns,.shhelp,.leaflet-control-zoom,.leaflet-control-layers,#map .maplegend,.eqctl,.medir,.animbar,dialog{display:none!important}
+  .shprinted{display:inline!important} .shbtns,.shhelp,.leaflet-control-zoom,.leaflet-control-layers,#map .maplegend,.eqctl,.medir,.coordbox,.animbar,dialog{display:none!important}
   .shgrid{gap:3mm} .shside .sub{font-size:inherit}
   #shlgmore{display:block!important} .eqlist button{display:none!important} .shside .shsec{padding:1.5mm 0} .shsec h3{font-size:7.5pt;margin-bottom:1mm}
   .shmap .panel{border:1px solid #999;padding:0} .shside{font-size:8pt;line-height:1.3;padding:0 3mm}
@@ -677,6 +697,7 @@ const fmtPeople = n => n == null ? "sin dato" : n < 10 ? "menos de 10" : "~" + (
 <script src="vendor/supabase-2.118.0.min.js"></script>
 <script src="incstore.js?v=33"></script>
 <script src="incexport.js?v=33"></script>
+<script src="mapexport.js?v=1"></script>
 <script src="alertas.js?v=4" defer></script>
 <script src="enviar-alerta.js?v=1" defer></script>
 <script src="ubicaciones.js?v=20"></script>
@@ -2410,12 +2431,19 @@ function shareBuildPage(){
   sec.innerHTML = `<div id="shbar" role="toolbar" aria-label="Vista de impresión"><b>Vista de impresión</b>
       <button type="button" class="btn" data-or="land">Horizontal</button><button type="button" class="btn" data-or="port">Vertical</button>
       <button type="button" class="btn go" id="shgo" disabled>Cargando mapa…</button><button type="button" class="btn" id="shexit">✕ Salir</button></div>
+    <div id="shxbar" role="toolbar" aria-label="Imagen para informe"><b>Imagen para informe</b>
+      <span class="shxg" role="group" aria-label="Forma"><button type="button" class="btn" data-xr="land">Horizontal</button><button type="button" class="btn" data-xr="sq">Cuadrada</button><button type="button" class="btn" data-xr="port">Vertical</button></span>
+      <span class="shxg" role="group" aria-label="Ancho en Word"><button type="button" class="btn" data-xw="16">16 cm (página)</button><button type="button" class="btn" data-xw="8">8 cm (media)</button></span>
+      <span class="shxg" role="group" aria-label="Convenciones"><button type="button" class="btn" data-xl="right">Convenciones al lado</button><button type="button" class="btn" data-xl="below">debajo</button><button type="button" class="btn" data-xl="none">sin</button></span>
+      <label class="shxc"><input type="checkbox" id="shxt" checked> Título</label>
+      <span class="shxg"><button type="button" class="btn go" id="shxpng" disabled>⬇ PNG</button><button type="button" class="btn go" id="shxdoc" disabled>⬇ Word</button><button type="button" class="btn" id="shxcp" disabled>Copiar imagen</button><button type="button" class="btn" id="shxexit">✕ Salir</button></span>
+      <span id="shxmsg" class="shxmsg"></span></div>
     <div class="shead">
       <img src="${emblem}" alt="Cruz Roja Colombiana, Seccional Tolima" class="shemb">
       <div class="shtit"><h1 id="shtitle"></h1>
         <div class="shmeta">${S.p ? `<span>Para: <b>${esc(S.p)}</b></span>` : ""}<span>Cruz Roja Colombiana · Seccional Tolima${S.a ? ` · ${esc(S.a)}` : ""}</span>
           ${made ? `<span>Elaborado: ${esc(shDate(made))}</span>` : ""}<span class="shprinted">Impreso: <span id="shnow"></span></span></div></div>
-      <div class="shbtns"><button type="button" class="btn go" id="shprint">🖨️ Imprimir o guardar PDF</button><button type="button" class="btn" id="shfit">⤢ Volver al encuadre</button></div>
+      <div class="shbtns"><button type="button" class="btn go" id="shprint">🖨️ Imprimir o guardar PDF</button><button type="button" class="btn" id="shimg">🖼️ Imagen para informe (Word)</button><button type="button" class="btn" id="shfit">⤢ Volver al encuadre</button></div>
     </div>
     <div class="shgrid"><div class="shmap"></div>
       <aside class="shside">
@@ -2426,6 +2454,7 @@ function shareBuildPage(){
         <div class="shsec"><h3>Fuentes</h3><div class="sub" id="shsrc"></div>
           <div class="sub" style="margin-top:6px">Los datos de cada capa se consultan en vivo al abrir el mapa; ubicaciones y límites aproximados.</div></div>
       </aside></div>
+    <div class="shxsrc" id="shxsrc"></div>
     <div class="shfoot">© ${new Date().getFullYear()} Cruz Roja Colombiana, Seccional Tolima · Sistema de Monitoreo (SAT Tolima)</div>`;
   wrap.prepend(sec);
   sec.querySelector("#shtitle").textContent = S.bad ? "Enlace de mapa dañado o incompleto" : (S.t || "Mapa compartido");
@@ -2462,6 +2491,63 @@ function shareBuildPage(){
   sec.querySelector("#shexit").onclick = unprep;
   // printing from the browser menu or share sheet without the preview: switch to the paper layout on the spot
   addEventListener("beforeprint", () => { if (!body.classList.contains("sprint")) { tick(); body.classList.add("sprint"); setOrient(orient); map.invalidateSize(); sec._legend?.(); sec._fit?.(); go.disabled = false; go.textContent = "🖨️ Imprimir ahora"; } });
+
+  // ---- "Imagen para informe": the map with title, legend, scale, north arrow and sources as a PNG sized for Word
+  // (300 ppp, 16 or 8 cm wide; the PNG carries that size so Word inserts it at that width), or a .docx with it and a caption.
+  const X = {r:"land", w:16, l:"right", t:true}, xmsg = sec.querySelector("#shxmsg"), xbtns = ["#shxpng", "#shxdoc", "#shxcp"].map(q => sec.querySelector(q));
+  const RATIO = {land:0.66, sq:1, port:1.15}, FRAME = {16:900, 8:560};   // map height / width; frame width in screen px
+  let xseq = 0;
+  const xsync = () => { sec.querySelectorAll("[data-xr]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.xr === X.r)));
+    sec.querySelectorAll("[data-xw]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.xw === X.w)));
+    sec.querySelectorAll("[data-xl]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.xl === X.l))); };
+  const xsrcLine = () => { const d = document.createElement("div"); d.innerHTML = sec.querySelector("#shsrc").innerHTML.replace(/<br\s*\/?>/gi, "\n");
+    const src = d.textContent.split("\n").map(t => t.trim()).filter(Boolean).join("; ");
+    return `Fuente: ${src}. Elaboración: Cruz Roja Colombiana, Seccional Tolima, ${shDate(new Date()).replace(/\.$/, "")}.`; };
+  async function xprep(){
+    const my = ++xseq; if (body.classList.contains("sprint")) unprep();
+    map.closePopup(); tick(); xbtns.forEach(b => b.disabled = true); xmsg.textContent = "Preparando el mapa…";
+    body.classList.add("sexp"); body.classList.toggle("sxnot", !X.t);
+    ["right", "below", "none"].forEach(k => body.classList.toggle("sxl-" + k, X.l === k));
+    body.style.setProperty("--xw", FRAME[X.w] + "px");
+    body.style.setProperty("--xtop", (sec.querySelector("#shxbar").getBoundingClientRect().height + 16) + "px");
+    sec._legend?.(); sec.querySelector("#shxsrc").textContent = xsrcLine();
+    const mapEl = document.getElementById("map"); mapEl.style.setProperty("height", "200px", "important"); map.invalidateSize();
+    mapEl.style.setProperty("height", Math.round(mapEl.getBoundingClientRect().width * RATIO[X.r]) + "px", "important");
+    map.invalidateSize(); sec._fit?.(); scrollTo(0, 0);
+    await new Promise(r => setTimeout(r, 600)); await waitTiles();
+    if (my !== xseq) return; xbtns.forEach(b => b.disabled = false);
+    xmsg.textContent = `Lista: ${X.w} cm de ancho en Word.`;
+  }
+  const xexit = () => { xseq++; ["sexp", "sxnot", "sxl-right", "sxl-below", "sxl-none"].forEach(c => body.classList.remove(c));
+    document.getElementById("map").style.removeProperty("height"); map.invalidateSize(); };
+  const fileBase = () => (S.t || "mapa").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w-]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 60) || "mapa";
+  async function xrender(){
+    const frame = sec.getBoundingClientRect().width, outW = Math.round(X.w / 2.54 * 300);
+    const cv = await MapExport.render(sec, outW / frame, el => el.id === "shxbar" || el.id === "shbar");
+    const png = await MapExport.pngBytes(cv, 300);
+    xmsg.textContent = cv._stats.tilesMissing ? `Lista, pero ${cv._stats.tilesMissing} partes del mapa base no se pudieron incluir (el servidor de mapas no lo permite).` : `Lista: ${cv.width} × ${cv.height} px, ${X.w} cm de ancho en Word.`;
+    return {png, w:cv.width, h:cv.height};
+  }
+  const save = (blob, name) => { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 60e3); };
+  const busy = async (b, fn) => { const t = b.textContent; b.disabled = true; b.textContent = "Creando…";
+    try { await fn(); } catch (e) { console.error(e); xmsg.textContent = "No se pudo crear la imagen: " + e.message; } b.disabled = false; b.textContent = t; };
+  sec.querySelector("#shimg").onclick = () => { xsync(); xprep(); };
+  sec.querySelectorAll("[data-xr]").forEach(b => b.onclick = () => { X.r = b.dataset.xr; xsync(); xprep(); });
+  sec.querySelectorAll("[data-xw]").forEach(b => b.onclick = () => { X.w = +b.dataset.xw; xsync(); xprep(); });
+  sec.querySelectorAll("[data-xl]").forEach(b => b.onclick = () => { X.l = b.dataset.xl; xsync(); xprep(); });
+  sec.querySelector("#shxt").onchange = e => { X.t = e.target.checked; xprep(); };
+  sec.querySelector("#shxexit").onclick = xexit;
+  xbtns[0].onclick = () => busy(xbtns[0], async () => { const r = await xrender(); save(new Blob([r.png], {type:"image/png"}), fileBase() + ".png"); });
+  xbtns[1].onclick = () => busy(xbtns[1], async () => { const r = await xrender();
+    save(MapExport.docx(r.png, r.w, r.h, X.w, S.t || "Mapa", xsrcLine()), fileBase() + ".docx"); });
+  // the clipboard needs the picture promised inside the tap (Safari), so the item gets a promise
+  xbtns[2].onclick = () => { const b = xbtns[2];
+    if (!navigator.clipboard?.write || typeof ClipboardItem === "undefined") { xmsg.textContent = "Este navegador no permite copiar imágenes: use ⬇ PNG."; return; }
+    const p = xrender().then(r => new Blob([r.png], {type:"image/png"}));
+    navigator.clipboard.write([new ClipboardItem({"image/png": p})]).then(() => { xmsg.textContent = "Imagen copiada: péguela en Word con Ctrl+V (⌘V)."; },
+      e => { xmsg.textContent = "No se pudo copiar (" + e.message + "): use ⬇ PNG."; });
+    b.blur(); };
 }
 
 // ---- The builder (team members only)
