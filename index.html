@@ -23,7 +23,7 @@
 <style>
 /* Layout: header strip, KPI row, map + station table side by side, station detail below */
 :root{
-  --bg:#f4f6f5; --panel:#ffffff; --fg:#17221f; --muted:#5c6b66; --line:#dde3e0;
+  --cork:#e8dcc6; --bg:#f4f6f5; --panel:#ffffff; --fg:#17221f; --muted:#5c6b66; --line:#dde3e0;
   --rain:#1f6fb2; --rain-soft:#d6e6f4; --temp:#c2552b; --hum:#2f8f6b; --wind:#6b5ca5;
   --level:#0f7f8c; --warn:#b7791f; --bad:#b83a3a; --ok:#2f8f6b; --off:#7b8794;
   --red:#c8102e; --red-dk:#9e0b23; --navy:#0b2a5b; --navy-dk:#0b2a5b; --navy-soft:#e6ecf6;
@@ -31,7 +31,7 @@
   --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){
-  :root{--bg:#101615; --panel:#18201e; --fg:#e6ece9; --muted:#9aaaa4; --line:#2a3532;
+  :root{--cork:#3b3126; --bg:#101615; --panel:#18201e; --fg:#e6ece9; --muted:#9aaaa4; --line:#2a3532;
     --rain:#5aa4e0; --rain-soft:#1c3347; --temp:#e07b52; --hum:#4fbf92; --wind:#9d8fd6; --level:#3fb8c6; --navy:#8fb0e8; --navy-soft:#16233a; color-scheme:dark}
 }
 *{box-sizing:border-box}
@@ -243,6 +243,32 @@ h2 button.info{vertical-align:2px}
 .inclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:12px}
 .inccard{border:1px solid var(--line);border-left:5px solid var(--c);border-radius:8px;padding:10px 12px;display:grid;gap:6px;align-content:start;transition:box-shadow .3s}
 .inccard.flash{box-shadow:0 0 0 3px var(--red)}
+/* index cards, like a corkboard: ruled paper, estado colour along the top, event-type colour on the left */
+.inclist{grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:14px;padding:12px;border-radius:10px;background:var(--cork)}
+.inccard.idx{background:#fffdf6 repeating-linear-gradient(transparent 0 23px,#8fb3d940 23px 24px) 0 50px;
+  border:0;border-top:6px solid var(--e);border-left:4px solid var(--c);border-radius:3px;box-shadow:0 2px 6px #0003,0 0 0 1px #0001;padding:9px 11px 10px;gap:5px;color:#1d2733}
+.inccard.idx:hover{box-shadow:0 4px 12px #0004,0 0 0 1px #0001}
+.inccard.idx.open{grid-column:1/-1}
+.inccard.idx h3{font-size:14.5px;line-height:1.25;color:#14243a}
+.inccard.idx .sub{color:#55606e;font-size:12px}
+.inccard.idx .inctype{color:var(--c);font-weight:600}
+.inccard.idx .incdesc{-webkit-line-clamp:2;font-size:12.5px}
+.inccard.idx.open .incdesc{-webkit-line-clamp:unset}
+.incemo{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:15px;line-height:1}
+.incemo span{display:inline-flex;align-items:center;gap:2px}.incemo b{font:700 12.5px var(--sans);color:#14243a}
+.incmore{display:grid;gap:8px;padding-top:4px;border-top:1px dashed #0002}
+.incmore[hidden]{display:none}
+.inccard.idx .incbtns{margin-top:auto;gap:6px}
+.btn.sm{padding:3px 9px;font-size:12.5px}
+.btn.more{margin-left:auto}
+/* "Ubicar coordenadas" under the map: closed by default */
+.coordbox{margin-top:8px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font-size:13px}
+.coordbox summary{cursor:pointer;padding:6px 0;font-weight:600;color:var(--navy, #0b2a5b)}
+.coordbox[open]{padding-bottom:8px}
+.coordrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.coordrow input{flex:1 1 150px;min-width:0;font:inherit;border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:var(--panel);color:var(--fg)}
+#xmsg{margin-top:5px}#xmsg.bad{color:var(--red)}
+.xpin{width:22px;height:22px;border-radius:50%;border:3px solid #fff;background:#0b2a5b;box-shadow:0 0 0 2px #0b2a5b,0 2px 6px #0006}
 .inchead{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
 .inccard h3{margin:0;font-size:15px;color:var(--fg)}
 .incst{flex:none;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;color:#fff;background:#616161}
@@ -486,6 +512,12 @@ body.sprint .leaflet-control-zoom,body.sprint .leaflet-control-layers,body.sprin
     <div class="panel">
       <h2><span id="maptitle">Lluvia acumulada por estación</span> <button type="button" class="info" data-info="lluvia" aria-label="Qué es la escala de lluvia">i</button></h2>
       <div id="map"></div>
+      <details class="coordbox" id="coordbox"><summary>📍 Ubicar coordenadas</summary>
+        <div class="coordrow"><input id="xlat" inputmode="decimal" autocomplete="off" placeholder="Latitud: 4,4389 o 4°26'20&quot;N" aria-label="Latitud">
+          <input id="xlng" inputmode="decimal" autocomplete="off" placeholder="Longitud: -75,4277 o 75°25'40&quot;O" aria-label="Longitud">
+          <button type="button" class="btn sm redbtn" id="xgo">Ubicar</button> <button type="button" class="btn sm" id="xclr" hidden>Quitar</button></div>
+        <div class="sub" id="xmsg" role="status">Decimales (DD) con punto o coma, o grados-minutos-segundos (DMS). También puede pegar el par completo en la primera casilla.</div>
+      </details>
       <div class="animbar" id="animbar" hidden></div>
       <div class="legend" id="legend"></div>
       <div class="legend" id="satinfo" hidden></div>
@@ -731,31 +763,35 @@ function initIncidents(map, ctrl){
       const own = items.map((x, i) => [x, i]).filter(([x]) => !x.upd);
       const th = own.slice(0, 4).map(([x, i]) => thumb(x, i)).join("")
         + (own.length > 4 ? `<button type="button" class="incth more" data-g="${escI(inc.id)}" data-i="${own[4][1]}">+${own.length - 4}</button>` : "");
-      cards.push(`<article class="inccard" id="inc-${escI(inc.id)}" style="--c:${color}">
+      // index card (corkboard style): the front shows the essentials; "Más" turns it over to updates, photos and the update box
+      const open = openCards.has(inc.id), aff = IncUtil.afectIconos(inc);
+      cards.push(`<article class="inccard idx${open ? " open" : ""}" id="inc-${escI(inc.id)}" style="--c:${color};--e:${PIN[inc.estado] || PIN.activo}">
         <div class="inchead"><h3>${escI(inc.titulo)}</h3><span class="incst st-${escI(inc.estado)}">${escI(INC_ESTADOS[inc.estado] || inc.estado)}</span></div>
-        <div class="sub">${escI(tname)} · ${escI(inc.municipio)}${inc.lugar ? " · " + escI(inc.lugar) : ""}<br>${escI(fmt(inc.fecha))}${IncUtil.registra(inc) ? ` · Registrado por ${escI(IncUtil.registra(inc))}` : ""}</div>
-        ${(() => { const a = inc.afectados || {}, vic = afect({fallecidos:a.fallecidos, heridos:a.heridos}), rest = afect({personas:a.personas, viviendas:a.viviendas});
-          return vic || rest ? `<div class="incaf">${vic ? `<b style="color:var(--red)">${escI(vic)}</b>` : ""}${vic && rest ? " · " : ""}${rest ? escI(rest) : ""}</div>` : ""; })()}
-        ${IncUtil.impacto(inc).length || inc.respcr ? `<div class="incimp">${IncUtil.impacto(inc).map(t => `<span class="incst st-imp">${escI(t)}</span>`).join("")}${inc.respcr ? `<span class="incst ${inc.respcr === "si" ? "st-activo" : "st-cerrado"}">Respuesta Cruz Roja: ${inc.respcr === "si" ? "Sí" : "No"}</span>` : ""}</div>${inc.respcr === "si" && inc.respcrdesc ? `<div class="sub"><b>Respuesta Cruz Roja:</b> ${escI(inc.respcrdesc)}</div>` : ""}` : ""}
+        <div class="sub"><b class="inctype">${escI(tname)}</b> · ${escI(inc.municipio)}${inc.lugar ? " · " + escI(inc.lugar) : ""}<br>${escI(fmt(inc.fecha))}${IncUtil.registra(inc) ? ` · ${escI(IncUtil.registra(inc))}` : ""}</div>
+        ${aff.length ? `<div class="incemo">${aff.map(a => `<span title="${escI(a.t)}${a.n != null ? ": " + a.n : ""}">${a.e}${a.n != null ? `<b>${a.n}</b>` : ""}</span>`).join("")}</div>` : ""}
         ${inc.descripcion ? `<p class="incdesc">${escI(inc.descripcion)}</p>` : ""}
-        ${iu.length ? `<ul class="incups" aria-label="Actualizaciones">${iu.slice(0, 3).map(upItem).join("")}</ul>` : ""}
-        ${th ? `<div class="incmedia">${th}</div>` : ""}
-        ${canEdit ? `<form class="incquick" data-q="${escI(inc.id)}">
+        <div class="incmore"${open ? "" : " hidden"}>
+          ${IncUtil.impacto(inc).length || inc.respcr ? `<div class="incimp">${IncUtil.impacto(inc).map(t => `<span class="incst st-imp">${escI(t)}</span>`).join("")}${inc.respcr ? `<span class="incst ${inc.respcr === "si" ? "st-activo" : "st-cerrado"}">Respuesta Cruz Roja: ${inc.respcr === "si" ? "Sí" : "No"}</span>` : ""}</div>${inc.respcr === "si" && inc.respcrdesc ? `<div class="sub"><b>Respuesta Cruz Roja:</b> ${escI(inc.respcrdesc)}</div>` : ""}` : ""}
+          ${iu.length ? `<ul class="incups" aria-label="Actualizaciones">${iu.slice(0, 3).map(upItem).join("")}</ul>` : ""}
+          ${th ? `<div class="incmedia">${th}</div>` : ""}
+          ${canEdit ? `<form class="incquick" data-q="${escI(inc.id)}">
           <textarea name="t" rows="2" maxlength="4000" placeholder="Escriba una actualización…" aria-label="Nueva actualización para ${escI(inc.titulo)}">${escI(drafts[inc.id] || "")}</textarea>
           <div class="incqrow"><button class="btn redbtn" type="submit">Publicar</button>
             <label class="btn" title="Agregar fotos o videos">📷 Foto/Video<input type="file" name="f" multiple hidden accept="image/*,video/*"></label>
             <span class="qm" role="status"></span></div>
         </form>` : ""}
-        <div class="incbtns"><button type="button" class="btn redbtn" data-edit="${escI(inc.id)}" title="${canEdit ? "Seguimiento, actualizaciones y datos del evento" : "Seguimiento del evento (solo lectura)"}">Abrir evento</button>
-          ${ll ? `<button type="button" class="btn" data-zoom="${escI(inc.id)}">Ver en mapa</button>` : `<span class="sub">Sin ubicación</span>`}
-          ${IncStore.remote && IncStore.user() && window.SATAlert ? `<button type="button" class="btn" data-alert="${escI(inc.id)}" title="Avisar a todos los celulares suscritos">📣 Enviar como alerta</button>` : ""}</div>
+          ${IncStore.remote && IncStore.user() && window.SATAlert ? `<button type="button" class="btn" data-alert="${escI(inc.id)}" title="Avisar a todos los celulares suscritos">📣 Enviar como alerta</button>` : ""}
+        </div>
+        <div class="incbtns"><button type="button" class="btn sm redbtn" data-edit="${escI(inc.id)}" title="${canEdit ? "Seguimiento, actualizaciones y datos del evento" : "Seguimiento del evento (solo lectura)"}">Abrir</button>
+          ${ll ? `<button type="button" class="btn sm" data-zoom="${escI(inc.id)}">Mapa</button>` : `<span class="sub">Sin ubicación</span>`}
+          <button type="button" class="btn sm more" data-more="${escI(inc.id)}" aria-expanded="${open}">${open ? "Menos ▴" : `Más ▾${iu.length ? ` <span class="sub">${iu.length}</span>` : ""}`}</button></div>
       </article>`);
       byId[inc.id].ll = ll; byId[inc.id].gl = gl;
     }
     list.innerHTML = cards.join("");
   }
   // quick update box on each card: type, optionally add photos, Publicar
-  const drafts = {}, qfiles = {};
+  const drafts = {}, qfiles = {}, openCards = new Set();
   const qmsg = (fm, t, bad) => { const m = fm.querySelector(".qm"); m.textContent = t; m.classList.toggle("bad", !!bad); };
   list.addEventListener("input", e => { const fm = e.target.closest("[data-q]"); if (fm && e.target.name === "t") drafts[fm.dataset.q] = e.target.value; });
   list.addEventListener("change", e => { const fm = e.target.closest("[data-q]"); if (!fm || e.target.name !== "f") return;
@@ -771,7 +807,13 @@ function initIncidents(map, ctrl){
     try { await IncStore.addUpdate(id, {texto}, files); delete drafts[id]; delete qfiles[id]; fm.t.value = ""; fm.t.blur(); rr(); }
     catch (err) { qmsg(fm, "No se pudo publicar: " + err.message + ". El texto sigue aquí.", true); }
     btn.disabled = false; });
-  function focusCard(id){ const el = document.getElementById("inc-" + id); if (!el) return;
+  // turn an index card over (and remember it across redraws)
+  function toggleCard(id, show){ const el = document.getElementById("inc-" + id); if (!el) return;
+    show ??= !openCards.has(id); show ? openCards.add(id) : openCards.delete(id);
+    el.classList.toggle("open", show); el.querySelector(".incmore").hidden = !show;
+    const b = el.querySelector("[data-more]"), n = (byId[id]?.ups || []).length;
+    b.setAttribute("aria-expanded", show); b.innerHTML = show ? "Menos ▴" : `Más ▾${n ? ` <span class="sub">${n}</span>` : ""}`; }
+  function focusCard(id){ const el = document.getElementById("inc-" + id); if (!el) return; toggleCard(id, true);
     el.scrollIntoView({behavior:"smooth", block:"center"}); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1600); }
   function zoomTo(id){ const r = byId[id]; if (!r) return;
     if (!map.hasLayer(layer)) layer.addTo(map);
@@ -788,7 +830,8 @@ function initIncidents(map, ctrl){
   document.getElementById("mnext").onclick = () => { gi = (gi + 1) % gallery.length; showMedia(); };
   dlg.addEventListener("close", () => box.innerHTML = "");
   document.addEventListener("click", e => {
-    const b = e.target.closest("[data-g],[data-zoom],[data-edit],[data-card],[data-alert]"); if (!b) return;
+    const b = e.target.closest("[data-g],[data-zoom],[data-edit],[data-card],[data-alert],[data-more]"); if (!b) return;
+    if (b.dataset.more) { toggleCard(b.dataset.more); return; }
     if (b.dataset.alert) { const inc = byId[b.dataset.alert]?.inc; if (!inc) return;
       // event as a push alert: type, title, place, status, victims and the latest update, linked to its follow-up page
       const [tname] = INC_TIPOS[inc.tipo] || INC_TIPOS.otro, last = (byId[b.dataset.alert].ups || [])[0];
@@ -2402,6 +2445,46 @@ const inRingP = (x, y, r) => { let c = false; for (let i = 0, j = r.length - 1; 
   const [xi, yi] = r[i], [xj, yj] = r[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
 const munAt = (lon, lat) => MUNRINGS.findIndex(ps => ps.some(p => inRingP(lon, lat, p[0]) && !p.slice(1).some(h => inRingP(lon, lat, h))));
 const munName = i => i < 0 ? null : TOLIMA_GEO.mun.features[i].properties.n;
+// ---- "Ubicar coordenadas": a typed point (DD or DMS) gets a marker and the map zooms to it
+// one coordinate: "-75,4277", "4.4389", "4°26'20\"N", "75 25 40 O", "4°26.33' N"; returns NaN when unreadable
+function parseCoord(t){
+  t = String(t || "").trim().toUpperCase().replace(/[º˚]/g, "°").replace(/[’′]/g, "'").replace(/[”″]/g, '"').replace(/''/g, '"');
+  if (!t) return NaN;
+  const hem = (t.match(/[NSEOW]/) || [""])[0], neg = /^-/.test(t) || hem === "S" || hem === "O" || hem === "W";
+  const nums = (t.replace(/[NSEOW]/g, " ").match(/\d+(?:[.,]\d+)?/g) || []).map(x => +x.replace(",", "."));
+  if (!nums.length || nums.length > 3) return NaN;
+  if (nums.length === 1 && !/[°'"]/.test(t) && !hem) return +t.replace(",", ".");   // plain decimal degrees
+  const [d, m = 0, s2 = 0] = nums;
+  if (m >= 60 || s2 >= 60) return NaN;
+  return (neg ? -1 : 1) * (d + m / 60 + s2 / 3600);
+}
+function initCoordBox(map){
+  const $c = id => document.getElementById(id), msg = $c("xmsg"); let mk = null;
+  const say = (t, bad) => { msg.textContent = t; msg.classList.toggle("bad", !!bad); };
+  const dms = (v, pos, ng) => { const a = Math.abs(v), d = Math.floor(a), m = Math.floor((a - d) * 60), s = ((a - d) * 3600 - m * 60).toFixed(1);
+    return `${d}°${m}'${s}"${v < 0 ? ng : pos}`; };
+  const go = () => {
+    let a = $c("xlat").value.trim(), b = $c("xlng").value.trim();
+    if (a && !b) {   // a whole pair pasted into the first box
+      const p = a.match(/^(.+?[NS])\s*,?\s*(.+[EOW])$/i) || a.match(/^([-+]?\d+(?:[.,]\d+)?)\s*[;\s]\s*([-+]?\d+(?:[.,]\d+)?)$/) || a.match(/^([-+]?\d+\.\d+)\s*,\s*([-+]?\d+\.\d+)$/);
+      if (p) { a = p[1]; b = p[2]; } }
+    let lat = parseCoord(a), lng = parseCoord(b);
+    if (isNaN(lat) || isNaN(lng)) return say("No se entienden las coordenadas. Ejemplos: 4,4389 y -75,4277, o 4°26'20\"N y 75°25'40\"O.", true);
+    if (Math.abs(lat) > 60 && Math.abs(lng) < 30) [lat, lng] = [lng, lat];   // typed in the other order
+    if (lng > 0 && !/[EOW]/i.test(b)) lng = -lng;   // Colombia is west of Greenwich: a missing minus sign is the usual slip
+    if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return say("Esas coordenadas no existen. Revise los números.", true);
+    const ll = [+lat.toFixed(6), +lng.toFixed(6)], mn = munName(munAt(ll[1], ll[0]));
+    if (mk) mk.remove();
+    mk = L.marker(ll, {icon:L.divIcon({className:"", html:'<div class="xpin"></div>', iconSize:[22,22], iconAnchor:[11,11]}), zIndexOffset:1000, keyboard:true, title:"Punto ubicado"})
+      .bindPopup(`<b>Punto ubicado</b><br>${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}<br><span class="sub">${dms(ll[0], "N", "S")} ${dms(ll[1], "E", "O")}</span><br>${mn ? "Municipio: <b>" + esc(mn) + "</b>" : "Fuera de los municipios del Tolima"}`).addTo(map);
+    map.setView(ll, Math.max(map.getZoom(), 13)); mk.openPopup(); $c("xclr").hidden = false;
+    say(`${ll[0].toFixed(5)}, ${ll[1].toFixed(5)} · ${mn ? mn : "fuera del Tolima"}`, !mn);
+    document.getElementById("map").scrollIntoView({behavior:"smooth", block:"center"});
+  };
+  $c("xgo").onclick = go;
+  for (const id of ["xlat", "xlng"]) $c(id).addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); go(); } });
+  $c("xclr").onclick = () => { if (mk) mk.remove(); mk = null; $c("xclr").hidden = true; $c("xlat").value = $c("xlng").value = ""; say(""); };
+}
 
 const fwiLegend = L.control({position:"topright"});
 fwiLegend.onAdd = () => { const d = L.DomUtil.create("div", "irleg");
@@ -2969,6 +3052,7 @@ function openStationPop(s, extra){
 function renderMap(){
   if (!map) {
     map = L.map("map", {scrollWheelZoom:!!SHARE}).setView([4.1,-75.1], 8);
+    initCoordBox(map);
     // Esri World Topo basemap: works when the page is opened as a local file
     // (OSM and CARTO tile servers refuse requests that carry no Referer)
     const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/";
