@@ -3563,6 +3563,10 @@ function renderMap(){
     // Remote-sensing overlays sit in their own pane: above the basemap, below boundaries and stations
     map.createPane("sat").style.zIndex = 350;
     map.on("preclick", e => { ACLICK = e.latlng; });
+    // hover labels over areas (municipios, veredas, pronóstico, etc.) close 1 s after they open; entering another area shows its label again
+    let tipTimer = null;
+    map.on("tooltipopen", e => { const t = e.tooltip; if (!t.options.sticky || t.options.permanent || !(t._source instanceof L.Polygon)) return;
+      clearTimeout(tipTimer); tipTimer = setTimeout(() => { if (t._map) t._source.closeTooltip(); }, 1000); });
     map.createPane("veredas").style.zIndex = 410;
     for (const [k, z] of [["viasLo", 414], ["vias", 415]]) { const p = map.createPane(k); p.style.zIndex = z; p.style.pointerEvents = "none"; }
     const satOverlays = {};
