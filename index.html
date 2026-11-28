@@ -100,6 +100,7 @@ tbody tr.offrow td{color:var(--muted)}
 .medir .mpanel{background:#fff;padding:8px 10px;width:220px;font:12px/1.35 var(--sans);color:#17221f;border-top:1px solid #0002}
 .medir .mhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.medir .mx{border:0;background:none;font-size:14px;cursor:pointer;color:#5c6b80}
 .medir .mmode{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px}
+.altln{margin-top:4px}.altln b{font-variant-numeric:tabular-nums}.altprof{margin-top:6px}
 .mcoord{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;margin:4px 0}.mcoord b{user-select:all;font-variant-numeric:tabular-nums}
 .medir .mpanel a{display:inline;width:auto;height:auto;line-height:inherit;border:0;background:none;text-align:left;color:#0b6bcb;text-decoration:underline;font-size:inherit}
 .mcopy{border:1px solid #0b2a5b55;background:#fff;color:#0b2a5b;border-radius:6px;padding:4px 8px;font:600 12px var(--sans);cursor:pointer}.medir .mmode button,.medir .mact button{flex:1;border:1px solid #0b2a5b55;background:#fff;color:#0b2a5b;border-radius:6px;padding:5px 3px;font:600 11.5px var(--sans);cursor:pointer}
@@ -1416,7 +1417,7 @@ const infoBtn = (k, label = "") => `<button type="button" class="info" data-info
 // Population popups (tap/click) for municipios and veredas; tooltips only on devices with a mouse
 const HOVER = matchMedia("(hover: hover)").matches;
 const popHtml = (title, sub, n) => `<div class="flpop"><b>${esc(title)}</b>${sub ? `<br><span class="sub">${esc(sub)}</span>` : ""}
-  <div style="margin-top:4px">Población: <b>${fmtPeople(n)}</b> personas</div><div class="sub">GHS-POP 2025 (JRC) ${infoBtn("poblacion", "población")}</div>${acPopLine(sub === "Municipio" ? title : null)}</div>`;
+  <div style="margin-top:4px">Población: <b>${fmtPeople(n)}</b> personas</div><div class="sub">GHS-POP 2025 (JRC) ${infoBtn("poblacion", "población")}</div>${acPopLine(sub === "Municipio" ? title : null)}${ACLICK ? altSlot(ACLICK, "Altitud del punto tocado") : ""}</div>`;
 function renderSatInfo(){
   const el = document.getElementById("satinfo"); if (!el) return;
   const on = Object.values(SAT).filter(o => map && o.layer && map.hasLayer(o.layer));
@@ -1738,13 +1739,13 @@ function buildMeasureTool(map){
       const p = M.pts[0];
       if (!p) { out.innerHTML = `<p>Toque un punto del mapa para ver sus coordenadas.</p>`; return; }
       L.circleMarker(p, {radius:6, color:"#fff", weight:2, fillColor:"#c8102e", fillOpacity:1, interactive:false}).addTo(g);
-      out.innerHTML = coordHtml(p); return;
+      out.innerHTML = coordHtml(p); fillAlt(out); return;
     }
     if (n < 2) { dots(); out.innerHTML = `<p>${n ? "Toque el punto de llegada." : "Toque el punto de inicio en el mapa."}</p>`; return; }
     if (M.mode === "recta") {
       L.polyline(M.pts, {color:"#0b2a5b", weight:3, dashArray:"6 5", interactive:false}).addTo(g); dots();
       out.innerHTML = `<p class="mkm">${fmtKm(rect)}</p><p>En línea recta${n > 2 ? `, ${n - 1} tramos` : ""}. Toque para agregar más puntos.</p>`;
-      return;
+      addProf(id, M.pts); return;
     }
     dots(); out.innerHTML = `<p>Calculando la ruta…</p>`;
     let r = null;
@@ -1765,12 +1766,15 @@ function buildMeasureTool(map){
           + `<br><span class="sub">En línea recta: ${fmtKm(rect)}</span>`
           + (off > 300 ? `<br><span class="mwarn">Un punto está a ${fmtKm(off)} de la vía más cercana; la ruta empieza o termina allí.</span>` : "")
           + `</p><p class="sub">Ruta: OSRM con datos de OpenStreetMap. Toque para agregar paradas.</p>`;
-        return;
+        addProf(id, line); return;
       }
     } catch (e) { if (id !== M.req) return; }
     L.polyline(M.pts, {color:"#0b2a5b", weight:3, dashArray:"6 5", interactive:false}).addTo(g);
     out.innerHTML = `<p class="mkm">${fmtKm(rect)}</p><p>No se pudo calcular la ruta por la vía (sin conexión con el servicio o sin vía entre los puntos). Se muestra la distancia en línea recta.</p>`;
+    addProf(id, M.pts);
   }
+  // climb and descent under the distance, once the altitudes have loaded (skipped if the measure changed meanwhile)
+  function addProf(id, pts){ altProfile(pts).then(r => { if (id === M.req && r) out.insertAdjacentHTML("beforeend", profHtml(r)); }); }
   function drawArea(){
     const n = M.pts.length;
     if (n >= 3) L.polygon(M.pts, {color:"#6a1b9a", weight:2.5, fillColor:"#ab47bc", fillOpacity:0.25, interactive:false}).addTo(g);
@@ -1792,12 +1796,108 @@ function buildMeasureTool(map){
 // Coordinates in decimal degrees (WGS84, 5 decimals ≈ 1 m), "lat, lon" as Google Maps and WhatsApp read them
 const ddTxt = p => `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`;
 const coordHtml = p => `<div class="mcoord"><b>${ddTxt(p)}</b><button type="button" class="mcopy" data-c="${ddTxt(p)}">📋 Copiar</button></div>`
-  + `<p class="sub mnote">Latitud, longitud en grados decimales (WGS84). <a href="https://www.google.com/maps/search/?api=1&query=${p.lat.toFixed(5)},${p.lng.toFixed(5)}" target="_blank" rel="noopener">Abrir en Google Maps</a></p>`;
+  + altSlot(p) + `<p class="sub mnote">Latitud, longitud en grados decimales (WGS84). <a href="https://www.google.com/maps/search/?api=1&query=${p.lat.toFixed(5)},${p.lng.toFixed(5)}" target="_blank" rel="noopener">Abrir en Google Maps</a></p>`;
 async function copyCoord(b){
   const t = b.dataset.c; let ok = false;
   try { await navigator.clipboard.writeText(t); ok = true; } catch (e) {
     try { const ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); ok = document.execCommand("copy"); ta.remove(); } catch (e2) {} }
   b.textContent = ok ? "✓ Copiado" : "Seleccione y copie"; setTimeout(() => { b.textContent = "📋 Copiar"; }, 2000);
+}
+// ---- Altitude from the Tolima DEM: data/dem/{z}/{x}/{y}.webp, Web Mercator tiles (zoom 7 to 12) made by tools/dem_tiles.py.
+// Each pixel holds whole metres as red * 256 + green; 0 = no data (outside Tolima and a ~2 km margin).
+const DEM = {zmin:7, zmax:12, cache:new Map()};
+function demTile(z, x, y){
+  const k = `${z}/${x}/${y}`;
+  let p = DEM.cache.get(k);
+  if (!p) {
+    p = fetch(`data/dem/${k}.webp`).then(r => r.ok ? r.blob() : null)
+      .then(b => b && createImageBitmap(b, {colorSpaceConversion:"none", premultiplyAlpha:"none"}))
+      .then(im => { if (!im) return null;
+        const cv = document.createElement("canvas"); cv.width = cv.height = 256;
+        const cx = cv.getContext("2d", {willReadFrequently:true}); cx.drawImage(im, 0, 0);
+        const d = cx.getImageData(0, 0, 256, 256).data, h = new Uint16Array(65536);
+        for (let i = 0; i < 65536; i++) h[i] = d[i * 4] * 256 + d[i * 4 + 1];
+        return h; })
+      .catch(() => null);
+    DEM.cache.set(k, p);
+    if (DEM.cache.size > 300) DEM.cache.delete(DEM.cache.keys().next().value);
+  }
+  return p;
+}
+// altitude (m) at a point, bilinear between the four nearest cells; null where there is no data
+async function altAt(lat, lng, z = DEM.zmax){
+  const n = 2 ** z * 256, s = Math.sin(lat * Math.PI / 180);
+  const X = (lng + 180) / 360 * n - 0.5, Y = (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * n - 0.5;
+  const x0 = Math.floor(X), y0 = Math.floor(Y), fx = X - x0, fy = Y - y0;
+  let sum = 0, wsum = 0;
+  for (const [dx, dy, w] of [[0, 0, (1 - fx) * (1 - fy)], [1, 0, fx * (1 - fy)], [0, 1, (1 - fx) * fy], [1, 1, fx * fy]]) {
+    const px = x0 + dx, py = y0 + dy, t = await demTile(z, px >> 8, py >> 8);
+    const v = t ? t[(py & 255) * 256 + (px & 255)] : 0;
+    if (v) { sum += v * w; wsum += w; }
+  }
+  return wsum > 0.25 ? sum / wsum : null;
+}
+const fmtAlt = h => `${Math.round(h).toLocaleString("es-CO")} m s. n. m.`;
+// a slot "Altitud: …" in any popup or panel; fillAlt() puts the value in
+const altSlot = (p, lab = "Altitud") => `<div class="altln" data-alt="${(+p.lat).toFixed(6)},${(+p.lng).toFixed(6)}" data-lab="${lab}">${lab}: <span class="sub">calculando…</span></div>`;
+function fillAlt(root){
+  root?.querySelectorAll("[data-alt]:not([data-done])").forEach(async el => {
+    el.dataset.done = "1";
+    const [a, b] = el.dataset.alt.split(",").map(Number), h = await altAt(a, b);
+    const lab = el.dataset.lab || "Altitud";
+    el.innerHTML = h == null ? `${lab}: <span class="sub">sin dato (fuera del Tolima)</span>`
+      : `${lab}: <b>${fmtAlt(h)}</b> <span class="sub">(±10 m)</span> ${infoBtn("altitud", "altitud")}`;
+  });
+}
+// climb and descent along a line (taps or a route), sampled every ~100–400 m depending on its length
+async function altProfile(pts){
+  const P = pts.map(p => L.latLng(p)); let len = 0; const cum = [0];
+  for (let i = 1; i < P.length; i++) cum.push(len += P[i - 1].distanceTo(P[i]));
+  if (!len) return null;
+  const z = len < 25e3 ? 12 : len < 80e3 ? 11 : 10, step = Math.max(len / 400, z === 12 ? 80 : z === 11 ? 150 : 300);
+  const xs = []; for (let d = 0, i = 1; d <= len + 1e-6; d += step) { while (i < P.length - 1 && cum[i] < d) i++;
+    const f = (d - cum[i - 1]) / ((cum[i] - cum[i - 1]) || 1); xs.push([P[i - 1].lat + (P[i].lat - P[i - 1].lat) * f, P[i - 1].lng + (P[i].lng - P[i - 1].lng) * f]); }
+  xs.push([P.at(-1).lat, P.at(-1).lng]);
+  const hs = (await Promise.all(xs.map(([a, b]) => altAt(a, b, z)))).filter(h => h != null);
+  if (hs.length < 2) return null;
+  let up = 0, down = 0, ref = hs[0];   // count only changes of 10 m or more, so DEM noise does not add up
+  for (const h of hs) { if (h - ref >= 10) { up += h - ref; ref = h; } else if (ref - h >= 10) { down += ref - h; ref = h; } }
+  const [h0, h1] = await Promise.all([altAt(P[0].lat, P[0].lng), altAt(P.at(-1).lat, P.at(-1).lng)]);
+  return {h0, h1, up, down, max:Math.max(...hs), min:Math.min(...hs)};
+}
+const profHtml = r => !r ? "" : `<p class="altprof">⛰️ ${r.h0 != null ? `Sale a <b>${fmtAlt(r.h0)}</b>` : "Salida sin dato de altitud"}${r.h1 != null ? `, llega a <b>${fmtAlt(r.h1)}</b>` : ""}`
+  + `<br><span class="sub">Sube unos ${Math.round(r.up).toLocaleString("es-CO")} m y baja unos ${Math.round(r.down).toLocaleString("es-CO")} m en el camino; punto más alto: ${fmtAlt(r.max)}</span> ${infoBtn("altitud", "altitud")}</p>`;
+// "Relieve" layer: hill shading drawn in the browser from the same tiles (light from the northwest)
+function buildReliefLayer(){
+  const Relief = L.GridLayer.extend({
+    createTile(c, done){
+      const cv = document.createElement("canvas"); cv.width = cv.height = 256;
+      demTile(c.z, c.x, c.y).then(h => {
+        if (h) {
+          const cx = cv.getContext("2d"), im = cx.createImageData(256, 256), d = im.data;
+          const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * (c.y + 0.5) / 2 ** c.z))), cell = 40075016.7 * Math.cos(lat) / (256 * 2 ** c.z);
+          const ex = c.z <= 8 ? 2.5 : c.z <= 10 ? 1.8 : 1.3;   // a little vertical exaggeration when zoomed out
+          const azm = (360 - 315 + 90) * Math.PI / 180, el = 45 * Math.PI / 180, flat = Math.sin(el);   // sun at azimuth 315°, 45° high
+          const at = (x, y) => h[Math.min(255, Math.max(0, y)) * 256 + Math.min(255, Math.max(0, x))];
+          for (let y = 0; y < 256; y++) for (let x = 0; x < 256; x++) {
+            const i = y * 256 + x, v = h[i]; if (!v) continue;
+            const xl = x > 0 && at(x - 1, y) ? x - 1 : x, xr = x < 255 && at(x + 1, y) ? x + 1 : x;
+            const yu = y > 0 && at(x, y - 1) ? y - 1 : y, yd = y < 255 && at(x, y + 1) ? y + 1 : y;
+            const dzdx = (at(xr, y) - at(xl, y)) / (((xr - xl) || 1) * cell) * ex, dzdy = (at(x, yd) - at(x, yu)) / (((yd - yu) || 1) * cell) * ex;
+            const slope = Math.atan(Math.hypot(dzdx, dzdy)), aspect = Math.atan2(dzdy, -dzdx);
+            const s = Math.sin(el) * Math.cos(slope) + Math.cos(el) * Math.sin(slope) * Math.cos(azm - aspect);
+            const k = i * 4;
+            if (s < flat) { d[k] = 20; d[k + 1] = 28; d[k + 2] = 40; d[k + 3] = Math.min(200, (flat - s) / flat * 255); }
+            else { d[k] = d[k + 1] = d[k + 2] = 255; d[k + 3] = Math.min(110, (s - flat) / (1 - flat) * 240); }
+          }
+          cx.putImageData(im, 0, 0);
+        }
+        done(null, cv);
+      });
+      return cv;
+    }});
+  return new Relief({pane:"sat", opacity:0.75, minNativeZoom:DEM.zmin, maxNativeZoom:DEM.zmax, maxZoom:17,
+    attribution:"Relieve: modelo digital de elevación del Tolima (38 m)"});
 }
 // Area of a polygon on the sphere (m²), small-polygon formula on a local equirectangular projection
 function polyAreaM2(pts){
@@ -2403,7 +2503,7 @@ const SH_SRC = {dep:"Límites: shapefile del Tolima (MAGNA-SIRGAS), simplificado
   ver:"Veredas: DANE 2020", eq:"Sismos: USGS (catálogo FDSN, M4+)", movmasa:"Movimientos en masa: SGC (SIMMA)", machin:"Amenaza Cerro Machín: SGC / Cortolima 2026",
   volc:"Alerta volcánica: SGC", seg:"Seguridad: Defensoría del Pueblo, Sistema de Alertas Tempranas", est:"Estaciones: IDEAM (datos.gov.co)", alert:"Umbrales de nivel: IDEAM (FEWS)",
   davis:"Estaciones Davis: WeatherLink", emb:"Embalses: XM", focos:"Focos de calor: GWIS / NASA FIRMS", fwi:"Peligro de incendio: GWIS (Copernicus)",
-  fc:"Pronóstico: Open-Meteo", suelo:"Humedad del suelo: Open-Meteo", slide:"Riesgo orientativo: Open-Meteo (cálculo propio)", glofas:"Caudales: GloFAS (Copernicus)",
+  relieve:"Relieve: modelo digital de elevación (38 m)", fc:"Pronóstico: Open-Meteo", suelo:"Humedad del suelo: Open-Meteo", slide:"Riesgo orientativo: Open-Meteo (cálculo propio)", glofas:"Caudales: GloFAS (Copernicus)",
   salud:"Prestadores de salud: REPS (MinSalud)", vias:"Vías: © colaboradores de OpenStreetMap (ODbL); rutas nacionales: INVÍAS", cierres:"Cierres viales: INVÍAS / Policía Nacional (Estado de las vías)", inc:"Eventos: registros de Cruz Roja Tolima", cam:"Cámaras: SGC"};
 const shDate = d => d.toLocaleString("es-CO", {timeZone:"America/Bogota", day:"numeric", month:"long", year:"numeric", hour:"numeric", minute:"2-digit"});
 const shDay = s => fmtFecha(s);
@@ -2802,9 +2902,10 @@ function initCoordBox(map){
     const ll = [+lat.toFixed(6), +lng.toFixed(6)], mn = munName(munAt(ll[1], ll[0]));
     if (mk) mk.remove();
     mk = L.marker(ll, {icon:L.divIcon({className:"", html:'<div class="xpin"></div>', iconSize:[22,22], iconAnchor:[11,11]}), zIndexOffset:1000, keyboard:true, title:"Punto ubicado"})
-      .bindPopup(`<b>Punto ubicado</b><br>${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}<br><span class="sub">${dms(ll[0], "N", "S")} ${dms(ll[1], "E", "O")}</span><br>${mn ? "Municipio: <b>" + esc(mn) + "</b>" : "Fuera de los municipios del Tolima"}`).addTo(map);
+      .bindPopup(`<b>Punto ubicado</b><br>${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}<br><span class="sub">${dms(ll[0], "N", "S")} ${dms(ll[1], "E", "O")}</span><br>${mn ? "Municipio: <b>" + esc(mn) + "</b>" : "Fuera de los municipios del Tolima"}${altSlot({lat:ll[0], lng:ll[1]})}`).addTo(map);
     map.setView(ll, Math.max(map.getZoom(), 13)); mk.openPopup(); $c("xclr").hidden = false;
     say(`${ll[0].toFixed(5)}, ${ll[1].toFixed(5)} · ${mn ? mn : "fuera del Tolima"}`, !mn);
+    altAt(ll[0], ll[1]).then(h => { if (h != null && mk && mk.getLatLng().equals(ll)) msg.textContent += ` · ${fmtAlt(h)}`; });
     document.getElementById("map").scrollIntoView({behavior:"smooth", block:"center"});
   };
   $c("xgo").onclick = go;
@@ -3350,6 +3451,11 @@ const INFO = {
      <p><b>Topográfico (Esri)</b>: relieve suave, ríos y nombres. Es el predeterminado. <b>OpenStreetMap</b>: el mapa libre de voluntarios, con más detalle de calles, caminos y lugares en pueblos y veredas. <b>Relieve (OpenTopoMap)</b>: curvas de nivel y sombreado, útil para ver pendientes y cañones (máximo acercamiento algo menor). <b>Imagen satelital (Esri)</b>: fotos de satélite y avión de varios años, con nombres encima; la fecha de la imagen cambia según la zona.</p>
      <p>${GOOGLE_TILES_KEY ? "<b>Google</b> (mapa, satélite, híbrido y relieve) se carga con la llave de Cruz Roja Tolima en la plataforma de Google Maps." : "Los mapas de <b>Google</b> se activan cuando se configure una llave de Google Maps Platform (Map Tiles API); copiar las imágenes de Google sin llave no está permitido por sus condiciones."}</p>
      <p>Fuentes: Esri, Maxar, Earthstar Geographics, HERE, Garmin, USGS; © colaboradores de OpenStreetMap (ODbL); OpenTopoMap (CC-BY-SA)${GOOGLE_TILES_KEY ? "; Google" : ""}.</p>`],
+  altitud: ["Altitud y relieve",
+    `<p>La altitud sale de un <b>modelo digital de elevación</b> (DEM) del Tolima con celdas de unos <b>38 m</b>, recortado del DEM de Colombia. Por su tamaño de celda, casi seguro viene de un servicio de mosaicos de elevación basado en el <b>SRTM de 30 m</b> de la NASA (comparado con el SRTM y el Copernicus GLO-30, difiere unos 3 a 4 m en promedio).</p>
+     <p>Aparece en <b>Ubicar coordenadas</b>, en <b>Medir → Coordenadas</b>, al mantener presionado el mapa y en las fichas de municipios y veredas (la altitud del punto tocado). En <b>Medir</b> por la vía o en línea recta muestra también cuánto sube y baja el recorrido.</p>
+     <p>Precisión: unos <b>±10 m</b> en terreno plano y más en laderas muy empinadas, cañones y cumbres, donde una celda de 38 m mezcla alturas distintas. En los nevados el hielo ha cambiado desde que se tomaron los datos. Es orientativa: no sirve para obras ni deslindes.</p>
+     <p>La capa <b>Relieve (sombreado)</b> dibuja las montañas con luz desde el noroeste, a partir de los mismos datos. Solo cubre el Tolima y unos 2 km alrededor.</p>`],
   vias: ["Vías (OpenStreetMap)",
     `<p>Red de carreteras del Tolima tomada de <b>OpenStreetMap</b> (OSM), el mapa libre que construyen voluntarios, instituciones y empresas. Se usó la exportación de OSM para Colombia del Humanitarian OpenStreetMap Team (HOT) del 2 de noviembre de 2026, recortada al Tolima y simplificada (unos 15 m) para que cargue rápido en el celular.</p>
      <p><span style="color:#d50000">━</span> <b>Primaria</b>: troncales y vías nacionales · <span style="color:#ff8f00">━</span> <b>secundaria</b>: vías departamentales · <span style="color:#7b4a2a">━</span> <b>terciaria o veredal</b>: carreteables entre veredas y cabeceras (visible desde zoom 9) · <span style="color:#7b4a2a">┅</span> <b>camino o trocha</b> (desde zoom 11). Sobre la imagen satelital las terciarias se dibujan en amarillo claro. No se incluyen calles urbanas ni senderos peatonales.</p>
@@ -3516,6 +3622,7 @@ function renderMap(){
     map.on("overlayadd overlayremove", e => { if (e.layer === mun || e.layer === dep || e.layer === verL) applyBorders(); });
     const satL = k => [`${esc(SAT[k].name)} ${infoBtn(SAT[k].info, SAT[k].name)}`, SAT[k].layer, "sat-" + k];
     const SOIL = buildSoilLayers(TOLIMA_GEO.mun);
+    map.on("popupopen", e => fillAlt(e.popup.getElement()));   // "Altitud: …" lines in any popup
     const davisL = buildDavisLayer().addTo(map);   // on by default, next to the IDEAM stations; hidden while there is no data
     const LAYER_GROUPS = [
       ["Fronteras administrativas", [["Límite departamental", dep, "dep"], ["Municipios", mun, "mun"],
@@ -3545,6 +3652,8 @@ function renderMap(){
       ["Infraestructura", [
         [`Vías (OpenStreetMap) ${infoBtn("vias", "vías")}`, buildViasLayer(), "vias"],
         [`Cierres viales (INVÍAS) ${infoBtn("cierres", "cierres viales")}`, buildCierresLayer(), "cierres"]]],
+      ["Terreno", [
+        [`Relieve (sombreado) ${infoBtn("altitud", "relieve y altitud")}`, buildReliefLayer(), "relieve"]]],
     ];
     const inGroup = new Set(LAYER_GROUPS.flatMap(([, ls]) => ls.map(([, l]) => l)));
     for (const o of Object.values(SAT)) if (!inGroup.has(o.layer)) LAYER_GROUPS[2][1].push(satL(Object.keys(SAT).find(k => SAT[k] === o)));
