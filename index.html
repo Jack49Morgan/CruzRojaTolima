@@ -162,11 +162,6 @@ th .ic{margin-right:3px}
 .irleg .r{display:flex;gap:7px;align-items:center;margin:3px 0}
 .irleg .sw{flex:none;width:30px;height:12px;border-radius:3px;border:1px solid #0003}
 .irleg .t{color:#5c6b80;font-family:var(--mono);font-size:10px}
-.acleg .r{margin:2px 0}.acleg .sw{width:22px}.acleg .ft{max-width:150px}
-.acper{display:flex;gap:3px;margin:2px 0 5px}
-.acper button{flex:1;font:600 11px var(--sans);padding:3px 5px;border:1px solid #b9c6d6;border-radius:6px;background:#fff;color:#0b2a5b;cursor:pointer;white-space:nowrap}
-.acper button[aria-pressed="true"]{background:#0b2a5b;color:#fff;border-color:#0b2a5b}
-@media (max-width:600px){.irleg.acleg .t{display:inline}.irleg.acleg .ft{display:none}.irleg.acleg .sw{width:14px;height:9px}.irleg.acleg .r{margin:1px 0;gap:5px}.acper button{padding:2px 4px;font-size:10px}}
 .srctag{display:inline-block;padding:1px 6px;border-radius:8px;font:700 10px/1.4 var(--sans);letter-spacing:.02em;background:#e6eef8;color:#0b2a5b;white-space:nowrap}
 .srctag.davis{background:#efe6f7;color:#4b2a7a}
 .dvdrop{position:relative;display:block}.dvdrop i{position:absolute;right:-6px;top:-4px;font:800 8px/12px var(--sans);font-style:normal;width:12px;height:12px;border-radius:50%;background:#6a3d9a;color:#fff;text-align:center;box-shadow:0 0 0 1px #fff}
@@ -547,7 +542,6 @@ body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pr
       <div class="legend" id="dvinfo" hidden></div>
       <div class="legend" id="fwinfo" hidden></div>
       <div class="legend" id="hsinfo" hidden></div>
-      <div class="legend" id="vcminfo" hidden></div>
     </div>
     <div class="panel">
       <h2>Estaciones</h2>
@@ -642,13 +636,11 @@ body.sprint #shbar{display:flex} #shbar b{margin-right:auto} #shbar .btn[aria-pr
     Población por municipio y vereda: GHS-POP R2023A 2025, JRC – Comisión Europea, malla de 100 m <button type="button" class="info" data-info="poblacion" aria-label="Fuente y metodología de la población">i</button>.
   </p>
   <p class="note">
-    <b>Capas de radar y satélite</b> (botón de capas del mapa, apagadas por defecto; la hora de cada imagen aparece bajo el mapa y se revisa cada 5 minutos):
-    radar de lluvia de <a href="https://www.rainviewer.com" target="_blank" rel="noopener">RainViewer</a>, un compuesto de radares nacionales con nueva imagen cada 10 minutos y detalle hasta zoom 7;
+    <b>Capas de satélite</b> (botón de capas del mapa, apagadas por defecto; la hora de cada imagen aparece bajo el mapa y se revisa cada 5 minutos):
     nubes en infrarrojo (banda 13) y GeoColor del satélite GOES-East de NOAA, servidos por <a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a> con unos 40 a 90 minutos de retraso
     (GeoColor es color real de día e infrarrojo de noche);
-    lluvia estimada por satélite CMORPH2 de la NOAA (acumulado de la última hora, unos 40 a 60 minutos de retraso) y rayos del sensor GLM del GOES-East (últimos 10 minutos, 1 a 3 minutos de retraso), ambos servidos por
-    <a href="https://realearth.ssec.wisc.edu" target="_blank" rel="noopener">SSEC RealEarth</a> de la Universidad de Wisconsin;
-    y lluvia estimada por satélite NASA IMERG cada 30 minutos (versión temprana, unas 4 a 6 horas de retraso). El botón “i” junto a cada capa explica qué muestra.
+    y rayos del sensor GLM del GOES-East (últimos 10 minutos, 1 a 3 minutos de retraso), servidos por
+    <a href="https://realearth.ssec.wisc.edu" target="_blank" rel="noopener">SSEC RealEarth</a> de la Universidad de Wisconsin. El botón “i” junto a cada capa explica qué muestra.
     Cámaras web: imágenes públicas del <a href="https://www2.sgc.gov.co/sgc/volcanes/VolcanNevadoRuiz/Paginas/Imagenes-en-linea.aspx" target="_blank" rel="noopener">Servicio Geológico Colombiano</a> (volcanes Nevado del Ruiz y Cerro Machín), en posiciones aproximadas.
     Los radares del IDEAM no se pueden mostrar directamente: el IDEAM publica sus datos de radar como archivos crudos en
     <a href="https://registry.opendata.aws/ideam-radares/" target="_blank" rel="noopener">AWS Open Data</a>, no como imágenes para un mapa web.
@@ -1137,8 +1129,8 @@ const triSvg = (fill, size=18, stroke="#fff", sw=1.5, dash="") =>
   `<svg width="${size}" height="${size}" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5 C10 1.5 3.5 9.5 3.5 13 a6.5 6.5 0 0 0 13 0 C16.5 9.5 10 1.5 10 1.5 Z" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/></svg>`;
 
 // Near-real-time imagery overlays (off by default; toggled from the layers button on the map).
-// NASA GIBS serves GOES-East and IMERG; SSEC RealEarth (Univ. of Wisconsin) serves CMORPH2 and GOES GLM lightning;
-// RainViewer serves a radar composite. All are image tiles the browser loads directly.
+// NASA GIBS serves GOES-East; SSEC RealEarth (Univ. of Wisconsin) serves GOES GLM lightning.
+// All are image tiles the browser loads directly.
 const GIBS = (id, tms) => t => `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${id}/default/${t || "default"}/${tms}/{z}/{y}/{x}.png`;
 const RE_HOST = "https://realearth.ssec.wisc.edu";
 const reTime = s => new Date(`${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}T${s.slice(9,11)}:${s.slice(11,13)}:${s.slice(13,15)}Z`);
@@ -1147,28 +1139,16 @@ const reTimes = async id => (await (await fetch(`${RE_HOST}/api/products?product
 const RE_ATTR = 'Datos: <a href="https://realearth.ssec.wisc.edu" target="_blank" rel="noopener">SSEC RealEarth</a>';
 const GIBS_ATTR = 'Imagen: <a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a>';
 const SAT = {
-  radar: {name:"Radar de lluvia (RainViewer)", info:"radar", opacity:0.75, maxNative:7, every:5,
-    attribution:'Radar © <a href="https://www.rainviewer.com" target="_blank" rel="noopener">RainViewer</a>',
-    url: path => path ? `https://tilecache.rainviewer.com${path}/256/{z}/{x}/{y}/2/1_1.png` : "data:,",
-    latest: async () => { const j = await (await fetch("https://api.rainviewer.com/public/weather-maps.json")).json();
-      const f = j.radar.past.slice(-1)[0]; return {key:f.path, time:new Date(f.time*1000)}; }},
   glm: {name:"Rayos GOES-East GLM (últimos 10 min)", info:"glm", every:2, group:true, attribution:RE_ATTR},
-  cmorph: {name:"Lluvia satelital CMORPH2 (última hora)", info:"cmorph", opacity:0.75, maxNative:7, every:10, attribution:RE_ATTR,
-    url: s => s ? reUrl("c2accum1hr", s) : "data:,",
-    latest: async () => { const s = (await reTimes("c2accum1hr")).slice(-1)[0]; if (!s) throw new Error("sin fechas"); return {key:s, time:reTime(s)}; },
-    label: t => `acumulado de la hora que termina a las ${fmtLocal(new Date(t.getTime() + 1000)).slice(11)}`},
   ir: {name:"Nubes GOES-East · infrarrojo (NASA)", info:"ir", gibs:"GOES-East_ABI_Band13_Clean_Infrared", tms:"GoogleMapsCompatible_Level6", opacity:0.55, maxNative:6, every:5},
   geo: {name:"Satélite GOES-East · GeoColor (NASA)", info:"geo", gibs:"GOES-East_ABI_GeoColor", tms:"GoogleMapsCompatible_Level7", opacity:0.8, maxNative:7, every:5},
-  imerg: {name:"Lluvia satelital NASA IMERG (30 min)", info:"imerg", gibs:"IMERG_Precipitation_Rate_30min", tms:"GoogleMapsCompatible_Level6", opacity:0.75, maxNative:6, every:15},
-  so2: {name:"Dióxido de azufre volcánico (Sentinel-5P)", info:"so2", gibs:"TROPOMI_L2_Sulfur_Dioxide_Total_Vertical_Column", tms:"GoogleMapsCompatible_Level6", opacity:0.8, maxNative:6, every:180, days:45,
-    label: t => `pasada del ${t.toLocaleDateString("es-CO", {day:"numeric", month:"short", timeZone:"UTC"})}, hacia la 1:30 p. m.`},
 };
 for (const o of Object.values(SAT)) if (o.gibs) {
   o.url = GIBS(o.gibs, o.tms);
   o.attribution = GIBS_ATTR;
   // newest available time from the layer's DescribeDomains document (small XML, CORS open)
   o.latest = async () => {
-    const d0 = new Date(Date.now() - (o.days || 2)*86400e3).toISOString().slice(0,10), d1 = new Date(Date.now() + 86400e3).toISOString().slice(0,10);
+    const d0 = new Date(Date.now() - 2*86400e3).toISOString().slice(0,10), d1 = new Date(Date.now() + 86400e3).toISOString().slice(0,10);
     const x = await (await fetch(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/${o.gibs}/default/${o.tms}/all/${d0}--${d1}.xml`)).text();
     const dom = (x.match(/<Domain>([^<]*)<\/Domain>/) || [])[1] || "";
     let last = dom.split(",").pop().split("/"); last = last.length > 1 ? last[1] : last[0];
@@ -1234,152 +1214,6 @@ SAT.glm.apply = async (o, r) => {
   }
 };
 SAT.glm.label = t => `${SAT.glm.count ?? 0} rayos entre ${fmtLocal(new Date(t - 9*60e3)).slice(11)} y ${fmtLocal(t).slice(11)} hora Colombia, en el Tolima y alrededores`;
-// ---- Accumulated rainfall over the whole map (lluvia acumulada 24 h / 72 h / 7 días)
-// NASA IMERG Early 30-minute rain rates from GIBS. One z6 tile (x 18, y 31) covers all of Tolima. The page decodes each
-// half-hour tile back to mm/h with the GIBS colour table (220 log-spaced classes), adds them up and paints its own map.
-const ACUM = {h:72, run:0, cmap:null, frames:new Map(), muni:null, sum:null, stats:null, end:null, missing:0, n:0};
-const AC_Z = 6, AC_TX = 18, AC_TY = 31;
-const acPx = lon => ((lon + 180) / 360 * 2**AC_Z - AC_TX) * 256;
-const acPy = lat => { const r = lat * Math.PI / 180; return ((1 - Math.log(Math.tan(r) + 1/Math.cos(r)) / Math.PI) / 2 * 2**AC_Z - AC_TY) * 256; };
-const acLat = y => Math.atan(Math.sinh(Math.PI * (1 - 2 * (AC_TY + y/256) / 2**AC_Z))) * 180 / Math.PI;
-const acLon = x => (AC_TX + x/256) / 2**AC_Z * 360 - 180;
-// crop: Tolima plus a margin (the tile's top edge is 5.62° N, just north of the department)
-const AC_X0 = Math.floor(acPx(-76.6)), AC_X1 = Math.ceil(acPx(-73.9)), AC_Y0 = 0, AC_Y1 = Math.ceil(acPy(2.5));
-const AC_W = AC_X1 - AC_X0, AC_H = AC_Y1 - AC_Y0;
-// own colour scale (mm), blues then purples, kept clear of the reds used for alerts
-const ACBINS = [
-  {min:1, color:"#d4e6f6", short:"1–5"}, {min:5, color:"#a6cbe9", short:"5–10"}, {min:10, color:"#6ea8d8", short:"10–20"},
-  {min:20, color:"#3a7fc0", short:"20–40"}, {min:40, color:"#1b4f96", short:"40–70"}, {min:70, color:"#55409c", short:"70–100"},
-  {min:100, color:"#8a3a9e", short:"100–150"}, {min:150, color:"#b73c95", short:"> 150"}];
-const acBin = v => { let b = null; for (const x of ACBINS) if (v >= x.min) b = x; return b; };
-const acPeriod = h => h === 168 ? "7 días" : h + " h";
-async function acColormap(){
-  if (ACUM.cmap) return ACUM.cmap;
-  const t = await (await fetch("https://gibs.earthdata.nasa.gov/colormaps/v1.3/GPM_Precipitation_Rate.xml")).text();
-  const m = new Map(), vals = [0];        // class index 0 = no rain / no data
-  for (const e of t.matchAll(/<ColorMapEntry([^>]*)\/>/g)) {
-    const rgb = /rgb="(\d+),(\d+),(\d+)"/.exec(e[1]), v = /\svalue="\[([^,]+),([^)]+)\)"/.exec(e[1]);
-    if (!rgb || !v) continue;
-    const lo = parseFloat(v[1]), hi = parseFloat(v[2]);
-    if (!isFinite(lo)) continue;                                  // "< 0.1 mm/h" counts as dry
-    m.set((+rgb[1] << 16) | (+rgb[2] << 8) | +rgb[3], vals.length);
-    vals.push(isFinite(hi) ? Math.sqrt(lo * hi) : lo);            // geometric middle of the class, mm/h
-  }
-  if (vals.length < 100) throw new Error("tabla de colores incompleta");
-  return ACUM.cmap = {m, vals};
-}
-async function acFrame(t){                 // one half-hour: Uint8Array of class indices over the crop, or null if missing
-  if (ACUM.frames.has(t)) return ACUM.frames.get(t);
-  const r = await fetch(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/IMERG_Precipitation_Rate_30min/default/${t}/GoogleMapsCompatible_Level6/${AC_Z}/${AC_TY}/${AC_TX}.png`);
-  if (!r.ok) return null;                  // not cached, so a later refresh can try again
-  const bm = await createImageBitmap(await r.blob());
-  const cv = document.createElement("canvas"); cv.width = 256; cv.height = 256;
-  const cx = cv.getContext("2d", {willReadFrequently:true}); cx.drawImage(bm, 0, 0, 256, 256);
-  const a = cx.getImageData(AC_X0, AC_Y0, AC_W, AC_H).data, out = new Uint8Array(AC_W * AC_H), m = ACUM.cmap.m;
-  for (let i = 0; i < out.length; i++) if (a[i*4+3]) out[i] = m.get((a[i*4] << 16) | (a[i*4+1] << 8) | a[i*4+2]) || 0;
-  ACUM.frames.set(t, out);
-  return out;
-}
-function acMuniIndex(){                    // which municipio each crop pixel falls in (-1 outside Tolima)
-  if (ACUM.muni) return ACUM.muni;
-  const feats = TOLIMA_GEO.mun.features.map(f => {
-    const polys = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates;
-    let w = 180, e = -180, s = 90, n = -90;
-    for (const p of polys) for (const [x, y] of p[0]) { w = Math.min(w, x); e = Math.max(e, x); s = Math.min(s, y); n = Math.max(n, y); }
-    return {name:f.properties.n, polys, w, e, s, n};
-  });
-  const inRing = (x, y, r) => { let c = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++)
-    if ((r[i][1] > y) !== (r[j][1] > y) && x < (r[j][0] - r[i][0]) * (y - r[i][1]) / (r[j][1] - r[i][1]) + r[i][0]) c = !c; return c; };
-  const idx = new Int8Array(AC_W * AC_H).fill(-1);
-  for (let y = 0; y < AC_H; y++) { const lat = acLat(AC_Y0 + y + 0.5);
-    for (let x = 0; x < AC_W; x++) { const lon = acLon(AC_X0 + x + 0.5);
-      for (let k = 0; k < feats.length; k++) { const f = feats[k];
-        if (lon < f.w || lon > f.e || lat < f.s || lat > f.n) continue;
-        if (f.polys.some(p => inRing(lon, lat, p[0]) && !p.slice(1).some(h => inRing(lon, lat, h)))) { idx[y * AC_W + x] = k; break; } } } }
-  return ACUM.muni = {idx, names:feats.map(f => f.name)};
-}
-const acValueAt = ll => {                   // mm at a point, or null outside the crop / before the sum exists
-  if (!ACUM.sum || !ll) return null;
-  const x = Math.floor(acPx(ll.lng)) - AC_X0, y = Math.floor(acPy(ll.lat)) - AC_Y0;
-  return x < 0 || y < 0 || x >= AC_W || y >= AC_H ? null : ACUM.sum[y * AC_W + x];
-};
-// line added to municipio and vereda popups while the layer is on
-const acPopLine = muni => {
-  if (!SAT.acum?.layer || !map.hasLayer(SAT.acum.layer) || !ACUM.sum) return "";
-  const v = acValueAt(ACLICK), st = muni && ACUM.stats?.[muni];
-  return `<div style="margin-top:4px">Lluvia acumulada ${acPeriod(ACUM.h)} (satélite): `
-    + (v != null ? `<b>${fmt(v, v < 10 ? 1 : 0)} mm</b> en este punto` : "sin dato")
-    + (st ? `<br><span class="sub">Promedio del municipio ${fmt(st.mean, st.mean < 10 ? 1 : 0)} mm · máximo ${fmt(st.max, 0)} mm</span>` : "") + `</div>`;
-};
-let ACLICK = null;
-SAT.acum = {name:"Lluvia acumulada en todo el mapa (satélite NASA IMERG)", info:"acum", every:30, attribution:GIBS_ATTR,
-  make: () => L.layerGroup()};
-SAT.acum.latest = async () => {
-  const d0 = new Date(Date.now() - 2*86400e3).toISOString().slice(0,10), d1 = new Date(Date.now() + 86400e3).toISOString().slice(0,10);
-  const x = await (await fetch(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/IMERG_Precipitation_Rate_30min/default/GoogleMapsCompatible_Level6/all/${d0}--${d1}.xml`)).text();
-  const dom = (x.match(/<Domain>([^<]*)<\/Domain>/) || [])[1] || "", last = dom.split(",").pop().split("/");
-  const end = new Date(last[1] || last[0]);
-  if (isNaN(end)) throw new Error("sin fechas");
-  return {key:`${end.toISOString()}|${ACUM.h}`, time:new Date(end.getTime() + 30*60e3), end};
-};
-SAT.acum.apply = async (o, r) => {
-  await acColormap();
-  const n = ACUM.h * 2, times = [];
-  for (let k = n - 1; k >= 0; k--) times.push(new Date(r.end.getTime() - k*30*60e3).toISOString().slice(0,19) + "Z");
-  const run = ++ACUM.run, oldest = new Date(r.end.getTime() - 168*3600e3).toISOString();
-  for (const t of [...ACUM.frames.keys()]) if (t < oldest) ACUM.frames.delete(t);     // keep at most 7 days of frames
-  const sum = new Float32Array(AC_W * AC_H), vals = ACUM.cmap.vals;
-  let done = 0, missing = 0, i = 0;
-  o.loading = `sumando ${n} imágenes de media hora…`; renderSatInfo();
-  const worker = async () => { while (i < times.length) { const t = times[i++];
-    const f = await acFrame(t).catch(() => null);
-    if (f) for (let p = 0; p < f.length; p++) { if (f[p]) sum[p] += vals[f[p]] * 0.5; } else missing++;
-    if (++done % 24 === 0) { o.loading = `sumando imágenes de media hora: ${done} de ${n}…`; renderSatInfo(); } } };
-  await Promise.all(Array.from({length:16}, worker));
-  if (run !== ACUM.run) return;            // the period changed while adding up; the newer run paints
-  if (missing === n) throw new Error("sin imágenes");
-  // per-municipio mean and maximum
-  const {idx, names} = acMuniIndex(), agg = names.map(() => ({s:0, c:0, max:0}));
-  for (let p = 0; p < sum.length; p++) { const k = idx[p]; if (k < 0) continue; const a = agg[k]; a.s += sum[p]; a.c++; if (sum[p] > a.max) a.max = sum[p]; }
-  ACUM.stats = Object.fromEntries(names.map((nm, k) => [nm, {mean: agg[k].c ? agg[k].s / agg[k].c : 0, max: agg[k].max}]));
-  Object.assign(ACUM, {sum, missing, n, end:r.time});
-  // paint: classes from ACBINS, transparent under 1 mm; slightly stronger inside Tolima
-  const cv = document.createElement("canvas"); cv.width = AC_W; cv.height = AC_H;
-  const cx = cv.getContext("2d"), img = cx.createImageData(AC_W, AC_H);
-  for (let p = 0; p < sum.length; p++) { const b = acBin(sum[p]); if (!b) continue;
-    const c = parseInt(b.color.slice(1), 16);
-    img.data.set([c >> 16, (c >> 8) & 255, c & 255, idx[p] >= 0 ? 215 : 150], p * 4); }
-  cx.putImageData(img, 0, 0);
-  const nw = [acLat(AC_Y0), acLon(AC_X0)], se = [acLat(AC_Y1), acLon(AC_X1)];
-  o.layer.clearLayers();
-  L.imageOverlay(cv.toDataURL(), [se, nw], {pane:"sat", opacity:0.85, interactive:false, attribution:GIBS_ATTR, className:"acimg"}).addTo(o.layer);
-  o.loading = null;
-  ACLEG.update();
-};
-SAT.acum.label = t => {
-  const o = SAT.acum;
-  if (o.loading) return o.loading;
-  const top = ACUM.stats ? Object.entries(ACUM.stats).sort((a, b) => b[1].mean - a[1].mean).slice(0, 3) : [];
-  return `${acPeriod(ACUM.h)} hasta las ${fmtLocal(t).slice(11)} hora Colombia`
-    + (ACUM.missing ? ` (faltan ${ACUM.missing} de ${ACUM.n} medias horas)` : "")
-    + (top.length ? ` · más lluvia en promedio: ${top.map(([nm, s]) => `${esc(nm)} ${fmt(s.mean, 0)} mm`).join(", ")}` : "");
-};
-// legend with the period buttons; shown while the layer is on
-const ACLEG = L.control({position:"topright"});
-ACLEG.onAdd = () => { const d = L.DomUtil.create("div", "irleg acleg");
-  d.innerHTML = `<button type="button" class="irx" aria-label="Cerrar leyenda" title="Cerrar leyenda">✕</button>`
-    + `<button type="button" class="iropen" title="Mostrar leyenda de lluvia acumulada">Lluvia acumulada</button>`
-    + `<div class="hd">Lluvia acumulada (mm) ${infoBtn("acum", "lluvia acumulada")}</div>`
-    + `<div class="acper" role="group" aria-label="Periodo">${[24, 72, 168].map(h => `<button type="button" data-h="${h}">${acPeriod(h)}</button>`).join("")}</div>`
-    + ACBINS.map(b => `<div class="r"><span class="sw" style="background:${b.color}"></span><span class="t">${b.short} mm</span></div>`).join("")
-    + `<div class="ft">Estimación por satélite, con unas 6 h de retraso. Toque un municipio para ver los mm.</div>`;
-  d.querySelector(".irx").onclick = () => d.classList.add("min");
-  d.querySelector(".iropen").onclick = () => d.classList.remove("min");
-  d.querySelector(".acper").onclick = e => { const b = e.target.closest("button[data-h]"); if (!b || +b.dataset.h === ACUM.h) return;
-    ACUM.h = +b.dataset.h; SAT.acum.key = null; ACLEG.update(); refreshSat("acum"); };
-  L.DomEvent.disableClickPropagation(d); ACLEG.el = d; ACLEG.update(); return d; };
-ACLEG.update = () => { if (ACLEG.el) for (const b of ACLEG.el.querySelectorAll(".acper button")) b.setAttribute("aria-pressed", +b.dataset.h === ACUM.h); };
-SAT.acum.legend = ACLEG;
 async function refreshSat(k){
   const o = SAT[k];
   if (!map || !o.layer || !map.hasLayer(o.layer)) return;
@@ -1393,7 +1227,7 @@ const infoBtn = (k, label = "") => `<button type="button" class="info" data-info
 // Population popups (tap/click) for municipios and veredas; tooltips only on devices with a mouse
 const HOVER = matchMedia("(hover: hover)").matches;
 const popHtml = (title, sub, n) => `<div class="flpop"><b>${esc(title)}</b>${sub ? `<br><span class="sub">${esc(sub)}</span>` : ""}
-  <div style="margin-top:4px">Población: <b>${fmtPeople(n)}</b> personas</div><div class="sub">GHS-POP 2025 (JRC) ${infoBtn("poblacion", "población")}</div>${acPopLine(sub === "Municipio" ? title : null)}</div>`;
+  <div style="margin-top:4px">Población: <b>${fmtPeople(n)}</b> personas</div><div class="sub">GHS-POP 2025 (JRC) ${infoBtn("poblacion", "población")}</div></div>`;
 function renderSatInfo(){
   const el = document.getElementById("satinfo"); if (!el) return;
   const on = Object.values(SAT).filter(o => map && o.layer && map.hasLayer(o.layer));
@@ -1406,9 +1240,7 @@ function renderSatInfo(){
     const anim = o.frames && ANIM.k !== k ? ` <button type="button" class="btn animbtn" data-anim="${k}">▶ Ver movimiento (últimas 2 h)</button>` : "";
     return `<span><b>${esc(o.name)}</b>${infoBtn(o.info, o.name)} ${when}${anim}</span>`; }).join("");
 }
-// ---- Loops of the latest frames (GOES-East infrared and GeoColor, RainViewer radar) to see where clouds and rain are moving
-SAT.radar.frames = async () => { const j = await (await fetch("https://api.rainviewer.com/public/weather-maps.json")).json();
-  return j.radar.past.map(f => ({key:f.path, time:new Date(f.time * 1000)})); };
+// ---- Loops of the latest frames (GOES-East infrared and GeoColor) to see where clouds are moving
 for (const k of ["ir", "geo"]) { const o = SAT[k];
   o.frames = async () => {      // GIBS domains look like "start/end/PT10M"; step back from the newest time
     const d0 = new Date(Date.now() - 86400e3).toISOString().slice(0,10), d1 = new Date(Date.now() + 86400e3).toISOString().slice(0,10);
@@ -2338,7 +2170,7 @@ function shareFilterLayers(groups, hl){
 }
 
 const SH_SRC = {dep:"Límites: shapefile del Tolima (MAGNA-SIRGAS), simplificado", mun:"Límites: shapefile del Tolima (MAGNA-SIRGAS), simplificado",
-  ver:"Veredas: DANE 2020", eq:"Sismos: USGS (catálogo FDSN, M4+)", movmasa:"Movimientos en masa: SGC (SIMMA)", machin:"Amenaza Cerro Machín: SGC / Cortolima 2026",
+  ver:"Veredas: DANE 2020", eq:"Sismos: USGS (catálogo FDSN, M4+)", movmasa:"Movimientos en masa: SGC (SIMMA)",
   volc:"Alerta volcánica: SGC", seg:"Seguridad: Defensoría del Pueblo, Sistema de Alertas Tempranas", est:"Estaciones: IDEAM (datos.gov.co)", alert:"Umbrales de nivel: IDEAM (FEWS)",
   davis:"Estaciones Davis: WeatherLink", emb:"Embalses: XM", focos:"Focos de calor: GWIS / NASA FIRMS", fwi:"Peligro de incendio: GWIS (Copernicus)",
   fc:"Pronóstico: Open-Meteo", suelo:"Humedad del suelo: Open-Meteo", slide:"Riesgo orientativo: Open-Meteo (cálculo propio)", glofas:"Caudales: GloFAS (Copernicus)",
@@ -2711,59 +2543,6 @@ async function fwiDay(day){
     max = Math.max(max, best); mun[m] = Math.max(mun[m] ?? -1, best); }
   return n ? {max, mun} : null;
 }
-// Cerro Machín volcanic hazard map, SGC 2nd version (2026), served by Cortolima's ArcGIS server (SIA). The MapServer draws
-// the map as one image per view (export?f=image), which any page can show; clicking asks the same server what is there.
-const VCM = "https://sia.cortolima.gov.co/arcgis/rest/services/Amenazas_Riesgos/AMENAZA_MACHIN_2026/MapServer";
-function buildMachinLayer(){
-  const box = document.getElementById("vcminfo");
-  let img = null, mapRef = null, seq = 0;
-  const g = L.layerGroup();
-  function update(){
-    if (!mapRef) return;
-    const b = mapRef.getBounds(), sz = mapRef.getSize(), crs = L.CRS.EPSG3857;
-    const sw = crs.project(b.getSouthWest()), ne = crs.project(b.getNorthEast());
-    const url = `${VCM}/export?` + new URLSearchParams({bbox:[sw.x, sw.y, ne.x, ne.y].map(v => v.toFixed(1)).join(","), bboxSR:3857, imageSR:3857,
-      size:`${sz.x},${sz.y}`, dpi:96, format:"png32", transparent:true, f:"image"});
-    const my = ++seq, next = L.imageOverlay(url, b, {pane:"sat", opacity:0.8, interactive:false,
-      attribution:'Amenaza Cerro Machín: SGC (2.ª versión, 2026) vía <a href="https://sia.cortolima.gov.co" target="_blank" rel="noopener">Cortolima</a>'});
-    next.once("load", () => { if (my !== seq) { g.removeLayer(next); return; } if (img) g.removeLayer(img); img = next; });
-    next.once("error", async () => { g.removeLayer(next);
-      // fallback: ask for JSON and load the image file the server writes
-      try { const j = await (await fetch(url.replace("f=image", "f=json"))).json(); if (my !== seq || !j.href) throw 0;
-        const alt = L.imageOverlay(j.href, b, {pane:"sat", opacity:0.8, interactive:false});
-        alt.once("load", () => { if (my !== seq) { g.removeLayer(alt); return; } if (img) g.removeLayer(img); img = alt; }); g.addLayer(alt);
-      } catch (e) { if (my === seq) box.querySelector(".vcmerr")?.removeAttribute("hidden"); } });
-    g.addLayer(next);
-  }
-  async function identify(e){
-    const b = mapRef.getBounds(), sz = mapRef.getSize();
-    try {
-      const j = await (await fetch(`${VCM}/identify?` + new URLSearchParams({geometry:`${e.latlng.lng},${e.latlng.lat}`, geometryType:"esriGeometryPoint", sr:4326,
-        layers:"visible:1", tolerance:2, mapExtent:[b.getWest(), b.getSouth(), b.getEast(), b.getNorth()].join(","), imageDisplay:`${sz.x},${sz.y},96`,
-        returnGeometry:false, f:"json"}))).json();
-      const rows = (j.results || []).map(r => r.attributes);
-      if (!rows.length) return;
-      const a = rows[0];
-      L.popup({maxWidth:Math.min(300, innerWidth - 80)}).setLatLng(e.latlng).setContent(`<div class="flpop"><b>Amenaza volcánica · Cerro Machín</b><br>
-        ${esc(a.Nombre_Ver || "")}${a.mun_nombre ? " · " + esc(a.mun_nombre) : ""}
-        <ul style="margin:6px 0 0;padding-left:18px">${rows.map(r => `<li><b>${esc(r.AME || "")}</b>: ${esc(r.DescFenom || r.Fenomeno || "")}</li>`).join("")}</ul>
-        <div class="sub">SGC, 2.ª versión (2026), vía Cortolima</div></div>`).openOn(mapRef);
-    } catch (err) { /* the server may not allow other sites to ask; the map image still shows */ }
-  }
-  g.on("add", () => { mapRef = g._map; update(); mapRef.on("moveend", update); mapRef.on("click", identify);
-    // legend swatches are the server's own legend images (MapServer/<layer>/images/<id>)
-    const li = (l, id) => `<img src="${VCM}/${l}/images/${id}" width="16" height="16" alt="" style="vertical-align:-3px;margin-right:3px">`;
-    box.innerHTML = `<span><b>Amenaza volcánica Cerro Machín</b> (SGC, 2.ª versión 2026) ${infoBtn("machin", "amenaza del Cerro Machín")}</span>
-      <span>${li(1, "8c1c549eea9784ada831b1ddeb1aae09")}Alta: corrientes de densidad piroclástica, proyectiles y avalancha por colapso del domo</span>
-      <span>${li(1, "5184297b4bdad7161f42c4fd914a579e")}Alta: lahares 1</span><span>${li(1, "f5280322d510980540d55696975a884e")}Alta: lahares 2</span>
-      <span>Caída de ceniza y lapilli: ${li(1, "27f95dc32216ca9f4e728ca272a48e13")}alta · ${li(1, "fced45748d7e4a962d3f66cd9c0c4cf3")}media · ${li(1, "269ee0c2b0189995d726813a5f7c1394")}baja</span>
-      <span>Acumulación de ceniza: ${li(0, "4aa901c7e0102b3df1f26234ba61cc82")}≥ 10 cm · ${li(0, "6d1f73d1e35b1dbd27b655ea5e4b43bb")}1 a 10 cm · ${li(0, "d167c0bf967db467220cf797bad1d5df")}0,5 a 1 cm</span>
-      <span>Toque el mapa para ver la amenaza en ese punto.</span>
-      <span class="vcmerr badtxt" hidden>No se pudo cargar el mapa desde el servidor de Cortolima; intente de nuevo más tarde.</span>`;
-    box.hidden = false; });
-  g.on("remove", () => { if (mapRef) { mapRef.off("moveend", update); mapRef.off("click", identify); } g.clearLayers(); img = null; box.hidden = true; });
-  return g;
-}
 function buildFwiLayer(){
   const wms = L.tileLayer.wms(GWIS, {layers:"ecmwf.fwi", styles:"", format:"image/png", transparent:true, version:"1.3.0", pane:"sat",
     opacity:0.6, time:bogDay(0), attribution:"Índice de incendio: Copernicus GWIS / ECMWF"});
@@ -3073,10 +2852,6 @@ const INFO = {
     `<p>Cada gota es una estación automática del IDEAM. El color y el tamaño indican cuánta lluvia ha registrado desde las 0:00 de hoy (hora Colombia): cuanto más oscura y grande, más lluvia.</p>
      <p>blanca = sin lluvia (0 mm) · azul claro = baja (hasta 10 mm) · azul medio = moderada (10.1–30 mm) · azul = alta (30.1–50 mm) · azul marino = muy alta (más de 50 mm).</p>
      <p>Una gota con borde punteado significa que la estación no ha enviado datos de lluvia hoy. Los datos llegan con 1 a 2 horas de retraso y son crudos, sin revisión.</p>`],
-  machin: ["Amenaza volcánica del Volcán Cerro Machín",
-    `<p>Zonificación de la amenaza volcánica del Cerro Machín, <b>segunda versión (2026)</b>, elaborada por el <b>Servicio Geológico Colombiano (SGC)</b>. Se muestra desde el servidor de mapas de <a href="https://sia.cortolima.gov.co/arcgis/rest/services/Amenazas_Riesgos/AMENAZA_MACHIN_2026/MapServer" target="_blank" rel="noopener">Cortolima (SIA)</a>, que la publica cruzada con las veredas del Tolima. Para el documento oficial y su memoria técnica consulte al <a href="https://www.sgc.gov.co" target="_blank" rel="noopener">SGC</a>.</p>
-     <p><b>Qué muestra:</b> zonas de amenaza <b>alta</b> por corrientes de densidad piroclástica, proyectiles balísticos y avalancha por colapso del domo (rojo); <b>alta</b> por lahares, que bajan por los ríos que nacen en el volcán (negro); y amenaza <b>alta, media y baja</b> por caída de ceniza y lapilli llevados por el viento (rojo, naranja y amarillo), con líneas que marcan acumulaciones de 10 cm o más, de 1 a 10 cm y de 0,5 a 1 cm.</p>
-     <p>Es un mapa de amenaza (qué puede pasar y dónde si hay una erupción), no de actividad actual. El nivel de actividad vigente lo da el boletín del Observatorio Vulcanológico del SGC en Manizales. Toque el mapa para ver la vereda y los fenómenos en ese punto.</p>`],
   secas: ["Estaciones sin lluvia",
     `<p>Cuenta las estaciones del IDEAM en el Tolima que <b>no han registrado lluvia</b> (ningún registro de 10 minutos por encima de 0 mm) en el periodo, contado hacia atrás desde el último dato publicado.</p>
      <p><b>15 días o más:</b> ninguna lluvia en los últimos 15 días; incluye las que llevan 30 días o más. <b>30 días o más:</b> ninguna lluvia en los últimos 30 días (el IDEAM permite consultar más atrás, pero aquí se cuenta hasta 30 para que la página cargue rápido).</p>
@@ -3182,18 +2957,10 @@ const INFO = {
     `<p>Imágenes en vivo de las cámaras que el <b>Servicio Geológico Colombiano</b> usa para vigilar el volcán Nevado del Ruiz (en el límite entre Caldas y Tolima) y el volcán Cerro Machín (Cajamarca, Tolima). Se actualizan cada pocos minutos.</p>
      <p>Toque un ícono de cámara para ver la última imagen; toque la imagen para abrirla en tamaño completo. Con nubes o de noche puede no verse nada. La posición de cada cámara en el mapa es aproximada, porque el SGC no publica sus coordenadas.</p>
      <p>Son imágenes públicas del SGC, mostradas con su crédito y enlace. No hay cámaras públicas y abiertas de ciudades o vías del Tolima que se puedan incrustar aquí.</p>`],
-  radar: ["Radar de lluvia (RainViewer)",
-    `<p>Un radar meteorológico envía pulsos de microondas y mide el eco que devuelven las gotas de lluvia. Así ve dónde está lloviendo <b>ahora</b> y con qué intensidad, cada 10 minutos.</p>
-     <p>Esta capa es el mosaico de radares de <a href="https://www.rainviewer.com" target="_blank" rel="noopener">RainViewer</a>. Azul claro = lluvia débil; azul oscuro, amarillo o rojo = lluvia fuerte. Las montañas pueden bloquear el haz del radar, así que en zonas altas puede no ver toda la lluvia. Detalle máximo: zoom 7.</p>`],
   glm: ["Rayos GOES-East GLM",
     `<p>El <b>GLM</b> (Geostationary Lightning Mapper) es una cámara del satélite GOES-East de la NOAA que detecta, día y noche, los destellos de los rayos vistos desde el espacio, cada 20 segundos.</p>
      <p>Cada rayo amarillo es un grupo de destellos detectado en los últimos 10 minutos en el Tolima y alrededores; los más tenues son los más antiguos. Pase el dedo o el ratón sobre uno para ver la hora. Llega con 1 a 3 minutos de retraso. Incluye rayos dentro de las nubes y rayos a tierra, sin distinguirlos. Sirve para seguir tormentas eléctricas activas.</p>
      <p>Fuente: NOAA, procesado por <a href="https://realearth.ssec.wisc.edu" target="_blank" rel="noopener">SSEC RealEarth</a> (Universidad de Wisconsin).</p>`],
-  cmorph: ["Lluvia satelital CMORPH2",
-    `<p><b>CMORPH2</b> es una estimación de lluvia por satélite del Centro de Predicción Climática de la NOAA. Combina sensores de microondas de varios satélites con el movimiento de las nubes visto por satélites geoestacionarios.</p>
-     <p>Muestra la lluvia acumulada en la última hora, en mm, en una cuadrícula de unos 5 km. Llega con unos 40 a 60 minutos de retraso: es la lluvia satelital más rápida disponible aquí. Es una estimación: en montaña puede fallar, por eso conviene compararla con las estaciones.</p>
-     <img src="${RE_HOST}/api/legend?products=c2accum1hr" alt="Escala de colores CMORPH2 en mm" loading="lazy">
-     <p>Producto en fase de prueba, servido por <a href="https://realearth.ssec.wisc.edu" target="_blank" rel="noopener">SSEC RealEarth</a>.</p>`],
   ir: ["Nubes GOES-East en infrarrojo",
     `<p>El satélite <b>GOES-East</b> de la NOAA está fijo sobre el ecuador y toma imágenes de América cada 10 minutos. La banda 13 (infrarrojo “limpio”, 10.3 µm) mide la temperatura de lo que ve, de día y de noche.</p>
      <p>Las nubes más frías (más altas) se ven más blancas o de colores; las nubes de tormenta muy altas son las más frías. No mide lluvia directamente. Llega con unos 30 a 60 minutos de retraso a través de NASA GIBS.</p>
@@ -3201,26 +2968,10 @@ const INFO = {
      <p><b>Leyenda “¿Llueve bajo esta nube?”</b> (aparece en el mapa al activar esta capa). Agrupa los colores de la escala de NASA GIBS por la temperatura del tope de la nube:</p>
      <p>gris, más tibia que −20 °C: nubes bajas o cielo despejado, lluvia poco probable · cian y azul, −20 a −32 °C: nubes medias, posible lluvia débil · verde a amarillo verdoso, −32 a −50 °C: lluvia probable, débil a moderada · amarillo, naranja y rojo, −50 a −70 °C: convección profunda, lluvia moderada a fuerte y tormentas · negro, gris claro, blanco y magenta, más fría que −70 °C: topes muy altos, aguaceros fuertes, tormentas eléctricas, posible granizo y vientos fuertes.</p>
      <p>Base: el índice de precipitación GOES (GPI) de la NOAA (Arkin y Meisner, 1987) asocia los topes más fríos que −38 °C (235 K) con lluvia de unos 3 mm por hora en los trópicos. Los cortes de −52 °C y −70 °C son los que se usan habitualmente para identificar convección profunda y topes de tormenta muy activos en las imágenes infrarrojas del GOES. Consulte la <a href="https://rammb.cira.colostate.edu/training/visit/quick_guides/" target="_blank" rel="noopener">guía rápida de la banda 13 del ABI (NOAA/CIRA)</a>.</p>
-     <p><b>Es una indicación, no una medición:</b> algunos cirros altos y fríos no dan lluvia, y algunas nubes bajas y tibias sí, sobre todo en la montaña. Para lluvia medida use las estaciones del IDEAM, el radar o CMORPH2.</p>`],
+     <p><b>Es una indicación, no una medición:</b> algunos cirros altos y fríos no dan lluvia, y algunas nubes bajas y tibias sí, sobre todo en la montaña. Para lluvia medida use las estaciones del IDEAM.</p>`],
   geo: ["GOES-East GeoColor",
     `<p><b>GeoColor</b> combina bandas del satélite GOES-East para mostrar las nubes como se verían a simple vista durante el día. De noche cambia a infrarrojo, con las nubes altas en blanco y las luces de las ciudades.</p>
      <p>Es útil para ver la nubosidad general. Llega con unos 40 a 90 minutos de retraso a través de NASA GIBS.</p>`],
-  acum: ["Lluvia acumulada en todo el mapa",
-    `<p>Muestra cuánta lluvia ha caído en las últimas <b>24 horas, 72 horas o 7 días</b> en todo el Tolima y alrededores, no solo donde hay estaciones. Elija el periodo con los botones de la leyenda.</p>
-     <p><b>Cómo se calcula:</b> la página descarga las imágenes de lluvia de la NASA <b>IMERG</b> (versión temprana) de cada media hora del periodo, a través de NASA GIBS, convierte cada color de vuelta a milímetros por hora con la tabla oficial de colores y las suma. La cuadrícula de IMERG es de unos 10 km.</p>
-     <p><b>Retraso:</b> IMERG llega con unas 5 a 6 horas de retraso, así que “últimas 24 h” son las 24 horas que terminan a la hora indicada bajo el mapa. Si falta alguna media hora, también se indica.</p>
-     <p>Toque un municipio para ver los mm en ese punto, y el promedio y el máximo del municipio. Bajo el mapa aparecen los tres municipios con más lluvia en promedio.</p>
-     <p><b>Es una estimación por satélite:</b> en la montaña suele quedarse corta con los aguaceros cortos e intensos y puede exagerar en otras zonas. Compárela con las estaciones del IDEAM, que miden la lluvia en el suelo.</p>`],
-  imerg: ["Lluvia satelital NASA IMERG",
-    `<p><b>IMERG</b> (Integrated Multi-satellitE Retrievals for GPM) es la estimación de lluvia de la NASA que combina todos los satélites de la misión GPM. Aquí se muestra la versión <b>temprana</b> (“Early”), cada 30 minutos, en mm por hora.</p>
-     <p>Es muy usada y cubre todo el planeta, pero no es rápida: la NASA la publica unas 4 horas después y llega a este mapa con unas 5 a 6 horas de retraso. Para lo que está pasando ahora, use el radar, CMORPH2 o los rayos.</p>
-     <img src="${GL}GPM_Precipitation_Rate_H.svg" alt="Escala de lluvia en mm/h" loading="lazy">`],
-  so2: ["Dióxido de azufre volcánico (Sentinel-5P)",
-    `<p>Gas <b>dióxido de azufre (SO₂)</b> medido desde el espacio por el instrumento <b>TROPOMI</b> del satélite europeo <b>Sentinel-5P</b> (programa Copernicus). El satélite pasa una vez al día, hacia la 1:30 p. m. hora local, y ve cada píxel de unos 5.5 × 3.5 km. Se muestra la columna total de SO₂ en <b>unidades Dobson (DU)</b>.</p>
-     <p>El SO₂ es el gas que más emite el <b>Nevado del Ruiz</b>; la mancha muestra hacia dónde lo lleva el viento. El <b>Cerro Machín</b> emite muy poco y normalmente no se ve. Las nubes pueden tapar parte de la pluma, y los valores bajos aislados pueden ser ruido.</p>
-     <p><b>No es tiempo real:</b> NASA GIBS publica este producto con unos 10 días de retraso. Para la actividad actual del volcán use los boletines y las cámaras del SGC.</p>
-     <img src="${GL}OMI_SO2_Lower_Troposphere_H.svg" alt="Escala de SO₂ en unidades Dobson" loading="lazy">
-     <p>Fuente: <a href="https://earthdata.nasa.gov/gibs" target="_blank" rel="noopener">NASA GIBS</a>, datos Copernicus Sentinel-5P (ESA/KNMI).</p>`],
 };
 const dlg = document.getElementById("infodlg");
 document.addEventListener("click", e => {
@@ -3288,7 +3039,6 @@ function renderMap(){
     alertLayer = L.layerGroup().addTo(map);
     // Remote-sensing overlays sit in their own pane: above the basemap, below boundaries and stations
     map.createPane("sat").style.zIndex = 350;
-    map.on("preclick", e => { ACLICK = e.latlng; });
     map.createPane("veredas").style.zIndex = 410;
     for (const [k, z] of [["viasLo", 414], ["vias", 415]]) { const p = map.createPane(k); p.style.zIndex = z; p.style.pointerEvents = "none"; }
     const satOverlays = {};
@@ -3299,7 +3049,7 @@ function renderMap(){
       satOverlays[`${esc(o.name)} ${infoBtn(o.info, o.name)}`] = o.layer;
     }
     const camLayer = buildCamLayer();
-    // Layer list in four groups (Fronteras administrativas, Investigación, Clima actual, Pronósticos), plus Eventos added later;
+    // Layer list in groups (Fronteras administrativas, Investigación, Estaciones meteorológicas, Clima actual, Pronósticos, ...), plus Eventos added later;
     // a heading is drawn above the first layer of each group every time Leaflet redraws the list
     const verL = buildVeredaLayer(mun);
     // dark casings under the municipio and department lines, shown only on the satellite basemap
@@ -3323,12 +3073,13 @@ function renderMap(){
       ["Investigación", [
         [`Sismos M4+ (elija las fechas) ${infoBtn("sismos", "sismos")}`, buildEqLayer(), "eq"],
         [`Movimientos en masa (SGC, ${MOVMASA.length}) ${infoBtn("movmasa", "movimientos en masa")}`, buildMovLayer(), "movmasa"],
-        [`Amenaza volcánica Cerro Machín (SGC 2026) ${infoBtn("machin", "amenaza del Cerro Machín")}`, buildMachinLayer(), "machin"],
-        [`Alerta volcánica (SGC) ${infoBtn("volcanes", "alerta volcánica")}`, buildVolcLayer(), "volc"],
-        satL("so2")]],
-      ["Clima actual", [["Estaciones (lluvia)", layer, "est"], [`Estaciones Davis (WeatherLink) ${infoBtn("davis", "estaciones Davis")}`, davisL, "davis"], ["Alertas de nivel IDEAM", alertLayer, "alert"],
+        [`Alerta volcánica (SGC) ${infoBtn("volcanes", "alerta volcánica")}`, buildVolcLayer(), "volc"]]],
+      ["Estaciones meteorológicas", [["Estaciones IDEAM", layer, "est"],
+        [`Estaciones Davis (WeatherLink) ${infoBtn("davis", "estaciones Davis")}`, davisL, "davis"],
+        [`Nivel de ríos: alertas IDEAM ${infoBtn("umbrales", "umbrales de nivel")}`, alertLayer, "alert"]]],
+      ["Clima actual", [
         [`Alertas oficiales IDEAM (CAP) ${infoBtn("cap", "alertas CAP del IDEAM")}`, buildCapLayer(), "cap"],
-        ...["radar", "glm", "cmorph", "acum", "ir", "geo", "imerg"].filter(k => SAT[k]).map(satL),
+        ...["glm", "ir", "geo"].filter(k => SAT[k]).map(satL),
         [`Embalses: volumen útil (XM) ${infoBtn("embalses", "embalses")}`, buildEmbLayer(), "emb"],
         [`Focos de calor, 7 días (GWIS) ${infoBtn("focos", "focos de calor")}`, buildHotspotLayer(), "focos"],
         [`Cámaras web de volcanes (SGC) ${infoBtn("camaras", "cámaras web")}`, camLayer, "cam"]]],
@@ -3346,7 +3097,7 @@ function renderMap(){
         [`Vías (OpenStreetMap) ${infoBtn("vias", "vías")}`, buildViasLayer(), "vias"]]],
     ];
     const inGroup = new Set(LAYER_GROUPS.flatMap(([, ls]) => ls.map(([, l]) => l)));
-    for (const o of Object.values(SAT)) if (!inGroup.has(o.layer)) LAYER_GROUPS[2][1].push(satL(Object.keys(SAT).find(k => SAT[k] === o)));
+    for (const o of Object.values(SAT)) if (!inGroup.has(o.layer)) LAYER_GROUPS.find(([g]) => g === "Clima actual")[1].push(satL(Object.keys(SAT).find(k => SAT[k] === o)));
     for (const [, ls] of LAYER_GROUPS) for (const [, l, id] of ls) l._shId = id;
     SHARE_LAYERS = LAYER_GROUPS.map(([g, ls]) => [g, ls.map(([lab, l, id]) => [plainLabel(lab), id, l])]);
     const shHl = SHARE ? shareHlLayer(SHARE) : null;
